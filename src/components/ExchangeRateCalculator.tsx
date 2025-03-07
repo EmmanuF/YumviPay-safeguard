@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -23,10 +22,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
   const sourceCurrencies = ['USD', 'GBP', 'EUR'];
   const targetCurrencies = ['NGN', 'KES', 'GHS', 'ZAR'];
 
-  // Calculate exchange rate (mock implementation)
   useEffect(() => {
     const calculateRate = () => {
-      // Mock exchange rates (in a real app this would come from an API)
       const rates = {
         'USD-NGN': 1500,
         'USD-KES': 130,
@@ -37,7 +34,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
       };
       
       const pair = `${sourceCurrency}-${targetCurrency}`;
-      const rate = rates[pair] || 1500; // Default to NGN rate if pair not found
+      const rate = rates[pair] || 1500;
       setExchangeRate(rate);
       
       const amount = parseFloat(sendAmount) || 0;
@@ -61,7 +58,6 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
           We make sure more of your money goes to those you love, not to high service fees
         </p>
         
-        {/* Amount sender sends */}
         <div className="flex items-center space-x-4 mb-4">
           <AmountInput
             label="You send"
@@ -77,10 +73,9 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
           />
         </div>
         
-        {/* Amount recipient receives */}
         <div className="flex items-center space-x-4 mb-6">
           <AmountInput
-            label="They get"
+            label="They receive"
             value={receiveAmount}
             readOnly={true}
             className="flex-1"
