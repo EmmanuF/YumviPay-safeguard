@@ -101,7 +101,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
         />
         
         <Button
-          onClick={() => navigate('/send')}
+          onClick={() => navigate('/onboarding')}
           className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
         >

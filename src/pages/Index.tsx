@@ -14,7 +14,7 @@ const Index = () => {
       {/* Navigation header */}
       <Navigation />
       
-      <main className="flex-1 bg-gradient-to-b from-yellow-200 to-white">
+      <main className="flex-1 bg-gradient-to-b from-primary-50 to-white">
         {/* Hero section with calculator */}
         <Hero />
         

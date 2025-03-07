@@ -34,6 +34,12 @@ const App = () => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // For web platform, we can skip these mobile-specific operations
+        if (typeof window !== 'undefined' && window.location.protocol.includes('http')) {
+          setInitialRoute('/');
+          return;
+        }
+        
         // For native mobile experience
         await SplashScreen.hide();
         await StatusBar.setStyle({ style: Style.Dark });
@@ -62,7 +68,9 @@ const App = () => {
 
     return () => {
       // Clean up listeners
-      CapApp.removeAllListeners();
+      if (typeof window !== 'undefined' && !window.location.protocol.includes('http')) {
+        CapApp.removeAllListeners();
+      }
     };
   }, []);
 

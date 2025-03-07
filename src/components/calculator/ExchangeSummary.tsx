@@ -15,14 +15,14 @@ const ExchangeSummary: React.FC<ExchangeSummaryProps> = ({
   className = '' 
 }) => {
   return (
-    <div className={`text-sm text-gray-600 ${className}`}>
+    <div className={`text-sm text-gray-700 ${className}`}>
       <div className="flex justify-between mb-2">
         <span>Exchange Rate:</span>
         <span className="font-medium">1 {sourceCurrency} = {rate.toFixed(2)} {targetCurrency}</span>
       </div>
       <div className="flex justify-between">
         <span>Transfer fees:</span>
-        <span className="font-medium">0.00 {sourceCurrency}</span>
+        <span className="font-medium text-green-600">0.00 {sourceCurrency}</span>
       </div>
     </div>
   );
