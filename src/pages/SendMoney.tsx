@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle, CreditCard, Bank, Smartphone } from 'lucide-react';
+import { ArrowRight, CheckCircle, CreditCard, Smartphone, Building } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import Header from '@/components/Header';
@@ -162,7 +162,7 @@ const SendMoney = () => {
                 <PaymentMethodCard
                   name="Bank Transfer"
                   description="Direct bank transfer"
-                  icon={<Bank className="h-5 w-5 text-primary-500" />}
+                  icon={<Building className="h-5 w-5 text-primary-500" />}
                   isSelected={selectedPaymentMethod === 'bank'}
                   onClick={() => handlePaymentMethodSelect('bank')}
                 />
