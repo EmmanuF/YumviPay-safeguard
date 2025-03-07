@@ -1,9 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import CurrencySelector from '@/components/calculator/CurrencySelector';
+import AmountInput from '@/components/calculator/AmountInput';
+import RateDisplay from '@/components/calculator/RateDisplay';
+import ExchangeSummary from '@/components/calculator/ExchangeSummary';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
@@ -15,8 +18,10 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
   const [targetCurrency, setTargetCurrency] = useState('NGN');
-  const [showSourceDropdown, setShowSourceDropdown] = useState(false);
-  const [showTargetDropdown, setShowTargetDropdown] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState(1500);
+
+  const sourceCurrencies = ['USD', 'GBP', 'EUR'];
+  const targetCurrencies = ['NGN', 'KES', 'GHS', 'ZAR'];
 
   // Calculate exchange rate (mock implementation)
   useEffect(() => {
@@ -33,6 +38,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
       
       const pair = `${sourceCurrency}-${targetCurrency}`;
       const rate = rates[pair] || 1500; // Default to NGN rate if pair not found
+      setExchangeRate(rate);
       
       const amount = parseFloat(sendAmount) || 0;
       setReceiveAmount((amount * rate).toLocaleString());
@@ -41,15 +47,13 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
     calculateRate();
   }, [sendAmount, sourceCurrency, targetCurrency]);
 
-  const sourceCurrencies = ['USD', 'GBP', 'EUR'];
-  const targetCurrencies = ['NGN', 'KES', 'GHS', 'ZAR'];
-
   return (
     <div className={`bg-white rounded-3xl shadow-xl overflow-hidden ${className}`}>
-      <div className="bg-primary-900 text-white p-6">
-        <h3 className="text-center text-lg">Exchange Rate</h3>
-        <p className="text-center text-3xl font-bold mb-0">1 {sourceCurrency} = 1500 {targetCurrency}</p>
-      </div>
+      <RateDisplay 
+        sourceCurrency={sourceCurrency} 
+        targetCurrency={targetCurrency} 
+        rate={exchangeRate} 
+      />
       
       <div className="p-6">
         <h3 className="text-xl font-bold text-center mb-4">Send money to your loved ones</h3>
@@ -58,88 +62,43 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
         </p>
         
         {/* Amount sender sends */}
-        <div className="bg-gray-50 rounded-xl p-4 mb-4">
-          <label className="text-sm text-gray-500 mb-1 block">You send</label>
-          <div className="flex">
-            <Input
-              type="text"
-              value={sendAmount}
-              onChange={(e) => setSendAmount(e.target.value)}
-              className="border-0 text-xl font-medium bg-transparent flex-1 focus-visible:ring-0"
-            />
-            <div className="relative">
-              <button
-                className="flex items-center bg-primary-50 rounded-lg px-4 py-2"
-                onClick={() => setShowSourceDropdown(!showSourceDropdown)}
-              >
-                <span className="font-medium">{sourceCurrency}</span>
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </button>
-              
-              {showSourceDropdown && (
-                <div className="absolute right-0 mt-2 w-24 bg-white rounded-lg shadow-lg z-10">
-                  {sourceCurrencies.map((currency) => (
-                    <button
-                      key={currency}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                      onClick={() => {
-                        setSourceCurrency(currency);
-                        setShowSourceDropdown(false);
-                      }}
-                    >
-                      {currency}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="flex items-center space-x-4 mb-4">
+          <AmountInput
+            label="You send"
+            value={sendAmount}
+            onChange={setSendAmount}
+            className="flex-1"
+          />
+          <CurrencySelector
+            value={sourceCurrency}
+            onChange={setSourceCurrency}
+            options={sourceCurrencies}
+            label="Source Currency"
+          />
         </div>
         
         {/* Amount recipient receives */}
-        <div className="bg-gray-50 rounded-xl p-4 mb-6">
-          <label className="text-sm text-gray-500 mb-1 block">They get</label>
-          <div className="flex">
-            <div className="text-xl font-medium flex-1">{receiveAmount}</div>
-            <div className="relative">
-              <button
-                className="flex items-center bg-primary-50 rounded-lg px-4 py-2"
-                onClick={() => setShowTargetDropdown(!showTargetDropdown)}
-              >
-                <span className="font-medium">{targetCurrency}</span>
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </button>
-              
-              {showTargetDropdown && (
-                <div className="absolute right-0 mt-2 w-24 bg-white rounded-lg shadow-lg z-10">
-                  {targetCurrencies.map((currency) => (
-                    <button
-                      key={currency}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                      onClick={() => {
-                        setTargetCurrency(currency);
-                        setShowTargetDropdown(false);
-                      }}
-                    >
-                      {currency}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="flex items-center space-x-4 mb-6">
+          <AmountInput
+            label="They get"
+            value={receiveAmount}
+            readOnly={true}
+            className="flex-1"
+          />
+          <CurrencySelector
+            value={targetCurrency}
+            onChange={setTargetCurrency}
+            options={targetCurrencies}
+            label="Target Currency"
+          />
         </div>
         
-        <div className="text-sm text-gray-500 mb-6">
-          <div className="flex justify-between mb-2">
-            <span>Exchange Rate:</span>
-            <span className="font-medium">1 {sourceCurrency} = 1500 {targetCurrency}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Transfer fees:</span>
-            <span className="font-medium">0.00 {sourceCurrency}</span>
-          </div>
-        </div>
+        <ExchangeSummary 
+          sourceCurrency={sourceCurrency} 
+          targetCurrency={targetCurrency} 
+          rate={exchangeRate}
+          className="mb-6"
+        />
         
         <Button
           onClick={() => navigate('/send')}
