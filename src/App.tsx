@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
-import { StatusBar } from '@capacitor/status-bar';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 
 import Index from "./pages/Index";
@@ -36,7 +36,7 @@ const App = () => {
       try {
         // For native mobile experience
         await SplashScreen.hide();
-        await StatusBar.setStyle({ style: 'dark' });
+        await StatusBar.setStyle({ style: Style.Dark });
         
         // Set up keyboard behavior
         Keyboard.setAccessoryBarVisible({ isVisible: false });
