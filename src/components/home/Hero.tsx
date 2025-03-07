@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Download } from 'lucide-react';
+import { ArrowRight, Download, SendHorizonal, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 
@@ -41,12 +41,22 @@ const Hero = () => {
           animate="visible"
           className="flex flex-col"
         >
-          <motion.h1 
-            variants={itemVariants} 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6"
-          >
-            Send Money <span className="text-primary-500">With Love</span>
-          </motion.h1>
+          <motion.div variants={itemVariants} className="relative mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-600">Transfer</span>
+              <span className="relative inline-block">
+                <span className="relative z-10">Without</span>
+                <svg className="absolute -bottom-2 left-0 w-full h-3 z-0" viewBox="0 0 100 15" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0,5 Q25,0 50,5 Q75,10 100,5 L100,15 L0,15 Z" fill="#4CD4A9" />
+                </svg>
+              </span>
+              <span className="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-secondary-400 to-secondary-500">Boundaries</span>
+            </h1>
+            
+            <div className="absolute -top-5 -right-5 text-primary-100 rotate-12 opacity-30">
+              <Coins size={64} />
+            </div>
+          </motion.div>
           
           <motion.p 
             variants={itemVariants}
