@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, CreditCard, Bank, Smartphone } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import Header from '@/components/Header';
@@ -88,8 +88,10 @@ const SendMoney = () => {
                 Destination Country
               </Label>
               <CountrySelector 
-                selectedCountry={selectedCountry}
-                onSelectCountry={setSelectedCountry}
+                label="Select destination country"
+                value={selectedCountry}
+                onChange={setSelectedCountry}
+                type="receive"
               />
             </motion.div>
 
@@ -152,20 +154,23 @@ const SendMoney = () => {
               <div className="space-y-3">
                 <PaymentMethodCard
                   name="Credit Card"
-                  icon="credit-card"
-                  selected={selectedPaymentMethod === 'credit-card'}
+                  description="Pay with debit or credit card"
+                  icon={<CreditCard className="h-5 w-5 text-primary-500" />}
+                  isSelected={selectedPaymentMethod === 'credit-card'}
                   onClick={() => handlePaymentMethodSelect('credit-card')}
                 />
                 <PaymentMethodCard
                   name="Bank Transfer"
-                  icon="bank"
-                  selected={selectedPaymentMethod === 'bank'}
+                  description="Direct bank transfer"
+                  icon={<Bank className="h-5 w-5 text-primary-500" />}
+                  isSelected={selectedPaymentMethod === 'bank'}
                   onClick={() => handlePaymentMethodSelect('bank')}
                 />
                 <PaymentMethodCard
                   name="Mobile Money"
-                  icon="smartphone"
-                  selected={selectedPaymentMethod === 'mobile-money'}
+                  description="Pay using mobile wallet"
+                  icon={<Smartphone className="h-5 w-5 text-primary-500" />}
+                  isSelected={selectedPaymentMethod === 'mobile-money'}
                   onClick={() => handlePaymentMethodSelect('mobile-money')}
                 />
               </div>
