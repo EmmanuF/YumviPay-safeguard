@@ -1,7 +1,27 @@
-Based on the information provided, I need to clarify that there was a misunderstanding in the AI's response. The AI didn't actually provide any code changes for `src/pages/Index.tsx`. Instead, it mentioned that the file is read-only and suggested using the existing navigation flow through Dashboard to access the History page.
 
-Since no actual code changes were proposed for `src/pages/Index.tsx`, I cannot provide a full code replacement. The AI's suggestion was to use the existing navigation:
-1. Navigate from Index to Dashboard
-2. Use the BottomNavigation component in Dashboard to access History
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Navigation, Features, Hero, AppDownload } from '@/components/home';
 
-If you want to modify `src/pages/Index.tsx` to add direct navigation to the History page, you would need to create that implementation yourself or request a specific modification to the Index page.
+const Index = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navigation onGetStarted={() => navigate('/onboarding')} />
+      
+      <main>
+        <Hero onGetStarted={() => navigate('/onboarding')} />
+        <Features />
+        <AppDownload />
+      </main>
+      
+      <footer className="py-6 px-4 text-center text-gray-500 text-sm">
+        <p>© {new Date().getFullYear()} Global Transfer. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+};
+
+export default Index;
