@@ -7,9 +7,16 @@ import { Navigation, Features, Hero, AppDownload } from '@/components/home';
 const Index = () => {
   const navigate = useNavigate();
 
+  // This function will correctly handle navigation to the Profile page
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      <Navigation onGetStarted={() => navigate('/onboarding')} />
+      <Navigation 
+        onGetStarted={() => navigate('/onboarding')} 
+      />
       
       <main>
         <Hero onGetStarted={() => navigate('/onboarding')} />
