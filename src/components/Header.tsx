@@ -12,6 +12,7 @@ interface HeaderProps {
   transparent?: boolean;
   className?: string;
   onMenuClick?: () => void;
+  rightContent?: React.ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({
   transparent = false,
   className,
   onMenuClick,
+  rightContent,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({
       </div>
       
       <div className="flex items-center space-x-2">
-        {showNotification && (
+        {showNotification && !rightContent && (
           <button 
             className="p-2 rounded-full hover:bg-primary-100/50 transition-colors relative"
             aria-label="Notifications"
@@ -77,6 +79,7 @@ const Header: React.FC<HeaderProps> = ({
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary-400"></span>
           </button>
         )}
+        {rightContent}
       </div>
     </motion.header>
   );
