@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import PaymentMethodCard from '@/components/PaymentMethodCard';
 import { useToast } from '@/components/ui/use-toast';
+import { useCountries } from '@/hooks/useCountries';
 
 interface PaymentStepProps {
   amount: string;
@@ -25,6 +26,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onNext,
 }) => {
   const { toast } = useToast();
+  const { getCountryByCode } = useCountries();
+  const selectedCountryData = getCountryByCode(selectedCountry);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -45,9 +48,13 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   const handlePaymentMethodSelect = (method: string) => {
     onSelectPaymentMethod(method);
+    
+    // Find the payment method name to display in the toast
+    const paymentMethod = selectedCountryData?.paymentMethods.find(pm => pm.id === method);
+    
     toast({
       title: "Payment method selected",
-      description: `You've selected ${method === 'credit-card' ? 'Credit Card' : method === 'bank' ? 'Bank Transfer' : 'Mobile Money'}`,
+      description: `You've selected ${paymentMethod?.name || method}`,
       duration: 2000,
     });
   };
@@ -61,6 +68,20 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     onNext();
   };
 
+  // Get the icon component based on the icon name
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'smartphone':
+        return <Smartphone className="h-5 w-5 text-primary-500" />;
+      case 'bank':
+        return <Building className="h-5 w-5 text-primary-500" />;
+      case 'credit-card':
+        return <CreditCard className="h-5 w-5 text-primary-500" />;
+      default:
+        return <CreditCard className="h-5 w-5 text-primary-500" />;
+    }
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -71,27 +92,24 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       <motion.div variants={itemVariants} className="mb-4">
         <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
         <div className="space-y-3">
-          <PaymentMethodCard
-            name="Credit Card"
-            description="Pay with debit or credit card"
-            icon={<CreditCard className="h-5 w-5 text-primary-500" />}
-            isSelected={selectedPaymentMethod === 'credit-card'}
-            onClick={() => handlePaymentMethodSelect('credit-card')}
-          />
-          <PaymentMethodCard
-            name="Bank Transfer"
-            description="Direct bank transfer"
-            icon={<Building className="h-5 w-5 text-primary-500" />}
-            isSelected={selectedPaymentMethod === 'bank'}
-            onClick={() => handlePaymentMethodSelect('bank')}
-          />
-          <PaymentMethodCard
-            name="Mobile Money"
-            description="Pay using mobile wallet"
-            icon={<Smartphone className="h-5 w-5 text-primary-500" />}
-            isSelected={selectedPaymentMethod === 'mobile-money'}
-            onClick={() => handlePaymentMethodSelect('mobile-money')}
-          />
+          {selectedCountryData?.paymentMethods.map((method) => (
+            <PaymentMethodCard
+              key={method.id}
+              name={method.name}
+              description={method.description}
+              icon={getIconComponent(method.icon)}
+              isSelected={selectedPaymentMethod === method.id}
+              onClick={() => handlePaymentMethodSelect(method.id)}
+            />
+          ))}
+          
+          {(!selectedCountryData || selectedCountryData.paymentMethods.length === 0) && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-amber-800 text-sm">
+                No payment methods available for this country. Please select a different country.
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
 
@@ -105,8 +123,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               <h4 className="text-sm font-medium text-primary-700">Transaction Summary</h4>
               <div className="mt-2 text-sm text-gray-600 space-y-1">
                 <p>Amount: ${amount}</p>
-                <p>Destination: {selectedCountry}</p>
+                <p>Destination: {selectedCountryData?.name || selectedCountry}</p>
                 <p>Recipient: {recipient || 'Not specified'}</p>
+                {selectedPaymentMethod && selectedCountryData && (
+                  <p>Payment method: {
+                    selectedCountryData.paymentMethods.find(pm => pm.id === selectedPaymentMethod)?.name || 
+                    selectedPaymentMethod
+                  }</p>
+                )}
               </div>
             </div>
           </div>
@@ -118,7 +142,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           onClick={handleProceedToPayment} 
           className="w-full" 
           size="lg"
-          disabled={!selectedPaymentMethod}
+          disabled={!selectedPaymentMethod || !selectedCountryData || selectedCountryData.paymentMethods.length === 0}
         >
           Proceed to Payment
         </Button>
