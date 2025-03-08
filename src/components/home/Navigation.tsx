@@ -47,6 +47,12 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     },
   ];
   
+  // Handle direct navigation to prevent any issues
+  const handleNavigation = (path: string) => {
+    console.log('Navigating to:', path);
+    navigate(path);
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -58,7 +64,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         {navItems.slice(0, 3).map((item) => (
           <button
             key={item.name}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleNavigation(item.path)}
             className="flex flex-col items-center justify-center relative"
           >
             <div 
@@ -90,7 +96,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         {navItems.slice(3).map((item) => (
           <button
             key={item.name}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleNavigation(item.path)}
             className="flex flex-col items-center justify-center relative"
           >
             <div 
