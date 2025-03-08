@@ -46,6 +46,9 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
         'USD-TZS': 2500,
         'USD-RWF': 1200,
         'USD-ETB': 57,
+        'USD-XOF': 610,
+        'USD-XAF': 610,
+        'USD-CDF': 2500,
         'GBP-NGN': 1900,
         'EUR-NGN': 1650,
         'CAD-NGN': 1100,
@@ -60,6 +63,12 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
         'GBP-ZAR': 23,
         'EUR-ZAR': 19.8,
         'CAD-ZAR': 13.5,
+        'EUR-XOF': 655,
+        'GBP-XOF': 760,
+        'EUR-XAF': 655,
+        'GBP-XAF': 760,
+        'EUR-CDF': 2200,
+        'GBP-CDF': 2600,
       };
       
       const pair = `${sourceCurrency}-${targetCurrency}`;
