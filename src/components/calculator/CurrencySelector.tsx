@@ -81,6 +81,8 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                 </button>
               );
             })}
+            {/* Add an empty div with padding to create extra space at the bottom */}
+            <div className="h-4"></div>
           </div>
         </div>
       )}
