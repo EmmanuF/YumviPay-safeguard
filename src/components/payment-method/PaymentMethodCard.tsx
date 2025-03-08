@@ -1,109 +1,72 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronRight, ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import ExpandedContent from './ExpandedContent';
 
 interface PaymentMethodCardProps {
   name: string;
   description: string;
   icon: React.ReactNode;
-  isSelected?: boolean;
+  isSelected: boolean;
   onClick: () => void;
-  options?: Array<{
+  options: Array<{
     id: string;
     name: string;
   }>;
+  countryCode?: string; // Added country code
 }
 
 const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   name,
   description,
   icon,
-  isSelected = false,
+  isSelected,
   onClick,
-  options = [],
+  options,
+  countryCode = 'CM', // Default to Cameroon
 }) => {
-  const [expanded, setExpanded] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
-
-  const handleClick = () => {
-    onClick();
-    if (options.length > 0 && !expanded) {
-      setExpanded(true);
-    }
-  };
-
-  const toggleExpand = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpanded(!expanded);
-  };
-
-  const handleOptionSelect = (optionId: string) => {
-    setSelectedOption(optionId);
-  };
+  const [accountNumber, setAccountNumber] = useState('');
+  const [selectedOption, setSelectedOption] = useState('');
 
   return (
-    <div className="mb-4">
-      <motion.div
-        whileTap={{ scale: 0.98 }}
-        onClick={handleClick}
-        className={cn(
-          "glass-effect w-full rounded-xl p-4 flex items-center justify-between cursor-pointer",
-          "transition-all duration-200",
-          isSelected 
-            ? "ring-2 ring-primary-500 shadow-md" 
-            : "hover:bg-white/90 hover:shadow-md"
-        )}
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div
+        className={`p-4 flex items-center justify-between cursor-pointer
+                  ${isSelected ? 'bg-primary-50 border-b border-primary-100' : 'bg-white'}`}
+        onClick={onClick}
       >
-        <div className="flex items-center">
-          <div className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center mr-4",
-            isSelected ? "bg-primary-100" : "bg-gray-100"
-          )}>
+        <div className="flex items-center gap-3">
+          <div className="bg-primary-50 p-2 rounded-full">
             {icon}
           </div>
           <div>
-            <h3 className="font-medium text-foreground">{name}</h3>
+            <h3 className="font-medium text-gray-900">{name}</h3>
             <p className="text-sm text-gray-500">{description}</p>
           </div>
         </div>
-        {options.length > 0 ? (
-          <button onClick={toggleExpand} className="ml-2">
-            {expanded ? 
-              <ChevronDown className={cn(
-                "w-5 h-5 transition-colors",
-                isSelected ? "text-primary-500" : "text-gray-400"
-              )} /> : 
-              <ChevronRight className={cn(
-                "w-5 h-5 transition-colors",
-                isSelected ? "text-primary-500" : "text-gray-400"
-              )} />
-            }
-          </button>
-        ) : (
-          <ChevronRight className={cn(
-            "w-5 h-5 transition-colors",
-            isSelected ? "text-primary-500" : "text-gray-400"
-          )} />
-        )}
-      </motion.div>
-
-      {expanded && options.length > 0 && (
-        <ExpandedContent
-          methodName={name}
-          options={options}
-          selectedOption={selectedOption}
-          recipientName={recipientName}
-          accountNumber={accountNumber}
-          onOptionSelect={handleOptionSelect}
-          onRecipientNameChange={setRecipientName}
-          onAccountNumberChange={setAccountNumber}
+        <ChevronDown 
+          className={`h-5 w-5 text-gray-400 transition-transform duration-200 
+                     ${isSelected ? 'rotate-180' : ''}`} 
         />
-      )}
+      </div>
+
+      <AnimatePresence>
+        {isSelected && (
+          <ExpandedContent
+            methodName={name}
+            options={options}
+            selectedOption={selectedOption}
+            recipientName={recipientName}
+            accountNumber={accountNumber}
+            countryCode={countryCode}
+            onOptionSelect={setSelectedOption}
+            onRecipientNameChange={setRecipientName}
+            onAccountNumberChange={setAccountNumber}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

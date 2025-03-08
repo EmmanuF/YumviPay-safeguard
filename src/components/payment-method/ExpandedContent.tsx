@@ -14,6 +14,7 @@ interface ExpandedContentProps {
   selectedOption: string;
   recipientName: string;
   accountNumber: string;
+  countryCode: string; // Added country code
   onOptionSelect: (optionId: string) => void;
   onRecipientNameChange: (value: string) => void;
   onAccountNumberChange: (value: string) => void;
@@ -25,6 +26,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
   selectedOption,
   recipientName,
   accountNumber,
+  countryCode,
   onOptionSelect,
   onRecipientNameChange,
   onAccountNumberChange,
@@ -67,6 +69,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
         accountNumber={accountNumber}
         onRecipientNameChange={onRecipientNameChange}
         onAccountNumberChange={onAccountNumberChange}
+        countryCode={countryCode}
       />
     </motion.div>
   );

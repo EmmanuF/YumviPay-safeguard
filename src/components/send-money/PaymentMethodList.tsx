@@ -84,6 +84,7 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
             isSelected={selectedPaymentMethod === method.id}
             onClick={() => handlePaymentMethodSelect(method.id)}
             options={getProviderOptions(method.id, selectedCountry)}
+            countryCode={selectedCountry}
           />
         ))}
         
