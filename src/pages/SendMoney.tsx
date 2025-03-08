@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Recipient } from '@/types/recipient';
 import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
 import AmountStep from '@/components/send-money/AmountStep';
-import RecipientStep from '@/components/send-money/RecipientStep';
 import PaymentStep from '@/components/send-money/PaymentStep';
 
 interface LocationState {
@@ -31,7 +30,7 @@ const SendMoney = () => {
   }, [selectedRecipient]);
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 2) {
       setStep(step + 1);
     } else {
       // Generate a random transaction ID for demo purposes
@@ -43,8 +42,7 @@ const SendMoney = () => {
   const renderStepTitle = () => {
     switch (step) {
       case 1: return "Send Money";
-      case 2: return "Recipient";
-      case 3: return "Payment Method";
+      case 2: return "Payment Method";
       default: return "Send Money";
     }
   };
@@ -62,14 +60,6 @@ const SendMoney = () => {
           />
         );
       case 2:
-        return (
-          <RecipientStep
-            recipient={recipient}
-            setRecipient={setRecipient}
-            onNext={handleNext}
-          />
-        );
-      case 3:
         return (
           <PaymentStep
             amount={amount}
