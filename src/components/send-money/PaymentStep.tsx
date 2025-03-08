@@ -5,6 +5,7 @@ import { CheckCircle, CreditCard, Smartphone, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import PaymentMethodCard from '@/components/PaymentMethodCard';
+import { useToast } from '@/components/ui/use-toast';
 
 interface PaymentStepProps {
   amount: string;
@@ -23,6 +24,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onSelectPaymentMethod,
   onNext,
 }) => {
+  const { toast } = useToast();
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -40,6 +43,24 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
+  const handlePaymentMethodSelect = (method: string) => {
+    onSelectPaymentMethod(method);
+    toast({
+      title: "Payment method selected",
+      description: `You've selected ${method === 'credit-card' ? 'Credit Card' : method === 'bank' ? 'Bank Transfer' : 'Mobile Money'}`,
+      duration: 2000,
+    });
+  };
+
+  const handleProceedToPayment = () => {
+    toast({
+      title: "Processing payment",
+      description: "Redirecting to payment gateway",
+      duration: 3000,
+    });
+    onNext();
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -55,21 +76,21 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             description="Pay with debit or credit card"
             icon={<CreditCard className="h-5 w-5 text-primary-500" />}
             isSelected={selectedPaymentMethod === 'credit-card'}
-            onClick={() => onSelectPaymentMethod('credit-card')}
+            onClick={() => handlePaymentMethodSelect('credit-card')}
           />
           <PaymentMethodCard
             name="Bank Transfer"
             description="Direct bank transfer"
             icon={<Building className="h-5 w-5 text-primary-500" />}
             isSelected={selectedPaymentMethod === 'bank'}
-            onClick={() => onSelectPaymentMethod('bank')}
+            onClick={() => handlePaymentMethodSelect('bank')}
           />
           <PaymentMethodCard
             name="Mobile Money"
             description="Pay using mobile wallet"
             icon={<Smartphone className="h-5 w-5 text-primary-500" />}
             isSelected={selectedPaymentMethod === 'mobile-money'}
-            onClick={() => onSelectPaymentMethod('mobile-money')}
+            onClick={() => handlePaymentMethodSelect('mobile-money')}
           />
         </div>
       </motion.div>
@@ -85,7 +106,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               <div className="mt-2 text-sm text-gray-600 space-y-1">
                 <p>Amount: ${amount}</p>
                 <p>Destination: {selectedCountry}</p>
-                <p>Recipient: {recipient}</p>
+                <p>Recipient: {recipient || 'Not specified'}</p>
               </div>
             </div>
           </div>
@@ -94,7 +115,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
       <motion.div variants={itemVariants} className="pt-4">
         <Button 
-          onClick={onNext} 
+          onClick={handleProceedToPayment} 
           className="w-full" 
           size="lg"
           disabled={!selectedPaymentMethod}
