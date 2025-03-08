@@ -1,3 +1,4 @@
+
 // Exchange rates between currencies (e.g., 'USD-NGN': 1500 means 1 USD = 1500 NGN)
 export const exchangeRates: Record<string, number> = {
   'USD-NGN': 1500,
@@ -85,9 +86,6 @@ export const exchangeRates: Record<string, number> = {
   'XAF-CDF': 4.10,
   
   // Additional rates for Western countries to Cameroon
-  'USD-XAF': 610,
-  'EUR-XAF': 655,
-  'GBP-XAF': 760,
   'CAD-XAF': 450,
   'AUD-XAF': 400,
   'CHF-XAF': 680,

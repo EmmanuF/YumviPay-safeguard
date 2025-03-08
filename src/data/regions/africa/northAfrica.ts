@@ -1,0 +1,157 @@
+
+import { Country } from '../../../types/country';
+
+export const northAfricanCountries: Country[] = [
+  {
+    name: 'Morocco',
+    code: 'MA',
+    flagUrl: 'https://flagcdn.com/ma.svg',
+    currency: 'MAD',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'mobile_money',
+        name: 'Mobile Money',
+        description: 'Receive to mobile wallets',
+        icon: 'smartphone',
+        fees: '1.2%',
+        processingTime: 'Instant',
+      },
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Moroccan bank accounts',
+        icon: 'bank',
+        fees: '1.5%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Egypt',
+    code: 'EG',
+    flagUrl: 'https://flagcdn.com/eg.svg',
+    currency: 'EGP',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Egyptian bank accounts',
+        icon: 'bank',
+        fees: '1.5%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Tunisia',
+    code: 'TN',
+    flagUrl: 'https://flagcdn.com/tn.svg',
+    currency: 'TND',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Tunisian bank accounts',
+        icon: 'bank',
+        fees: '1.5%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Algeria',
+    code: 'DZ',
+    flagUrl: 'https://flagcdn.com/dz.svg',
+    currency: 'DZD',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Algerian bank accounts',
+        icon: 'bank',
+        fees: '1.5%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Libya',
+    code: 'LY',
+    flagUrl: 'https://flagcdn.com/ly.svg',
+    currency: 'LYD',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Libyan bank accounts',
+        icon: 'bank',
+        fees: '1.5%',
+        processingTime: '2-3 business days',
+      },
+    ],
+  },
+  {
+    name: 'Sudan',
+    code: 'SD',
+    flagUrl: 'https://flagcdn.com/sd.svg',
+    currency: 'SDG',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Sudanese bank accounts',
+        icon: 'bank',
+        fees: '1.8%',
+        processingTime: '2-3 business days',
+      },
+    ],
+  },
+  {
+    name: 'South Sudan',
+    code: 'SS',
+    flagUrl: 'https://flagcdn.com/ss.svg',
+    currency: 'SSP',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to South Sudanese bank accounts',
+        icon: 'bank',
+        fees: '1.8%',
+        processingTime: '2-3 business days',
+      },
+    ],
+  },
+  {
+    name: 'Mauritania',
+    code: 'MR',
+    flagUrl: 'https://flagcdn.com/mr.svg',
+    currency: 'MRU',
+    isSendingEnabled: false,
+    isReceivingEnabled: true,
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Receive to Mauritanian bank accounts',
+        icon: 'bank',
+        fees: '1.5%',
+        processingTime: '2-3 business days',
+      },
+    ],
+  },
+];
