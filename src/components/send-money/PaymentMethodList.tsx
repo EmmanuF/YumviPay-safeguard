@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Smartphone, Building, CreditCard } from 'lucide-react';
-import PaymentMethodCard from '@/components/PaymentMethodCard';
+import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 import { useToast } from '@/components/ui/use-toast';
 import { Country } from '@/hooks/useCountries';
 
