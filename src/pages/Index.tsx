@@ -9,9 +9,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation 
-        onGetStarted={() => navigate('/onboarding')} 
-      />
+      <Navigation onGetStarted={() => navigate('/onboarding')} />
       
       <main>
         <Hero onGetStarted={() => navigate('/onboarding')} />
