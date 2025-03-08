@@ -70,7 +70,7 @@ export const exchangeRates: Record<string, number> = {
   'QAR-ZAR': 4.95,
   'SAR-ZAR': 4.8,
   
-  // Cameroon exchange rates (as a sending country)
+  // Cameroon exchange rates
   'XAF-USD': 0.00164,
   'XAF-EUR': 0.00152,
   'XAF-GBP': 0.00132,
