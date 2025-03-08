@@ -1,4 +1,3 @@
-
 import { Country } from '../../types/country';
 
 export const northAmericanCountries: Country[] = [
@@ -51,6 +50,50 @@ export const northAmericanCountries: Country[] = [
         icon: 'bank',
         fees: '1%',
         processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Mexico',
+    code: 'MX',
+    flagUrl: 'https://flagcdn.com/mx.svg',
+    currency: 'MXN',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+      {
+        id: 'bank_transfer',
+        name: 'SPEI Transfer',
+        description: 'Direct transfer from your Mexican bank account',
+        icon: 'bank',
+        fees: '1%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Panama',
+    code: 'PA',
+    flagUrl: 'https://flagcdn.com/pa.svg',
+    currency: 'PAB',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
       },
     ],
   },

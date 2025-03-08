@@ -1,4 +1,3 @@
-
 // Exchange rates between currencies (e.g., 'USD-NGN': 1500 means 1 USD = 1500 NGN)
 export const exchangeRates: Record<string, number> = {
   'USD-NGN': 1500,
@@ -32,6 +31,43 @@ export const exchangeRates: Record<string, number> = {
   'GBP-XAF': 760,
   'EUR-CDF': 2200,
   'GBP-CDF': 2600,
+  
+  // Exchange rates for new sending countries to common receiving countries
+  'MXN-NGN': 83,
+  'PAB-NGN': 1500,
+  'CHF-NGN': 1700,
+  'SGD-NGN': 1120,
+  'NZD-NGN': 915,
+  'AED-NGN': 408,
+  'QAR-NGN': 412,
+  'SAR-NGN': 400,
+  
+  'MXN-KES': 7.2,
+  'PAB-KES': 130,
+  'CHF-KES': 147,
+  'SGD-KES': 97,
+  'NZD-KES': 79,
+  'AED-KES': 35.4,
+  'QAR-KES': 35.7,
+  'SAR-KES': 34.7,
+  
+  'MXN-GHS': 0.72,
+  'PAB-GHS': 13,
+  'CHF-GHS': 14.7,
+  'SGD-GHS': 9.7,
+  'NZD-GHS': 7.9,
+  'AED-GHS': 3.54,
+  'QAR-GHS': 3.57,
+  'SAR-GHS': 3.47,
+  
+  'MXN-ZAR': 1,
+  'PAB-ZAR': 18,
+  'CHF-ZAR': 20.3,
+  'SGD-ZAR': 13.4,
+  'NZD-ZAR': 10.9,
+  'AED-ZAR': 4.9,
+  'QAR-ZAR': 4.95,
+  'SAR-ZAR': 4.8,
 };
 
 // Function to get exchange rate between two currencies

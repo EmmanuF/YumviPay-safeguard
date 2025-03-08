@@ -1,4 +1,3 @@
-
 import { Country } from '../../types/country';
 
 export const asiaPacificCountries: Country[] = [
@@ -51,6 +50,112 @@ export const asiaPacificCountries: Country[] = [
         icon: 'bank',
         fees: '1%',
         processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Singapore',
+    code: 'SG',
+    flagUrl: 'https://flagcdn.com/sg.svg',
+    currency: 'SGD',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+      {
+        id: 'bank_transfer',
+        name: 'FAST Transfer',
+        description: 'Direct transfer from your Singaporean bank account',
+        icon: 'bank',
+        fees: '0.8%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'New Zealand',
+    code: 'NZ',
+    flagUrl: 'https://flagcdn.com/nz.svg',
+    currency: 'NZD',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+      {
+        id: 'bank_transfer',
+        name: 'Bank Transfer',
+        description: 'Direct transfer from your NZ bank account',
+        icon: 'bank',
+        fees: '0.8%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'United Arab Emirates',
+    code: 'AE',
+    flagUrl: 'https://flagcdn.com/ae.svg',
+    currency: 'AED',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+    ],
+  },
+  {
+    name: 'Qatar',
+    code: 'QA',
+    flagUrl: 'https://flagcdn.com/qa.svg',
+    currency: 'QAR',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+    ],
+  },
+  {
+    name: 'Saudi Arabia',
+    code: 'SA',
+    flagUrl: 'https://flagcdn.com/sa.svg',
+    currency: 'SAR',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
       },
     ],
   },
