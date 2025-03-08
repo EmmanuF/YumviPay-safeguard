@@ -38,6 +38,11 @@ const BottomNavigation: React.FC = () => {
     },
   ];
   
+  const handleNavigation = (path: string) => {
+    console.log(`BottomNav: Navigating to ${path}`);
+    navigate(path);
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -51,7 +56,7 @@ const BottomNavigation: React.FC = () => {
         return (
           <button
             key={item.name}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleNavigation(item.path)}
             className="flex flex-col items-center justify-center relative"
           >
             <div 

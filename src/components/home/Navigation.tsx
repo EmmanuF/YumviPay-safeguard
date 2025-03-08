@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   const navItems: NavItem[] = [
     {
@@ -47,7 +48,10 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   ];
   
   const handleNavigation = (path: string) => {
-    console.info(`Navigating to: ${path}`);
+    console.log(`Navigating to: ${path}`);
+    if (path === '/profile') {
+      console.log('Navigating to profile page');
+    }
     navigate(path);
   };
   
