@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Send, Clock, User } from 'lucide-react';
@@ -10,7 +11,11 @@ interface NavItem {
   path: string;
 }
 
-const Navigation: React.FC = () => {
+interface NavigationProps {
+  onGetStarted?: () => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
   
   const navItems: NavItem[] = [

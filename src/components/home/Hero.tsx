@@ -6,6 +6,10 @@ import { ArrowRight, Download, SendHorizonal, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 
+interface HeroProps {
+  onGetStarted?: () => void;
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -28,8 +32,16 @@ const itemVariants = {
   },
 };
 
-const Hero = () => {
+const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      navigate('/onboarding');
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-20">
@@ -67,7 +79,7 @@ const Hero = () => {
           
           <motion.div variants={itemVariants} className="flex space-x-4">
             <Button
-              onClick={() => navigate('/onboarding')}
+              onClick={handleGetStarted}
               className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base"
               size="lg"
             >
