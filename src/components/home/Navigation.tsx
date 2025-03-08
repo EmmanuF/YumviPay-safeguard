@@ -46,6 +46,11 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     },
   ];
   
+  const handleNavigation = (path: string) => {
+    console.info(`Navigating to: ${path}`);
+    navigate(path);
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -56,7 +61,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       {navItems.map((item) => (
         <button
           key={item.name}
-          onClick={() => navigate(item.path)}
+          onClick={() => handleNavigation(item.path)}
           className="flex flex-col items-center justify-center relative"
         >
           <div 
