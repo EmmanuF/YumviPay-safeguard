@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SendMoney from "./pages/SendMoney";
 import History from "./pages/History";
+import Recipients from "./pages/Recipients";
 import TransactionStatus from "./pages/TransactionStatus";
 import NotFound from "./pages/NotFound";
 
@@ -83,6 +85,7 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/send" element={<SendMoney />} />
             <Route path="/history" element={<History />} />
+            <Route path="/recipients" element={<Recipients />} />
             <Route path="/transaction/:id" element={<TransactionStatus />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

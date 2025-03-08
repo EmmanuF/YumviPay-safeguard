@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Send, Clock, User } from 'lucide-react';
+import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,11 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       name: 'Send',
       icon: <Send className="w-5 h-5" />,
       path: '/send',
+    },
+    {
+      name: 'Recipients',
+      icon: <UserPlus className="w-5 h-5" />,
+      path: '/recipients',
     },
     {
       name: 'History',

@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, UsersRound } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,8 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   setRecipient,
   onNext,
 }) => {
+  const navigate = useNavigate();
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -32,6 +35,10 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       opacity: 1,
       transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
+  };
+
+  const handleSelectFromSaved = () => {
+    navigate('/recipients');
   };
 
   return (
@@ -53,6 +60,17 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
         />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <Button 
+          variant="outline" 
+          className="w-full flex items-center justify-center gap-2"
+          onClick={handleSelectFromSaved}
+        >
+          <UsersRound className="h-4 w-4" />
+          Select from saved recipients
+        </Button>
       </motion.div>
 
       <motion.div variants={itemVariants} className="pt-4">

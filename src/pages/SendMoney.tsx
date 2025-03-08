@@ -1,19 +1,34 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Recipient } from '@/types/recipient';
 import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
 import AmountStep from '@/components/send-money/AmountStep';
 import RecipientStep from '@/components/send-money/RecipientStep';
 import PaymentStep from '@/components/send-money/PaymentStep';
 
+interface LocationState {
+  selectedRecipient?: Recipient;
+}
+
 const SendMoney = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { selectedRecipient } = (location.state as LocationState) || {};
+  
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('CM'); // Set Cameroon as default country
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+
+  // If a recipient is passed via location state, pre-fill the form
+  useEffect(() => {
+    if (selectedRecipient) {
+      setRecipient(selectedRecipient.contact);
+      setSelectedCountry(selectedRecipient.country);
+    }
+  }, [selectedRecipient]);
 
   const handleNext = () => {
     if (step < 3) {
