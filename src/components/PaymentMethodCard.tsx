@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +29,7 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [selectedOption, setSelectedOption] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
+  const [recipientName, setRecipientName] = useState('');
 
   const handleClick = () => {
     onClick();
@@ -117,6 +118,25 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
                   {option.name}
                 </div>
               ))}
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            <Label htmlFor="recipientName" className="text-sm font-medium mb-2 block">
+              Recipient Name
+            </Label>
+            <Input
+              id="recipientName"
+              placeholder="Enter recipient's full name"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value)}
+              className="w-full"
+            />
+            <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 rounded-md">
+              <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-amber-800">
+                Important: The recipient name must exactly match the name registered on their {name.toLowerCase().includes('bank') ? 'bank account' : 'mobile money account'}. Mismatched names may cause transaction delays or funds being sent to the wrong person.
+              </p>
             </div>
           </div>
 

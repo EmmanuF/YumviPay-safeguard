@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
 import { Recipient } from '@/types/recipient';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -89,6 +90,12 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
         {errors.name && (
           <p className="text-xs text-red-500 mt-1">{errors.name}</p>
         )}
+        <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 rounded-md">
+          <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-800">
+            Important: The recipient name must exactly match the name registered on their mobile money or bank account. Mismatched names may cause transaction delays or funds being sent to the wrong person.
+          </p>
+        </div>
       </div>
 
       <div>
