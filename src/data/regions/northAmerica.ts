@@ -1,0 +1,57 @@
+
+import { Country } from '../../types/country';
+
+export const northAmericanCountries: Country[] = [
+  {
+    name: 'United States',
+    code: 'US',
+    flagUrl: 'https://flagcdn.com/us.svg',
+    currency: 'USD',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+      {
+        id: 'bank_transfer',
+        name: 'ACH Transfer',
+        description: 'Direct transfer from your US bank account',
+        icon: 'bank',
+        fees: '0.5%',
+        processingTime: '3-5 business days',
+      },
+    ],
+  },
+  {
+    name: 'Canada',
+    code: 'CA',
+    flagUrl: 'https://flagcdn.com/ca.svg',
+    currency: 'CAD',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+      {
+        id: 'interac',
+        name: 'Interac e-Transfer',
+        description: 'Send directly from your Canadian bank account',
+        icon: 'bank',
+        fees: '1%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+];

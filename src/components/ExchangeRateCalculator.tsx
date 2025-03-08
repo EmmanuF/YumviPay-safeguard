@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -8,6 +7,7 @@ import AmountInput from '@/components/calculator/AmountInput';
 import RateDisplay from '@/components/calculator/RateDisplay';
 import ExchangeSummary from '@/components/calculator/ExchangeSummary';
 import { useCountries } from '@/hooks/useCountries';
+import { getExchangeRate } from '@/data/exchangeRates';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
@@ -37,43 +37,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
 
   useEffect(() => {
     const calculateRate = () => {
-      const rates: Record<string, number> = {
-        'USD-NGN': 1500,
-        'USD-KES': 130,
-        'USD-GHS': 13,
-        'USD-ZAR': 18,
-        'USD-UGX': 3800,
-        'USD-TZS': 2500,
-        'USD-RWF': 1200,
-        'USD-ETB': 57,
-        'USD-XOF': 610,
-        'USD-XAF': 610,
-        'USD-CDF': 2500,
-        'GBP-NGN': 1900,
-        'EUR-NGN': 1650,
-        'CAD-NGN': 1100,
-        'AUD-NGN': 980,
-        'JPY-NGN': 10,
-        'GBP-KES': 165,
-        'EUR-KES': 143,
-        'CAD-KES': 95,
-        'GBP-GHS': 16.5,
-        'EUR-GHS': 14.3,
-        'CAD-GHS': 9.5,
-        'GBP-ZAR': 23,
-        'EUR-ZAR': 19.8,
-        'CAD-ZAR': 13.5,
-        'EUR-XOF': 655,
-        'GBP-XOF': 760,
-        'EUR-XAF': 655,
-        'GBP-XAF': 760,
-        'EUR-CDF': 2200,
-        'GBP-CDF': 2600,
-      };
-      
-      const pair = `${sourceCurrency}-${targetCurrency}`;
-      // Default to USD-NGN rate if specific pair not found
-      const rate = rates[pair] || 1500;
+      // Get exchange rate from utility function
+      const rate = getExchangeRate(sourceCurrency, targetCurrency);
       setExchangeRate(rate);
       
       const amount = parseFloat(sendAmount) || 0;
