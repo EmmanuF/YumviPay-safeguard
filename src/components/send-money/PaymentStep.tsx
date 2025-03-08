@@ -12,6 +12,7 @@ interface PaymentStepProps {
   amount: string;
   selectedCountry: string;
   recipient: string;
+  recipientName: string;
   selectedPaymentMethod: string;
   onSelectPaymentMethod: (method: string) => void;
   onNext: () => void;
@@ -21,6 +22,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   amount,
   selectedCountry,
   recipient,
+  recipientName,
   selectedPaymentMethod,
   onSelectPaymentMethod,
   onNext,
@@ -175,7 +177,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               <div className="mt-2 text-sm text-gray-600 space-y-1">
                 <p>Amount: ${amount}</p>
                 <p>Destination: {selectedCountryData?.name || selectedCountry}</p>
-                <p>Recipient: {recipient || 'Not specified'}</p>
+                <p>Recipient: {recipientName || 'Not specified'}</p>
+                <p>Contact: {recipient || 'Not specified'}</p>
                 {selectedPaymentMethod && selectedCountryData && (
                   <p>Payment method: {
                     selectedCountryData.paymentMethods.find(pm => pm.id === selectedPaymentMethod)?.name || 
