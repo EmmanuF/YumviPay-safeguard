@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,10 +13,10 @@ import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SendMoney from "./pages/SendMoney";
+import History from "./pages/History";
 import TransactionStatus from "./pages/TransactionStatus";
 import NotFound from "./pages/NotFound";
 
-// Initialize QueryClient with proper settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -34,20 +33,16 @@ const App = () => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // For web platform, we can skip these mobile-specific operations
         if (typeof window !== 'undefined' && window.location.protocol.includes('http')) {
           setInitialRoute('/');
           return;
         }
         
-        // For native mobile experience
         await SplashScreen.hide();
         await StatusBar.setStyle({ style: Style.Dark });
         
-        // Set up keyboard behavior
         Keyboard.setAccessoryBarVisible({ isVisible: false });
         
-        // Handle back button on Android
         CapApp.addListener('backButton', ({ canGoBack }) => {
           if (!canGoBack) {
             CapApp.exitApp();
@@ -56,7 +51,6 @@ const App = () => {
           }
         });
         
-        // TODO: Check if user is authenticated and set initial route
         setInitialRoute('/');
       } catch (error) {
         console.error('Error initializing app:', error);
@@ -67,14 +61,12 @@ const App = () => {
     initializeApp();
 
     return () => {
-      // Clean up listeners
       if (typeof window !== 'undefined' && !window.location.protocol.includes('http')) {
         CapApp.removeAllListeners();
       }
     };
   }, []);
 
-  // Wait until we've determined the initial route
   if (initialRoute === null) {
     return null;
   }
@@ -90,8 +82,8 @@ const App = () => {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/send" element={<SendMoney />} />
+            <Route path="/history" element={<History />} />
             <Route path="/transaction/:id" element={<TransactionStatus />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
