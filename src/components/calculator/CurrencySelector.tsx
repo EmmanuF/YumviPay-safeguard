@@ -47,39 +47,41 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
       </button>
       
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-10">
-          {options.map((option) => {
-            const country = getCountryByCurrency(option);
-            return (
-              <button
-                key={option}
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center"
-                onClick={() => {
-                  onChange(option);
-                  setShowDropdown(false);
-                }}
-              >
-                {country ? (
-                  <>
-                    <img 
-                      src={country.flagUrl}
-                      alt={`${country.name} flag`}
-                      className="w-5 h-3 object-cover rounded mr-2"
-                    />
-                    <div>
-                      <span className="font-medium">{option}</span>
-                      <span className="text-xs text-gray-500 ml-2">({country.name})</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Flag className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{option}</span>
-                  </>
-                )}
-              </button>
-            );
-          })}
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-10 max-h-60 overflow-hidden">
+          <div className="overflow-y-auto max-h-[15rem] overscroll-contain">
+            {options.map((option) => {
+              const country = getCountryByCurrency(option);
+              return (
+                <button
+                  key={option}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center"
+                  onClick={() => {
+                    onChange(option);
+                    setShowDropdown(false);
+                  }}
+                >
+                  {country ? (
+                    <>
+                      <img 
+                        src={country.flagUrl}
+                        alt={`${country.name} flag`}
+                        className="w-5 h-3 object-cover rounded mr-2"
+                      />
+                      <div>
+                        <span className="font-medium">{option}</span>
+                        <span className="text-xs text-gray-500 ml-2">({country.name})</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Flag className="w-4 h-4 mr-2 text-gray-500" />
+                      <span>{option}</span>
+                    </>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

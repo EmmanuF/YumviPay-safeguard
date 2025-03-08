@@ -89,7 +89,7 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
               className="absolute z-50 mt-1 w-full rounded-xl glass-effect border border-gray-200 
                          shadow-lg max-h-60 overflow-hidden"
             >
-              <div className="sticky top-0 bg-white/90 backdrop-blur-sm p-2 border-b border-gray-100">
+              <div className="sticky top-0 bg-white/90 backdrop-blur-sm p-2 border-b border-gray-100 z-10">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
@@ -111,7 +111,7 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
                 </div>
               </div>
               
-              <div className="overflow-y-auto max-h-[12rem]">
+              <div className="overflow-y-auto max-h-[15rem] overscroll-contain">
                 {isLoading ? (
                   <div className="p-4 text-center text-gray-500">Loading countries...</div>
                 ) : filteredCountries?.length === 0 ? (
