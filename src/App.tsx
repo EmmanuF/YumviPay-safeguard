@@ -10,6 +10,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
@@ -77,21 +78,23 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/send" element={<SendMoney />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/recipients" element={<Recipients />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/transaction/:id" element={<TransactionStatus />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <NotificationProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/send" element={<SendMoney />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/recipients" element={<Recipients />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/transaction/:id" element={<TransactionStatus />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </NotificationProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

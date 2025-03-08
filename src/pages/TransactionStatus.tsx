@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import TransactionCard from '@/components/TransactionCard';
+import StatusUpdateBar from '@/components/transaction/StatusUpdateBar';
+import HeaderRight from '@/components/HeaderRight';
 
 interface TransactionDetails {
   id: string;
@@ -63,7 +65,7 @@ const TransactionStatus = () => {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
-        <Header title="Transaction" showBackButton={true} />
+        <Header title="Transaction" showBackButton={true} rightContent={<HeaderRight showNotification />} />
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
             <Clock className="h-10 w-10 text-primary-500 mx-auto animate-pulse" />
@@ -77,7 +79,7 @@ const TransactionStatus = () => {
   if (!transaction) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
-        <Header title="Transaction" showBackButton={true} />
+        <Header title="Transaction" showBackButton={true} rightContent={<HeaderRight showNotification />} />
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
             <p className="text-foreground">Transaction not found.</p>
@@ -92,7 +94,7 @@ const TransactionStatus = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Header title="Transaction Receipt" showBackButton={true} />
+      <Header title="Transaction Receipt" showBackButton={true} rightContent={<HeaderRight showNotification />} />
       
       <div className="flex-1 p-4">
         <motion.div
@@ -110,6 +112,11 @@ const TransactionStatus = () => {
             </div>
             
             <div className="p-5 space-y-6">
+              {/* Status Update Notifications */}
+              <div className="mb-4">
+                <StatusUpdateBar transactionId={transaction.id} />
+              </div>
+              
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">
                   TRANSACTION DETAILS

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,12 +7,16 @@ import { getAuthState } from '@/services/auth';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import TransactionCard, { Transaction } from '@/components/TransactionCard';
+import QuickTransferPanel from '@/components/quick-transfer/QuickTransferPanel';
+import HeaderRight from '@/components/HeaderRight';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { addNotification } = useNotifications();
   
   useEffect(() => {
     const loadUserData = async () => {
@@ -52,6 +57,17 @@ const Dashboard = () => {
         ];
         
         setTransactions(mockTransactions);
+        
+        // Simulate receiving a transaction status update
+        setTimeout(() => {
+          addNotification({
+            title: 'Transaction Update',
+            message: 'Your transfer of $200 to Sarah Johnson is processing.',
+            type: 'info',
+            transactionId: 'tx_123457'
+          });
+        }, 3000);
+        
         setIsLoading(false);
       } catch (error) {
         console.error('Error loading user data:', error);
@@ -60,7 +76,7 @@ const Dashboard = () => {
     };
     
     loadUserData();
-  }, [navigate]);
+  }, [navigate, addNotification]);
   
   // Fade in animation for sections
   const containerVariants = {
@@ -98,6 +114,7 @@ const Dashboard = () => {
       <Header 
         title="Dashboard" 
         showNotification 
+        rightContent={<HeaderRight showNotification />}
       />
       
       <div className="px-4 py-2 flex-1">
@@ -136,6 +153,11 @@ const Dashboard = () => {
                 </button>
               </div>
             </div>
+          </motion.div>
+          
+          {/* Quick Transfer Panel */}
+          <motion.div variants={itemVariants} className="mb-6">
+            <QuickTransferPanel />
           </motion.div>
           
           {/* Quick Links */}
