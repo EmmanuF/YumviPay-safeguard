@@ -7,6 +7,7 @@ import CurrencySelector from '@/components/calculator/CurrencySelector';
 import AmountInput from '@/components/calculator/AmountInput';
 import RateDisplay from '@/components/calculator/RateDisplay';
 import ExchangeSummary from '@/components/calculator/ExchangeSummary';
+import { useCountries } from '@/hooks/useCountries';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
@@ -14,28 +15,55 @@ interface ExchangeRateCalculatorProps {
 
 const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ className }) => {
   const navigate = useNavigate();
+  const { countries } = useCountries();
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
   const [targetCurrency, setTargetCurrency] = useState('NGN');
   const [exchangeRate, setExchangeRate] = useState(1500);
 
-  // Updated to include currency codes associated with countries from useCountries
-  const sourceCurrencies = ['USD', 'GBP', 'EUR'];
-  const targetCurrencies = ['NGN', 'KES', 'GHS', 'ZAR'];
+  // Get unique currencies from countries
+  const sourceCurrencies = Array.from(new Set(
+    countries
+      .filter(country => country.isSendingEnabled)
+      .map(country => country.currency)
+  ));
+  
+  const targetCurrencies = Array.from(new Set(
+    countries
+      .filter(country => country.isReceivingEnabled)
+      .map(country => country.currency)
+  ));
 
   useEffect(() => {
     const calculateRate = () => {
-      const rates = {
+      const rates: Record<string, number> = {
         'USD-NGN': 1500,
         'USD-KES': 130,
         'USD-GHS': 13,
         'USD-ZAR': 18,
+        'USD-UGX': 3800,
+        'USD-TZS': 2500,
+        'USD-RWF': 1200,
+        'USD-ETB': 57,
         'GBP-NGN': 1900,
-        'EUR-NGN': 1650
+        'EUR-NGN': 1650,
+        'CAD-NGN': 1100,
+        'AUD-NGN': 980,
+        'JPY-NGN': 10,
+        'GBP-KES': 165,
+        'EUR-KES': 143,
+        'CAD-KES': 95,
+        'GBP-GHS': 16.5,
+        'EUR-GHS': 14.3,
+        'CAD-GHS': 9.5,
+        'GBP-ZAR': 23,
+        'EUR-ZAR': 19.8,
+        'CAD-ZAR': 13.5,
       };
       
       const pair = `${sourceCurrency}-${targetCurrency}`;
+      // Default to USD-NGN rate if specific pair not found
       const rate = rates[pair] || 1500;
       setExchangeRate(rate);
       
