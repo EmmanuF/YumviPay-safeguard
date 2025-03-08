@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import SendMoney from "./pages/SendMoney";
 import History from "./pages/History";
 import Recipients from "./pages/Recipients";
+import Profile from "./pages/Profile";
 import TransactionStatus from "./pages/TransactionStatus";
 import NotFound from "./pages/NotFound";
 
@@ -86,6 +87,7 @@ const App = () => {
             <Route path="/send" element={<SendMoney />} />
             <Route path="/history" element={<History />} />
             <Route path="/recipients" element={<Recipients />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/transaction/:id" element={<TransactionStatus />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
+import { Home, Send, Clock, User, UserPlus, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface NavItem {
   name: string;
@@ -51,27 +52,61 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="glass-effect py-2 px-4 flex justify-around rounded-xl"
+      className="glass-effect py-2 px-4 flex justify-between items-center rounded-xl"
     >
-      {navItems.map((item) => (
-        <button
-          key={item.name}
-          onClick={() => navigate(item.path)}
-          className="flex flex-col items-center justify-center relative"
-        >
-          <div 
-            className={cn(
-              "p-2 rounded-full transition-all duration-300",
-              "text-gray-500 hover:text-primary-400"
-            )}
+      <div className="flex items-center gap-4">
+        {navItems.slice(0, 3).map((item) => (
+          <button
+            key={item.name}
+            onClick={() => navigate(item.path)}
+            className="flex flex-col items-center justify-center relative"
           >
-            {item.icon}
-          </div>
-          <span className="text-xs mt-1 font-medium text-gray-500">
-            {item.name}
-          </span>
-        </button>
-      ))}
+            <div 
+              className={cn(
+                "p-2 rounded-full transition-all duration-300",
+                "text-gray-500 hover:text-primary-400"
+              )}
+            >
+              {item.icon}
+            </div>
+            <span className="text-xs mt-1 font-medium text-gray-500">
+              {item.name}
+            </span>
+          </button>
+        ))}
+      </div>
+      
+      {onGetStarted && (
+        <Button 
+          onClick={onGetStarted}
+          className="flex items-center gap-2"
+          size="sm"
+        >
+          Get Started <ArrowRight className="w-4 h-4" />
+        </Button>
+      )}
+      
+      <div className="flex items-center gap-4">
+        {navItems.slice(3).map((item) => (
+          <button
+            key={item.name}
+            onClick={() => navigate(item.path)}
+            className="flex flex-col items-center justify-center relative"
+          >
+            <div 
+              className={cn(
+                "p-2 rounded-full transition-all duration-300",
+                "text-gray-500 hover:text-primary-400"
+              )}
+            >
+              {item.icon}
+            </div>
+            <span className="text-xs mt-1 font-medium text-gray-500">
+              {item.name}
+            </span>
+          </button>
+        ))}
+      </div>
     </motion.div>
   );
 };
