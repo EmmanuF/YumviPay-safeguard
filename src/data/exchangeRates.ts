@@ -68,6 +68,35 @@ export const exchangeRates: Record<string, number> = {
   'AED-ZAR': 4.9,
   'QAR-ZAR': 4.95,
   'SAR-ZAR': 4.8,
+  
+  // Cameroon exchange rates (as a sending country)
+  'XAF-USD': 0.00164,
+  'XAF-EUR': 0.00152,
+  'XAF-GBP': 0.00132,
+  'XAF-NGN': 2.46,
+  'XAF-KES': 0.213,
+  'XAF-GHS': 0.0213,
+  'XAF-ZAR': 0.0295,
+  'XAF-UGX': 6.23,
+  'XAF-TZS': 4.10,
+  'XAF-RWF': 1.97,
+  'XAF-ETB': 0.0934,
+  'XAF-XOF': 1.0, // Equal value as they're both pegged to EUR
+  'XAF-CDF': 4.10,
+  
+  // Additional rates for Western countries to Cameroon
+  'USD-XAF': 610,
+  'EUR-XAF': 655,
+  'GBP-XAF': 760,
+  'CAD-XAF': 450,
+  'AUD-XAF': 400,
+  'CHF-XAF': 680,
+  'JPY-XAF': 4.15,
+  'MXN-XAF': 34,
+  'SGD-XAF': 450,
+  'AED-XAF': 166,
+  'QAR-XAF': 167,
+  'SAR-XAF': 162,
 };
 
 // Function to get exchange rate between two currencies

@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const africanCountries: Country[] = [
@@ -234,7 +235,7 @@ export const africanCountries: Country[] = [
     code: 'CM',
     flagUrl: 'https://flagcdn.com/cm.svg',
     currency: 'XAF',
-    isSendingEnabled: false,
+    isSendingEnabled: true,
     isReceivingEnabled: true,
     paymentMethods: [
       {

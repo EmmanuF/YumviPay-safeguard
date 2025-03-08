@@ -17,7 +17,7 @@ const SendMoney = () => {
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('CM'); // Set Cameroon as default country
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
 
   const handleNext = () => {

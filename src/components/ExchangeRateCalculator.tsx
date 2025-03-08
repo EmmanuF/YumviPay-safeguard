@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -19,8 +20,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
-  const [targetCurrency, setTargetCurrency] = useState('NGN');
-  const [exchangeRate, setExchangeRate] = useState(1500);
+  const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
+  const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
 
   // Get unique currencies from countries
   const sourceCurrencies = Array.from(new Set(
