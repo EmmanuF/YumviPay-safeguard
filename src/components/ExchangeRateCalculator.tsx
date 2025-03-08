@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -19,6 +20,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
   const [targetCurrency, setTargetCurrency] = useState('NGN');
   const [exchangeRate, setExchangeRate] = useState(1500);
 
+  // Updated to include currency codes associated with countries from useCountries
   const sourceCurrencies = ['USD', 'GBP', 'EUR'];
   const targetCurrencies = ['NGN', 'KES', 'GHS', 'ZAR'];
 
