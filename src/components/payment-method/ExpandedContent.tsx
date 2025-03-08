@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import ProviderOptions from './ProviderOptions';
@@ -29,6 +29,20 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
   onRecipientNameChange,
   onAccountNumberChange,
 }) => {
+  // Auto-select the first option if none is selected
+  useEffect(() => {
+    if (options.length > 0 && !selectedOption) {
+      onOptionSelect(options[0].id);
+    }
+  }, [options, selectedOption, onOptionSelect]);
+
+  // Clear account number when changing providers to avoid format confusion
+  useEffect(() => {
+    if (selectedOption) {
+      onAccountNumberChange('');
+    }
+  }, [selectedOption, onAccountNumberChange]);
+
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}

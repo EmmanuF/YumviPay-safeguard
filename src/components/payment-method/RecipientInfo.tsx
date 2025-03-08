@@ -21,6 +21,57 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
 }) => {
   const isBankAccount = methodName.toLowerCase().includes('bank');
   
+  // Format phone/account number as user types
+  const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    // Remove any non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    if (isBankAccount) {
+      // For bank accounts, format with spaces every 4 digits
+      let formattedValue = '';
+      for (let i = 0; i < digitsOnly.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+          formattedValue += ' ';
+        }
+        formattedValue += digitsOnly[i];
+      }
+      onAccountNumberChange(formattedValue);
+    } else {
+      // For mobile money, format as phone number (e.g., +237 6XX XX XX XX for Cameroon)
+      if (digitsOnly.length > 0) {
+        // Add country code prefix if not present
+        if (!value.startsWith('+')) {
+          value = '+' + digitsOnly;
+        } else {
+          value = '+' + digitsOnly;
+        }
+        
+        // Add spaces for readability based on typical mobile number formats
+        if (digitsOnly.length > 3) {
+          value = value.substring(0, 4) + ' ' + value.substring(4);
+        }
+        if (digitsOnly.length > 6) {
+          value = value.substring(0, 7) + ' ' + value.substring(7);
+        }
+        if (digitsOnly.length > 9) {
+          value = value.substring(0, 10) + ' ' + value.substring(10);
+        }
+      }
+      onAccountNumberChange(value);
+    }
+  };
+
+  // Generate placeholder text based on method type
+  const getPlaceholder = () => {
+    if (isBankAccount) {
+      return "Enter account number (e.g., 1234 5678 9012 3456)";
+    } else {
+      return "Enter mobile number (e.g., +237 6XX XX XX XX)";
+    }
+  };
+  
   return (
     <>
       <div className="mb-4">
@@ -48,11 +99,17 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
         </Label>
         <Input
           id="accountNumber"
-          placeholder={isBankAccount ? "Enter account number" : "Enter mobile number"}
+          placeholder={getPlaceholder()}
           value={accountNumber}
-          onChange={(e) => onAccountNumberChange(e.target.value)}
+          onChange={handleAccountNumberChange}
           className="w-full"
+          inputMode={isBankAccount ? "numeric" : "tel"}
         />
+        <p className="text-xs text-gray-500 mt-1">
+          {isBankAccount 
+            ? "Enter the account number without any special characters" 
+            : "Enter the full mobile number including country code"}
+        </p>
       </div>
     </>
   );
