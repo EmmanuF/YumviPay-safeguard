@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Clock, User, Mail, AlertCircle } from 'lucide-react';
 import { getAuthState } from '@/services/auth';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
-import TransactionCard, { Transaction } from '@/components/TransactionCard';
+import { Transaction } from '@/components/TransactionCard';
 import QuickTransferPanel from '@/components/quick-transfer/QuickTransferPanel';
 import HeaderRight from '@/components/HeaderRight';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { BalanceCard, QuickLinks, RecentTransactions } from '@/components/dashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -125,35 +125,11 @@ const Dashboard = () => {
           className="max-w-md mx-auto"
         >
           {/* Balance Card */}
-          <motion.div variants={itemVariants} className="mb-6">
-            <div className="glass-effect rounded-xl p-6 bg-gradient-to-br from-primary-500 to-primary-700 text-white">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <p className="text-primary-100 text-sm font-medium mb-1">Welcome back</p>
-                  <h2 className="text-xl font-bold">{user?.name}</h2>
-                </div>
-                <div className="bg-white/20 rounded-full p-2">
-                  <User className="w-5 h-5" />
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-end">
-                <div>
-                  <p className="text-primary-100 text-sm">Recent Transfer</p>
-                  <p className="text-2xl font-bold">
-                    {transactions.length > 0 ? `$${transactions[0].amount}` : '$0'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/send')}
-                  className="bg-white text-primary-500 font-medium py-2 px-4 rounded-lg flex items-center"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Send Money
-                </button>
-              </div>
-            </div>
-          </motion.div>
+          <BalanceCard 
+            userName={user?.name} 
+            transactions={transactions} 
+            itemVariants={itemVariants} 
+          />
           
           {/* Quick Transfer Panel */}
           <motion.div variants={itemVariants} className="mb-6">
@@ -161,61 +137,13 @@ const Dashboard = () => {
           </motion.div>
           
           {/* Quick Links */}
-          <motion.div variants={itemVariants} className="mb-6">
-            <div className="flex justify-between">
-              <button
-                onClick={() => navigate('/send')}
-                className="glass-effect rounded-xl p-4 flex-1 mr-2 flex flex-col items-center"
-              >
-                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center mb-2">
-                  <Mail className="w-5 h-5 text-primary-500" />
-                </div>
-                <span className="text-sm">New Transfer</span>
-              </button>
-              
-              <button
-                onClick={() => navigate('/history')}
-                className="glass-effect rounded-xl p-4 flex-1 ml-2 flex flex-col items-center"
-              >
-                <div className="w-10 h-10 rounded-full bg-secondary-100 flex items-center justify-center mb-2">
-                  <Clock className="w-5 h-5 text-secondary-500" />
-                </div>
-                <span className="text-sm">History</span>
-              </button>
-            </div>
-          </motion.div>
+          <QuickLinks itemVariants={itemVariants} />
           
           {/* Recent Transactions */}
-          <motion.div variants={itemVariants}>
-            <div className="mb-4">
-              <h3 className="text-lg font-medium">Recent Transactions</h3>
-            </div>
-            
-            {transactions.length === 0 ? (
-              <div className="glass-effect rounded-xl p-6 text-center">
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                  <AlertCircle className="w-6 h-6 text-gray-400" />
-                </div>
-                <p className="text-gray-500 mb-2">No transactions yet</p>
-                <button
-                  onClick={() => navigate('/send')}
-                  className="text-primary-500 font-medium"
-                >
-                  Send your first transfer
-                </button>
-              </div>
-            ) : (
-              <div>
-                {transactions.map((transaction) => (
-                  <TransactionCard
-                    key={transaction.id}
-                    transaction={transaction}
-                    onClick={() => navigate(`/transaction/${transaction.id}`)}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
+          <RecentTransactions 
+            transactions={transactions} 
+            itemVariants={itemVariants} 
+          />
         </motion.div>
       </div>
       
