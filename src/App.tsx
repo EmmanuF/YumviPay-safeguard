@@ -33,46 +33,74 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const [initialRoute, setInitialRoute] = useState<string | null>(null);
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // For web browsers, skip native device initialization
         if (typeof window !== 'undefined' && window.location.protocol.includes('http')) {
           setInitialRoute('/');
+          setAppReady(true);
           return;
         }
         
-        await SplashScreen.hide();
-        await StatusBar.setStyle({ style: Style.Dark });
+        // Mobile device initialization
+        try {
+          await SplashScreen.hide();
+          await StatusBar.setStyle({ style: Style.Dark });
+          Keyboard.setAccessoryBarVisible({ isVisible: false });
+        } catch (deviceError) {
+          console.warn('Device API error (non-critical):', deviceError);
+        }
         
-        Keyboard.setAccessoryBarVisible({ isVisible: false });
-        
-        CapApp.addListener('backButton', ({ canGoBack }) => {
-          if (!canGoBack) {
-            CapApp.exitApp();
-          } else {
-            window.history.back();
-          }
-        });
+        // Add back button listener for Android
+        try {
+          CapApp.addListener('backButton', ({ canGoBack }) => {
+            if (!canGoBack) {
+              CapApp.exitApp();
+            } else {
+              window.history.back();
+            }
+          });
+        } catch (listenerError) {
+          console.warn('Back button listener error (non-critical):', listenerError);
+        }
         
         setInitialRoute('/');
+        setAppReady(true);
       } catch (error) {
         console.error('Error initializing app:', error);
+        // Fallback to ensure the app loads even if there's an error
         setInitialRoute('/');
+        setAppReady(true);
       }
     };
 
     initializeApp();
 
     return () => {
-      if (typeof window !== 'undefined' && !window.location.protocol.includes('http')) {
-        CapApp.removeAllListeners();
+      // Cleanup listener on component unmount
+      if (typeof window !== 'undefined' && 
+          !window.location.protocol.includes('http') && 
+          CapApp && 
+          typeof CapApp.removeAllListeners === 'function') {
+        try {
+          CapApp.removeAllListeners();
+        } catch (error) {
+          console.warn('Error removing listeners:', error);
+        }
       }
     };
   }, []);
 
-  if (initialRoute === null) {
-    return null;
+  // Show a simple loading state while initializing
+  if (!appReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-primary">Loading application...</div>
+      </div>
+    );
   }
 
   return (
