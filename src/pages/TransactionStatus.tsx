@@ -25,7 +25,7 @@ const TransactionStatus = () => {
 
   useEffect(() => {
     // Fetch transaction details
-    const fetchTransactionDetails = () => {
+    const fetchTransactionDetails = async () => {
       setLoading(true);
       
       if (!id) {
@@ -33,25 +33,30 @@ const TransactionStatus = () => {
         return;
       }
       
-      // Now synchronous - returns Transaction or undefined
-      const fetchedTransaction = getTransactionById(id);
-      setTransaction(fetchedTransaction || null);
-      setLoading(false);
-      
-      // Add notification for completed transactions
-      if (fetchedTransaction && fetchedTransaction.status === 'completed') {
-        addNotification({
-          title: "Transfer Successful",
-          message: `Your transfer of $${fetchedTransaction.amount} to ${fetchedTransaction.recipientName} was successful.`,
-          type: 'success',
-          transactionId: fetchedTransaction.id
-        });
+      try {
+        // Now properly awaiting the async function
+        const fetchedTransaction = await getTransactionById(id);
+        setTransaction(fetchedTransaction);
         
-        // Clear any refresh interval once transaction is completed
-        if (refreshInterval) {
-          clearInterval(refreshInterval);
-          setRefreshInterval(null);
+        // Add notification for completed transactions
+        if (fetchedTransaction && fetchedTransaction.status === 'completed') {
+          addNotification({
+            title: "Transfer Successful",
+            message: `Your transfer of $${fetchedTransaction.amount} to ${fetchedTransaction.recipientName} was successful.`,
+            type: 'success',
+            transactionId: fetchedTransaction.id
+          });
+          
+          // Clear any refresh interval once transaction is completed
+          if (refreshInterval) {
+            clearInterval(refreshInterval);
+            setRefreshInterval(null);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching transaction:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
