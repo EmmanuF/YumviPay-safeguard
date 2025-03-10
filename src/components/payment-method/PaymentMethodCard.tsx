@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import ExpandedContent from './ExpandedContent';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface PaymentMethodCardProps {
   name: string;
@@ -26,6 +27,7 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   options,
   countryCode = 'CM', // Default to Cameroon
 }) => {
+  const { t } = useLocale();
   const [recipientName, setRecipientName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
@@ -42,7 +44,7 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">{name}</h3>
+            <h3 className="font-medium text-gray-900">{t(`payment.${name.toLowerCase().replace(/\s+/g, '_')}`) || name}</h3>
             <p className="text-sm text-gray-500">{description}</p>
           </div>
         </div>

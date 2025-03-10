@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SearchBar, FilterBadges, FilterPopover } from '@/components/history';
 import { TransactionStatus } from '@/types/transaction';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface SearchAndFilterProps {
   searchQuery: string;
@@ -37,6 +38,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
   resetFilters,
   hasActiveFilters
 }) => {
+  const { t } = useLocale();
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {

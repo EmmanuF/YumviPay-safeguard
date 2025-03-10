@@ -1,87 +1,58 @@
-
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Bell, Menu } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
+import HeaderRight from './HeaderRight';
+
+// Add LocaleSwitcher import
+import LocaleSwitcher from './LocaleSwitcher';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
-  showNotification?: boolean;
-  transparent?: boolean;
-  className?: string;
-  onMenuClick?: () => void;
-  rightContent?: React.ReactNode;
+  onBackClick?: () => void;
+  rightElement?: React.ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = ({
   title,
   showBackButton = false,
-  showNotification = false,
-  transparent = false,
-  className,
-  onMenuClick,
-  rightContent,
+  onBackClick,
+  rightElement,
 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  const goBack = () => {
-    if (location.pathname === '/') {
-      return;
+  const { t } = useLocale();
+
+  const handleBackClick = () => {
+    if (onBackClick) {
+      onBackClick();
+    } else {
+      navigate(-1);
     }
-    navigate(-1);
   };
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={cn(
-        'w-full py-4 px-4 flex items-center justify-between',
-        transparent ? 'bg-transparent' : 'bg-background',
-        className
-      )}
-    >
-      <div className="flex items-center">
-        {showBackButton ? (
-          <button 
-            onClick={goBack}
-            className="mr-2 p-2 rounded-full hover:bg-primary-100/50 transition-colors"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="w-5 h-5 text-primary-500" />
-          </button>
-        ) : onMenuClick ? (
-          <button 
-            onClick={onMenuClick}
-            className="mr-2 p-2 rounded-full hover:bg-primary-100/50 transition-colors"
-            aria-label="Menu"
-          >
-            <Menu className="w-5 h-5 text-primary-500" />
-          </button>
-        ) : null}
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+        <div className="flex items-center">
+          {showBackButton && (
+            <button
+              onClick={handleBackClick}
+              className="mr-3 rounded-full p-1 hover:bg-gray-100 transition-colors"
+              aria-label="Go back"
+            >
+              <ChevronLeft className="h-6 w-6 text-gray-700" />
+            </button>
+          )}
+          <h1 className="text-lg font-semibold text-gray-800">{title && t(title) || t('app.name')}</h1>
+        </div>
         
-        {title && (
-          <h1 className="text-lg font-medium text-foreground">{title}</h1>
-        )}
+        <div className="flex items-center space-x-2">
+          <LocaleSwitcher />
+          {rightElement || <HeaderRight />}
+        </div>
       </div>
-      
-      <div className="flex items-center space-x-2">
-        {showNotification && !rightContent && (
-          <button 
-            className="p-2 rounded-full hover:bg-primary-100/50 transition-colors relative"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5 text-primary-500" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary-400"></span>
-          </button>
-        )}
-        {rightContent}
-      </div>
-    </motion.header>
+    </header>
   );
 };
 

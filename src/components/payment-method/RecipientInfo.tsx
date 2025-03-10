@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface RecipientInfoProps {
   methodName: string;
@@ -77,6 +77,7 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
   onAccountNumberChange,
   countryCode = 'CM', // Default to Cameroon if not specified
 }) => {
+  const { t } = useLocale();
   const isBankAccount = methodName.toLowerCase().includes('bank');
   
   // Format phone/account number as user types
@@ -185,10 +186,21 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
   const getPlaceholder = () => {
     if (isBankAccount) {
       const format = BANK_FORMATS[countryCode] || BANK_FORMATS.CM;
-      return `Enter account number (e.g., ${format.example})`;
+      return t('bank.enter_account') || `Enter account number (e.g., ${format.example})`;
     } else {
       const format = PHONE_NUMBER_FORMATS[countryCode] || PHONE_NUMBER_FORMATS.CM;
-      return `Enter mobile number (e.g., ${format.example})`;
+      return t('momo.enter_number') || `Enter mobile number (e.g., ${format.example})`;
+    }
+  };
+
+  // Get format example
+  const getFormatExample = () => {
+    if (isBankAccount) {
+      const format = BANK_FORMATS[countryCode] || BANK_FORMATS.CM;
+      return t('bank.account_format') || format.pattern;
+    } else {
+      const format = PHONE_NUMBER_FORMATS[countryCode] || PHONE_NUMBER_FORMATS.CM;
+      return t('momo.number_format') || format.pattern;
     }
   };
   
@@ -196,11 +208,11 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
     <>
       <div className="mb-4">
         <Label htmlFor="recipientName" className="text-sm font-medium mb-2 block">
-          Recipient Name
+          {t('transaction.recipient') || "Recipient Name"}
         </Label>
         <Input
           id="recipientName"
-          placeholder="Enter recipient's full name"
+          placeholder={t('transaction.recipient') || "Enter recipient's full name"}
           value={recipientName}
           onChange={(e) => onRecipientNameChange(e.target.value)}
           className="w-full"
@@ -208,14 +220,16 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
         <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 rounded-md">
           <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
           <p className="text-xs text-amber-800">
-            Important: The recipient name must exactly match the name registered on their {isBankAccount ? 'bank account' : 'mobile money account'}. Mismatched names may cause transaction delays or funds being sent to the wrong person.
+            {isBankAccount 
+              ? (t('bank.name_warning') || "Important: The recipient name must exactly match the name registered on their bank account. Mismatched names may cause transaction delays or funds being sent to the wrong person.")
+              : (t('momo.name_warning') || "Important: The recipient name must exactly match the name registered on their mobile money account. Mismatched names may cause transaction delays or funds being sent to the wrong person.")}
           </p>
         </div>
       </div>
 
       <div className="mb-4">
         <Label htmlFor="accountNumber" className="text-sm font-medium mb-2 block">
-          {isBankAccount ? 'Account Number' : 'Mobile Number'}
+          {isBankAccount ? t('bank.account_number') || 'Account Number' : t('momo.number') || 'Mobile Number'}
         </Label>
         <Input
           id="accountNumber"
@@ -226,9 +240,7 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
           inputMode={isBankAccount ? "numeric" : "tel"}
         />
         <p className="text-xs text-gray-500 mt-1">
-          {isBankAccount 
-            ? `Enter the account number for ${countryCode} without any special characters` 
-            : `Enter the full mobile number including country code (${COUNTRY_PHONE_CODES[countryCode] || '+237'})`}
+          {getFormatExample()}
         </p>
       </div>
     </>

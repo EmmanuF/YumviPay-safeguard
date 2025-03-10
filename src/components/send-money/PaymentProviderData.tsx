@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Smartphone, Building, CreditCard } from 'lucide-react';
+import { cameroonPaymentMethods } from '@/data/cameroonPaymentProviders';
 
 export const getIconComponent = (iconName: string) => {
   switch (iconName) {
@@ -15,11 +16,12 @@ export const getIconComponent = (iconName: string) => {
   }
 };
 
-// Hardcoded provider options for demonstration purposes
-// In a real app, this would come from an API or database
+// Provider options for all countries
 export const providerOptions = {
   mobile_money: {
-    CM: [
+    CM: cameroonPaymentMethods
+      .find(method => method.id === 'mobile_money')?.providers
+      .map(provider => ({ id: provider.id, name: provider.name })) || [
       { id: 'mtn_momo', name: 'MTN Mobile Money' },
       { id: 'orange_money', name: 'Orange Money' }
     ],
@@ -38,7 +40,9 @@ export const providerOptions = {
     default: []
   },
   bank_transfer: {
-    CM: [
+    CM: cameroonPaymentMethods
+      .find(method => method.id === 'bank_transfer')?.providers
+      .map(provider => ({ id: provider.id, name: provider.name })) || [
       { id: 'afriland', name: 'Afriland Bank' },
       { id: 'ecobank', name: 'Ecobank' },
       { id: 'uba', name: 'UBA' }
