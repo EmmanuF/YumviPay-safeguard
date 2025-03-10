@@ -7,9 +7,11 @@ export type { Transaction, TransactionStatus };
 // Re-export functions from individual modules
 export { createTransaction } from "./transactionCreate";
 export { 
-  getTransactionById, 
-  getAllTransactions, 
-  getRecentTransactions 
+  getTransaction, 
+  getTransactions, 
+  getRecentTransactions,
+  getTransactionById,
+  getAllTransactions
 } from "./transactionRetrieve";
 export { 
   updateTransactionStatus, 

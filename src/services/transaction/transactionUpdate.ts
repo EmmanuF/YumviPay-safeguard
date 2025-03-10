@@ -3,6 +3,39 @@ import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
 import { isOffline, addPausedRequest } from "@/utils/networkUtils";
 
+// Simulate a webhook from Kado to update transaction status
+export const simulateKadoWebhook = async (transactionId: string): Promise<void> => {
+  // Wait for 3 seconds to simulate external API call
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  
+  // Set the transaction to 'processing' first
+  await updateTransactionStatus(transactionId, 'processing');
+  
+  // After another delay, complete the transaction
+  setTimeout(async () => {
+    // 90% chance of success, 10% chance of failure
+    const success = Math.random() < 0.9;
+    
+    if (success) {
+      await updateTransactionStatus(
+        transactionId, 
+        'completed', 
+        { 
+          completedAt: new Date() 
+        }
+      );
+    } else {
+      await updateTransactionStatus(
+        transactionId, 
+        'failed', 
+        { 
+          failureReason: 'Payment verification failed'
+        }
+      );
+    }
+  }, 5000);
+};
+
 // Update transaction status in Supabase and local storage
 export const updateTransactionStatus = async (
   transactionId: string,

@@ -1,13 +1,14 @@
+
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
-import { isOffline, addPausedRequest } from "@/utils/networkUtils";
+import { isOffline } from "@/utils/networkUtils";
 import { mockTransactions } from "@/data/mockTransactions";
 
 // Ensure status is a valid TransactionStatus
 const ensureValidStatus = (status: string): TransactionStatus => {
   const validStatuses: TransactionStatus[] = [
     'pending', 'processing', 'completed', 'failed', 
-    'offline-pending', 'cancelled', 'refunded'
+    'offline-pending', 'cancelled'
   ];
   
   return validStatuses.includes(status as TransactionStatus) 
@@ -74,6 +75,15 @@ export const getTransactions = async (): Promise<Transaction[]> => {
       return getOfflineTransactions();
     });
   }
+};
+
+// Alias for backward compatibility 
+export const getAllTransactions = getTransactions;
+
+// Get recent transactions (limited number)
+export const getRecentTransactions = async (limit: number = 5): Promise<Transaction[]> => {
+  const transactions = await getTransactions();
+  return transactions.slice(0, limit);
 };
 
 // Get a single transaction by ID
@@ -150,3 +160,6 @@ export const getTransaction = async (id: string): Promise<Transaction | null> =>
   // Return offline data if it exists, otherwise null
   return offlineTransaction || null;
 };
+
+// Alias for backward compatibility
+export const getTransactionById = getTransaction;

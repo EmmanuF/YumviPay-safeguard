@@ -26,11 +26,10 @@ export const useTransactions = () => {
   }, []);
 
   // Load transactions
-  const fetchTransactions = useCallback(() => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      // Now synchronous - returns Transaction[]
-      const data = getAllTransactions();
+      const data = await getAllTransactions();
       setTransactions(data);
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -50,21 +49,28 @@ export const useTransactions = () => {
   }, [fetchTransactions]);
 
   // Get a single transaction by ID
-  const getTransaction = (id: string) => {
-    return getTransactionById(id);
+  const getTransaction = async (id: string) => {
+    return await getTransactionById(id);
   };
 
   // Get recent transactions
-  const getRecentTransactions = (limit: number = 5) => {
-    return getRecentTxs(limit);
+  const getRecentTransactions = async (limit: number = 5) => {
+    return await getRecentTxs(limit);
   };
 
   // Update transaction status
-  const updateStatus = (id: string, status: TransactionStatus, failureReason?: string) => {
-    const updated = updateTransactionStatus(id, status, failureReason);
+  const updateStatus = async (
+    id: string, 
+    status: TransactionStatus, 
+    options?: { 
+      completedAt?: Date; 
+      failureReason?: string; 
+    }
+  ) => {
+    const updated = await updateTransactionStatus(id, status, options);
     if (updated) {
       // Refresh the transactions list
-      fetchTransactions();
+      await fetchTransactions();
       return updated;
     }
     return null;
