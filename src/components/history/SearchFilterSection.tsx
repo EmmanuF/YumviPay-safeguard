@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SearchBar } from './SearchBar';
-import { FilterPopover } from './FilterPopover';
-import { FilterBadges } from './FilterBadges';
+import SearchBar from './SearchBar';
+import FilterPopover from './FilterPopover';
+import FilterBadges from './FilterBadges';
 import { TransactionStatus } from '@/types/transaction';
 
 interface SearchFilterSectionProps {
