@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
+import { BiometricLogin } from '@/components/auth';
+import { BiometricService } from '@/services/biometric';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +29,18 @@ const SignIn: React.FC = () => {
       });
 
       if (error) throw error;
+
+      // Store credentials for biometric login if remember me is checked
+      if (rememberMe) {
+        const biometricEnabled = await BiometricService.isEnabled();
+        if (biometricEnabled) {
+          await BiometricService.storeCredentials(email, password);
+          toast({
+            title: "Biometric login enabled",
+            description: "You can now sign in with biometrics next time.",
+          });
+        }
+      }
 
       toast({
         title: "Welcome back!",
@@ -49,6 +64,8 @@ const SignIn: React.FC = () => {
       <Header title="Sign In" />
       
       <div className="flex-1 flex flex-col px-4 py-6 max-w-md mx-auto w-full">
+        <BiometricLogin />
+        
         <form onSubmit={handleSignIn} className="flex flex-col space-y-6">
           <div>
             <Label htmlFor="email">Email</Label>
@@ -72,6 +89,19 @@ const SignIn: React.FC = () => {
               placeholder="Enter your password"
               required
             />
+          </div>
+          
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              type="checkbox"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              Remember me for biometric login
+            </label>
           </div>
           
           <Button type="submit" disabled={isLoading}>
