@@ -13,6 +13,7 @@ import Profile from '@/pages/Profile';
 import { AuthProvider } from '@/contexts/AuthContext';
 import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
+import Home from '@/pages/Home';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { LocaleProvider } from './contexts/LocaleContext';
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -30,13 +31,14 @@ function App() {
                 <Toaster />
                 <OfflineBanner />
                 <Routes>
-                  {/* Authentication routes */}
+                  {/* Landing and Authentication routes */}
+                  <Route path="/" element={<Home />} />
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/onboarding" element={<Onboarding />} />
                   
                   {/* Main app routes */}
-                  <Route path="/" element={<SendMoney />} />
+                  <Route path="/send" element={<SendMoney />} />
                   <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
                   <Route path="/transaction/:id" element={<ProtectedRoute><TransactionDetails /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
