@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getAuthState, logoutUser } from '@/services/auth';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 import {
   ProfileHeader,
@@ -18,18 +18,22 @@ import {
   EditProfileDialog
 } from '@/components/profile';
 
+import { useNotificationSettings } from '@/hooks/useNotificationSettings';
+
 const Profile = () => {
   const navigate = useNavigate();
+  const { 
+    settings: notificationSettings, 
+    loading: notificationsLoading, 
+    updateSetting: updateNotificationSetting,
+    resetSettings: resetNotificationSettings
+  } = useNotificationSettings();
+  
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editField, setEditField] = useState('');
   const [editValue, setEditValue] = useState('');
-  const [notifications, setNotifications] = useState({
-    transactions: true,
-    marketing: false,
-    updates: true,
-  });
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -45,7 +49,7 @@ const Profile = () => {
             name: 'John Doe',
             email: 'john.doe@example.com',
             phone: '+1 234 567 8901',
-            country: 'United States',
+            country: 'Cameroon',
           });
         } else {
           console.log('User authenticated:', authState.user);
@@ -59,7 +63,7 @@ const Profile = () => {
           name: 'John Doe',
           email: 'john.doe@example.com',
           phone: '+1 234 567 8901',
-          country: 'United States',
+          country: 'Cameroon',
         });
       } finally {
         setLoading(false);
@@ -72,11 +76,18 @@ const Profile = () => {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      toast.success('Logged out successfully');
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully"
+      });
       navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
-      toast.error('Failed to log out');
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive"
+      });
     }
   };
 
@@ -94,13 +105,46 @@ const Profile = () => {
     if (user && editField) {
       const updatedUser = { ...user, [editField]: editValue };
       setUser(updatedUser);
-      toast.success(`${editField.charAt(0).toUpperCase() + editField.slice(1)} updated successfully`);
+      toast({
+        title: "Success",
+        description: `${editField.charAt(0).toUpperCase() + editField.slice(1)} updated successfully`
+      });
       setEditDialogOpen(false);
     }
   };
 
-  const handleNotificationChange = (key: keyof typeof notifications, checked: boolean) => {
-    setNotifications({ ...notifications, [key]: checked });
+  const handleNotificationChange = async (key: keyof typeof notificationSettings, checked: boolean) => {
+    const success = await updateNotificationSetting(key, checked);
+    
+    if (success) {
+      toast({
+        title: "Settings Updated",
+        description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${checked ? 'enabled' : 'disabled'}`
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to update notification settings",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleResetNotifications = async () => {
+    const success = await resetNotificationSettings();
+    
+    if (success) {
+      toast({
+        title: "Reset Complete",
+        description: "Notification settings have been reset to defaults"
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to reset notification settings",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {
@@ -138,8 +182,10 @@ const Profile = () => {
               
               <TabsContent value="preferences" className="space-y-4">
                 <NotificationPreferences 
-                  notifications={notifications}
-                  onNotificationChange={handleNotificationChange}
+                  settings={notificationSettings}
+                  isLoading={notificationsLoading}
+                  onSettingChange={handleNotificationChange}
+                  onResetDefaults={handleResetNotifications}
                 />
               </TabsContent>
             </Tabs>

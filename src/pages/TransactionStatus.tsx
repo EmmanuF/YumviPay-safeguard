@@ -1,18 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTransactionById, Transaction } from '@/services/transactions';
+import { getTransactionById, Transaction, updateTransactionStatus } from '@/services/transactions';
 import { useNotifications } from '@/contexts/NotificationContext';
 import Header from '@/components/Header';
 import HeaderRight from '@/components/HeaderRight';
+import BottomNavigation from '@/components/BottomNavigation';
+import TransactionReceipt from '@/components/transaction/TransactionReceipt';
+import StatusUpdateBar from '@/components/transaction/StatusUpdateBar';
 import {
-  StatusContent,
-  ActionButtons,
   LoadingState,
   TransactionNotFound,
-  StatusUpdateBar,
-  NotificationToggle
+  ActionButtons
 } from '@/components/transaction';
+import { toast } from '@/hooks/use-toast';
 
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,7 @@ const TransactionStatus = () => {
   const { addNotification } = useNotifications();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshInterval, setRefreshInterval] = useState<number | null>(null);
 
   useEffect(() => {
     // Fetch transaction details
@@ -43,26 +45,36 @@ const TransactionStatus = () => {
           type: 'success',
           transactionId: fetchedTransaction.id
         });
+        
+        // Clear any refresh interval once transaction is completed
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          setRefreshInterval(null);
+        }
       }
     };
 
     fetchTransactionDetails();
-  }, [id, addNotification]);
-
-  // Helper function to format transaction for status content
-  const formatTransactionForDisplay = (tx: Transaction) => {
-    return {
-      id: tx.id,
-      status: tx.status,
-      amount: tx.amount,
-      fee: tx.fee,
-      totalAmount: tx.totalAmount,
-      recipient: `${tx.recipientName} (${tx.recipientContact})`,
-      date: tx.createdAt.toLocaleDateString(),
-      estimatedDelivery: tx.estimatedDelivery,
-      failureReason: tx.failureReason
+    
+    // For pending transactions, start a refresh interval to check for updates
+    if (transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
+      // Only set up the interval if it doesn't exist yet
+      if (!refreshInterval) {
+        const interval = window.setInterval(() => {
+          fetchTransactionDetails();
+        }, 5000); // Check every 5 seconds
+        
+        setRefreshInterval(interval);
+      }
+    }
+    
+    // Clean up the interval on unmount
+    return () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
     };
-  };
+  }, [id, addNotification, refreshInterval, transaction?.status]);
 
   const handleShareTransaction = () => {
     // In a real app, this would trigger native sharing
@@ -75,8 +87,19 @@ const TransactionStatus = () => {
         console.log('Error sharing:', error);
       });
     } else {
-      alert('Transaction receipt link copied to clipboard!');
+      toast({
+        title: "Share",
+        description: "Transaction receipt link copied to clipboard!",
+      });
     }
+  };
+
+  const handleDownloadReceipt = () => {
+    // In a mobile app, this would trigger download to device storage
+    toast({
+      title: "Download",
+      description: "Receipt downloaded to your device",
+    });
   };
 
   const handleSendAgain = () => {
@@ -104,6 +127,7 @@ const TransactionStatus = () => {
           rightContent={<HeaderRight showNotification />} 
         />
         <LoadingState />
+        <BottomNavigation />
       </div>
     );
   }
@@ -117,6 +141,7 @@ const TransactionStatus = () => {
           rightContent={<HeaderRight showNotification />} 
         />
         <TransactionNotFound />
+        <BottomNavigation />
       </div>
     );
   }
@@ -129,8 +154,21 @@ const TransactionStatus = () => {
         rightContent={<HeaderRight showNotification />} 
       />
       
-      <div className="flex-1 p-4">
-        <StatusContent transaction={formatTransactionForDisplay(transaction)} />
+      <div className="flex-1 p-4 pb-20">
+        <TransactionReceipt 
+          transaction={transaction}
+          onShare={handleShareTransaction}
+          onDownload={handleDownloadReceipt}
+        />
+        
+        {(transaction.status === 'pending' || transaction.status === 'processing') && (
+          <div className="mt-4">
+            <StatusUpdateBar 
+              transactionId={transaction.id}
+              variant="default"
+            />
+          </div>
+        )}
         
         <div className="mt-6">
           <ActionButtons 
@@ -140,6 +178,8 @@ const TransactionStatus = () => {
           />
         </div>
       </div>
+      
+      <BottomNavigation />
     </div>
   );
 };
