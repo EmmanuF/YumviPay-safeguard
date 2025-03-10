@@ -4,6 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNetwork } from "@/contexts/NetworkContext";
 import { showToast } from "@/utils/transactionUtils";
 
+// Get user ID from current session
+const getUserId = async (): Promise<string | null> => {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id || null;
+};
+
 // Update transaction status
 export const updateTransactionStatus = (
   id: string, 
@@ -41,6 +47,9 @@ export const updateTransactionStatus = (
     // Queue the Supabase update for when connection is restored
     addPausedRequest(async () => {
       try {
+        const userId = await getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
         const { error } = await supabase
           .from('transactions')
           .update({
@@ -49,7 +58,8 @@ export const updateTransactionStatus = (
             updated_at: new Date().toISOString(),
             ...(status === 'completed' && { completed_at: new Date().toISOString() })
           })
-          .eq('id', id);
+          .eq('id', id)
+          .eq('user_id', userId);
           
         if (error) throw error;
         return { success: true };
@@ -63,21 +73,29 @@ export const updateTransactionStatus = (
   }
   
   // Send to Supabase if online - but don't wait
-  supabase
-    .from('transactions')
-    .update({
-      status,
-      failure_reason: failureReason,
-      updated_at: new Date().toISOString(),
-      ...(status === 'completed' && { completed_at: new Date().toISOString() })
-    })
-    .eq('id', id)
-    .then(() => {
-      console.log('Transaction status updated in Supabase');
-    })
-    .catch(error => {
-      console.error('Error updating transaction status via Supabase:', error);
-    });
+  getUserId().then(userId => {
+    if (!userId) {
+      console.error('User not authenticated');
+      return;
+    }
+    
+    supabase
+      .from('transactions')
+      .update({
+        status,
+        failure_reason: failureReason,
+        updated_at: new Date().toISOString(),
+        ...(status === 'completed' && { completed_at: new Date().toISOString() })
+      })
+      .eq('id', id)
+      .eq('user_id', userId)
+      .then(() => {
+        console.log('Transaction status updated in Supabase');
+      })
+      .catch(error => {
+        console.error('Error updating transaction status via Supabase:', error);
+      });
+  });
   
   return updatedTransaction;
 };

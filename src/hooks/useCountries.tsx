@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Country } from '../types/country';
+import { Country, PaymentMethod } from '../types/country';
 import { countries as mockCountries } from '../data/countries';
 import { supabase } from "@/integrations/supabase/client";
 import { useNetwork } from '@/contexts/NetworkContext';
@@ -34,7 +34,7 @@ export function useCountries() {
                 flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
                 isSendingEnabled: country.is_sending_enabled,
                 isReceivingEnabled: country.is_receiving_enabled,
-                paymentMethods: country.payment_methods
+                paymentMethods: (country.payment_methods as PaymentMethod[]) || []
               }));
               
               setCountries(formattedCountries);
@@ -83,7 +83,7 @@ export function useCountries() {
             flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
             isSendingEnabled: country.is_sending_enabled,
             isReceivingEnabled: country.is_receiving_enabled,
-            paymentMethods: country.payment_methods
+            paymentMethods: (country.payment_methods as PaymentMethod[]) || []
           }));
         }
       } catch (error) {
@@ -114,7 +114,7 @@ export function useCountries() {
             flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
             isSendingEnabled: country.is_sending_enabled,
             isReceivingEnabled: country.is_receiving_enabled,
-            paymentMethods: country.payment_methods
+            paymentMethods: (country.payment_methods as PaymentMethod[]) || []
           }));
         }
       } catch (error) {

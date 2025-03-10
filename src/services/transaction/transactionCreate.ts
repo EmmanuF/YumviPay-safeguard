@@ -10,6 +10,12 @@ import {
 } from "@/utils/transactionUtils";
 import { useNetwork } from "@/contexts/NetworkContext";
 
+// Get user ID from current session
+const getUserId = async (): Promise<string | null> => {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id || null;
+};
+
 // Create a new transaction
 export const createTransaction = (
   amount: string,
@@ -46,10 +52,14 @@ export const createTransaction = (
     // Queue the Supabase insert for when connection is restored
     addPausedRequest(async () => {
       try {
+        const userId = await getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
         const { data, error } = await supabase
           .from('transactions')
           .insert({
             id: transaction.id,
+            user_id: userId,
             recipient_id: transaction.recipientId,
             amount: transaction.amount,
             fee: transaction.fee,
@@ -87,34 +97,43 @@ export const createTransaction = (
   
   try {
     // Send to Supabase if online - but don't wait for response
-    supabase
-      .from('transactions')
-      .insert({
-        id: transaction.id,
-        recipient_id: transaction.recipientId,
-        amount: transaction.amount,
-        fee: transaction.fee,
-        recipient_name: transaction.recipientName,
-        recipient_contact: transaction.recipientContact,
-        payment_method: transaction.paymentMethod,
-        provider: transaction.provider,
-        country: transaction.country,
-        status: transaction.status,
-        created_at: transaction.createdAt.toISOString(),
-        updated_at: transaction.updatedAt.toISOString(),
-        estimated_delivery: transaction.estimatedDelivery,
-        total_amount: transaction.totalAmount
-      })
-      .select()
-      .single()
-      .then(({ data }) => {
-        console.log('Transaction created in Supabase:', data);
-      })
-      .catch(error => {
-        console.error('Error creating transaction via Supabase:', error);
-        // Add to local storage as fallback
+    getUserId().then(userId => {
+      if (!userId) {
+        console.error('User not authenticated');
         addOfflineTransaction(transaction);
-      });
+        return;
+      }
+      
+      supabase
+        .from('transactions')
+        .insert({
+          id: transaction.id,
+          user_id: userId,
+          recipient_id: transaction.recipientId,
+          amount: transaction.amount,
+          fee: transaction.fee,
+          recipient_name: transaction.recipientName,
+          recipient_contact: transaction.recipientContact,
+          payment_method: transaction.paymentMethod,
+          provider: transaction.provider,
+          country: transaction.country,
+          status: transaction.status,
+          created_at: transaction.createdAt.toISOString(),
+          updated_at: transaction.updatedAt.toISOString(),
+          estimated_delivery: transaction.estimatedDelivery,
+          total_amount: transaction.totalAmount
+        })
+        .select()
+        .single()
+        .then(({ data }) => {
+          console.log('Transaction created in Supabase:', data);
+        })
+        .catch(error => {
+          console.error('Error creating transaction via Supabase:', error);
+          // Add to local storage as fallback
+          addOfflineTransaction(transaction);
+        });
+    });
     
     return transaction;
   } catch (error) {

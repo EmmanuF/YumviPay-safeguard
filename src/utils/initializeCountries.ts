@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { countries as mockCountries } from '@/data/countries';
+import { Json } from '@/integrations/supabase/types';
 
 // Function to initialize countries in Supabase
 export const initializeCountries = async (): Promise<void> => {
@@ -32,15 +33,19 @@ export const initializeCountries = async (): Promise<void> => {
       flag_emoji: country.code === 'CM' ? '🇨🇲' : country.code === 'NG' ? '🇳🇬' : '🇬🇭',
       is_sending_enabled: country.isSendingEnabled,
       is_receiving_enabled: country.isReceivingEnabled,
-      payment_methods: country.paymentMethods
+      payment_methods: country.paymentMethods as unknown as Json
     }));
     
-    // Insert countries into Supabase
-    const { error: insertError } = await supabase
-      .from('countries')
-      .insert(supabaseCountries);
-      
-    if (insertError) throw insertError;
+    // Insert countries into Supabase one by one to avoid type issues
+    for (const country of supabaseCountries) {
+      const { error: insertError } = await supabase
+        .from('countries')
+        .insert(country);
+        
+      if (insertError) {
+        console.error(`Error inserting country ${country.code}:`, insertError);
+      }
+    }
     
     console.log('Countries initialized successfully!');
   } catch (error) {

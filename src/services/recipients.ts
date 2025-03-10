@@ -1,10 +1,15 @@
-
 import { Recipient } from '@/types/recipient';
 import { Preferences } from '@capacitor/preferences';
 import { supabase } from '@/integrations/supabase/client';
 import { useNetwork } from '@/contexts/NetworkContext';
 
 const RECIPIENTS_STORAGE_KEY = 'yumvi_recipients';
+
+// Get user ID from current session
+const getUserId = async (): Promise<string | null> => {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id || null;
+};
 
 // Get all recipients from Supabase or local storage
 export const getRecipients = async (): Promise<Recipient[]> => {
@@ -13,9 +18,13 @@ export const getRecipients = async (): Promise<Recipient[]> => {
   // Try to get from Supabase first if online
   if (!isOffline) {
     try {
+      const userId = await getUserId();
+      if (!userId) throw new Error('User not authenticated');
+      
       const { data, error } = await supabase
         .from('recipients')
         .select('*')
+        .eq('user_id', userId)
         .order('last_used', { ascending: false });
         
       if (error) throw error;
@@ -74,9 +83,13 @@ export const addRecipient = async (recipient: Omit<Recipient, 'id'>): Promise<Re
     // Queue Supabase insert for when connection is restored
     addPausedRequest(async () => {
       try {
+        const userId = await getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
         const { data, error } = await supabase
           .from('recipients')
           .insert({
+            user_id: userId,
             name: recipient.name,
             contact: recipient.contact,
             country: recipient.country,
@@ -113,9 +126,13 @@ export const addRecipient = async (recipient: Omit<Recipient, 'id'>): Promise<Re
   
   // Online mode: Insert into Supabase
   try {
+    const userId = await getUserId();
+    if (!userId) throw new Error('User not authenticated');
+    
     const { data, error } = await supabase
       .from('recipients')
       .insert({
+        user_id: userId,
         name: recipient.name,
         contact: recipient.contact,
         country: recipient.country,
@@ -190,9 +207,13 @@ export const updateRecipient = async (recipient: Recipient): Promise<Recipient> 
         try {
           // Only update Supabase if this isn't a temporary ID
           if (!recipient.id.startsWith('temp_') && !recipient.id.startsWith('error_')) {
+            const userId = await getUserId();
+            if (!userId) throw new Error('User not authenticated');
+            
             const { error } = await supabase
               .from('recipients')
               .update({
+                user_id: userId,
                 name: recipient.name,
                 contact: recipient.contact,
                 country: recipient.country,
@@ -218,9 +239,13 @@ export const updateRecipient = async (recipient: Recipient): Promise<Recipient> 
     try {
       // Only update Supabase if this isn't a temporary ID
       if (!recipient.id.startsWith('temp_') && !recipient.id.startsWith('error_')) {
+        const userId = await getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
         const { error } = await supabase
           .from('recipients')
           .update({
+            user_id: userId,
             name: recipient.name,
             contact: recipient.contact,
             country: recipient.country,

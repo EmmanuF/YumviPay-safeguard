@@ -17,8 +17,12 @@ import TransactionStatus from '@/pages/TransactionStatus';
 import Auth from '@/pages/Auth';
 
 // Contexts
-import { NetworkContextProvider } from '@/contexts/NetworkContext';
+import { NetworkProvider } from '@/contexts/NetworkContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Create a client
+const queryClient = new QueryClient();
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -52,43 +56,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <NetworkContextProvider>
-        <NotificationProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/auth" element={<Auth />} />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <NetworkProvider queryClient={queryClient}>
+          <NotificationProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/auth" element={<Auth />} />
+              
+              {/* Protected routes - require authentication */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute><Dashboard /></ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute><Profile /></ProtectedRoute>
+              } />
+              <Route path="/recipients" element={
+                <ProtectedRoute><Recipients /></ProtectedRoute>
+              } />
+              <Route path="/send" element={
+                <ProtectedRoute><SendMoney /></ProtectedRoute>
+              } />
+              <Route path="/history" element={
+                <ProtectedRoute><History /></ProtectedRoute>
+              } />
+              <Route path="/transaction/:id" element={
+                <ProtectedRoute><TransactionStatus /></ProtectedRoute>
+              } />
+              
+              {/* 404 route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
             
-            {/* Protected routes - require authentication */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute><Dashboard /></ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute><Profile /></ProtectedRoute>
-            } />
-            <Route path="/recipients" element={
-              <ProtectedRoute><Recipients /></ProtectedRoute>
-            } />
-            <Route path="/send" element={
-              <ProtectedRoute><SendMoney /></ProtectedRoute>
-            } />
-            <Route path="/history" element={
-              <ProtectedRoute><History /></ProtectedRoute>
-            } />
-            <Route path="/transaction/:id" element={
-              <ProtectedRoute><TransactionStatus /></ProtectedRoute>
-            } />
-            
-            {/* 404 route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          
-          <Toaster />
-        </NotificationProvider>
-      </NetworkContextProvider>
-    </BrowserRouter>
+            <Toaster />
+          </NotificationProvider>
+        </NetworkProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
