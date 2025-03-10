@@ -41,3 +41,29 @@ export const showToast = (title: string, description: string, variant?: "default
     variant,
   });
 };
+
+// Resend transaction receipt to recipient's email/SMS
+export const resendTransactionReceipt = async (transactionId: string): Promise<boolean> => {
+  // Simulate API call to resend receipt
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Simulate 90% success rate
+      const isSuccessful = Math.random() < 0.9;
+      
+      if (isSuccessful) {
+        showToast(
+          "Receipt sent",
+          "Transaction receipt has been resent successfully"
+        );
+        resolve(true);
+      } else {
+        showToast(
+          "Failed to send receipt",
+          "There was an error sending the receipt. Please try again.",
+          "destructive"
+        );
+        resolve(false);
+      }
+    }, 2000); // Simulate 2 second delay
+  });
+};

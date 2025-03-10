@@ -12,12 +12,14 @@ interface TransactionReceiptProps {
   transaction: Transaction;
   onShare?: () => void;
   onDownload?: () => void;
+  onResend?: () => void;
 }
 
 const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
   transaction,
   onShare,
-  onDownload
+  onDownload,
+  onResend
 }) => {
   const { getCountryByCode } = useCountries();
   const countryCode = transaction.recipientCountryCode || 'CM';
@@ -57,6 +59,18 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
         return 'bg-blue-50 text-blue-700';
       default:
         return 'bg-amber-50 text-amber-700';
+    }
+  };
+
+  // Format timestamp to display time if it's today, otherwise show date
+  const formatTimeOrDate = (timestamp: Date) => {
+    const today = new Date();
+    const txDate = new Date(timestamp);
+    
+    if (today.toDateString() === txDate.toDateString()) {
+      return txDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+      return formatDate(timestamp);
     }
   };
 
@@ -102,6 +116,12 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
               ${transaction.totalAmount || (parseFloat(transaction.amount) + parseFloat(transaction.fee || '0')).toFixed(2)}
             </p>
           </div>
+          
+          {transaction.exchangeRate && (
+            <div className="mt-2 p-2 bg-primary-100 rounded text-sm text-primary-800">
+              <p>Exchange Rate: 1 USD = {transaction.exchangeRate} {transaction.currency || 'XAF'}</p>
+            </div>
+          )}
         </div>
         
         {/* Details */}
@@ -148,6 +168,10 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
                   <span className="text-gray-600">Date</span>
                   <span className="font-medium">{formatDate(transaction.createdAt)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Time</span>
+                  <span className="font-medium">{formatTimeOrDate(transaction.createdAt)}</span>
+                </div>
                 {transaction.estimatedDelivery && transaction.status !== 'completed' && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Estimated Delivery</span>
@@ -168,6 +192,19 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
                 )}
               </div>
             </div>
+            
+            {transaction.type && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">TRANSACTION TYPE</h3>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Type</span>
+                    <span className="font-medium">{transaction.type}</span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
         

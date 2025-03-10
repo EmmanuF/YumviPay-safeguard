@@ -14,6 +14,7 @@ import {
   ActionButtons
 } from '@/components/transaction';
 import { toast } from '@/hooks/use-toast';
+import { resendTransactionReceipt } from '@/utils/transactionUtils';
 
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ const TransactionStatus = () => {
   const { addNotification } = useNotifications();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isResending, setIsResending] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState<number | null>(null);
 
   useEffect(() => {
@@ -117,6 +119,34 @@ const TransactionStatus = () => {
       }
     });
   };
+  
+  const handleResendReceipt = async () => {
+    if (!transaction || isResending) return;
+    
+    setIsResending(true);
+    
+    try {
+      const success = await resendTransactionReceipt(transaction.id);
+      
+      if (success) {
+        addNotification({
+          title: "Receipt Sent",
+          message: `Transaction receipt has been sent to ${transaction.recipientName}.`,
+          type: 'success',
+          transactionId: transaction.id
+        });
+      }
+    } catch (error) {
+      console.error('Error resending receipt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to resend receipt. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -154,11 +184,12 @@ const TransactionStatus = () => {
         rightContent={<HeaderRight showNotification />} 
       />
       
-      <div className="flex-1 p-4 pb-20">
+      <div className="flex-1 p-4 pb-20 overflow-auto">
         <TransactionReceipt 
           transaction={transaction}
           onShare={handleShareTransaction}
           onDownload={handleDownloadReceipt}
+          onResend={handleResendReceipt}
         />
         
         {(transaction.status === 'pending' || transaction.status === 'processing') && (
@@ -174,6 +205,8 @@ const TransactionStatus = () => {
           <ActionButtons 
             handleShareTransaction={handleShareTransaction} 
             handleSendAgain={handleSendAgain}
+            handleResendReceipt={handleResendReceipt}
+            isResending={isResending}
             transactionStatus={transaction.status}
           />
         </div>
