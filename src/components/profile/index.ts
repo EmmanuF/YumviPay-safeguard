@@ -6,4 +6,3 @@ export { default as NotificationPreferences } from './NotificationPreferences';
 export { default as EditProfileDialog } from './EditProfileDialog';
 export { default as BiometricSettings } from './BiometricSettings';
 export { default as ChangePasswordDialog } from './ChangePasswordDialog';
-export { default as ProfileContent } from './ProfileContent';
