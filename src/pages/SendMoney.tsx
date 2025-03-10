@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SendMoneyLayout } from '@/components/send-money/SendMoneyLayout';
-import { AmountStep } from '@/components/send-money/AmountStep';
-import { RecipientStep } from '@/components/send-money/RecipientStep';
-import { PaymentStep } from '@/components/send-money/PaymentStep';
-import { ConfirmationStep } from '@/components/send-money/ConfirmationStep';
+import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
+import AmountStep from '@/components/send-money/AmountStep';
+import RecipientStep from '@/components/send-money/RecipientStep';
+import PaymentStep from '@/components/send-money/PaymentStep';
+import ConfirmationStep from '@/components/send-money/ConfirmationStep';
 import { useToast } from '@/components/ui/use-toast';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
