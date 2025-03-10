@@ -16,7 +16,7 @@ const SignUp: React.FC = () => {
     email: '',
     password: '',
     phoneNumber: '',
-    country: 'CM', // Default to Cameroon
+    country: 'CM', // Default to Cameroon as receiving country
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -99,15 +99,17 @@ const SignUp: React.FC = () => {
           </div>
           
           <div>
-            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
             <Input
               id="phoneNumber"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
-              placeholder="+237 6XX XX XX XX"
-              required
+              placeholder="Enter your phone number"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              This field is optional
+            </p>
           </div>
           
           <Button type="submit" disabled={isLoading}>

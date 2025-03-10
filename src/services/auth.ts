@@ -13,15 +13,22 @@ export const registerUser = async (
   country: string
 ): Promise<any> => {
   try {
+    // Prepare user metadata - only include phone if provided
+    const userData: Record<string, string> = {
+      full_name: name,
+      country_code: country,
+    };
+    
+    // Only add phone_number to metadata if it's provided
+    if (phone) {
+      userData.phone_number = phone;
+    }
+    
     const { data, error } = await supabase.auth.signUp({
       email,
-      password: phone, // For demo purposes, using phone as password
+      password: email, // Using email as password for demo purposes
       options: {
-        data: {
-          full_name: name,
-          phone_number: phone,
-          country_code: country,
-        }
+        data: userData
       }
     });
 
