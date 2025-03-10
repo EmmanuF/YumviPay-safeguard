@@ -5,6 +5,11 @@ import { mockTransactions } from "@/data/mockTransactions";
 // Fallback to mock data when offline or API fails
 let offlineTransactions: Transaction[] = [...mockTransactions];
 
+// Get stored transactions (this function was missing)
+export const getStoredTransactions = (): Transaction[] => {
+  return offlineTransactions;
+};
+
 // Get offline transactions
 export const getOfflineTransactions = (): Transaction[] => {
   return offlineTransactions;

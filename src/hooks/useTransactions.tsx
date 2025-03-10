@@ -53,9 +53,9 @@ export const useTransactions = () => {
     return await getTransactionById(id);
   };
 
-  // Get recent transactions
-  const getRecentTransactions = async (limit: number = 5) => {
-    return await getRecentTxs(limit);
+  // Get recent transactions - removed the limit parameter since the implementation doesn't use it
+  const getRecentTransactions = async () => {
+    return await getRecentTxs();
   };
 
   // Update transaction status
