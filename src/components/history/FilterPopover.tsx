@@ -5,12 +5,12 @@ import {
   PopoverContent, 
   PopoverTrigger 
 } from '@/components/ui/popover';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { TransactionStatus } from '@/types/transaction';
 import FilterButton from './FilterButton';
+import StatusFilter from './StatusFilter';
+import DateFilter from './DateFilter';
+import CountryFilter from './CountryFilter';
 
 interface FilterPopoverProps {
   showFilters: boolean;
@@ -62,67 +62,21 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
             </Button>
           </div>
           
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Status</h4>
-            <RadioGroup value={statusFilter} onValueChange={(value) => setStatusFilter(value as TransactionStatus | 'all')}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="all" id="status-all" />
-                <Label htmlFor="status-all">All</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="completed" id="status-completed" />
-                <Label htmlFor="status-completed">Completed</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="pending" id="status-pending" />
-                <Label htmlFor="status-pending">Pending</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="failed" id="status-failed" />
-                <Label htmlFor="status-failed">Failed</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <StatusFilter 
+            statusFilter={statusFilter} 
+            setStatusFilter={setStatusFilter}
+          />
           
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Date</h4>
-            <RadioGroup value={dateFilter} onValueChange={setDateFilter}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="all" id="date-all" />
-                <Label htmlFor="date-all">All time</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="today" id="date-today" />
-                <Label htmlFor="date-today">Today</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="week" id="date-week" />
-                <Label htmlFor="date-week">Last 7 days</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="month" id="date-month" />
-                <Label htmlFor="date-month">Last 30 days</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <DateFilter 
+            dateFilter={dateFilter} 
+            setDateFilter={setDateFilter}
+          />
           
-          {uniqueCountries.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Country</h4>
-              <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                {uniqueCountries.map((country) => (
-                  <div key={country} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`country-${country}`} 
-                      checked={countryFilter.includes(country)}
-                      onCheckedChange={() => toggleCountryFilter(country)}
-                    />
-                    <Label htmlFor={`country-${country}`}>{country}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <CountryFilter 
+            countryFilter={countryFilter} 
+            uniqueCountries={uniqueCountries} 
+            toggleCountryFilter={toggleCountryFilter}
+          />
           
           <div className="flex justify-between pt-2">
             <Button 
