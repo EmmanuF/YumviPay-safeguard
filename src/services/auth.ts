@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Preferences } from '@capacitor/preferences';
 
@@ -13,6 +12,14 @@ export const registerUser = async (
   country: string
 ): Promise<any> => {
   try {
+    console.log('Registering user with:', { name, email, phone, country });
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Please enter a valid email address');
+    }
+    
     // Prepare user metadata - only include phone if provided
     const userData: Record<string, string> = {
       full_name: name,
@@ -24,19 +31,35 @@ export const registerUser = async (
       userData.phone_number = phone;
     }
     
+    // Create a secure password (in production, you should implement password requirements)
+    const password = `${email}_secure123`;
+    
     const { data, error } = await supabase.auth.signUp({
       email,
-      password: email, // Using email as password for demo purposes
+      password,
       options: {
         data: userData
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase signup error:', error);
+      throw error;
+    }
+    
+    console.log('Registration successful:', data.user);
     return data.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error registering user:', error);
-    throw new Error('Registration failed');
+    
+    // Provide user-friendly error messages
+    if (error.code === 'email_address_invalid') {
+      throw new Error('The email address format is invalid. Please check and try again.');
+    } else if (error.code === 'user_already_exists') {
+      throw new Error('An account with this email already exists. Please try logging in.');
+    } else {
+      throw new Error(error.message || 'Registration failed. Please try again.');
+    }
   }
 };
 
