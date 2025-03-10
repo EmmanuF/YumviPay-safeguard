@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Share, SendHorizontal, Download, Mail, RefreshCw } from 'lucide-react';
+import { Share, SendHorizontal, Download, Mail, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ActionButtonsProps {
@@ -10,6 +10,7 @@ interface ActionButtonsProps {
   handleResendReceipt?: () => void;
   isResending?: boolean;
   transactionStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+  isOnline?: boolean;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({ 
@@ -17,7 +18,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   handleSendAgain,
   handleResendReceipt,
   isResending = false,
-  transactionStatus = 'completed'
+  transactionStatus = 'completed',
+  isOnline = true
 }) => {
   const showSendAgain = transactionStatus === 'completed' || transactionStatus === 'failed';
   
@@ -33,6 +35,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         variant="outline" 
         className="w-full flex justify-center items-center"
         size="lg"
+        disabled={!isOnline && !navigator.share}
       >
         <Share className="mr-2 h-4 w-4" />
         Share Receipt
@@ -53,12 +56,17 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           variant="outline"
           className="w-full flex justify-center items-center"
           size="lg"
-          disabled={isResending}
+          disabled={isResending || !isOnline}
         >
           {isResending ? (
             <>
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               Sending...
+            </>
+          ) : !isOnline ? (
+            <>
+              <AlertTriangle className="mr-2 h-4 w-4 text-amber-500" />
+              Offline - Cannot Send
             </>
           ) : (
             <>
@@ -74,9 +82,19 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           onClick={handleSendAgain} 
           className="w-full flex justify-center items-center"
           size="lg"
+          disabled={!isOnline}
         >
-          <SendHorizontal className="mr-2 h-4 w-4" />
-          Send Again
+          {!isOnline ? (
+            <>
+              <AlertTriangle className="mr-2 h-4 w-4 text-amber-500" />
+              Offline - Cannot Send Again
+            </>
+          ) : (
+            <>
+              <SendHorizontal className="mr-2 h-4 w-4" />
+              Send Again
+            </>
+          )}
         </Button>
       )}
     </motion.div>
