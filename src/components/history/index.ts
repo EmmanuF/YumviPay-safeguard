@@ -9,4 +9,5 @@ export { default as DateFilter } from './DateFilter';
 export { default as CountryFilter } from './CountryFilter';
 export { default as TransactionsList } from './TransactionsList';
 export { default as TransactionGroup } from './TransactionGroup';
+export { default as ExportButton } from './ExportButton';
 export { SearchFilterSection } from './SearchFilterSection';

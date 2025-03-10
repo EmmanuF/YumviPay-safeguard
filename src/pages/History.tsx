@@ -64,6 +64,7 @@ const History = () => {
             hasActiveFilters={hasActiveFilters}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
+            filteredTransactions={filteredTransactions}
           />
           
           {/* Transactions List */}

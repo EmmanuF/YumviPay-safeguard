@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import SearchBar from './SearchBar';
 import FilterPopover from './FilterPopover';
 import FilterBadges from './FilterBadges';
+import ExportButton from './ExportButton';
 import { TransactionStatus } from '@/types/transaction';
 
 interface SearchFilterSectionProps {
@@ -21,6 +22,7 @@ interface SearchFilterSectionProps {
   hasActiveFilters: boolean;
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
+  filteredTransactions: any[];
 }
 
 const itemVariants = {
@@ -49,7 +51,8 @@ export const SearchFilterSection: React.FC<SearchFilterSectionProps> = ({
   resetFilters,
   hasActiveFilters,
   showFilters,
-  setShowFilters
+  setShowFilters,
+  filteredTransactions
 }) => {
   return (
     <motion.div variants={itemVariants} className="mb-6">
@@ -73,6 +76,8 @@ export const SearchFilterSection: React.FC<SearchFilterSectionProps> = ({
           resetFilters={resetFilters}
           hasActiveFilters={hasActiveFilters}
         />
+        
+        <ExportButton transactions={filteredTransactions} />
       </div>
       
       {/* Active filters */}
