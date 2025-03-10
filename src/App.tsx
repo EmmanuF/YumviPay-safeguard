@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NetworkProvider, OfflineBanner } from '@/contexts/NetworkContext';
@@ -41,7 +42,7 @@ function App() {
               {isOffline && <OfflineBanner />}
             </AnimatePresence>
             <QueryClientProvider client={queryClient}>
-              <Toaster position="top-center" />
+              <Toaster />
               <Routes>
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />

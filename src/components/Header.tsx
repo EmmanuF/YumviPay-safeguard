@@ -13,6 +13,7 @@ interface HeaderProps {
   showBackButton?: boolean;
   onBackClick?: () => void;
   rightElement?: React.ReactNode;
+  rightContent?: React.ReactNode; // Added to support both naming conventions
   transparent?: boolean;
   showNotification?: boolean;
 }
@@ -22,6 +23,7 @@ const Header: React.FC<HeaderProps> = ({
   showBackButton = false,
   onBackClick,
   rightElement,
+  rightContent, // Added to support both naming conventions
   transparent = false,
   showNotification = false,
 }) => {
@@ -35,6 +37,9 @@ const Header: React.FC<HeaderProps> = ({
       navigate(-1);
     }
   };
+
+  // Use either rightElement or rightContent, prioritizing rightElement if both are provided
+  const rightComponent = rightElement || rightContent;
 
   return (
     <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent' : 'bg-white border-b border-gray-200'}`}>
@@ -54,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
         
         <div className="flex items-center space-x-2">
           <LocaleSwitcher />
-          {rightElement || <HeaderRight showNotification={showNotification} />}
+          {rightComponent || <HeaderRight showNotification={showNotification} />}
         </div>
       </div>
     </header>

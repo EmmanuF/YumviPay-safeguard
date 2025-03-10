@@ -1,7 +1,9 @@
+
 import { Recipient } from '@/types/recipient';
 import { Preferences } from '@capacitor/preferences';
 import { supabase } from '@/integrations/supabase/client';
 import { useNetwork } from '@/contexts/NetworkContext';
+import { isOffline as checkIsOffline, addPausedRequest as queueRequest } from '@/utils/networkUtils';
 
 const RECIPIENTS_STORAGE_KEY = 'yumvi_recipients';
 
@@ -13,7 +15,7 @@ const getUserId = async (): Promise<string | null> => {
 
 // Get all recipients from Supabase or local storage
 export const getRecipients = async (): Promise<Recipient[]> => {
-  const { isOffline } = useNetwork();
+  const isOffline = checkIsOffline();
   
   // Try to get from Supabase first if online
   if (!isOffline) {
@@ -63,7 +65,7 @@ export const getRecipients = async (): Promise<Recipient[]> => {
 
 // Add a new recipient
 export const addRecipient = async (recipient: Omit<Recipient, 'id'>): Promise<Recipient> => {
-  const { isOffline, addPausedRequest } = useNetwork();
+  const isOffline = checkIsOffline();
   
   if (isOffline) {
     // Create a temporary ID for offline mode
@@ -81,7 +83,7 @@ export const addRecipient = async (recipient: Omit<Recipient, 'id'>): Promise<Re
     });
     
     // Queue Supabase insert for when connection is restored
-    addPausedRequest(async () => {
+    queueRequest(async () => {
       try {
         const userId = await getUserId();
         if (!userId) throw new Error('User not authenticated');
@@ -183,7 +185,7 @@ export const addRecipient = async (recipient: Omit<Recipient, 'id'>): Promise<Re
 
 // Update an existing recipient
 export const updateRecipient = async (recipient: Recipient): Promise<Recipient> => {
-  const { isOffline, addPausedRequest } = useNetwork();
+  const isOffline = checkIsOffline();
   
   // Update locally first
   try {
@@ -203,7 +205,7 @@ export const updateRecipient = async (recipient: Recipient): Promise<Recipient> 
     
     if (isOffline) {
       // Queue Supabase update for when connection is restored
-      addPausedRequest(async () => {
+      queueRequest(async () => {
         try {
           // Only update Supabase if this isn't a temporary ID
           if (!recipient.id.startsWith('temp_') && !recipient.id.startsWith('error_')) {
@@ -271,7 +273,7 @@ export const updateRecipient = async (recipient: Recipient): Promise<Recipient> 
 
 // Delete a recipient
 export const deleteRecipient = async (id: string): Promise<void> => {
-  const { isOffline, addPausedRequest } = useNetwork();
+  const isOffline = checkIsOffline();
   
   // Remove from local storage first
   try {
@@ -285,7 +287,7 @@ export const deleteRecipient = async (id: string): Promise<void> => {
     
     if (isOffline) {
       // Queue Supabase delete for when connection is restored
-      addPausedRequest(async () => {
+      queueRequest(async () => {
         try {
           // Only delete from Supabase if this isn't a temporary ID
           if (!id.startsWith('temp_') && !id.startsWith('error_')) {
