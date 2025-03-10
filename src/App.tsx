@@ -1,141 +1,95 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { App as CapApp } from '@capacitor/app';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { StatusBar, Style } from '@capacitor/status-bar';
-import { Keyboard } from '@capacitor/keyboard';
 
-import { NotificationProvider } from "@/contexts/NotificationContext";
-import { NetworkProvider } from "@/contexts/NetworkContext";
-import { OfflineBanner } from "@/components/OfflineBanner";
-import Index from "./pages/Index";
-import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
-import SendMoney from "./pages/SendMoney";
-import History from "./pages/History";
-import Recipients from "./pages/Recipients";
-import TransactionStatus from "./pages/TransactionStatus";
-import Profile from "./pages/Profile";
-import NotFound from "./pages/NotFound";
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { supabase } from '@/integrations/supabase/client';
 
-// Configure React Query with offline-friendly settings
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 3,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-    },
-    mutations: {
-      // React Query v5 doesn't have global onError handlers
-      // We'll handle errors at the component level
-    }
-  },
-});
+// Pages
+import Dashboard from '@/pages/Dashboard';
+import History from '@/pages/History';
+import Index from '@/pages/Index';
+import Onboarding from '@/pages/Onboarding';
+import NotFound from '@/pages/NotFound';
+import Profile from '@/pages/Profile';
+import Recipients from '@/pages/Recipients';
+import SendMoney from '@/pages/SendMoney';
+import TransactionStatus from '@/pages/TransactionStatus';
+import Auth from '@/pages/Auth';
 
-const App = () => {
-  const [initialRoute, setInitialRoute] = useState<string | null>(null);
-  const [appReady, setAppReady] = useState(false);
+// Contexts
+import { NetworkContextProvider } from '@/contexts/NetworkContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // For web browsers, skip native device initialization
-        if (typeof window !== 'undefined' && window.location.protocol.includes('http')) {
-          setInitialRoute('/');
-          setAppReady(true);
-          return;
-        }
-        
-        // Mobile device initialization
-        try {
-          await SplashScreen.hide();
-          await StatusBar.setStyle({ style: Style.Dark });
-          Keyboard.setAccessoryBarVisible({ isVisible: false });
-        } catch (deviceError) {
-          console.warn('Device API error (non-critical):', deviceError);
-        }
-        
-        // Add back button listener for Android
-        try {
-          CapApp.addListener('backButton', ({ canGoBack }) => {
-            if (!canGoBack) {
-              CapApp.exitApp();
-            } else {
-              window.history.back();
-            }
-          });
-        } catch (listenerError) {
-          console.warn('Back button listener error (non-critical):', listenerError);
-        }
-        
-        setInitialRoute('/');
-        setAppReady(true);
-      } catch (error) {
-        console.error('Error initializing app:', error);
-        // Fallback to ensure the app loads even if there's an error
-        setInitialRoute('/');
-        setAppReady(true);
-      }
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setAuthenticated(!!data.session);
+      setLoading(false);
     };
-
-    initializeApp();
-
+    
+    checkAuth();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setAuthenticated(!!session);
+    });
+    
     return () => {
-      // Cleanup listener on component unmount
-      if (typeof window !== 'undefined' && 
-          !window.location.protocol.includes('http') && 
-          CapApp && 
-          typeof CapApp.removeAllListeners === 'function') {
-        try {
-          CapApp.removeAllListeners();
-        } catch (error) {
-          console.warn('Error removing listeners:', error);
-        }
-      }
+      subscription.unsubscribe();
     };
   }, []);
 
-  // Show a simple loading state while initializing
-  if (!appReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-primary">Loading application...</div>
-      </div>
-    );
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <NotificationProvider>
-          <NetworkProvider queryClient={queryClient}>
-            <Toaster />
-            <Sonner />
-            <OfflineBanner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/send" element={<SendMoney />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/recipients" element={<Recipients />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/transaction/:id" element={<TransactionStatus />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </NetworkProvider>
-        </NotificationProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
+  return authenticated ? <>{children}</> : <Navigate to="/auth" />;
 };
+
+function App() {
+  return (
+    <BrowserRouter>
+      <NetworkContextProvider>
+        <NotificationProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Protected routes - require authentication */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute><Dashboard /></ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute><Profile /></ProtectedRoute>
+            } />
+            <Route path="/recipients" element={
+              <ProtectedRoute><Recipients /></ProtectedRoute>
+            } />
+            <Route path="/send" element={
+              <ProtectedRoute><SendMoney /></ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute><History /></ProtectedRoute>
+            } />
+            <Route path="/transaction/:id" element={
+              <ProtectedRoute><TransactionStatus /></ProtectedRoute>
+            } />
+            
+            {/* 404 route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          
+          <Toaster />
+        </NotificationProvider>
+      </NetworkContextProvider>
+    </BrowserRouter>
+  );
+}
 
 export default App;

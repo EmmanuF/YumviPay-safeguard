@@ -1,7 +1,7 @@
 
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { Recipient } from "@/types/recipient";
-import { apiService } from "../apiService";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   calculateFee, 
   calculateTotal, 
@@ -43,19 +43,39 @@ export const createTransaction = (
     // Store transaction locally if offline
     addOfflineTransaction(transaction);
     
-    // Queue the API call for when connection is restored
+    // Queue the Supabase insert for when connection is restored
     addPausedRequest(async () => {
       try {
-        const result = await apiService.transactions.create(transaction);
+        const { data, error } = await supabase
+          .from('transactions')
+          .insert({
+            id: transaction.id,
+            recipient_id: transaction.recipientId,
+            amount: transaction.amount,
+            fee: transaction.fee,
+            recipient_name: transaction.recipientName,
+            recipient_contact: transaction.recipientContact,
+            payment_method: transaction.paymentMethod,
+            provider: transaction.provider,
+            country: transaction.country,
+            status: 'pending', // Change from offline-pending to pending
+            created_at: transaction.createdAt.toISOString(),
+            updated_at: transaction.updatedAt.toISOString(),
+            estimated_delivery: transaction.estimatedDelivery,
+            total_amount: transaction.totalAmount
+          })
+          .select()
+          .single();
+          
+        if (error) throw error;
         
         // Update the local transaction with server data
         updateLocalTransaction(transaction.id, {
           ...transaction,
-          ...result,
           status: 'pending'
         });
         
-        return result;
+        return data;
       } catch (error) {
         console.error('Failed to sync transaction:', error);
         throw error;
@@ -66,13 +86,34 @@ export const createTransaction = (
   }
   
   try {
-    // Send to API if online - but don't wait for response
-    apiService.transactions.create(transaction)
-      .then(result => {
-        console.log('Transaction created on API:', result);
+    // Send to Supabase if online - but don't wait for response
+    supabase
+      .from('transactions')
+      .insert({
+        id: transaction.id,
+        recipient_id: transaction.recipientId,
+        amount: transaction.amount,
+        fee: transaction.fee,
+        recipient_name: transaction.recipientName,
+        recipient_contact: transaction.recipientContact,
+        payment_method: transaction.paymentMethod,
+        provider: transaction.provider,
+        country: transaction.country,
+        status: transaction.status,
+        created_at: transaction.createdAt.toISOString(),
+        updated_at: transaction.updatedAt.toISOString(),
+        estimated_delivery: transaction.estimatedDelivery,
+        total_amount: transaction.totalAmount
+      })
+      .select()
+      .single()
+      .then(({ data }) => {
+        console.log('Transaction created in Supabase:', data);
       })
       .catch(error => {
-        console.error('Error creating transaction via API:', error);
+        console.error('Error creating transaction via Supabase:', error);
+        // Add to local storage as fallback
+        addOfflineTransaction(transaction);
       });
     
     return transaction;

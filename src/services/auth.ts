@@ -1,52 +1,9 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { Preferences } from '@capacitor/preferences';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  country: string;
-}
-
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  hasCompletedOnboarding: boolean;
-}
-
-// Default auth state
-const defaultState: AuthState = {
-  user: null,
-  isAuthenticated: false,
-  hasCompletedOnboarding: false,
-};
 
 // Keys for storage
 const AUTH_STATE_KEY = 'yumvi_auth_state';
-
-// Get auth state from storage
-export const getAuthState = async (): Promise<AuthState> => {
-  try {
-    const { value } = await Preferences.get({ key: AUTH_STATE_KEY });
-    return value ? JSON.parse(value) : defaultState;
-  } catch (error) {
-    console.error('Error getting auth state:', error);
-    return defaultState;
-  }
-};
-
-// Save auth state to storage
-export const saveAuthState = async (state: AuthState): Promise<void> => {
-  try {
-    await Preferences.set({
-      key: AUTH_STATE_KEY,
-      value: JSON.stringify(state),
-    });
-  } catch (error) {
-    console.error('Error saving auth state:', error);
-  }
-};
 
 // Register a new user
 export const registerUser = async (
@@ -54,27 +11,22 @@ export const registerUser = async (
   email: string,
   phone: string,
   country: string
-): Promise<User> => {
+): Promise<any> => {
   try {
-    // In a real app, this would be an API call to your backend
-    // For now, we'll simulate a successful registration
-    const user: User = {
-      id: `user_${Date.now()}`,
-      name,
+    const { data, error } = await supabase.auth.signUp({
       email,
-      phone,
-      country,
-    };
+      password: phone, // For demo purposes, using phone as password
+      options: {
+        data: {
+          full_name: name,
+          phone_number: phone,
+          country_code: country,
+        }
+      }
+    });
 
-    // Update auth state
-    const authState: AuthState = {
-      user,
-      isAuthenticated: true,
-      hasCompletedOnboarding: true,
-    };
-
-    await saveAuthState(authState);
-    return user;
+    if (error) throw error;
+    return data.user;
   } catch (error) {
     console.error('Error registering user:', error);
     throw new Error('Registration failed');
@@ -84,10 +36,17 @@ export const registerUser = async (
 // Log out user
 export const logoutUser = async (): Promise<void> => {
   try {
-    // In a real app, this would include API calls to invalidate tokens, etc.
-    await saveAuthState({
-      ...defaultState,
-      hasCompletedOnboarding: true, // Keep onboarding state
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
+    // Clear local storage data as well
+    await Preferences.set({
+      key: AUTH_STATE_KEY,
+      value: JSON.stringify({
+        user: null,
+        isAuthenticated: false,
+        hasCompletedOnboarding: true, // Keep onboarding state
+      }),
     });
   } catch (error) {
     console.error('Error logging out:', error);
@@ -99,19 +58,72 @@ export const logoutUser = async (): Promise<void> => {
 export const setOnboardingComplete = async (): Promise<void> => {
   try {
     const currentState = await getAuthState();
-    await saveAuthState({
-      ...currentState,
-      hasCompletedOnboarding: true,
+    await Preferences.set({
+      key: AUTH_STATE_KEY,
+      value: JSON.stringify({
+        ...currentState,
+        hasCompletedOnboarding: true,
+      }),
     });
   } catch (error) {
     console.error('Error setting onboarding complete:', error);
   }
 };
 
+// Get auth state from Supabase and storage
+export const getAuthState = async (): Promise<any> => {
+  try {
+    // First check Supabase session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Then get additional state from local storage
+    const { value } = await Preferences.get({ key: AUTH_STATE_KEY });
+    const localState = value ? JSON.parse(value) : { 
+      user: null, 
+      isAuthenticated: false, 
+      hasCompletedOnboarding: false 
+    };
+    
+    if (session && session.user) {
+      // Get user profile from Supabase
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      return {
+        user: {
+          id: session.user.id,
+          name: profile?.full_name || session.user.user_metadata?.full_name || 'User',
+          email: session.user.email,
+          phone: profile?.phone_number || session.user.user_metadata?.phone_number,
+          country: profile?.country_code || session.user.user_metadata?.country_code,
+        },
+        isAuthenticated: true,
+        hasCompletedOnboarding: localState.hasCompletedOnboarding
+      };
+    }
+    
+    return localState;
+  } catch (error) {
+    console.error('Error getting auth state:', error);
+    // If there's an error, return an unauthenticated state but preserve onboarding status
+    const { value } = await Preferences.get({ key: AUTH_STATE_KEY });
+    const hasCompletedOnboarding = value ? JSON.parse(value).hasCompletedOnboarding : false;
+    
+    return {
+      user: null,
+      isAuthenticated: false,
+      hasCompletedOnboarding
+    };
+  }
+};
+
 // Check if user is authenticated
 export const isAuthenticated = async (): Promise<boolean> => {
-  const { isAuthenticated } = await getAuthState();
-  return isAuthenticated;
+  const { data } = await supabase.auth.getSession();
+  return !!data.session;
 };
 
 // Check if onboarding is complete

@@ -9,7 +9,173 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      countries: {
+        Row: {
+          code: string
+          currency: string
+          currency_symbol: string
+          flag_emoji: string | null
+          is_receiving_enabled: boolean
+          is_sending_enabled: boolean
+          name: string
+          payment_methods: Json
+        }
+        Insert: {
+          code: string
+          currency: string
+          currency_symbol: string
+          flag_emoji?: string | null
+          is_receiving_enabled?: boolean
+          is_sending_enabled?: boolean
+          name: string
+          payment_methods?: Json
+        }
+        Update: {
+          code?: string
+          currency?: string
+          currency_symbol?: string
+          flag_emoji?: string | null
+          is_receiving_enabled?: boolean
+          is_sending_enabled?: boolean
+          name?: string
+          payment_methods?: Json
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          country_code: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          country_code?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          country_code?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recipients: {
+        Row: {
+          contact: string
+          country: string
+          created_at: string
+          id: string
+          is_favorite: boolean
+          last_used: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact: string
+          country: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          last_used?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          last_used?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: string
+          completed_at: string | null
+          country: string
+          created_at: string
+          estimated_delivery: string | null
+          failure_reason: string | null
+          fee: string | null
+          id: string
+          payment_method: string | null
+          provider: string | null
+          recipient_contact: string | null
+          recipient_id: string | null
+          recipient_name: string
+          status: string
+          total_amount: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: string
+          completed_at?: string | null
+          country: string
+          created_at?: string
+          estimated_delivery?: string | null
+          failure_reason?: string | null
+          fee?: string | null
+          id?: string
+          payment_method?: string | null
+          provider?: string | null
+          recipient_contact?: string | null
+          recipient_id?: string | null
+          recipient_name: string
+          status: string
+          total_amount?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: string
+          completed_at?: string | null
+          country?: string
+          created_at?: string
+          estimated_delivery?: string | null
+          failure_reason?: string | null
+          fee?: string | null
+          id?: string
+          payment_method?: string | null
+          provider?: string | null
+          recipient_contact?: string | null
+          recipient_id?: string | null
+          recipient_name?: string
+          status?: string
+          total_amount?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

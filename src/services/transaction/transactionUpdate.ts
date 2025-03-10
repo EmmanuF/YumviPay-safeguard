@@ -1,6 +1,6 @@
 
 import { Transaction, TransactionStatus } from "@/types/transaction";
-import { apiService } from "../apiService";
+import { supabase } from "@/integrations/supabase/client";
 import { useNetwork } from "@/contexts/NetworkContext";
 import { showToast } from "@/utils/transactionUtils";
 
@@ -38,13 +38,21 @@ export const updateTransactionStatus = (
   }
   
   if (isOffline) {
-    // Queue the API update for when connection is restored
+    // Queue the Supabase update for when connection is restored
     addPausedRequest(async () => {
       try {
-        return await apiService.transactions.update(id, { 
-          status, 
-          failureReason 
-        });
+        const { error } = await supabase
+          .from('transactions')
+          .update({
+            status,
+            failure_reason: failureReason,
+            updated_at: new Date().toISOString(),
+            ...(status === 'completed' && { completed_at: new Date().toISOString() })
+          })
+          .eq('id', id);
+          
+        if (error) throw error;
+        return { success: true };
       } catch (error) {
         console.error('Failed to sync transaction status update:', error);
         throw error;
@@ -54,13 +62,21 @@ export const updateTransactionStatus = (
     return updatedTransaction;
   }
   
-  // Send to API if online - but don't wait
-  apiService.transactions.update(id, { status, failureReason })
-    .then(result => {
-      console.log('Transaction status updated on API:', result);
+  // Send to Supabase if online - but don't wait
+  supabase
+    .from('transactions')
+    .update({
+      status,
+      failure_reason: failureReason,
+      updated_at: new Date().toISOString(),
+      ...(status === 'completed' && { completed_at: new Date().toISOString() })
+    })
+    .eq('id', id)
+    .then(() => {
+      console.log('Transaction status updated in Supabase');
     })
     .catch(error => {
-      console.error('Error updating transaction status via API:', error);
+      console.error('Error updating transaction status via Supabase:', error);
     });
   
   return updatedTransaction;

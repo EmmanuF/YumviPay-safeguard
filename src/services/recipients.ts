@@ -1,29 +1,43 @@
 
 import { Recipient } from '@/types/recipient';
 import { Preferences } from '@capacitor/preferences';
-import { apiService } from './apiService';
+import { supabase } from '@/integrations/supabase/client';
 import { useNetwork } from '@/contexts/NetworkContext';
 
 const RECIPIENTS_STORAGE_KEY = 'yumvi_recipients';
 
-// Get all recipients from storage or API
+// Get all recipients from Supabase or local storage
 export const getRecipients = async (): Promise<Recipient[]> => {
   const { isOffline } = useNetwork();
   
-  // Try to get from API first if online
+  // Try to get from Supabase first if online
   if (!isOffline) {
     try {
-      const apiRecipients = await apiService.recipients.getAll();
+      const { data, error } = await supabase
+        .from('recipients')
+        .select('*')
+        .order('last_used', { ascending: false });
+        
+      if (error) throw error;
+      
+      const recipients = data.map((row) => ({
+        id: row.id,
+        name: row.name,
+        contact: row.contact,
+        country: row.country,
+        isFavorite: row.is_favorite,
+        lastUsed: new Date(row.last_used)
+      }));
       
       // Cache the recipients for offline use
       await Preferences.set({
         key: RECIPIENTS_STORAGE_KEY,
-        value: JSON.stringify(apiRecipients),
+        value: JSON.stringify(recipients),
       });
       
-      return apiRecipients;
+      return recipients;
     } catch (error) {
-      console.error('Error fetching recipients from API:', error);
+      console.error('Error fetching recipients from Supabase:', error);
       // Fallback to local storage on error
     }
   }
@@ -42,84 +56,111 @@ export const getRecipients = async (): Promise<Recipient[]> => {
 export const addRecipient = async (recipient: Omit<Recipient, 'id'>): Promise<Recipient> => {
   const { isOffline, addPausedRequest } = useNetwork();
   
-  // Create new recipient with temporary ID
-  const newRecipient: Recipient = {
-    ...recipient,
-    id: `recipient_${Date.now()}`, // Temporary ID
-    lastUsed: new Date(),
-  };
-  
   if (isOffline) {
-    // Store locally if offline
-    try {
-      const recipients = await getRecipients();
-      const updatedRecipients = [...recipients, newRecipient];
-      
-      await Preferences.set({
-        key: RECIPIENTS_STORAGE_KEY,
-        value: JSON.stringify(updatedRecipients),
-      });
-      
-      // Queue the API call for when connection is restored
-      addPausedRequest(async () => {
-        try {
-          const apiRecipient = await apiService.recipients.create(recipient);
-          
-          // Update the local storage with the server-generated ID
-          const savedRecipients = await getRecipients();
-          const updatedRecipients = savedRecipients.map(r => 
-            r.id === newRecipient.id ? { ...r, id: apiRecipient.id } : r
-          );
-          
-          await Preferences.set({
-            key: RECIPIENTS_STORAGE_KEY,
-            value: JSON.stringify(updatedRecipients),
-          });
-          
-          return apiRecipient;
-        } catch (error) {
-          console.error('Failed to sync new recipient:', error);
-          throw error;
-        }
-      });
-      
-      return newRecipient;
-    } catch (error) {
-      console.error('Error adding recipient to storage:', error);
-      throw new Error('Failed to add recipient');
-    }
-  }
-  
-  try {
-    // Send to API if online
-    const apiRecipient = await apiService.recipients.create(recipient);
+    // Create a temporary ID for offline mode
+    const tempRecipient: Recipient = {
+      ...recipient,
+      id: `temp_${Date.now()}`,
+      lastUsed: new Date()
+    };
     
-    // Update local cache with the server recipient
+    // Store locally
     const recipients = await getRecipients();
     await Preferences.set({
       key: RECIPIENTS_STORAGE_KEY,
-      value: JSON.stringify([...recipients, apiRecipient]),
+      value: JSON.stringify([...recipients, tempRecipient]),
     });
     
-    return apiRecipient;
-  } catch (error) {
-    console.error('Error adding recipient via API:', error);
+    // Queue Supabase insert for when connection is restored
+    addPausedRequest(async () => {
+      try {
+        const { data, error } = await supabase
+          .from('recipients')
+          .insert({
+            name: recipient.name,
+            contact: recipient.contact,
+            country: recipient.country,
+            is_favorite: recipient.isFavorite,
+            last_used: new Date().toISOString()
+          })
+          .select()
+          .single();
+          
+        if (error) throw error;
+        
+        // Update the local storage by replacing temp ID with the new one
+        const updatedRecipients = await getRecipients();
+        const finalRecipients = updatedRecipients.map(r => 
+          r.id === tempRecipient.id 
+            ? { ...r, id: data.id } 
+            : r
+        );
+        
+        await Preferences.set({
+          key: RECIPIENTS_STORAGE_KEY,
+          value: JSON.stringify(finalRecipients),
+        });
+        
+        return data;
+      } catch (error) {
+        console.error('Failed to sync new recipient:', error);
+        throw error;
+      }
+    });
     
-    // Fallback to local storage on API error
-    try {
-      const recipients = await getRecipients();
-      const updatedRecipients = [...recipients, newRecipient];
+    return tempRecipient;
+  }
+  
+  // Online mode: Insert into Supabase
+  try {
+    const { data, error } = await supabase
+      .from('recipients')
+      .insert({
+        name: recipient.name,
+        contact: recipient.contact,
+        country: recipient.country,
+        is_favorite: recipient.isFavorite,
+        last_used: new Date().toISOString()
+      })
+      .select()
+      .single();
       
-      await Preferences.set({
-        key: RECIPIENTS_STORAGE_KEY,
-        value: JSON.stringify(updatedRecipients),
-      });
-      
-      return newRecipient;
-    } catch (storageError) {
-      console.error('Error adding recipient to storage:', storageError);
-      throw new Error('Failed to add recipient');
-    }
+    if (error) throw error;
+    
+    const newRecipient: Recipient = {
+      id: data.id,
+      name: data.name,
+      contact: data.contact,
+      country: data.country,
+      isFavorite: data.is_favorite,
+      lastUsed: new Date(data.last_used)
+    };
+    
+    // Update local cache
+    const recipients = await getRecipients();
+    await Preferences.set({
+      key: RECIPIENTS_STORAGE_KEY,
+      value: JSON.stringify([...recipients, newRecipient]),
+    });
+    
+    return newRecipient;
+  } catch (error) {
+    console.error('Error adding recipient via Supabase:', error);
+    
+    // Fallback to local storage on error
+    const tempRecipient: Recipient = {
+      ...recipient,
+      id: `error_${Date.now()}`,
+      lastUsed: new Date()
+    };
+    
+    const recipients = await getRecipients();
+    await Preferences.set({
+      key: RECIPIENTS_STORAGE_KEY,
+      value: JSON.stringify([...recipients, tempRecipient]),
+    });
+    
+    return tempRecipient;
   }
 };
 
@@ -144,10 +185,26 @@ export const updateRecipient = async (recipient: Recipient): Promise<Recipient> 
     });
     
     if (isOffline) {
-      // Queue the API update for when connection is restored
+      // Queue Supabase update for when connection is restored
       addPausedRequest(async () => {
         try {
-          return await apiService.recipients.update(recipient.id, recipient);
+          // Only update Supabase if this isn't a temporary ID
+          if (!recipient.id.startsWith('temp_') && !recipient.id.startsWith('error_')) {
+            const { error } = await supabase
+              .from('recipients')
+              .update({
+                name: recipient.name,
+                contact: recipient.contact,
+                country: recipient.country,
+                is_favorite: recipient.isFavorite,
+                last_used: recipient.lastUsed.toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', recipient.id);
+              
+            if (error) throw error;
+          }
+          return recipient;
         } catch (error) {
           console.error('Failed to sync recipient update:', error);
           throw error;
@@ -157,12 +214,29 @@ export const updateRecipient = async (recipient: Recipient): Promise<Recipient> 
       return recipient;
     }
     
-    // Send to API if online
+    // Online mode: Update in Supabase
     try {
-      return await apiService.recipients.update(recipient.id, recipient);
+      // Only update Supabase if this isn't a temporary ID
+      if (!recipient.id.startsWith('temp_') && !recipient.id.startsWith('error_')) {
+        const { error } = await supabase
+          .from('recipients')
+          .update({
+            name: recipient.name,
+            contact: recipient.contact,
+            country: recipient.country,
+            is_favorite: recipient.isFavorite,
+            last_used: recipient.lastUsed.toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', recipient.id);
+          
+        if (error) throw error;
+      }
+      
+      return recipient;
     } catch (error) {
-      console.error('Error updating recipient via API:', error);
-      return recipient; // Return the locally updated recipient on API error
+      console.error('Error updating recipient via Supabase:', error);
+      return recipient; // Still return the locally updated recipient
     }
   } catch (error) {
     console.error('Error updating recipient in storage:', error);
@@ -185,10 +259,18 @@ export const deleteRecipient = async (id: string): Promise<void> => {
     });
     
     if (isOffline) {
-      // Queue the API delete for when connection is restored
+      // Queue Supabase delete for when connection is restored
       addPausedRequest(async () => {
         try {
-          await apiService.recipients.delete(id);
+          // Only delete from Supabase if this isn't a temporary ID
+          if (!id.startsWith('temp_') && !id.startsWith('error_')) {
+            const { error } = await supabase
+              .from('recipients')
+              .delete()
+              .eq('id', id);
+              
+            if (error) throw error;
+          }
         } catch (error) {
           console.error('Failed to sync recipient deletion:', error);
           throw error;
@@ -198,12 +280,20 @@ export const deleteRecipient = async (id: string): Promise<void> => {
       return;
     }
     
-    // Send to API if online
+    // Online mode: Delete from Supabase
     try {
-      await apiService.recipients.delete(id);
+      // Only delete from Supabase if this isn't a temporary ID
+      if (!id.startsWith('temp_') && !id.startsWith('error_')) {
+        const { error } = await supabase
+          .from('recipients')
+          .delete()
+          .eq('id', id);
+          
+        if (error) throw error;
+      }
     } catch (error) {
-      console.error('Error deleting recipient via API:', error);
-      // No need to throw, we've already deleted it locally
+      console.error('Error deleting recipient via Supabase:', error);
+      // Already deleted locally, so no need to throw
     }
   } catch (error) {
     console.error('Error deleting recipient from storage:', error);

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Country } from '../types/country';
 import { countries as mockCountries } from '../data/countries';
-import { apiService } from '../services/apiService';
+import { supabase } from "@/integrations/supabase/client";
 import { useNetwork } from '@/contexts/NetworkContext';
 
 export function useCountries() {
@@ -17,14 +17,32 @@ export function useCountries() {
         setIsLoading(true);
         
         if (!isOffline) {
-          // Try to fetch from API if online
+          // Try to fetch from Supabase if online
           try {
-            const apiCountries = await apiService.countries.getAll();
-            setCountries(apiCountries);
-            setIsLoading(false);
-            return;
+            const { data, error } = await supabase
+              .from('countries')
+              .select('*')
+              .order('name');
+              
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+              const formattedCountries: Country[] = data.map(country => ({
+                name: country.name,
+                code: country.code,
+                currency: country.currency,
+                flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
+                isSendingEnabled: country.is_sending_enabled,
+                isReceivingEnabled: country.is_receiving_enabled,
+                paymentMethods: country.payment_methods
+              }));
+              
+              setCountries(formattedCountries);
+              setIsLoading(false);
+              return;
+            }
           } catch (apiError) {
-            console.error('Error fetching countries from API:', apiError);
+            console.error('Error fetching countries from Supabase:', apiError);
             // Fall back to mock data on API error
           }
         }
@@ -49,9 +67,27 @@ export function useCountries() {
   const getSendingCountries = async () => {
     if (!isOffline) {
       try {
-        return await apiService.countries.getSendingCountries();
+        const { data, error } = await supabase
+          .from('countries')
+          .select('*')
+          .eq('is_sending_enabled', true)
+          .order('name');
+          
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          return data.map(country => ({
+            name: country.name,
+            code: country.code,
+            currency: country.currency,
+            flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
+            isSendingEnabled: country.is_sending_enabled,
+            isReceivingEnabled: country.is_receiving_enabled,
+            paymentMethods: country.payment_methods
+          }));
+        }
       } catch (error) {
-        console.error('Error fetching sending countries from API:', error);
+        console.error('Error fetching sending countries from Supabase:', error);
         // Fall back to filtering local data
       }
     }
@@ -62,9 +98,27 @@ export function useCountries() {
   const getReceivingCountries = async () => {
     if (!isOffline) {
       try {
-        return await apiService.countries.getReceivingCountries();
+        const { data, error } = await supabase
+          .from('countries')
+          .select('*')
+          .eq('is_receiving_enabled', true)
+          .order('name');
+          
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          return data.map(country => ({
+            name: country.name,
+            code: country.code,
+            currency: country.currency,
+            flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
+            isSendingEnabled: country.is_sending_enabled,
+            isReceivingEnabled: country.is_receiving_enabled,
+            paymentMethods: country.payment_methods
+          }));
+        }
       } catch (error) {
-        console.error('Error fetching receiving countries from API:', error);
+        console.error('Error fetching receiving countries from Supabase:', error);
         // Fall back to filtering local data
       }
     }
