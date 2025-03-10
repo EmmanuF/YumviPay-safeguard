@@ -11,6 +11,8 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { NetworkProvider } from "@/contexts/NetworkContext";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
@@ -21,13 +23,25 @@ import TransactionStatus from "./pages/TransactionStatus";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
+// Configure React Query with offline-friendly settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: 3,
       staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      // Add error handling for all queries
+      onError: (error) => {
+        console.error('Query error:', error);
+      },
     },
+    mutations: {
+      // Add error handling for all mutations
+      onError: (error) => {
+        console.error('Mutation error:', error);
+      },
+    }
   },
 });
 
@@ -107,21 +121,24 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <NotificationProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/send" element={<SendMoney />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/recipients" element={<Recipients />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/transaction/:id" element={<TransactionStatus />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <NetworkProvider queryClient={queryClient}>
+            <Toaster />
+            <Sonner />
+            <OfflineBanner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/send" element={<SendMoney />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/recipients" element={<Recipients />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/transaction/:id" element={<TransactionStatus />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </NetworkProvider>
         </NotificationProvider>
       </TooltipProvider>
     </QueryClientProvider>

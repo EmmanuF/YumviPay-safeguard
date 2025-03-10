@@ -1,0 +1,115 @@
+
+import { toast } from "@/hooks/use-toast";
+
+export type NetworkErrorType = 
+  | 'connection-error'
+  | 'timeout-error'
+  | 'server-error'
+  | 'authentication-error'
+  | 'unknown-error';
+
+export interface NetworkError extends Error {
+  type: NetworkErrorType;
+  status?: number;
+  retry?: () => Promise<any>;
+}
+
+export function isNetworkError(error: any): error is NetworkError {
+  return error && 
+    typeof error === 'object' && 
+    'type' in error &&
+    typeof error.type === 'string';
+}
+
+export function createNetworkError(
+  message: string, 
+  type: NetworkErrorType = 'unknown-error', 
+  status?: number,
+  retry?: () => Promise<any>
+): NetworkError {
+  const error = new Error(message) as NetworkError;
+  error.type = type;
+  if (status) error.status = status;
+  if (retry) error.retry = retry;
+  return error;
+}
+
+export function handleNetworkError(error: any): NetworkError {
+  console.error('Network error occurred:', error);
+  
+  if (isNetworkError(error)) {
+    return error;
+  }
+  
+  // Check for specific error types
+  if (!navigator.onLine) {
+    return createNetworkError(
+      'You are currently offline. Please check your internet connection.',
+      'connection-error'
+    );
+  }
+  
+  if (error.name === 'AbortError') {
+    return createNetworkError(
+      'Request timed out. Please try again.',
+      'timeout-error'
+    );
+  }
+  
+  if (error.response) {
+    const status = error.response.status;
+    
+    if (status >= 500) {
+      return createNetworkError(
+        'Server error. Please try again later.',
+        'server-error',
+        status
+      );
+    }
+    
+    if (status === 401 || status === 403) {
+      return createNetworkError(
+        'Authentication error. Please log in again.',
+        'authentication-error',
+        status
+      );
+    }
+    
+    return createNetworkError(
+      error.response.data?.message || 'An unexpected error occurred.',
+      'unknown-error',
+      status
+    );
+  }
+  
+  return createNetworkError(
+    'Network error. Please check your connection and try again.',
+    'unknown-error'
+  );
+}
+
+export function showErrorToast(error: any): void {
+  const networkError = isNetworkError(error) ? error : handleNetworkError(error);
+  
+  toast({
+    title: getErrorTitle(networkError.type),
+    description: networkError.message,
+    variant: 'destructive',
+  });
+}
+
+function getErrorTitle(type: NetworkErrorType): string {
+  switch (type) {
+    case 'connection-error':
+      return 'Connection Error';
+    case 'timeout-error':
+      return 'Request Timeout';
+    case 'server-error':
+      return 'Server Error';
+    case 'authentication-error':
+      return 'Authentication Error';
+    case 'unknown-error':
+    default:
+      return 'Error';
+  }
+}
