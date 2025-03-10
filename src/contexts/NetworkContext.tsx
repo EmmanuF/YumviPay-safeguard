@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useNetworkStatus as useDeviceNetworkStatus } from '@/hooks/useNetworkStatus';
 
 type NetworkContextType = {
   isOffline: boolean;
@@ -19,7 +19,7 @@ const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 const pausedRequests: (() => Promise<any>)[] = [];
 
 export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) => {
-  const { isOnline } = useNetworkStatus();
+  const { isOnline } = useDeviceNetworkStatus();
   const [isOffline, setIsOffline] = useState(!isOnline);
   const [offlineModeActive, setOfflineModeActive] = useState(false);
 
@@ -71,5 +71,3 @@ export const useNetwork = (): NetworkContextType => {
   }
   return context;
 };
-
-export { OfflineBanner } from '@/components/OfflineBanner';
