@@ -1,9 +1,10 @@
+
 import { useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
-type OfflineQueryOptions<TData, TError> = UseQueryOptions<TData, TError> & {
+type OfflineQueryOptions<TData, TError> = Omit<UseQueryOptions<TData, TError>, 'queryFn'> & {
   offlineData?: TData;
   offlineFallback?: () => Promise<TData>;
 };
@@ -62,22 +63,27 @@ export function useOfflineQuery<TData = unknown, TError = unknown>(
   };
   
   // Set up React Query with offline-friendly settings
-  const result = useQuery({
+  const queryOptions: UseQueryOptions<TData, TError> = {
+    ...options,
     queryKey,
     queryFn: wrappedQueryFn,
-    // Enable/disable based on network status and options
-    enabled: options?.enabled !== false && (!offlineModeActive || shouldUseOfflineFallback),
+    // Enable/disable based on network status
+    enabled: options?.enabled !== false && (!offlineModeActive || !!shouldUseOfflineFallback),
     // Use longer stale/cache times when offline
     staleTime: isOffline ? Infinity : options?.staleTime,
     gcTime: isOffline ? Infinity : options?.gcTime,
     // Don't retry too aggressively when offline
     retry: (failureCount, error) => {
       if (isOffline) return false;
-      return failureCount < (options?.retry || 3);
+      if (typeof options?.retry === 'function') {
+        return options.retry(failureCount, error);
+      }
+      return failureCount < (typeof options?.retry === 'number' ? options.retry : 3);
     },
-    // Use existing options
-    ...options,
-  });
+  };
+  
+  // Execute the query with our wrapped function and options
+  const result = useQuery(queryOptions);
   
   // Return the query result with an additional flag
   return {

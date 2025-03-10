@@ -15,11 +15,12 @@ import CountryFilter from './CountryFilter';
 interface FilterPopoverProps {
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
-  statusFilter: TransactionStatus | 'all';
+  statusFilter: string[];
   dateFilter: string;
   countryFilter: string[];
   uniqueCountries: string[];
   setStatusFilter: (status: TransactionStatus | 'all') => void;
+  toggleStatusFilter: (status: string) => void;
   setDateFilter: (date: string) => void;
   toggleCountryFilter: (country: string) => void;
   resetFilters: () => void;
@@ -34,6 +35,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   countryFilter,
   uniqueCountries,
   setStatusFilter,
+  toggleStatusFilter,
   setDateFilter,
   toggleCountryFilter,
   resetFilters,
@@ -64,7 +66,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           
           <StatusFilter 
             statusFilter={statusFilter} 
-            setStatusFilter={setStatusFilter}
+            toggleStatusFilter={toggleStatusFilter}
           />
           
           <DateFilter 

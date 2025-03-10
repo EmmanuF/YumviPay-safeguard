@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { TransactionStatus } from '@/types/transaction';
 
 interface FilterBadgesProps {
-  statusFilter: TransactionStatus | 'all';
+  statusFilter: string[];
   dateFilter: string;
   countryFilter: string[];
   setStatusFilter: (status: TransactionStatus | 'all') => void;
@@ -21,22 +21,23 @@ const FilterBadges: React.FC<FilterBadgesProps> = ({
   setDateFilter, 
   toggleCountryFilter 
 }) => {
-  if (statusFilter === 'all' && dateFilter === 'all' && countryFilter.length === 0) {
+  if (statusFilter.length === 0 && dateFilter === 'all' && countryFilter.length === 0) {
     return null;
   }
   
   return (
     <div className="flex flex-wrap gap-2 mt-3">
-      {statusFilter !== 'all' && (
+      {statusFilter.map(status => (
         <Badge 
+          key={status}
           variant="outline" 
           className="bg-primary/10 text-xs py-0 h-6"
           onClick={() => setStatusFilter('all')}
         >
-          Status: {statusFilter}
+          Status: {status}
           <X className="ml-1 h-3 w-3" />
         </Badge>
-      )}
+      ))}
       
       {dateFilter !== 'all' && (
         <Badge 
