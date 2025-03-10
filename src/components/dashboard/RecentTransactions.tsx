@@ -3,7 +3,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
-import TransactionCard, { Transaction } from '@/components/TransactionCard';
+import TransactionCard from '@/components/TransactionCard';
+import { Transaction } from '@/types/transaction';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];

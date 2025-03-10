@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { User, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Transaction } from '@/components/TransactionCard';
+import { Transaction } from '@/types/transaction';
 
 interface BalanceCardProps {
   userName: string;

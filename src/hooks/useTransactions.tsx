@@ -9,7 +9,7 @@ import {
   getRecentTransactions as getRecentTxs,
   getTransactionById,
   updateTransactionStatus,
-  initializeMockTransactions
+  initializeTransactions
 } from '@/services/transactionService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,7 @@ export const useTransactions = () => {
 
   // Initialize transactions if needed
   useEffect(() => {
-    initializeMockTransactions();
+    initializeTransactions();
   }, []);
 
   // Load transactions
