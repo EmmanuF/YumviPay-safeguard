@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Preferences } from '@capacitor/preferences';
 
@@ -14,11 +15,16 @@ export const registerUser = async (
   try {
     console.log('Registering user with:', { name, email, phone, country });
     
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // More comprehensive email validation
+    // This regex follows RFC 5322 standard for email validation
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    
     if (!emailRegex.test(email)) {
       throw new Error('Please enter a valid email address');
     }
+    
+    // Clean the email address (remove leading/trailing spaces)
+    const cleanedEmail = email.trim().toLowerCase();
     
     // Prepare user metadata - only include phone if provided
     const userData: Record<string, string> = {
@@ -31,11 +37,12 @@ export const registerUser = async (
       userData.phone_number = phone;
     }
     
-    // Create a secure password (in production, you should implement password requirements)
-    const password = `${email}_secure123`;
+    // Generate a more secure random password
+    const randomPart = Math.random().toString(36).substring(2, 10);
+    const password = `YumviUser_${randomPart}`;
     
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: cleanedEmail,
       password,
       options: {
         data: userData
