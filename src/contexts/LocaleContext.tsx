@@ -108,21 +108,24 @@ const translations: Record<Locale, Record<string, string>> = {
 };
 
 export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  // Changed the default locale initialization to ensure it's a valid value
+  // Set a default locale that is guaranteed to be valid
   const [locale, setLocale] = useState<Locale>('en');
   
   // Initialize locale from stored preference or user profile
   useEffect(() => {
     const loadLocale = async () => {
-      // Try to get from localStorage first
-      const storedLocale = localStorage.getItem('yumvi-locale');
-      if (storedLocale && (storedLocale === 'en' || storedLocale === 'fr')) {
-        setLocale(storedLocale as Locale);
-        return;
-      }
-      
-      // If authenticated, try to get from user profile
       try {
+        // Try to get from localStorage first
+        const storedLocale = localStorage.getItem('yumvi-locale');
+        console.log('Stored locale:', storedLocale);
+        
+        if (storedLocale === 'en' || storedLocale === 'fr') {
+          console.log('Setting locale from localStorage:', storedLocale);
+          setLocale(storedLocale as Locale);
+          return;
+        }
+        
+        // If authenticated, try to get from user profile
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           // First check if we need to update the profiles table
@@ -134,13 +137,14 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
             
           // If we could fetch the profile, let's add a language preference
           if (hasLanguageColumn) {
-            // We'll store the language preference in localStorage for now
-            // and can add a migration later for the database column
+            // We'll store the language preference in localStorage
             localStorage.setItem('yumvi-locale', 'en');
           }
         }
       } catch (error) {
         console.error('Error loading locale from profile:', error);
+        // Ensure we always have a valid locale by setting it to 'en'
+        localStorage.setItem('yumvi-locale', 'en');
       }
     };
     
@@ -151,9 +155,11 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
   const updateLocale = async (newLocale: Locale) => {
     // Make sure we're setting a valid locale
     if (newLocale !== 'en' && newLocale !== 'fr') {
-      newLocale = 'en'; // Default to English if invalid
+      console.warn(`Invalid locale requested: ${newLocale}, defaulting to 'en'`);
+      newLocale = 'en';
     }
     
+    console.log(`Setting new locale: ${newLocale}`);
     setLocale(newLocale);
     localStorage.setItem('yumvi-locale', newLocale);
     
@@ -163,11 +169,23 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
   
   // Translation function
   const t = (key: string): string => {
-    // Make sure we're using a valid locale
-    const currentLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
+    // Ensure we're using a valid locale
+    const safeLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
     
-    return translations[currentLocale][key] || key;
+    // Get translation or fall back to key if not found
+    const translation = translations[safeLocale][key];
+    if (!translation) {
+      console.warn(`Translation key not found: ${key} for locale: ${safeLocale}`);
+      return key;
+    }
+    
+    return translation;
   };
+  
+  // For debugging
+  useEffect(() => {
+    console.log('Current locale in context:', locale);
+  }, [locale]);
   
   const value = {
     locale,

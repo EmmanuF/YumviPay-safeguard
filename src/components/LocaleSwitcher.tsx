@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Languages } from 'lucide-react';
 import { useLocale, Locale } from '@/contexts/LocaleContext';
@@ -18,13 +18,18 @@ const LocaleSwitcher: React.FC = () => {
     { key: 'fr', label: 'Français' },
   ];
   
-  // Ensure we have a valid locale
+  // Fix: Ensure we have a valid locale and properly display it
   const currentLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
   
   const handleLanguageChange = (selectedLocale: Locale) => {
     console.log(`Changing language to: ${selectedLocale}`);
     setLocale(selectedLocale);
   };
+  
+  // Debug the current locale value
+  useEffect(() => {
+    console.log('Current locale in LocaleSwitcher:', currentLocale);
+  }, [currentLocale]);
   
   return (
     <DropdownMenu>
@@ -33,7 +38,7 @@ const LocaleSwitcher: React.FC = () => {
           <Languages className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">{t('settings.language')}</span>
           <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-primary-500 text-[8px] font-bold flex items-center justify-center text-white">
-            {currentLocale.toUpperCase()}
+            {currentLocale === 'en' ? 'EN' : 'FR'}
           </div>
         </Button>
       </DropdownMenuTrigger>
