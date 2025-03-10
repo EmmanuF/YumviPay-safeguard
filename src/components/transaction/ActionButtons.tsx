@@ -3,11 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Share, SendHorizontal, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { TransactionStatus } from '@/types/transaction';
 
 interface ActionButtonsProps {
   handleShareTransaction: () => void;
   handleSendAgain?: () => void;
-  transactionStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+  transactionStatus?: TransactionStatus;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({ 

@@ -1,14 +1,15 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import StatusUpdateBar from './StatusUpdateBar';
+import { TransactionStatus } from '@/types/transaction';
 
 interface TransactionDetails {
   id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: TransactionStatus;
   amount: string;
   fee: string;
   totalAmount: string;
@@ -42,6 +43,29 @@ const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
             <h2 className="text-xl font-semibold">Transaction Failed</h2>
             <p className="opacity-90 text-sm mt-1">
               Transaction ID: {transaction.id}
+            </p>
+          </div>
+        );
+      case 'cancelled':
+        return (
+          <div className="bg-red-500 p-6 text-center text-white">
+            <XCircle className="h-12 w-12 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">Transaction Cancelled</h2>
+            <p className="opacity-90 text-sm mt-1">
+              Transaction ID: {transaction.id}
+            </p>
+          </div>
+        );
+      case 'offline-pending':
+        return (
+          <div className="bg-amber-500 p-6 text-center text-white">
+            <AlertTriangle className="h-12 w-12 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">Pending Offline</h2>
+            <p className="opacity-90 text-sm mt-1">
+              Transaction ID: {transaction.id}
+            </p>
+            <p className="opacity-90 text-sm mt-1">
+              Will be processed when you're back online
             </p>
           </div>
         );
