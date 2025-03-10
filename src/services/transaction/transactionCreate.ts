@@ -8,7 +8,52 @@ import {
   generateTransactionId, 
   getEstimatedDelivery
 } from "@/utils/transactionUtils";
-import { useNetwork } from "@/contexts/NetworkContext";
+
+// Create a network status utility to replace useNetwork hook
+const getNetworkStatus = (): { 
+  isOffline: boolean, 
+  addPausedRequest: (callback: () => Promise<any>) => void 
+} => {
+  // Check if navigator.onLine is available (browser environment)
+  const isOffline = typeof navigator !== 'undefined' ? !navigator.onLine : false;
+  
+  // Create a simple version of addPausedRequest that works outside of React components
+  const addPausedRequest = (callback: () => Promise<any>) => {
+    if (isOffline) {
+      // Store the request in localStorage to be executed when online
+      const requests = JSON.parse(localStorage.getItem('pausedRequests') || '[]');
+      requests.push({
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('pausedRequests', JSON.stringify(requests));
+      
+      // Add event listener to execute when online (if in browser)
+      if (typeof window !== 'undefined') {
+        const executeRequest = () => {
+          callback()
+            .then(() => {
+              console.log('Paused request executed successfully');
+              window.removeEventListener('online', executeRequest);
+            })
+            .catch(error => {
+              console.error('Error executing paused request:', error);
+            });
+        };
+        
+        window.addEventListener('online', executeRequest);
+      }
+    } else {
+      // Execute immediately if online
+      callback()
+        .catch(error => {
+          console.error('Error executing request:', error);
+        });
+    }
+  };
+  
+  return { isOffline, addPausedRequest };
+};
 
 // Get user ID from current session
 const getUserId = async (): Promise<string | null> => {
@@ -23,7 +68,7 @@ export const createTransaction = (
   paymentMethod: string,
   provider?: string
 ): Transaction => {
-  const { isOffline, addPausedRequest } = useNetwork();
+  const { isOffline, addPausedRequest } = getNetworkStatus();
   const fee = calculateFee(amount, recipient.country);
   const totalAmount = calculateTotal(amount, fee);
   
@@ -96,15 +141,16 @@ export const createTransaction = (
   }
   
   // Send to Supabase if online - but don't wait for response
-  getUserId()
-    .then(userId => {
+  const sendToSupabase = async () => {
+    try {
+      const userId = await getUserId();
       if (!userId) {
         console.error('User not authenticated');
         addOfflineTransaction(transaction);
-        return Promise.resolve({ data: null, error: new Error('User not authenticated') });
+        return { data: null, error: new Error('User not authenticated') };
       }
       
-      return supabase
+      const result = await supabase
         .from('transactions')
         .insert({
           id: transaction.id,
@@ -125,18 +171,23 @@ export const createTransaction = (
         })
         .select()
         .single();
-    })
-    .then(result => {
-      if (result && result.data) {
+        
+      if (result.data) {
         console.log('Transaction created in Supabase:', result.data);
       }
-      return Promise.resolve();
-    })
-    .catch(error => {
+      return result;
+    } catch (error) {
       console.error('Error creating transaction via Supabase:', error);
       // Add to local storage as fallback
       addOfflineTransaction(transaction);
-    });
+      throw error;
+    }
+  };
+  
+  // Execute the Supabase request asynchronously
+  sendToSupabase().catch(error => {
+    console.error('Failed to send transaction to Supabase:', error);
+  });
   
   return transaction;
 };

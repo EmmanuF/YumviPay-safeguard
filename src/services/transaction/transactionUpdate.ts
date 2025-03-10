@@ -1,143 +1,136 @@
 
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
-import { useNetwork } from "@/contexts/NetworkContext";
-import { showToast } from "@/utils/transactionUtils";
+import { isOffline, addPausedRequest } from "@/utils/networkUtils";
 
-// Get user ID from current session
-const getUserId = async (): Promise<string | null> => {
-  const { data } = await supabase.auth.getSession();
-  return data.session?.user.id || null;
-};
-
-// Update transaction status
-export const updateTransactionStatus = (
-  id: string, 
+// Update transaction status in Supabase and local storage
+export const updateTransactionStatus = async (
+  transactionId: string,
   status: TransactionStatus,
-  failureReason?: string
-): Transaction | null => {
-  const { isOffline, addPausedRequest } = useNetwork();
-  const { getOfflineTransactions, setOfflineTransactions } = require("./transactionStore");
-  
-  // Update local transaction
-  const offlineTransactions = getOfflineTransactions();
-  const transaction = offlineTransactions.find(t => t.id === id);
-  
-  if (!transaction) {
-    return null;
+  options?: {
+    completedAt?: Date;
+    failureReason?: string;
   }
-  
-  // Update local data
-  const updatedTransaction = {
-    ...transaction,
+): Promise<Transaction | null> => {
+  // Prepare update data for database
+  const updateData: Record<string, any> = {
     status,
-    updatedAt: new Date(),
-    ...(status === 'completed' && { completedAt: new Date() }),
-    ...(status === 'failed' && failureReason && { failureReason })
+    updated_at: new Date().toISOString()
   };
   
-  // Update in local cache
-  const index = offlineTransactions.findIndex(t => t.id === id);
-  if (index >= 0) {
-    offlineTransactions[index] = updatedTransaction;
-    setOfflineTransactions([...offlineTransactions]);
+  // Add optional fields if provided
+  if (options?.completedAt) {
+    updateData.completed_at = options.completedAt.toISOString();
   }
   
-  if (isOffline) {
-    // Queue the Supabase update for when connection is restored
+  if (options?.failureReason) {
+    updateData.failure_reason = options.failureReason;
+  }
+  
+  // If offline, update local storage and queue Supabase update
+  if (isOffline()) {
+    // First update the local transaction
+    await updateLocalTransaction(transactionId, status, options);
+    
+    // Then queue the Supabase update for when connection is restored
     addPausedRequest(async () => {
-      try {
-        const userId = await getUserId();
-        if (!userId) throw new Error('User not authenticated');
+      const { data, error } = await supabase
+        .from('transactions')
+        .update(updateData)
+        .eq('id', transactionId)
+        .select()
+        .single();
         
-        const { error } = await supabase
-          .from('transactions')
-          .update({
-            status,
-            failure_reason: failureReason,
-            updated_at: new Date().toISOString(),
-            ...(status === 'completed' && { completed_at: new Date().toISOString() })
-          })
-          .eq('id', id)
-          .eq('user_id', userId);
-          
-        if (error) throw error;
-        return { success: true };
-      } catch (error) {
-        console.error('Failed to sync transaction status update:', error);
+      if (error) {
+        console.error(`Error updating transaction ${transactionId}:`, error);
         throw error;
       }
+      
+      return data;
     });
     
-    return updatedTransaction;
+    // Return the locally updated transaction
+    return getLocalTransaction(transactionId);
   }
   
-  // Send to Supabase if online - but don't wait
-  getUserId()
-    .then(userId => {
-      if (!userId) {
-        console.error('User not authenticated');
-        return null;
-      }
+  // If online, update Supabase directly
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .update(updateData)
+      .eq('id', transactionId)
+      .select()
+      .single();
       
-      return supabase
-        .from('transactions')
-        .update({
-          status,
-          failure_reason: failureReason,
-          updated_at: new Date().toISOString(),
-          ...(status === 'completed' && { completed_at: new Date().toISOString() })
-        })
-        .eq('id', id)
-        .eq('user_id', userId);
-    })
-    .then(result => {
-      if (result) {
-        console.log('Transaction status updated in Supabase');
-      }
-    })
-    .catch(error => {
-      console.error('Error updating transaction status via Supabase:', error);
-    });
-  
-  return updatedTransaction;
+    if (error) throw error;
+    
+    if (!data) return null;
+    
+    // Also update local storage for consistency
+    await updateLocalTransaction(transactionId, status, options);
+    
+    // Convert database record to Transaction object
+    return {
+      id: data.id,
+      amount: data.amount,
+      fee: data.fee,
+      recipientId: data.recipient_id,
+      recipientName: data.recipient_name,
+      recipientContact: data.recipient_contact,
+      paymentMethod: data.payment_method,
+      provider: data.provider,
+      country: data.country,
+      status: data.status as TransactionStatus,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+      completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
+      failureReason: data.failure_reason,
+      estimatedDelivery: data.estimated_delivery,
+      totalAmount: data.total_amount
+    };
+  } catch (error) {
+    console.error(`Error updating transaction ${transactionId}:`, error);
+    
+    // Update local storage as fallback
+    await updateLocalTransaction(transactionId, status, options);
+    
+    // Return the locally updated transaction
+    return getLocalTransaction(transactionId);
+  }
 };
 
-// Simulate Kado webhook response (would be replaced by real Kado integration)
-export const simulateKadoWebhook = async (transactionId: string): Promise<Transaction | null> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const { getTransactionById } = require("./transactionRetrieve");
-      const transaction = getTransactionById(transactionId);
-      
-      if (!transaction) {
-        resolve(null);
-        return;
-      }
-      
-      // Simulate 90% success rate
-      const isSuccessful = Math.random() < 0.9;
-      
-      if (isSuccessful) {
-        const updatedTransaction = updateTransactionStatus(transactionId, 'completed');
-        showToast(
-          "Payment successful",
-          "Your transaction has been completed successfully"
-        );
-        resolve(updatedTransaction);
-      } else {
-        const updatedTransaction = updateTransactionStatus(
-          transactionId, 
-          'failed',
-          'Payment authorization failed. Please try another payment method.'
-        );
-        showToast(
-          "Payment failed",
-          "Your transaction could not be completed",
-          "destructive"
-        );
-        resolve(updatedTransaction);
-      }
-    }, 3000); // Simulate 3 second delay
-  });
+// Update a transaction in local storage
+const updateLocalTransaction = async (
+  transactionId: string,
+  status: TransactionStatus,
+  options?: {
+    completedAt?: Date;
+    failureReason?: string;
+  }
+): Promise<void> => {
+  const { getOfflineTransactions, setOfflineTransactions } = await import('./transactionStore');
+  
+  const transactions = getOfflineTransactions();
+  const index = transactions.findIndex(t => t.id === transactionId);
+  
+  if (index >= 0) {
+    const updatedTransaction = {
+      ...transactions[index],
+      status,
+      updatedAt: new Date(),
+      ...(options?.completedAt && { completedAt: options.completedAt }),
+      ...(options?.failureReason && { failureReason: options.failureReason })
+    };
+    
+    transactions[index] = updatedTransaction;
+    setOfflineTransactions([...transactions]);
+  }
+};
+
+// Get a transaction from local storage
+const getLocalTransaction = async (transactionId: string): Promise<Transaction | null> => {
+  const { getOfflineTransactions } = await import('./transactionStore');
+  
+  const transactions = getOfflineTransactions();
+  return transactions.find(t => t.id === transactionId) || null;
 };

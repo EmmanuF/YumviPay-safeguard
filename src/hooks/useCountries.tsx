@@ -24,6 +24,7 @@ export function useCountries() {
           .filter(item => 
             typeof item === 'object' && 
             item !== null &&
+            typeof item === 'object' &&
             'id' in item && 
             'name' in item && 
             'description' in item && 
@@ -31,14 +32,18 @@ export function useCountries() {
             'fees' in item && 
             'processingTime' in item
           )
-          .map(item => ({
-            id: String(item.id),
-            name: String(item.name),
-            description: String(item.description),
-            icon: String(item.icon),
-            fees: String(item.fees),
-            processingTime: String(item.processingTime)
-          }));
+          .map(item => {
+            // Cast the item to any to safely access properties
+            const typedItem = item as any;
+            return {
+              id: String(typedItem.id),
+              name: String(typedItem.name),
+              description: String(typedItem.description),
+              icon: String(typedItem.icon),
+              fees: String(typedItem.fees),
+              processingTime: String(typedItem.processingTime)
+            };
+          });
       }
       return [];
     } catch (e) {

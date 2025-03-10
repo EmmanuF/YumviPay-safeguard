@@ -1,12 +1,13 @@
-
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
-import { useNetwork } from "@/contexts/NetworkContext";
+import { isOffline, addPausedRequest } from "@/utils/networkUtils";
+import { mockTransactions } from "@/data/mockTransactions";
 
-// Helper to ensure transaction status is valid
+// Ensure status is a valid TransactionStatus
 const ensureValidStatus = (status: string): TransactionStatus => {
   const validStatuses: TransactionStatus[] = [
-    'pending', 'processing', 'completed', 'failed', 'cancelled', 'offline-pending'
+    'pending', 'processing', 'completed', 'failed', 
+    'offline-pending', 'cancelled', 'refunded'
   ];
   
   return validStatuses.includes(status as TransactionStatus) 
@@ -20,135 +21,132 @@ const getUserId = async (): Promise<string | null> => {
   return data.session?.user.id || null;
 };
 
-// Get transaction by ID
-export const getTransactionById = (id: string): Transaction | undefined => {
-  // First check local cache
-  const { getOfflineTransactions } = require("./transactionStore");
-  const localTransaction = getOfflineTransactions().find(t => t.id === id);
-  if (localTransaction) {
-    return localTransaction;
+// Get all transactions for the current user
+export const getTransactions = async (): Promise<Transaction[]> => {
+  if (isOffline()) {
+    // Get transactions from local storage if offline
+    return import("./transactionStore").then(({ getOfflineTransactions }) => {
+      return getOfflineTransactions();
+    });
   }
   
-  // If not found locally but we're online, try to get from Supabase
-  // but return undefined while waiting for API
-  const { isOffline } = useNetwork();
-  if (!isOffline) {
-    getUserId()
-      .then(userId => {
-        if (!userId) {
-          console.error('User not authenticated');
-          return null;
-        }
-        
-        return supabase
-          .from('transactions')
-          .select('*')
-          .eq('id', id)
-          .eq('user_id', userId)
-          .maybeSingle();
-      })
-      .then(result => {
-        if (!result) return;
-        
-        const { data, error } = result;
-        // Add to local cache if found
-        if (data && !error) {
-          const transaction: Transaction = {
-            id: data.id,
-            amount: data.amount,
-            fee: data.fee,
-            recipientId: data.recipient_id,
-            recipientName: data.recipient_name,
-            recipientContact: data.recipient_contact,
-            paymentMethod: data.payment_method,
-            provider: data.provider,
-            country: data.country,
-            status: ensureValidStatus(data.status),
-            createdAt: new Date(data.created_at),
-            updatedAt: new Date(data.updated_at),
-            completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
-            failureReason: data.failure_reason,
-            estimatedDelivery: data.estimated_delivery,
-            totalAmount: data.total_amount
-          };
-          
-          const { getOfflineTransactions, setOfflineTransactions } = require("./transactionStore");
-          const offlineTransactions = getOfflineTransactions();
-          if (!offlineTransactions.some(t => t.id === transaction.id)) {
-            setOfflineTransactions([...offlineTransactions, transaction]);
-          }
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching transaction from Supabase:', error);
-      });
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      console.error('User not authenticated');
+      return [];
+    }
+    
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    
+    if (!data || data.length === 0) return [];
+    
+    // Convert database records to Transaction objects
+    return data.map(record => ({
+      id: record.id,
+      amount: record.amount,
+      fee: record.fee,
+      recipientId: record.recipient_id,
+      recipientName: record.recipient_name,
+      recipientContact: record.recipient_contact,
+      paymentMethod: record.payment_method,
+      provider: record.provider,
+      country: record.country,
+      status: ensureValidStatus(record.status),
+      createdAt: new Date(record.created_at),
+      updatedAt: new Date(record.updated_at),
+      completedAt: record.completed_at ? new Date(record.completed_at) : undefined,
+      failureReason: record.failure_reason,
+      estimatedDelivery: record.estimated_delivery,
+      totalAmount: record.total_amount
+    }));
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    
+    // Get local transactions as fallback
+    return import("./transactionStore").then(({ getOfflineTransactions }) => {
+      return getOfflineTransactions();
+    });
   }
-  
-  return undefined;
 };
 
-// Get all transactions
-export const getAllTransactions = (): Transaction[] => {
-  const { isOffline } = useNetwork();
-  const { getOfflineTransactions, setOfflineTransactions } = require("./transactionStore");
+// Get a single transaction by ID
+export const getTransaction = async (id: string): Promise<Transaction | null> => {
+  // First check offline storage
+  const offlineTransactions = await import("./transactionStore").then(({ getOfflineTransactions }) => {
+    return getOfflineTransactions();
+  });
   
-  // Start API fetch if online, but don't wait for response
-  if (!isOffline) {
-    getUserId()
-      .then(userId => {
-        if (!userId) {
-          console.error('User not authenticated');
-          return null;
-        }
-        
-        return supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
-      })
-      .then(result => {
-        if (!result) return;
-        
-        const { data, error } = result;
-        if (data && !error) {
-          // Convert to Transaction objects
-          const transactions: Transaction[] = data.map(item => ({
-            id: item.id,
-            amount: item.amount,
-            fee: item.fee,
-            recipientId: item.recipient_id,
-            recipientName: item.recipient_name,
-            recipientContact: item.recipient_contact,
-            paymentMethod: item.payment_method,
-            provider: item.provider,
-            country: item.country,
-            status: ensureValidStatus(item.status),
-            createdAt: new Date(item.created_at),
-            updatedAt: new Date(item.updated_at),
-            completedAt: item.completed_at ? new Date(item.completed_at) : undefined,
-            failureReason: item.failure_reason,
-            estimatedDelivery: item.estimated_delivery,
-            totalAmount: item.total_amount
-          }));
-          
-          // Update local cache with latest data
-          setOfflineTransactions(transactions);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching transactions from Supabase:', error);
-      });
+  const offlineTransaction = offlineTransactions.find(t => t.id === id);
+  
+  // If found offline and we're offline, return it
+  if (offlineTransaction && isOffline()) {
+    return offlineTransaction;
   }
   
-  // Return cached transactions immediately
-  return [...getOfflineTransactions()].sort((a, b) => 
-    b.createdAt.getTime() - a.createdAt.getTime()
-  );
-};
-
-// Get recent transactions (limited count)
-export const getRecentTransactions = (limit: number = 5): Transaction[] => {
-  const transactions = getAllTransactions();
-  return transactions.slice(0, limit);
+  // Otherwise try to get from Supabase
+  if (!isOffline()) {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (error) {
+        // If not found online but found offline, return offline version
+        if (offlineTransaction) {
+          return offlineTransaction;
+        }
+        throw error;
+      }
+      
+      if (!data) {
+        // If not found online but found offline, return offline version
+        if (offlineTransaction) {
+          return offlineTransaction;
+        }
+        return null;
+      }
+      
+      // Convert database record to Transaction object
+      return {
+        id: data.id,
+        amount: data.amount,
+        fee: data.fee,
+        recipientId: data.recipient_id,
+        recipientName: data.recipient_name,
+        recipientContact: data.recipient_contact,
+        paymentMethod: data.payment_method,
+        provider: data.provider,
+        country: data.country,
+        status: ensureValidStatus(data.status),
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+        completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
+        failureReason: data.failure_reason,
+        estimatedDelivery: data.estimated_delivery,
+        totalAmount: data.total_amount
+      };
+    } catch (error) {
+      console.error(`Error fetching transaction ${id}:`, error);
+      
+      // For failed API requests, return mock data in development
+      if (process.env.NODE_ENV === 'development') {
+        const mockTransaction = mockTransactions.find(t => t.id === id);
+        return mockTransaction || null;
+      }
+      
+      return null;
+    }
+  }
+  
+  // Return offline data if it exists, otherwise null
+  return offlineTransaction || null;
 };
