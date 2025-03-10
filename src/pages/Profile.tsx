@@ -15,25 +15,19 @@ import {
   AccountInformation,
   SecuritySettings,
   NotificationPreferences,
-  EditProfileDialog
+  EditProfileDialog,
+  ChangePasswordDialog,
+  ProfileContent
 } from '@/components/profile';
-
-import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { 
-    settings: notificationSettings, 
-    loading: notificationsLoading, 
-    updateSetting: updateNotificationSetting,
-    resetSettings: resetNotificationSettings
-  } = useNotificationSettings();
-  
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editField, setEditField] = useState('');
   const [editValue, setEditValue] = useState('');
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -113,40 +107,6 @@ const Profile = () => {
     }
   };
 
-  const handleNotificationChange = async (key: keyof typeof notificationSettings, checked: boolean) => {
-    const success = await updateNotificationSetting(key, checked);
-    
-    if (success) {
-      toast({
-        title: "Settings Updated",
-        description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${checked ? 'enabled' : 'disabled'}`
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Failed to update notification settings",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleResetNotifications = async () => {
-    const success = await resetNotificationSettings();
-    
-    if (success) {
-      toast({
-        title: "Reset Complete",
-        description: "Notification settings have been reset to defaults"
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Failed to reset notification settings",
-        variant: "destructive"
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -169,26 +129,11 @@ const Profile = () => {
           >
             <ProfileHeader name={user.name} email={user.email} />
             
-            <Tabs defaultValue="account" className="w-full">
-              <TabsList className="w-full grid grid-cols-2">
-                <TabsTrigger value="account">Account</TabsTrigger>
-                <TabsTrigger value="preferences">Preferences</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="account" className="space-y-4">
-                <AccountInformation user={user} onEdit={openEditDialog} />
-                <SecuritySettings onChangePassword={() => openEditDialog('password', '')} />
-              </TabsContent>
-              
-              <TabsContent value="preferences" className="space-y-4">
-                <NotificationPreferences 
-                  settings={notificationSettings}
-                  isLoading={notificationsLoading}
-                  onSettingChange={handleNotificationChange}
-                  onResetDefaults={handleResetNotifications}
-                />
-              </TabsContent>
-            </Tabs>
+            <ProfileContent 
+              user={user}
+              onEdit={openEditDialog}
+              onChangePassword={() => setPasswordDialogOpen(true)}
+            />
             
             {/* Logout Button */}
             <Button 
@@ -212,6 +157,11 @@ const Profile = () => {
         value={editValue}
         onChange={handleEditValueChange}
         onSave={saveChanges}
+      />
+
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
       />
     </div>
   );
