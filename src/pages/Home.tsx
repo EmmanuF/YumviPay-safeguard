@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronRight, ArrowRight, Star } from 'lucide-react';
-import { ExchangeRateCalculator } from '@/components/ExchangeRateCalculator';
+import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 
 const Home = () => {
   const navigate = useNavigate();
