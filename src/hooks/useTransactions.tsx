@@ -2,18 +2,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
   Transaction, 
-  TransactionStatus,
+  TransactionStatus
+} from '@/types/transaction';
+import {
   getAllTransactions,
   getRecentTransactions as getRecentTxs,
   getTransactionById,
-  updateTransactionStatus
-} from '@/services/transactions';
+  updateTransactionStatus,
+  initializeMockTransactions
+} from '@/services/transactionService';
 import { useToast } from '@/hooks/use-toast';
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Initialize transactions if needed
+  useEffect(() => {
+    initializeMockTransactions();
+  }, []);
 
   // Load transactions
   const fetchTransactions = useCallback(async () => {

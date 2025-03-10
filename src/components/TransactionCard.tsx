@@ -3,24 +3,7 @@ import React from 'react';
 import { ArrowDownLeft, ArrowUpRight, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
-
-export interface Transaction {
-  id: string;
-  amount: string;
-  recipientName: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  createdAt: Date;
-  country: string;
-  // Additional properties that might be used in other components
-  recipientContact?: string;
-  recipientCountry?: string;
-  recipientCountryCode?: string;
-  date?: string;
-  type?: string;
-  currency?: string;
-  fee?: string;
-  totalAmount?: string;
-}
+import { Transaction } from '@/types/transaction';
 
 interface TransactionCardProps {
   transaction: Transaction;
