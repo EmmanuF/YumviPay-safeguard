@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Recipient } from '@/types/recipient';
@@ -9,6 +8,7 @@ import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
 import AmountStep from '@/components/send-money/AmountStep';
 import PaymentStep from '@/components/send-money/PaymentStep';
 import ConfirmationStep from '@/components/send-money/ConfirmationStep';
+import { hasCompletedOnboarding } from '@/services/auth';
 
 interface LocationState {
   selectedRecipient?: Recipient;
@@ -30,6 +30,19 @@ const SendMoney = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check if user has completed onboarding
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      const completed = await hasCompletedOnboarding();
+      if (!completed) {
+        // Redirect to onboarding if not completed
+        navigate('/onboarding');
+      }
+    };
+    
+    checkOnboarding();
+  }, [navigate]);
 
   // If a recipient is passed via location state, pre-fill the form
   useEffect(() => {

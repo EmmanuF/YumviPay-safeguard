@@ -1,13 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, Shield } from 'lucide-react';
-import { registerUser, setOnboardingComplete } from '@/services/auth';
+import { ArrowRight, Shield, Phone } from 'lucide-react';
+import { registerUser, setOnboardingComplete, isAuthenticated } from '@/services/auth';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -15,8 +15,21 @@ const Onboarding = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '', // Added phone field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Check if user is already authenticated, redirect to main page if so
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      if (authenticated) {
+        navigate('/');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,7 +39,8 @@ const Onboarding = () => {
   const isFormValid = () => {
     return formData.name.trim() !== '' && 
            formData.email.trim() !== '' && 
-           /^\S+@\S+\.\S+$/.test(formData.email);
+           /^\S+@\S+\.\S+$/.test(formData.email) &&
+           formData.phone.trim() !== '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +49,7 @@ const Onboarding = () => {
     if (!isFormValid()) {
       toast({
         title: "Please check your information",
-        description: "Make sure you've entered your name and a valid email address.",
+        description: "Make sure you've entered your name, a valid email address, and phone number.",
         variant: "destructive",
       });
       return;
@@ -44,12 +58,12 @@ const Onboarding = () => {
     setIsSubmitting(true);
     
     try {
-      // Register with minimal info, country defaults to "US" and phone to empty for now
+      // Register user with name, email, phone number
       await registerUser(
         formData.name,
         formData.email,
-        "", // Phone will be collected by Kado KYC
-        "US" // Default country, will be updated during KYC
+        formData.phone, // Pass phone number to registration
+        "CM" // Set Cameroon as default country for MVP
       );
       
       await setOnboardingComplete();
@@ -59,12 +73,13 @@ const Onboarding = () => {
         description: "Your account has been created successfully.",
       });
       
-      // Update the navigation path to redirect to the main page, which is "/"
+      // Clear redirect to main page (SendMoney)
       navigate('/');
     } catch (error) {
+      console.error('Registration error:', error);
       toast({
         title: "Account creation failed",
-        description: "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -129,12 +144,33 @@ const Onboarding = () => {
                 className="glass-effect w-full px-4 py-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all"
               />
             </div>
+            
+            <div>
+              <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </Label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                </div>
+                <Input
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+237xxxxxxxxx"
+                  className="glass-effect w-full pl-10 px-4 py-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Format: Include country code (e.g., +237 for Cameroon)</p>
+            </div>
           </div>
           
           <div className="glass-effect rounded-xl p-4 flex items-start mb-8">
             <Shield className="w-5 h-5 text-primary-500 mr-3 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-gray-600">
-              We only collect essential information now. Additional details for compliance will be collected securely by our KYC provider.
+              Your information is securely stored and only used for identity verification and payment processing purposes.
             </p>
           </div>
           
