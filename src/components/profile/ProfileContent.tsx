@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AccountInformation from './AccountInformation';
-import SecuritySettings from './SecuritySettings';
-import { NotificationPreferences } from './notification';
+import { AccountInformation } from './AccountInformation';
+import { SecuritySettings } from './SecuritySettings';
+import { NotificationPreferences } from './NotificationPreferences';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { toast } from '@/hooks/use-toast';
 
