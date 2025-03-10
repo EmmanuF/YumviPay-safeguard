@@ -8,18 +8,19 @@ import { Label } from '@/components/ui/label';
 import CountrySelector from '@/components/CountrySelector';
 
 interface AmountStepProps {
-  amount: string;
-  setAmount: (amount: string) => void;
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
+  transactionData: {
+    amount: number;
+    sourceCurrency: string;
+    targetCurrency: string;
+    convertedAmount: number;
+  };
+  updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
 }
 
 const AmountStep: React.FC<AmountStepProps> = ({
-  amount,
-  setAmount,
-  selectedCountry,
-  setSelectedCountry,
+  transactionData,
+  updateTransactionData,
   onNext,
 }) => {
   const containerVariants = {
@@ -57,8 +58,8 @@ const AmountStep: React.FC<AmountStepProps> = ({
             type="number"
             placeholder="0.00"
             className="pl-8 text-lg"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={transactionData.amount}
+            onChange={(e) => updateTransactionData({ amount: parseFloat(e.target.value) || 0 })}
           />
         </div>
       </motion.div>
@@ -69,8 +70,8 @@ const AmountStep: React.FC<AmountStepProps> = ({
         </Label>
         <CountrySelector 
           label="Select destination country"
-          value={selectedCountry}
-          onChange={setSelectedCountry}
+          value={transactionData.targetCurrency}
+          onChange={(value) => updateTransactionData({ targetCurrency: value })}
           type="receive"
         />
       </motion.div>
@@ -80,7 +81,7 @@ const AmountStep: React.FC<AmountStepProps> = ({
           onClick={onNext} 
           className="w-full" 
           size="lg"
-          disabled={!amount || !selectedCountry}
+          disabled={!transactionData.amount || !transactionData.targetCurrency}
         >
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>

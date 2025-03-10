@@ -8,45 +8,44 @@ import { Separator } from '@/components/ui/separator';
 import { useCountries } from '@/hooks/useCountries';
 
 interface ConfirmationStepProps {
-  amount: string;
-  selectedCountry: string;
-  recipient: string;
-  recipientName: string;
-  selectedPaymentMethod: string;
-  selectedProvider?: string;
+  transactionData: {
+    amount: number;
+    sourceCurrency: string;
+    targetCurrency: string;
+    convertedAmount: number;
+    recipient: string | null;
+    recipientName?: string;
+    paymentMethod: string | null;
+    selectedProvider?: string;
+  };
   onConfirm: () => void;
   onBack: () => void;
-  isSubmitting: boolean;
+  isSubmitting?: boolean;
 }
 
 const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
-  amount,
-  selectedCountry,
-  recipient,
-  recipientName,
-  selectedPaymentMethod,
-  selectedProvider,
+  transactionData,
   onConfirm,
   onBack,
-  isSubmitting
+  isSubmitting = false
 }) => {
   const { getCountryByCode } = useCountries();
-  const selectedCountryData = getCountryByCode(selectedCountry);
+  const selectedCountryData = getCountryByCode(transactionData.targetCurrency);
   
   const paymentMethodName = selectedCountryData?.paymentMethods.find(
-    pm => pm.id === selectedPaymentMethod
-  )?.name || selectedPaymentMethod;
+    pm => pm.id === transactionData.paymentMethod
+  )?.name || transactionData.paymentMethod;
   
   // Calculate fee (simplified logic, same as in transactions service)
   const calculatedFee = (() => {
-    const numAmount = parseFloat(amount);
+    const numAmount = transactionData.amount;
     const baseFee = 2.99;
     const percentageFee = numAmount * 0.015;
     return (baseFee + percentageFee).toFixed(2);
   })();
   
   // Calculate total
-  const totalAmount = (parseFloat(amount) + parseFloat(calculatedFee)).toFixed(2);
+  const totalAmount = (transactionData.amount + parseFloat(calculatedFee)).toFixed(2);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -90,7 +89,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Amount to send</span>
-                  <span className="font-medium">${amount}</span>
+                  <span className="font-medium">${transactionData.amount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Transfer fee</span>
@@ -109,15 +108,15 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Name</span>
-                  <span className="font-medium">{recipientName}</span>
+                  <span className="font-medium">{transactionData.recipientName || 'Not specified'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Contact</span>
-                  <span className="font-medium">{recipient}</span>
+                  <span className="font-medium">{transactionData.recipient || 'Not specified'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Country</span>
-                  <span className="font-medium">{selectedCountryData?.name || selectedCountry}</span>
+                  <span className="font-medium">{selectedCountryData?.name || transactionData.targetCurrency}</span>
                 </div>
               </div>
             </div>
@@ -129,10 +128,10 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                   <span className="text-muted-foreground">Method</span>
                   <span className="font-medium">{paymentMethodName}</span>
                 </div>
-                {selectedProvider && (
+                {transactionData.selectedProvider && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Provider</span>
-                    <span className="font-medium">{selectedProvider}</span>
+                    <span className="font-medium">{transactionData.selectedProvider}</span>
                   </div>
                 )}
               </div>

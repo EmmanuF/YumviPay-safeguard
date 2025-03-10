@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Smartphone, Building, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useCountries } from '@/hooks/useCountries';
@@ -10,27 +9,30 @@ import TransactionSummary from './TransactionSummary';
 import { providerOptions } from './PaymentProviderData';
 
 interface PaymentStepProps {
-  amount: string;
-  selectedCountry: string;
-  recipient: string;
-  recipientName: string;
-  selectedPaymentMethod: string;
-  onSelectPaymentMethod: (method: string) => void;
+  transactionData: {
+    amount: number;
+    sourceCurrency: string;
+    targetCurrency: string;
+    convertedAmount: number;
+    recipient: string | null;
+    recipientName?: string;
+    paymentMethod: string | null;
+    selectedProvider?: string;
+  };
+  updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
+  onBack: () => void;
 }
 
 const PaymentStep: React.FC<PaymentStepProps> = ({
-  amount,
-  selectedCountry,
-  recipient,
-  recipientName,
-  selectedPaymentMethod,
-  onSelectPaymentMethod,
+  transactionData,
+  updateTransactionData,
   onNext,
+  onBack
 }) => {
   const { toast } = useToast();
   const { getCountryByCode } = useCountries();
-  const selectedCountryData = getCountryByCode(selectedCountry);
+  const selectedCountryData = getCountryByCode(transactionData.targetCurrency);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -66,30 +68,38 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       className="space-y-6"
     >
       <PaymentMethodList 
-        selectedCountry={selectedCountry}
+        selectedCountry={transactionData.targetCurrency}
         selectedCountryData={selectedCountryData}
-        selectedPaymentMethod={selectedPaymentMethod}
-        onSelectPaymentMethod={onSelectPaymentMethod}
+        selectedPaymentMethod={transactionData.paymentMethod}
+        onSelectPaymentMethod={(method) => updateTransactionData({ paymentMethod: method })}
         providerOptions={providerOptions}
       />
 
       <TransactionSummary 
-        amount={amount}
+        amount={String(transactionData.amount)}
         selectedCountryData={selectedCountryData}
-        selectedCountry={selectedCountry}
-        recipientName={recipientName}
-        recipient={recipient}
-        selectedPaymentMethod={selectedPaymentMethod}
+        selectedCountry={transactionData.targetCurrency}
+        recipientName={transactionData.recipientName || ''}
+        recipient={transactionData.recipient || ''}
+        selectedPaymentMethod={transactionData.paymentMethod}
       />
 
-      <motion.div variants={itemVariants} className="pt-4">
+      <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
+        <Button 
+          variant="outline"
+          onClick={onBack} 
+          className="w-1/2" 
+          size="lg"
+        >
+          Back
+        </Button>
         <Button 
           onClick={handleProceedToPayment} 
-          className="w-full" 
+          className="w-1/2" 
           size="lg"
-          disabled={!selectedPaymentMethod || !selectedCountryData || selectedCountryData.paymentMethods.length === 0}
+          disabled={!transactionData.paymentMethod || !selectedCountryData || selectedCountryData.paymentMethods.length === 0}
         >
-          Proceed to Payment
+          Continue
         </Button>
       </motion.div>
     </motion.div>

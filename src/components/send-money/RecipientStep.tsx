@@ -8,15 +8,20 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
 interface RecipientStepProps {
-  recipient: string;
-  setRecipient: (recipient: string) => void;
+  transactionData: {
+    recipient: string | null;
+    recipientName?: string;
+  };
+  updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
+  onBack: () => void;
 }
 
 const RecipientStep: React.FC<RecipientStepProps> = ({
-  recipient,
-  setRecipient,
+  transactionData,
+  updateTransactionData,
   onNext,
+  onBack
 }) => {
   const navigate = useNavigate();
   
@@ -57,8 +62,22 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           type="text"
           placeholder="Enter mobile or email"
           className="text-base"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
+          value={transactionData.recipient || ''}
+          onChange={(e) => updateTransactionData({ recipient: e.target.value })}
+        />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <Label htmlFor="recipientName" className="text-sm font-medium mb-1.5 block">
+          Recipient's Name
+        </Label>
+        <Input
+          id="recipientName"
+          type="text"
+          placeholder="Enter recipient's name"
+          className="text-base"
+          value={transactionData.recipientName || ''}
+          onChange={(e) => updateTransactionData({ recipientName: e.target.value })}
         />
       </motion.div>
 
@@ -73,12 +92,20 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
         </Button>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="pt-4">
+      <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
+        <Button 
+          variant="outline"
+          onClick={onBack} 
+          className="w-1/2" 
+          size="lg"
+        >
+          Back
+        </Button>
         <Button 
           onClick={onNext} 
-          className="w-full" 
+          className="w-1/2" 
           size="lg"
-          disabled={!recipient}
+          disabled={!transactionData.recipient}
         >
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>

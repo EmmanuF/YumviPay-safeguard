@@ -20,8 +20,11 @@ const SendMoney = () => {
     targetCurrency: 'XAF',
     convertedAmount: 61000,
     recipient: null,
+    recipientName: '',
     paymentMethod: null,
+    selectedProvider: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isLoggedIn } = useAuth();
@@ -67,11 +70,16 @@ const SendMoney = () => {
         break;
       case 'confirmation':
         // Handle transaction completion
-        toast({
-          title: "Transaction Initiated",
-          description: "Your transaction has been initiated successfully.",
-        });
-        navigate('/transaction/new');
+        setIsSubmitting(true);
+        // Simulate API call
+        setTimeout(() => {
+          setIsSubmitting(false);
+          toast({
+            title: "Transaction Initiated",
+            description: "Your transaction has been initiated successfully.",
+          });
+          navigate('/transaction/new');
+        }, 1500);
         break;
     }
   };
@@ -130,6 +138,7 @@ const SendMoney = () => {
             transactionData={transactionData}
             onConfirm={handleNext}
             onBack={handleBack}
+            isSubmitting={isSubmitting}
           />
         );
     }
