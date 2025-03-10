@@ -10,7 +10,7 @@ import {
   getTransactionById,
   updateTransactionStatus,
   initializeTransactions
-} from '@/services/transactionService';
+} from '@/services/transaction';
 import { useToast } from '@/hooks/use-toast';
 
 export const useTransactions = () => {
