@@ -4,12 +4,38 @@ import { Country, PaymentMethod } from '../types/country';
 import { countries as mockCountries } from '../data/countries';
 import { supabase } from "@/integrations/supabase/client";
 import { useNetwork } from '@/contexts/NetworkContext';
+import { Json } from '@/integrations/supabase/types';
 
 export function useCountries() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { isOffline } = useNetwork();
+
+  // Helper function to safely parse the payment methods JSON
+  const parsePaymentMethods = (paymentMethodsJson: Json | null): PaymentMethod[] => {
+    if (!paymentMethodsJson) return [];
+    
+    try {
+      // If it's already an array, validate each item has the required properties
+      if (Array.isArray(paymentMethodsJson)) {
+        return paymentMethodsJson.filter((method): method is PaymentMethod => 
+          typeof method === 'object' && 
+          method !== null &&
+          'id' in method && 
+          'name' in method && 
+          'description' in method && 
+          'icon' in method && 
+          'fees' in method && 
+          'processingTime' in method
+        );
+      }
+      return [];
+    } catch (e) {
+      console.error('Error parsing payment methods:', e);
+      return [];
+    }
+  };
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -34,7 +60,7 @@ export function useCountries() {
                 flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
                 isSendingEnabled: country.is_sending_enabled,
                 isReceivingEnabled: country.is_receiving_enabled,
-                paymentMethods: (country.payment_methods as PaymentMethod[]) || []
+                paymentMethods: parsePaymentMethods(country.payment_methods)
               }));
               
               setCountries(formattedCountries);
@@ -83,7 +109,7 @@ export function useCountries() {
             flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
             isSendingEnabled: country.is_sending_enabled,
             isReceivingEnabled: country.is_receiving_enabled,
-            paymentMethods: (country.payment_methods as PaymentMethod[]) || []
+            paymentMethods: parsePaymentMethods(country.payment_methods)
           }));
         }
       } catch (error) {
@@ -114,7 +140,7 @@ export function useCountries() {
             flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
             isSendingEnabled: country.is_sending_enabled,
             isReceivingEnabled: country.is_receiving_enabled,
-            paymentMethods: (country.payment_methods as PaymentMethod[]) || []
+            paymentMethods: parsePaymentMethods(country.payment_methods)
           }));
         }
       } catch (error) {

@@ -95,16 +95,16 @@ export const createTransaction = (
     return transaction;
   }
   
-  try {
-    // Send to Supabase if online - but don't wait for response
-    getUserId().then(userId => {
+  // Send to Supabase if online - but don't wait for response
+  getUserId()
+    .then(userId => {
       if (!userId) {
         console.error('User not authenticated');
         addOfflineTransaction(transaction);
         return;
       }
       
-      supabase
+      return supabase
         .from('transactions')
         .insert({
           id: transaction.id,
@@ -124,24 +124,20 @@ export const createTransaction = (
           total_amount: transaction.totalAmount
         })
         .select()
-        .single()
-        .then(({ data }) => {
-          console.log('Transaction created in Supabase:', data);
-        })
-        .catch(error => {
-          console.error('Error creating transaction via Supabase:', error);
-          // Add to local storage as fallback
-          addOfflineTransaction(transaction);
-        });
+        .single();
+    })
+    .then(({ data } = { data: null }) => {
+      if (data) {
+        console.log('Transaction created in Supabase:', data);
+      }
+    })
+    .catch(error => {
+      console.error('Error creating transaction via Supabase:', error);
+      // Add to local storage as fallback
+      addOfflineTransaction(transaction);
     });
-    
-    return transaction;
-  } catch (error) {
-    // Fallback to local storage on API error
-    console.error('Error creating transaction via API:', error);
-    addOfflineTransaction(transaction);
-    return transaction;
-  }
+  
+  return transaction;
 };
 
 // Add a transaction to the offline cache

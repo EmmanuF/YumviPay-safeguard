@@ -24,23 +24,20 @@ export const initializeCountries = async (): Promise<void> => {
     
     console.log('Initializing countries table with default data...');
     
-    // Convert mock countries to the format expected by Supabase
-    const supabaseCountries = mockCountries.map(country => ({
-      code: country.code,
-      name: country.name,
-      currency: country.currency,
-      currency_symbol: country.currency === 'USD' ? '$' : country.currency === 'XAF' ? 'FCFA' : '£',
-      flag_emoji: country.code === 'CM' ? '🇨🇲' : country.code === 'NG' ? '🇳🇬' : '🇬🇭',
-      is_sending_enabled: country.isSendingEnabled,
-      is_receiving_enabled: country.isReceivingEnabled,
-      payment_methods: country.paymentMethods as unknown as Json
-    }));
-    
     // Insert countries into Supabase one by one to avoid type issues
-    for (const country of supabaseCountries) {
+    for (const country of mockCountries) {
       const { error: insertError } = await supabase
         .from('countries')
-        .insert(country);
+        .insert({
+          code: country.code,
+          name: country.name,
+          currency: country.currency,
+          currency_symbol: country.currency === 'USD' ? '$' : country.currency === 'XAF' ? 'FCFA' : '£',
+          flag_emoji: country.code === 'CM' ? '🇨🇲' : country.code === 'NG' ? '🇳🇬' : '🇬🇭',
+          is_sending_enabled: country.isSendingEnabled,
+          is_receiving_enabled: country.isReceivingEnabled,
+          payment_methods: country.paymentMethods as unknown as Json
+        });
         
       if (insertError) {
         console.error(`Error inserting country ${country.code}:`, insertError);

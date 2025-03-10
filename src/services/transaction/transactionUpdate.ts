@@ -73,29 +73,32 @@ export const updateTransactionStatus = (
   }
   
   // Send to Supabase if online - but don't wait
-  getUserId().then(userId => {
-    if (!userId) {
-      console.error('User not authenticated');
-      return;
-    }
-    
-    supabase
-      .from('transactions')
-      .update({
-        status,
-        failure_reason: failureReason,
-        updated_at: new Date().toISOString(),
-        ...(status === 'completed' && { completed_at: new Date().toISOString() })
-      })
-      .eq('id', id)
-      .eq('user_id', userId)
-      .then(() => {
+  getUserId()
+    .then(userId => {
+      if (!userId) {
+        console.error('User not authenticated');
+        return null;
+      }
+      
+      return supabase
+        .from('transactions')
+        .update({
+          status,
+          failure_reason: failureReason,
+          updated_at: new Date().toISOString(),
+          ...(status === 'completed' && { completed_at: new Date().toISOString() })
+        })
+        .eq('id', id)
+        .eq('user_id', userId);
+    })
+    .then(result => {
+      if (result) {
         console.log('Transaction status updated in Supabase');
-      })
-      .catch(error => {
-        console.error('Error updating transaction status via Supabase:', error);
-      });
-  });
+      }
+    })
+    .catch(error => {
+      console.error('Error updating transaction status via Supabase:', error);
+    });
   
   return updatedTransaction;
 };
