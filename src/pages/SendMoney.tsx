@@ -1,205 +1,151 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Recipient } from '@/types/recipient';
-import { useRecipients } from '@/hooks/useRecipients';
-import { useToast } from '@/hooks/use-toast';
-import { createTransaction, simulateKadoWebhook } from '@/services/transactions';
-import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
-import AmountStep from '@/components/send-money/AmountStep';
-import PaymentStep from '@/components/send-money/PaymentStep';
-import ConfirmationStep from '@/components/send-money/ConfirmationStep';
-import { hasCompletedOnboarding, isAuthenticated } from '@/services/auth';
+import { useNavigate } from 'react-router-dom';
+import { SendMoneyLayout } from '@/components/send-money/SendMoneyLayout';
+import { AmountStep } from '@/components/send-money/AmountStep';
+import { RecipientStep } from '@/components/send-money/RecipientStep';
+import { PaymentStep } from '@/components/send-money/PaymentStep';
+import { ConfirmationStep } from '@/components/send-money/ConfirmationStep';
+import { useToast } from '@/components/ui/use-toast';
+import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface LocationState {
-  selectedRecipient?: Recipient;
-}
+type SendMoneyStep = 'amount' | 'recipient' | 'payment' | 'confirmation';
 
 const SendMoney = () => {
+  const [currentStep, setCurrentStep] = useState<SendMoneyStep>('amount');
+  const [transactionData, setTransactionData] = useState<any>({
+    amount: 100,
+    sourceCurrency: 'USD',
+    targetCurrency: 'XAF',
+    convertedAmount: 61000,
+    recipient: null,
+    paymentMethod: null,
+  });
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  const { updateLastUsed } = useRecipients();
-  const { selectedRecipient } = (location.state as LocationState) || {};
   const { isLoggedIn } = useAuth();
-  
-  const [step, setStep] = useState(1);
-  const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState('');
-  const [recipientId, setRecipientId] = useState('');
-  const [recipientName, setRecipientName] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('CM'); // Set Cameroon as default country
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If a recipient is passed via location state, pre-fill the form
+  // Check for pending transaction data
   useEffect(() => {
-    if (selectedRecipient) {
-      setRecipient(selectedRecipient.contact);
-      setRecipientId(selectedRecipient.id);
-      setRecipientName(selectedRecipient.name);
-      setSelectedCountry(selectedRecipient.country);
+    const pendingTransaction = localStorage.getItem('pendingTransaction');
+    if (pendingTransaction) {
+      try {
+        const data = JSON.parse(pendingTransaction);
+        setTransactionData(prev => ({
+          ...prev,
+          amount: parseFloat(data.sendAmount) || 100,
+          sourceCurrency: data.sourceCurrency || 'USD',
+          targetCurrency: data.targetCurrency || 'XAF',
+          convertedAmount: parseFloat(data.receiveAmount.replace(/,/g, '')) || 61000,
+        }));
+        
+        // Clear pending transaction after loading it
+        localStorage.removeItem('pendingTransaction');
+      } catch (error) {
+        console.error('Error parsing pending transaction:', error);
+      }
     }
-  }, [selectedRecipient]);
+  }, []);
 
-  const handleNext = async () => {
-    // Check if user is authenticated before proceeding beyond step 1
-    if (step === 1) {
-      // If we're moving from first step to second, check authentication
-      if (!isLoggedIn) {
-        // Redirect to sign in page if not authenticated
-        toast({
-          title: "Authentication Required",
-          description: "Please sign in to continue with your transaction",
-        });
-        navigate('/signin');
-        return;
-      }
-      
-      // Check if user has completed onboarding
-      const completed = await hasCompletedOnboarding();
-      if (!completed) {
-        // Redirect to onboarding if not completed
-        navigate('/onboarding');
-        return;
-      }
+  const handleNext = () => {
+    // If not logged in and moving past amount step, redirect to signin
+    if (!isLoggedIn && currentStep === 'amount') {
+      navigate('/signin', { state: { from: location } });
+      return;
     }
-    
-    if (step < 3) {
-      setStep(step + 1);
+
+    switch (currentStep) {
+      case 'amount':
+        setCurrentStep('recipient');
+        break;
+      case 'recipient':
+        setCurrentStep('payment');
+        break;
+      case 'payment':
+        setCurrentStep('confirmation');
+        break;
+      case 'confirmation':
+        // Handle transaction completion
+        toast({
+          title: "Transaction Initiated",
+          description: "Your transaction has been initiated successfully.",
+        });
+        navigate('/transaction/new');
+        break;
     }
   };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
+    switch (currentStep) {
+      case 'recipient':
+        setCurrentStep('amount');
+        break;
+      case 'payment':
+        setCurrentStep('recipient');
+        break;
+      case 'confirmation':
+        setCurrentStep('payment');
+        break;
+      default:
+        navigate('/');
     }
   };
 
-  const handleConfirmTransaction = async () => {
-    // Double-check authentication before confirming transaction
-    if (!isLoggedIn) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to confirm your transaction",
-        variant: "destructive"
-      });
-      navigate('/signin');
-      return;
-    }
-    
-    if (!selectedRecipient && !recipientId) {
-      toast({
-        title: "Recipient required",
-        description: "Please select a recipient for this transaction",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Update recipient's last used timestamp
-      if (recipientId) {
-        await updateLastUsed(recipientId);
-      }
-      
-      // Create transaction in our system - now synchronous
-      const transaction = createTransaction(
-        amount,
-        {
-          id: recipientId || 'temp-id',
-          name: recipientName,
-          contact: recipient,
-          country: selectedCountry,
-          isFavorite: false
-        },
-        selectedPaymentMethod,
-        selectedProvider
-      );
-
-      // Simulate redirect to Kado for KYC & payment
-      toast({
-        title: "Redirecting to Kado",
-        description: "You'll be redirected to complete KYC and payment"
-      });
-
-      // Simulate Kado webhook callback after 3 seconds
-      await simulateKadoWebhook(transaction.id);
-      
-      // Navigate to transaction status page
-      navigate(`/transaction/${transaction.id}`);
-    } catch (error) {
-      console.error('Transaction error:', error);
-      toast({
-        title: "Transaction failed",
-        description: "There was an error processing your transaction",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const updateTransactionData = (data: Partial<typeof transactionData>) => {
+    setTransactionData(prev => ({ ...prev, ...data }));
   };
 
-  const renderStepTitle = () => {
-    switch (step) {
-      case 1: return "Send Money";
-      case 2: return "Payment Method";
-      case 3: return "Confirm Transfer";
-      default: return "Send Money";
-    }
-  };
-
-  const renderStepContent = () => {
-    switch (step) {
-      case 1:
+  const renderStep = () => {
+    switch (currentStep) {
+      case 'amount':
         return (
           <AmountStep
-            amount={amount}
-            setAmount={setAmount}
-            selectedCountry={selectedCountry}
-            setSelectedCountry={setSelectedCountry}
+            transactionData={transactionData}
+            updateTransactionData={updateTransactionData}
             onNext={handleNext}
           />
         );
-      case 2:
+      case 'recipient':
+        return (
+          <RecipientStep
+            transactionData={transactionData}
+            updateTransactionData={updateTransactionData}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
+        );
+      case 'payment':
         return (
           <PaymentStep
-            amount={amount}
-            selectedCountry={selectedCountry}
-            recipient={recipient}
-            recipientName={recipientName}
-            selectedPaymentMethod={selectedPaymentMethod}
-            onSelectPaymentMethod={setSelectedPaymentMethod}
+            transactionData={transactionData}
+            updateTransactionData={updateTransactionData}
             onNext={handleNext}
+            onBack={handleBack}
           />
         );
-      case 3:
+      case 'confirmation':
         return (
           <ConfirmationStep
-            amount={amount}
-            selectedCountry={selectedCountry}
-            recipient={recipient}
-            recipientName={recipientName}
-            selectedPaymentMethod={selectedPaymentMethod}
-            selectedProvider={selectedProvider}
-            onConfirm={handleConfirmTransaction}
+            transactionData={transactionData}
+            onConfirm={handleNext}
             onBack={handleBack}
-            isSubmitting={isSubmitting}
           />
         );
-      default:
-        return null;
     }
   };
 
   return (
-    <SendMoneyLayout title={renderStepTitle()}>
-      {renderStepContent()}
-    </SendMoneyLayout>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <SendMoneyLayout 
+        currentStep={currentStep} 
+        stepCount={4}
+      >
+        {renderStep()}
+      </SendMoneyLayout>
+      <div className="pb-16"></div>
+      <BottomNavigation />
+    </div>
   );
 };
 

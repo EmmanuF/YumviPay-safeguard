@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -18,13 +17,21 @@ const Onboarding = () => {
     phone: '', // Added phone field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingTransaction, setPendingTransaction] = useState<any>(null);
   
-  // Check if user is already authenticated, redirect to main page if so
+  // Check if user is already authenticated, redirect to send page if so
   useEffect(() => {
     const checkAuth = async () => {
       const authenticated = await isAuthenticated();
+      
+      // Check for pending transaction data
+      const transactionData = localStorage.getItem('pendingTransaction');
+      if (transactionData) {
+        setPendingTransaction(JSON.parse(transactionData));
+      }
+      
       if (authenticated) {
-        navigate('/');
+        navigate('/send');
       }
     };
     
@@ -73,8 +80,13 @@ const Onboarding = () => {
         description: "Your account has been created successfully.",
       });
       
-      // Clear redirect to main page (SendMoney)
-      navigate('/');
+      // If there's a pending transaction, go to send money page
+      // Otherwise go to home
+      if (pendingTransaction) {
+        navigate('/send');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       toast({
@@ -113,6 +125,15 @@ const Onboarding = () => {
           className="flex flex-col"
         >
           <h2 className="text-2xl font-bold mb-6 text-gray-900">Get started with Yumvi-Pay</h2>
+          
+          {pendingTransaction && (
+            <div className="mb-6 p-4 bg-primary-50 rounded-xl">
+              <h3 className="font-medium text-gray-900 mb-2">Your Transaction</h3>
+              <p className="text-sm text-gray-600">
+                You're sending {pendingTransaction.sendAmount} {pendingTransaction.sourceCurrency} to receive approximately {pendingTransaction.receiveAmount} {pendingTransaction.targetCurrency}
+              </p>
+            </div>
+          )}
           
           <div className="space-y-6 mb-8">
             <div>

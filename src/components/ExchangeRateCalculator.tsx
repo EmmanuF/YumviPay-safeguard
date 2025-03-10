@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CurrencySelector from '@/components/calculator/CurrencySelector';
@@ -12,10 +11,13 @@ import { getExchangeRate } from '@/data/exchangeRates';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
+  onContinue?: () => void;
 }
 
-const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ className }) => {
-  const navigate = useNavigate();
+const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ 
+  className,
+  onContinue 
+}) => {
   const { countries } = useCountries();
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
@@ -48,6 +50,24 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
     
     calculateRate();
   }, [sendAmount, sourceCurrency, targetCurrency]);
+
+  const handleContinue = () => {
+    // Store the current exchange information in localStorage for use in next steps
+    const transactionData = {
+      sourceCurrency,
+      targetCurrency,
+      sendAmount,
+      receiveAmount: receiveAmount.replace(/,/g, ''),
+      exchangeRate
+    };
+    
+    localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+    
+    // Call the onContinue prop if provided
+    if (onContinue) {
+      onContinue();
+    }
+  };
 
   return (
     <div className={`bg-white rounded-3xl shadow-xl overflow-hidden ${className}`}>
@@ -101,7 +121,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
         />
         
         <Button
-          onClick={() => navigate('/onboarding')}
+          onClick={handleContinue}
           className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
         >
