@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -63,6 +62,7 @@ const SignUp: React.FC = () => {
         description: "Your account has been created successfully.",
       });
 
+      // Navigate to the onboarding page after signup
       navigate('/onboarding');
     } catch (error: any) {
       console.error('Signup error:', error);

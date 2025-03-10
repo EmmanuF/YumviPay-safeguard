@@ -59,7 +59,8 @@ const Onboarding = () => {
         description: "Your account has been created successfully.",
       });
       
-      navigate('/dashboard');
+      // Update the navigation path to redirect to the main page, which is "/"
+      navigate('/');
     } catch (error) {
       toast({
         title: "Account creation failed",
