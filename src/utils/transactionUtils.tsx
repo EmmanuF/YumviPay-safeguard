@@ -182,4 +182,3 @@ export const resendTransactionReceipt = async (transactionId: string): Promise<b
     return false;
   }
 };
-
