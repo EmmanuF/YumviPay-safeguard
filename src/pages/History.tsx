@@ -1,21 +1,35 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, X } from 'lucide-react';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import TransactionCard from '@/components/TransactionCard';
-import { Transaction } from '@/types/transaction';
+import { Transaction, TransactionStatus } from '@/types/transaction';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const History = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState<TransactionStatus | 'all'>('all');
+  const [dateFilter, setDateFilter] = useState<string>('all');
+  const [countryFilter, setCountryFilter] = useState<string[]>([]);
   
   useEffect(() => {
     // Simulate loading transaction data
@@ -135,20 +149,84 @@ const History = () => {
   }, []);
   
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredTransactions(transactions);
-    } else {
-      const filtered = transactions.filter(transaction => 
+    // Filter the transactions based on search query and filters
+    let filtered = [...transactions];
+    
+    // Apply search query filter
+    if (searchQuery.trim() !== '') {
+      filtered = filtered.filter(transaction => 
         transaction.recipientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (transaction.recipientCountry && transaction.recipientCountry.toLowerCase().includes(searchQuery.toLowerCase()))
       );
-      setFilteredTransactions(filtered);
     }
-  }, [searchQuery, transactions]);
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(transaction => transaction.status === statusFilter);
+    }
+    
+    // Apply date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const dayInMs = 24 * 60 * 60 * 1000;
+      
+      switch (dateFilter) {
+        case 'today':
+          filtered = filtered.filter(transaction => {
+            const txDate = new Date(transaction.createdAt);
+            return txDate.toDateString() === now.toDateString();
+          });
+          break;
+        case 'week':
+          filtered = filtered.filter(transaction => {
+            const txDate = new Date(transaction.createdAt);
+            return (now.getTime() - txDate.getTime()) <= 7 * dayInMs;
+          });
+          break;
+        case 'month':
+          filtered = filtered.filter(transaction => {
+            const txDate = new Date(transaction.createdAt);
+            return (now.getTime() - txDate.getTime()) <= 30 * dayInMs;
+          });
+          break;
+      }
+    }
+    
+    // Apply country filter
+    if (countryFilter.length > 0) {
+      filtered = filtered.filter(transaction => {
+        const country = transaction.recipientCountry || transaction.country;
+        return countryFilter.includes(country);
+      });
+    }
+    
+    setFilteredTransactions(filtered);
+  }, [searchQuery, transactions, statusFilter, dateFilter, countryFilter]);
   
   const handleTransactionClick = (transactionId: string) => {
     window.location.href = `/transaction/${transactionId}`;
   };
+  
+  const resetFilters = () => {
+    setStatusFilter('all');
+    setDateFilter('all');
+    setCountryFilter([]);
+  };
+  
+  const toggleCountryFilter = (country: string) => {
+    if (countryFilter.includes(country)) {
+      setCountryFilter(countryFilter.filter(c => c !== country));
+    } else {
+      setCountryFilter([...countryFilter, country]);
+    }
+  };
+  
+  // Extract unique countries for the filter
+  const uniqueCountries = Array.from(new Set(
+    transactions
+      .map(t => t.recipientCountry || t.country)
+      .filter(Boolean)
+  ));
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -218,10 +296,147 @@ const History = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
+              <Popover open={showFilters} onOpenChange={setShowFilters}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    className={countryFilter.length > 0 || statusFilter !== 'all' || dateFilter !== 'all' 
+                      ? "bg-primary text-primary-foreground" 
+                      : ""}
+                  >
+                    <Filter className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium">Filter Transactions</h3>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={resetFilters}
+                        className="h-8 px-2 text-xs"
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Status</h4>
+                      <RadioGroup value={statusFilter} onValueChange={(value) => setStatusFilter(value as TransactionStatus | 'all')}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="all" id="status-all" />
+                          <Label htmlFor="status-all">All</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="completed" id="status-completed" />
+                          <Label htmlFor="status-completed">Completed</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="pending" id="status-pending" />
+                          <Label htmlFor="status-pending">Pending</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="failed" id="status-failed" />
+                          <Label htmlFor="status-failed">Failed</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Date</h4>
+                      <RadioGroup value={dateFilter} onValueChange={setDateFilter}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="all" id="date-all" />
+                          <Label htmlFor="date-all">All time</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="today" id="date-today" />
+                          <Label htmlFor="date-today">Today</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="week" id="date-week" />
+                          <Label htmlFor="date-week">Last 7 days</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="month" id="date-month" />
+                          <Label htmlFor="date-month">Last 30 days</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    {uniqueCountries.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-medium">Country</h4>
+                        <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
+                          {uniqueCountries.map((country) => (
+                            <div key={country} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`country-${country}`} 
+                                checked={countryFilter.includes(country)}
+                                onCheckedChange={() => toggleCountryFilter(country)}
+                              />
+                              <Label htmlFor={`country-${country}`}>{country}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between pt-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setShowFilters(false)}
+                        className="w-full"
+                      >
+                        Apply Filters
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
+            
+            {/* Active filters */}
+            {(countryFilter.length > 0 || statusFilter !== 'all' || dateFilter !== 'all') && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {statusFilter !== 'all' && (
+                  <Badge 
+                    variant="outline" 
+                    className="bg-primary/10 text-xs py-0 h-6"
+                    onClick={() => setStatusFilter('all')}
+                  >
+                    Status: {statusFilter}
+                    <X className="ml-1 h-3 w-3" />
+                  </Badge>
+                )}
+                
+                {dateFilter !== 'all' && (
+                  <Badge 
+                    variant="outline"
+                    className="bg-primary/10 text-xs py-0 h-6"
+                    onClick={() => setDateFilter('all')}
+                  >
+                    Date: {dateFilter === 'today' ? 'Today' : dateFilter === 'week' ? 'Last 7 days' : 'Last 30 days'}
+                    <X className="ml-1 h-3 w-3" />
+                  </Badge>
+                )}
+                
+                {countryFilter.map(country => (
+                  <Badge 
+                    key={country}
+                    variant="outline"
+                    className="bg-primary/10 text-xs py-0 h-6"
+                    onClick={() => toggleCountryFilter(country)}
+                  >
+                    {country}
+                    <X className="ml-1 h-3 w-3" />
+                  </Badge>
+                ))}
+              </div>
+            )}
           </motion.div>
           
           {/* Transactions */}
