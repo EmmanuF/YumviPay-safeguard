@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -26,7 +25,7 @@ const Onboarding = () => {
   const isFormValid = () => {
     return formData.name.trim() !== '' && 
            formData.email.trim() !== '' && 
-           /^\S+@\S+\.\S+$/.test(formData.email);
+           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,12 +58,15 @@ const Onboarding = () => {
         description: "Your account has been created successfully.",
       });
       
-      // Update the navigation path to redirect to the main page, which is "/"
+      // Ensure we are navigating to a valid route
+      // Navigate to the main Dashboard page after successful onboarding
       navigate('/');
-    } catch (error) {
+      console.log('Navigation to homepage requested');
+    } catch (error: any) {
+      console.error('Onboarding error:', error);
       toast({
         title: "Account creation failed",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
         variant: "destructive",
       });
     } finally {
