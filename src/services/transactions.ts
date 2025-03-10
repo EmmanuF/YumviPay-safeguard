@@ -10,7 +10,7 @@ import {
   getRecentTransactions,
   updateTransactionStatus,
   simulateKadoWebhook,
-  initializeTransactions as initializeMockTransactions
+  initializeTransactions
 } from "@/services/transactionService";
 
 // Re-export types
@@ -24,8 +24,8 @@ export {
   getRecentTransactions,
   updateTransactionStatus,
   simulateKadoWebhook,
-  initializeMockTransactions
+  initializeTransactions
 };
 
-// Call initialize on first import
-initializeMockTransactions();
+// Call initialize on import
+initializeTransactions();

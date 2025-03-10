@@ -30,6 +30,14 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
         </div>
         <div className="flex items-center space-x-2">
           <Checkbox 
+            id="status-processing" 
+            checked={statusFilter.includes('processing')}
+            onCheckedChange={() => toggleStatusFilter('processing')}
+          />
+          <Label htmlFor="status-processing">Processing</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox 
             id="status-completed" 
             checked={statusFilter.includes('completed')}
             onCheckedChange={() => toggleStatusFilter('completed')}
@@ -43,6 +51,14 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
             onCheckedChange={() => toggleStatusFilter('failed')}
           />
           <Label htmlFor="status-failed">Failed</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="status-cancelled" 
+            checked={statusFilter.includes('cancelled')}
+            onCheckedChange={() => toggleStatusFilter('cancelled')}
+          />
+          <Label htmlFor="status-cancelled">Cancelled</Label>
         </div>
         
         {/* Add offline-specific filter option */}
