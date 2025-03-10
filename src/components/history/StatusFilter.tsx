@@ -1,39 +1,67 @@
 
 import React from 'react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { TransactionStatus } from '@/types/transaction';
+import { Badge } from '@/components/ui/badge';
+import { useNetwork } from '@/contexts/NetworkContext';
 
 interface StatusFilterProps {
-  statusFilter: TransactionStatus | 'all';
-  setStatusFilter: (status: TransactionStatus | 'all') => void;
+  statusFilter: string[];
+  toggleStatusFilter: (status: string) => void;
 }
 
 const StatusFilter: React.FC<StatusFilterProps> = ({ 
   statusFilter, 
-  setStatusFilter 
+  toggleStatusFilter 
 }) => {
+  const { isOffline } = useNetwork();
+  
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium">Status</h4>
-      <RadioGroup value={statusFilter} onValueChange={(value) => setStatusFilter(value as TransactionStatus | 'all')}>
+      <div className="space-y-2">
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="all" id="status-all" />
-          <Label htmlFor="status-all">All</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="completed" id="status-completed" />
-          <Label htmlFor="status-completed">Completed</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="pending" id="status-pending" />
+          <Checkbox 
+            id="status-pending" 
+            checked={statusFilter.includes('pending')}
+            onCheckedChange={() => toggleStatusFilter('pending')}
+          />
           <Label htmlFor="status-pending">Pending</Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="failed" id="status-failed" />
+          <Checkbox 
+            id="status-completed" 
+            checked={statusFilter.includes('completed')}
+            onCheckedChange={() => toggleStatusFilter('completed')}
+          />
+          <Label htmlFor="status-completed">Completed</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="status-failed" 
+            checked={statusFilter.includes('failed')}
+            onCheckedChange={() => toggleStatusFilter('failed')}
+          />
           <Label htmlFor="status-failed">Failed</Label>
         </div>
-      </RadioGroup>
+        
+        {/* Add offline-specific filter option */}
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="status-offline-pending" 
+            checked={statusFilter.includes('offline-pending')}
+            onCheckedChange={() => toggleStatusFilter('offline-pending')}
+          />
+          <Label htmlFor="status-offline-pending" className="flex items-center">
+            Offline Pending
+            {isOffline && (
+              <Badge variant="outline" className="ml-2 bg-amber-100 text-amber-800 text-xs">
+                Available Offline
+              </Badge>
+            )}
+          </Label>
+        </div>
+      </div>
     </div>
   );
 };
