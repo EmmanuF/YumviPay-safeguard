@@ -16,12 +16,12 @@ import { useNetwork } from "@/contexts/NetworkContext";
 let offlineTransactions: Transaction[] = [...mockTransactions];
 
 // Create a new transaction
-export const createTransaction = async (
+export const createTransaction = (
   amount: string,
   recipient: Recipient,
   paymentMethod: string,
   provider?: string
-): Promise<Transaction> => {
+): Transaction => {
   const { isOffline, addPausedRequest } = useNetwork();
   const fee = calculateFee(amount, recipient.country);
   const totalAmount = calculateTotal(amount, fee);
@@ -74,9 +74,16 @@ export const createTransaction = async (
   }
   
   try {
-    // Send to API if online
-    const result = await apiService.transactions.create(transaction);
-    return result;
+    // Send to API if online - but don't wait for response
+    apiService.transactions.create(transaction)
+      .then(result => {
+        console.log('Transaction created on API:', result);
+      })
+      .catch(error => {
+        console.error('Error creating transaction via API:', error);
+      });
+    
+    return transaction;
   } catch (error) {
     // Fallback to local storage on API error
     console.error('Error creating transaction via API:', error);
@@ -86,58 +93,66 @@ export const createTransaction = async (
 };
 
 // Get transaction by ID
-export const getTransactionById = async (id: string): Promise<Transaction | undefined> => {
-  const { isOffline } = useNetwork();
-  
-  // Try to get from API first if online
-  if (!isOffline) {
-    try {
-      return await apiService.transactions.getById(id);
-    } catch (error) {
-      console.error('Error fetching transaction from API:', error);
-      // Fallback to local cache on error
-    }
+export const getTransactionById = (id: string): Transaction | undefined => {
+  // First check local cache
+  const localTransaction = offlineTransactions.find(t => t.id === id);
+  if (localTransaction) {
+    return localTransaction;
   }
   
-  // Fallback to local cache if offline or API error
-  return offlineTransactions.find(t => t.id === id);
+  // If not found locally but we're online, try to get from API
+  // but return undefined while waiting for API
+  const { isOffline } = useNetwork();
+  if (!isOffline) {
+    apiService.transactions.getById(id)
+      .then(transaction => {
+        // Add to local cache if found
+        if (transaction && !offlineTransactions.some(t => t.id === transaction.id)) {
+          offlineTransactions.push(transaction);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching transaction from API:', error);
+      });
+  }
+  
+  return undefined;
 };
 
 // Get all transactions
-export const getAllTransactions = async (): Promise<Transaction[]> => {
+export const getAllTransactions = (): Transaction[] => {
   const { isOffline } = useNetwork();
   
-  // Try to get from API first if online
+  // Start API fetch if online, but don't wait for response
   if (!isOffline) {
-    try {
-      const apiTransactions = await apiService.transactions.getAll();
-      // Update local cache with latest data
-      offlineTransactions = apiTransactions;
-      return apiTransactions;
-    } catch (error) {
-      console.error('Error fetching transactions from API:', error);
-      // Fallback to local cache on error
-    }
+    apiService.transactions.getAll()
+      .then(apiTransactions => {
+        // Update local cache with latest data
+        offlineTransactions = apiTransactions;
+      })
+      .catch(error => {
+        console.error('Error fetching transactions from API:', error);
+      });
   }
   
-  // Return cached transactions if offline or API error
+  // Return cached transactions immediately
   return [...offlineTransactions].sort((a, b) => 
     b.createdAt.getTime() - a.createdAt.getTime()
   );
 };
 
 // Get recent transactions (limited count)
-export const getRecentTransactions = async (limit: number = 5): Promise<Transaction[]> => {
-  const transactions = await getAllTransactions();
+export const getRecentTransactions = (limit: number = 5): Transaction[] => {
+  const transactions = getAllTransactions();
   return transactions.slice(0, limit);
 };
 
 // Update transaction status
-export const updateTransactionStatus = async (
+export const updateTransactionStatus = (
   id: string, 
   status: TransactionStatus,
   failureReason?: string
-): Promise<Transaction | null> => {
+): Transaction | null => {
   const { isOffline, addPausedRequest } = useNetwork();
   
   // Update local transaction
@@ -179,23 +194,23 @@ export const updateTransactionStatus = async (
     return updatedTransaction;
   }
   
-  try {
-    // Send to API if online
-    return await apiService.transactions.update(id, { 
-      status, 
-      failureReason 
+  // Send to API if online - but don't wait
+  apiService.transactions.update(id, { status, failureReason })
+    .then(result => {
+      console.log('Transaction status updated on API:', result);
+    })
+    .catch(error => {
+      console.error('Error updating transaction status via API:', error);
     });
-  } catch (error) {
-    console.error('Error updating transaction status via API:', error);
-    return updatedTransaction;
-  }
+  
+  return updatedTransaction;
 };
 
 // Simulate Kado webhook response (would be replaced by real Kado integration)
 export const simulateKadoWebhook = async (transactionId: string): Promise<Transaction | null> => {
   return new Promise((resolve) => {
-    setTimeout(async () => {
-      const transaction = await getTransactionById(transactionId);
+    setTimeout(() => {
+      const transaction = getTransactionById(transactionId);
       
       if (!transaction) {
         resolve(null);
@@ -206,14 +221,14 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<Transa
       const isSuccessful = Math.random() < 0.9;
       
       if (isSuccessful) {
-        const updatedTransaction = await updateTransactionStatus(transactionId, 'completed');
+        const updatedTransaction = updateTransactionStatus(transactionId, 'completed');
         showToast(
           "Payment successful",
           "Your transaction has been completed successfully"
         );
         resolve(updatedTransaction);
       } else {
-        const updatedTransaction = await updateTransactionStatus(
+        const updatedTransaction = updateTransactionStatus(
           transactionId, 
           'failed',
           'Payment authorization failed. Please try another payment method.'

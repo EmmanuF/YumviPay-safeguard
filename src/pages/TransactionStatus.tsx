@@ -33,6 +33,7 @@ const TransactionStatus = () => {
         return;
       }
       
+      // Now synchronous - returns Transaction or undefined
       const fetchedTransaction = getTransactionById(id);
       setTransaction(fetchedTransaction || null);
       setLoading(false);

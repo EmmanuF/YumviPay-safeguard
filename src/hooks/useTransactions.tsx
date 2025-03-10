@@ -20,13 +20,16 @@ export const useTransactions = () => {
 
   // Initialize transactions if needed
   useEffect(() => {
-    initializeTransactions();
+    initializeTransactions().catch(error => {
+      console.error('Failed to initialize transactions:', error);
+    });
   }, []);
 
   // Load transactions
-  const fetchTransactions = useCallback(async () => {
+  const fetchTransactions = useCallback(() => {
     try {
       setLoading(true);
+      // Now synchronous - returns Transaction[]
       const data = getAllTransactions();
       setTransactions(data);
     } catch (error) {

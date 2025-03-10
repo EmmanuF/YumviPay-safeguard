@@ -71,7 +71,7 @@ const SendMoney = () => {
         await updateLastUsed(recipientId);
       }
       
-      // Create transaction in our system
+      // Create transaction in our system - now synchronous
       const transaction = createTransaction(
         amount,
         {
