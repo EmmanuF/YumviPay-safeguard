@@ -18,10 +18,28 @@ const History = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   
-  // Filter states
-  const [statusFilter, setStatusFilter] = useState<TransactionStatus | 'all'>('all');
+  // Update statusFilter to be a string array instead of a single string
+  const [statusFilter, setStatusFilterState] = useState<string[]>([]);
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
+  
+  // Convert single status to array or clear the array
+  const setStatusFilter = (status: TransactionStatus | 'all') => {
+    if (status === 'all') {
+      setStatusFilterState([]);
+    } else {
+      setStatusFilterState([status]);
+    }
+  };
+  
+  // Toggle a status in the filter array
+  const toggleStatusFilter = (status: string) => {
+    if (statusFilter.includes(status)) {
+      setStatusFilterState(statusFilter.filter(s => s !== status));
+    } else {
+      setStatusFilterState([...statusFilter, status]);
+    }
+  };
   
   useEffect(() => {
     // Simulate loading transaction data
@@ -152,9 +170,9 @@ const History = () => {
       );
     }
     
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(transaction => transaction.status === statusFilter);
+    // Apply status filter - updated to work with array of statuses
+    if (statusFilter.length > 0) {
+      filtered = filtered.filter(transaction => statusFilter.includes(transaction.status));
     }
     
     // Apply date filter
@@ -200,7 +218,7 @@ const History = () => {
   };
   
   const resetFilters = () => {
-    setStatusFilter('all');
+    setStatusFilterState([]);
     setDateFilter('all');
     setCountryFilter([]);
   };
@@ -242,8 +260,8 @@ const History = () => {
     },
   };
   
-  // Check if any filters are active
-  const hasActiveFilters = countryFilter.length > 0 || statusFilter !== 'all' || dateFilter !== 'all';
+  // Check if any filters are active - updated for array status filter
+  const hasActiveFilters = countryFilter.length > 0 || statusFilter.length > 0 || dateFilter !== 'all';
   
   return (
     <div className="min-h-screen bg-background flex flex-col pb-16">
@@ -272,6 +290,7 @@ const History = () => {
                 countryFilter={countryFilter}
                 uniqueCountries={uniqueCountries}
                 setStatusFilter={setStatusFilter}
+                toggleStatusFilter={toggleStatusFilter}
                 setDateFilter={setDateFilter}
                 toggleCountryFilter={toggleCountryFilter}
                 resetFilters={resetFilters}
