@@ -19,12 +19,12 @@ const BottomNavigation: React.FC = () => {
     {
       name: 'Home',
       icon: <Home className="w-5 h-5" />,
-      path: '/dashboard',
+      path: '/',
     },
     {
       name: 'Send',
       icon: <Send className="w-5 h-5" />,
-      path: '/send',
+      path: '/',
     },
     {
       name: 'History',
