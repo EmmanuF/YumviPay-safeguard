@@ -1,45 +1,41 @@
 
-/**
- * Utility functions for network status that can be used outside of React components
- * This avoids using the useNetwork hook in non-component contexts
- */
+import { useNetwork } from '@/contexts/NetworkContext';
 
-// Check if the device is currently offline
+// Track the offline status (can be used outside of components)
+let _isOffline = false;
+
+// Function to check if we're offline
 export const isOffline = (): boolean => {
-  return typeof navigator !== 'undefined' ? !navigator.onLine : false;
+  return _isOffline;
 };
 
-// Add a request to be executed when the device goes online
+// Maintain reference to the addPausedRequest function for use outside of components
+let _addPausedRequest: ((callback: () => Promise<any>) => void) | null = null;
+
+// Update the offline status and reference to addPausedRequest function
+export const updateNetworkStatus = (offline: boolean, addRequest: (callback: () => Promise<any>) => void): void => {
+  _isOffline = offline;
+  _addPausedRequest = addRequest;
+};
+
+// Function to add paused requests that will be executed when back online
 export const addPausedRequest = (callback: () => Promise<any>): void => {
-  if (isOffline()) {
-    // Store the request in localStorage to be executed when online
-    const requests = JSON.parse(localStorage.getItem('pausedRequests') || '[]');
-    requests.push({
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString()
-    });
-    localStorage.setItem('pausedRequests', JSON.stringify(requests));
-    
-    // Add event listener to execute when online (if in browser)
-    if (typeof window !== 'undefined') {
-      const executeRequest = () => {
-        callback()
-          .then(() => {
-            console.log('Paused request executed successfully');
-            window.removeEventListener('online', executeRequest);
-          })
-          .catch(error => {
-            console.error('Error executing paused request:', error);
-          });
-      };
-      
-      window.addEventListener('online', executeRequest);
-    }
+  if (_addPausedRequest) {
+    _addPausedRequest(callback);
   } else {
-    // Execute immediately if online
-    callback()
-      .catch(error => {
-        console.error('Error executing request:', error);
-      });
+    console.warn('addPausedRequest not available yet. Request will not be queued.');
   }
 };
+
+// Hook to set up network status tracking
+export const useNetworkUtils = (): void => {
+  const { isOffline: networkIsOffline, addPausedRequest: networkAddPausedRequest } = useNetwork();
+  
+  // Update the offline status whenever it changes
+  useEffect(() => {
+    updateNetworkStatus(networkIsOffline, networkAddPausedRequest);
+  }, [networkIsOffline, networkAddPausedRequest]);
+};
+
+// Must be imported from React
+import { useEffect } from 'react';

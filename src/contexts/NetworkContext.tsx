@@ -1,8 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import OfflineBanner from '@/components/OfflineBanner';
-import { addPausedRequest as addPausedRequestUtil } from '@/utils/networkUtils';
 
 type NetworkContextType = {
   isOffline: boolean;
@@ -17,6 +15,9 @@ interface NetworkProviderProps {
 
 const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 
+// Queue for storing requests to be executed when back online
+const pausedRequests: (() => Promise<any>)[] = [];
+
 export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) => {
   const { isOnline } = useNetworkStatus();
   const [isOffline, setIsOffline] = useState(!isOnline);
@@ -24,11 +25,31 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
 
   useEffect(() => {
     setIsOffline(!isOnline);
+    
+    // If coming back online, process any queued requests
+    if (isOnline && pausedRequests.length > 0) {
+      console.log(`Processing ${pausedRequests.length} queued requests`);
+      
+      // Process all paused requests
+      [...pausedRequests].forEach(async (request) => {
+        try {
+          await request();
+          // Remove from queue after successful processing
+          const index = pausedRequests.indexOf(request);
+          if (index > -1) {
+            pausedRequests.splice(index, 1);
+          }
+        } catch (error) {
+          console.error('Error processing queued request:', error);
+        }
+      });
+    }
   }, [isOnline]);
 
   // Function to add a request to the queue
   const addPausedRequest = (callback: () => Promise<any>) => {
-    addPausedRequestUtil(callback);
+    pausedRequests.push(callback);
+    console.log(`Request added to queue. Total: ${pausedRequests.length}`);
   };
 
   return (
@@ -51,4 +72,4 @@ export const useNetwork = (): NetworkContextType => {
   return context;
 };
 
-export { OfflineBanner };
+export { OfflineBanner } from '@/components/OfflineBanner';
