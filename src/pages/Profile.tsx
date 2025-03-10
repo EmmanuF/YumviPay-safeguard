@@ -2,18 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, MapPin, Shield, Bell, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import Header from '@/components/Header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getAuthState, logoutUser } from '@/services/auth';
 import { toast } from 'sonner';
+
+import {
+  ProfileHeader,
+  AccountInformation,
+  SecuritySettings,
+  NotificationPreferences,
+  EditProfileDialog
+} from '@/components/profile';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -83,6 +86,10 @@ const Profile = () => {
     setEditDialogOpen(true);
   };
 
+  const handleEditValueChange = (value: string) => {
+    setEditValue(value);
+  };
+
   const saveChanges = () => {
     if (user && editField) {
       const updatedUser = { ...user, [editField]: editValue };
@@ -92,14 +99,8 @@ const Profile = () => {
     }
   };
 
-  const getFieldIcon = (field: string) => {
-    switch (field) {
-      case 'name': return <User className="text-primary-500" />;
-      case 'email': return <Mail className="text-primary-500" />;
-      case 'phone': return <Phone className="text-primary-500" />;
-      case 'country': return <MapPin className="text-primary-500" />;
-      default: return <User className="text-primary-500" />;
-    }
+  const handleNotificationChange = (key: keyof typeof notifications, checked: boolean) => {
+    setNotifications({ ...notifications, [key]: checked });
   };
 
   if (loading) {
@@ -122,18 +123,7 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-4"
           >
-            {/* User Profile Card */}
-            <Card className="glass-effect">
-              <CardHeader className="flex flex-row items-center pb-2">
-                <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-500 mr-4">
-                  <User size={32} />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">{user.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-              </CardHeader>
-            </Card>
+            <ProfileHeader name={user.name} email={user.email} />
             
             <Tabs defaultValue="account" className="w-full">
               <TabsList className="w-full grid grid-cols-2">
@@ -142,95 +132,15 @@ const Profile = () => {
               </TabsList>
               
               <TabsContent value="account" className="space-y-4">
-                {/* Account Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Account Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {['name', 'email', 'phone', 'country'].map((field) => (
-                      <div key={field} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                        <div className="flex items-center">
-                          {getFieldIcon(field)}
-                          <div className="ml-3">
-                            <p className="text-sm font-medium capitalize">{field}</p>
-                            <p className="text-sm text-muted-foreground">{user[field]}</p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => openEditDialog(field, user[field])}>
-                          Edit
-                        </Button>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-                
-                {/* Security */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Security</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between py-2">
-                      <div className="flex items-center">
-                        <Shield className="text-primary-500" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium">Password</p>
-                          <p className="text-sm text-muted-foreground">Change your password</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => openEditDialog('password', '')}>
-                        Change
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AccountInformation user={user} onEdit={openEditDialog} />
+                <SecuritySettings onChangePassword={() => openEditDialog('password', '')} />
               </TabsContent>
               
               <TabsContent value="preferences" className="space-y-4">
-                {/* Notification Settings */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Notifications</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="transaction-notifications">Transaction alerts</Label>
-                        <p className="text-sm text-muted-foreground">Receive notifications about your transactions</p>
-                      </div>
-                      <Switch
-                        id="transaction-notifications"
-                        checked={notifications.transactions}
-                        onCheckedChange={(checked) => setNotifications({ ...notifications, transactions: checked })}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="marketing-notifications">Marketing emails</Label>
-                        <p className="text-sm text-muted-foreground">Receive marketing and promotional emails</p>
-                      </div>
-                      <Switch
-                        id="marketing-notifications"
-                        checked={notifications.marketing}
-                        onCheckedChange={(checked) => setNotifications({ ...notifications, marketing: checked })}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="update-notifications">App updates</Label>
-                        <p className="text-sm text-muted-foreground">Receive notifications about app updates</p>
-                      </div>
-                      <Switch
-                        id="update-notifications"
-                        checked={notifications.updates}
-                        onCheckedChange={(checked) => setNotifications({ ...notifications, updates: checked })}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                <NotificationPreferences 
+                  notifications={notifications}
+                  onNotificationChange={handleNotificationChange}
+                />
               </TabsContent>
             </Tabs>
             
@@ -249,35 +159,14 @@ const Profile = () => {
       
       <BottomNavigation />
       
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit {editField && editField.charAt(0).toUpperCase() + editField.slice(1)}</DialogTitle>
-            <DialogDescription>
-              Update your {editField} information below.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <Label htmlFor="edit-field" className="text-right">
-              {editField && editField.charAt(0).toUpperCase() + editField.slice(1)}
-            </Label>
-            <Input
-              id="edit-field"
-              type={editField === 'email' ? 'email' : editField === 'phone' ? 'tel' : 'text'}
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              className="mt-2"
-            />
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-            <Button onClick={saveChanges}>Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        field={editField}
+        value={editValue}
+        onChange={handleEditValueChange}
+        onSave={saveChanges}
+      />
     </div>
   );
 };
