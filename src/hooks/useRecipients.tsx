@@ -8,7 +8,7 @@ import {
   deleteRecipient, 
   toggleFavorite, 
   updateLastUsed 
-} from '@/services/recipients';
+} from '@/services/recipients/index';
 import { useToast } from '@/hooks/use-toast';
 
 export const useRecipients = () => {
