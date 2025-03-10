@@ -7,12 +7,19 @@ import { useRecipients } from '@/hooks/useRecipients';
 import Header from '@/components/Header';
 import RecipientCard from '@/components/recipients/RecipientCard';
 import RecipientForm from '@/components/recipients/RecipientForm';
+import ContactImporter from '@/components/recipients/ContactImporter';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Star, Search, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserPlus, Star, Search, X, SortAsc } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import BottomNavigation from '@/components/BottomNavigation';
+import { Contact } from '@/services/contacts';
+
+type SortOption = 'latest' | 'name-asc' | 'name-desc' | 'recent';
 
 const Recipients = () => {
   const navigate = useNavigate();
@@ -33,25 +40,45 @@ const Recipients = () => {
   const [deletingRecipientId, setDeletingRecipientId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [sortOption, setSortOption] = useState<SortOption>('recent');
 
-  const filteredRecipients = recipients
-    .filter(recipient => {
+  const sortRecipients = (recipients: Recipient[], option: SortOption) => {
+    switch (option) {
+      case 'name-asc':
+        return [...recipients].sort((a, b) => a.name.localeCompare(b.name));
+      case 'name-desc':
+        return [...recipients].sort((a, b) => b.name.localeCompare(a.name));
+      case 'latest':
+        return [...recipients].sort((a, b) => {
+          const dateA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
+          const dateB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
+          return dateB - dateA;
+        });
+      case 'recent':
+      default:
+        // Sort by favorite status first, then by last used date
+        return [...recipients].sort((a, b) => {
+          if (a.isFavorite && !b.isFavorite) return -1;
+          if (!a.isFavorite && b.isFavorite) return 1;
+          
+          const dateA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
+          const dateB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
+          return dateB - dateA;
+        });
+    }
+  };
+
+  const filteredRecipients = sortRecipients(
+    recipients.filter(recipient => {
       const matchesSearch = recipient.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            recipient.contact.toLowerCase().includes(searchQuery.toLowerCase());
       
       if (activeTab === 'all') return matchesSearch;
       if (activeTab === 'favorites') return matchesSearch && recipient.isFavorite;
       return matchesSearch;
-    })
-    .sort((a, b) => {
-      // Sort by favorite status first, then by last used date
-      if (a.isFavorite && !b.isFavorite) return -1;
-      if (!a.isFavorite && b.isFavorite) return 1;
-      
-      const dateA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
-      const dateB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
-      return dateB - dateA;
-    });
+    }),
+    sortOption
+  );
 
   const handleAddRecipient = async (data: Omit<Recipient, 'id' | 'lastUsed'>) => {
     await addRecipient({
@@ -95,6 +122,32 @@ const Recipients = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleImportContacts = async (contacts: Pick<Contact, 'name' | 'phoneNumber' | 'email'>[]) => {
+    if (!contacts.length) return;
+
+    let importCount = 0;
+    for (const contact of contacts) {
+      if (contact.name && (contact.phoneNumber || contact.email)) {
+        try {
+          await addRecipient({
+            name: contact.name,
+            contact: contact.phoneNumber || contact.email || '',
+            country: 'Cameroon', // Default country for MVP
+            isFavorite: false,
+          });
+          importCount++;
+        } catch (error) {
+          console.error('Error importing contact:', error);
+        }
+      }
+    }
+
+    toast({
+      title: "Contacts Imported",
+      description: `Successfully imported ${importCount} contacts`,
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header title="Recipients" showBackButton={true} />
@@ -109,22 +162,41 @@ const Recipients = () => {
           </Tabs>
         </div>
         
-        <div className="relative mb-4">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search recipients..."
-            className="pl-9 pr-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button 
-              className="absolute right-2.5 top-2.5"
-              onClick={() => setSearchQuery('')}
-            >
-              <X className="h-4 w-4 text-gray-400" />
-            </button>
-          )}
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search recipients..."
+              className="pl-9 pr-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button 
+                className="absolute right-2.5 top-2.5"
+                onClick={() => setSearchQuery('')}
+              >
+                <X className="h-4 w-4 text-gray-400" />
+              </button>
+            )}
+          </div>
+          
+          <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
+            <SelectTrigger className="w-auto">
+              <SortAsc className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Favorites & Recent</SelectItem>
+              <SelectItem value="latest">Latest Used</SelectItem>
+              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="mb-4">
+          <ContactImporter onImport={handleImportContacts} />
         </div>
 
         <div className="space-y-3 mb-20">
@@ -161,7 +233,7 @@ const Recipients = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-4 left-0 right-0 px-4">
+      <div className="fixed bottom-20 left-0 right-0 px-4 z-10">
         <Button 
           onClick={() => setIsAddDialogOpen(true)} 
           className="w-full shadow-lg"
@@ -171,6 +243,8 @@ const Recipients = () => {
           Add New Recipient
         </Button>
       </div>
+
+      <BottomNavigation />
 
       {/* Add Recipient Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
