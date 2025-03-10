@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -19,6 +19,12 @@ import { OfflineBanner } from '@/components/OfflineBanner';
 
 function App() {
   const queryClient = new QueryClient();
+  const location = useLocation();
+
+  // Debug route changes
+  useEffect(() => {
+    console.log('Current route:', location.pathname);
+  }, [location]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,10 +39,38 @@ function App() {
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
-                  <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-                  <Route path="/transaction/:id" element={<ProtectedRoute><TransactionDetails /></ProtectedRoute>} />
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route 
+                    path="/" 
+                    element={
+                      <ProtectedRoute>
+                        <SendMoney />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/history" 
+                    element={
+                      <ProtectedRoute>
+                        <History />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/transaction/:id" 
+                    element={
+                      <ProtectedRoute>
+                        <TransactionDetails />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } 
+                  />
                 </Routes>
               </div>
             </NotificationProvider>

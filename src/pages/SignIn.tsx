@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { BiometricLogin } from '@/components/auth';
 import { BiometricService } from '@/services/biometric';
+import { enableMockAuth } from '@/services/auth';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +18,19 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const isDev = import.meta.env.DEV;
+
+  // Check if we're already signed in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate('/');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +70,19 @@ const SignIn: React.FC = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const enableDevMode = async () => {
+    try {
+      await enableMockAuth();
+      toast({
+        title: "Development mode enabled",
+        description: "You are now signed in as a demo user.",
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error enabling development mode:', error);
     }
   };
 
@@ -107,6 +134,17 @@ const SignIn: React.FC = () => {
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
+          
+          {isDev && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={enableDevMode}
+              className="mt-2"
+            >
+              Development Mode
+            </Button>
+          )}
           
           <div className="text-center">
             <p className="text-sm text-gray-500">
