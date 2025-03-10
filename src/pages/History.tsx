@@ -1,24 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Filter, Search, X } from 'lucide-react';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
-import TransactionCard from '@/components/TransactionCard';
 import { Transaction, TransactionStatus } from '@/types/transaction';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { 
+  SearchBar, 
+  FilterBadges, 
+  FilterPopover, 
+  TransactionsList 
+} from '@/components/history';
 
 const History = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -251,27 +242,8 @@ const History = () => {
     },
   };
   
-  const groupTransactionsByDate = (transactions: Transaction[]) => {
-    const groups: Record<string, Transaction[]> = {};
-    
-    transactions.forEach(transaction => {
-      const dateStr = transaction.date ? new Date(transaction.date).toDateString() : 
-                       transaction.createdAt.toDateString();
-      
-      if (!groups[dateStr]) {
-        groups[dateStr] = [];
-      }
-      
-      groups[dateStr].push(transaction);
-    });
-    
-    return Object.entries(groups).map(([date, transactions]) => ({
-      date,
-      transactions,
-    }));
-  };
-  
-  const groupedTransactions = groupTransactionsByDate(filteredTransactions);
+  // Check if any filters are active
+  const hasActiveFilters = countryFilter.length > 0 || statusFilter !== 'all' || dateFilter !== 'all';
   
   return (
     <div className="min-h-screen bg-background flex flex-col pb-16">
@@ -287,198 +259,43 @@ const History = () => {
           {/* Search and Filter */}
           <motion.div variants={itemVariants} className="mb-6">
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search recipient or country"
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Popover open={showFilters} onOpenChange={setShowFilters}>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className={countryFilter.length > 0 || statusFilter !== 'all' || dateFilter !== 'all' 
-                      ? "bg-primary text-primary-foreground" 
-                      : ""}
-                  >
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium">Filter Transactions</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={resetFilters}
-                        className="h-8 px-2 text-xs"
-                      >
-                        Reset
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Status</h4>
-                      <RadioGroup value={statusFilter} onValueChange={(value) => setStatusFilter(value as TransactionStatus | 'all')}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="all" id="status-all" />
-                          <Label htmlFor="status-all">All</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="completed" id="status-completed" />
-                          <Label htmlFor="status-completed">Completed</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="pending" id="status-pending" />
-                          <Label htmlFor="status-pending">Pending</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="failed" id="status-failed" />
-                          <Label htmlFor="status-failed">Failed</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Date</h4>
-                      <RadioGroup value={dateFilter} onValueChange={setDateFilter}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="all" id="date-all" />
-                          <Label htmlFor="date-all">All time</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="today" id="date-today" />
-                          <Label htmlFor="date-today">Today</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="week" id="date-week" />
-                          <Label htmlFor="date-week">Last 7 days</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="month" id="date-month" />
-                          <Label htmlFor="date-month">Last 30 days</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    
-                    {uniqueCountries.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium">Country</h4>
-                        <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                          {uniqueCountries.map((country) => (
-                            <div key={country} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={`country-${country}`} 
-                                checked={countryFilter.includes(country)}
-                                onCheckedChange={() => toggleCountryFilter(country)}
-                              />
-                              <Label htmlFor={`country-${country}`}>{country}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-between pt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => setShowFilters(false)}
-                        className="w-full"
-                      >
-                        Apply Filters
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <SearchBar 
+                searchQuery={searchQuery} 
+                setSearchQuery={setSearchQuery} 
+              />
+              
+              <FilterPopover
+                showFilters={showFilters}
+                setShowFilters={setShowFilters}
+                statusFilter={statusFilter}
+                dateFilter={dateFilter}
+                countryFilter={countryFilter}
+                uniqueCountries={uniqueCountries}
+                setStatusFilter={setStatusFilter}
+                setDateFilter={setDateFilter}
+                toggleCountryFilter={toggleCountryFilter}
+                resetFilters={resetFilters}
+                hasActiveFilters={hasActiveFilters}
+              />
             </div>
             
             {/* Active filters */}
-            {(countryFilter.length > 0 || statusFilter !== 'all' || dateFilter !== 'all') && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {statusFilter !== 'all' && (
-                  <Badge 
-                    variant="outline" 
-                    className="bg-primary/10 text-xs py-0 h-6"
-                    onClick={() => setStatusFilter('all')}
-                  >
-                    Status: {statusFilter}
-                    <X className="ml-1 h-3 w-3" />
-                  </Badge>
-                )}
-                
-                {dateFilter !== 'all' && (
-                  <Badge 
-                    variant="outline"
-                    className="bg-primary/10 text-xs py-0 h-6"
-                    onClick={() => setDateFilter('all')}
-                  >
-                    Date: {dateFilter === 'today' ? 'Today' : dateFilter === 'week' ? 'Last 7 days' : 'Last 30 days'}
-                    <X className="ml-1 h-3 w-3" />
-                  </Badge>
-                )}
-                
-                {countryFilter.map(country => (
-                  <Badge 
-                    key={country}
-                    variant="outline"
-                    className="bg-primary/10 text-xs py-0 h-6"
-                    onClick={() => toggleCountryFilter(country)}
-                  >
-                    {country}
-                    <X className="ml-1 h-3 w-3" />
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <FilterBadges
+              statusFilter={statusFilter}
+              dateFilter={dateFilter}
+              countryFilter={countryFilter}
+              setStatusFilter={setStatusFilter}
+              setDateFilter={setDateFilter}
+              toggleCountryFilter={toggleCountryFilter}
+            />
           </motion.div>
           
-          {/* Transactions */}
-          {isLoading ? (
-            <motion.div variants={itemVariants} className="text-center py-8">
-              <div className="animate-pulse-subtle">Loading transactions...</div>
-            </motion.div>
-          ) : filteredTransactions.length === 0 ? (
-            <motion.div variants={itemVariants} className="text-center py-8">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-muted-foreground">No transactions found</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ) : (
-            <div>
-              {groupedTransactions.map((group, index) => (
-                <motion.div key={group.date} variants={itemVariants}>
-                  <div className="mb-2 mt-4">
-                    <h3 className="text-sm font-medium text-gray-500">
-                      {new Date(group.date).toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
-                    </h3>
-                    <Separator className="mt-1" />
-                  </div>
-                  
-                  {group.transactions.map((transaction) => (
-                    <TransactionCard
-                      key={transaction.id}
-                      transaction={transaction}
-                      onClick={() => handleTransactionClick(transaction.id)}
-                    />
-                  ))}
-                </motion.div>
-              ))}
-            </div>
-          )}
+          {/* Transactions List */}
+          <TransactionsList
+            isLoading={isLoading}
+            filteredTransactions={filteredTransactions}
+            onTransactionClick={handleTransactionClick}
+          />
         </motion.div>
       </div>
       
