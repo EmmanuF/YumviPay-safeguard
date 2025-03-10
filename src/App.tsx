@@ -1,16 +1,14 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NetworkProvider } from '@/contexts/NetworkContext';
-import { AnimatePresence } from 'framer-motion';
 import Onboarding from '@/pages/Onboarding';
 import SendMoney from '@/pages/SendMoney';
 import History from '@/pages/History';
 import TransactionDetails from '@/pages/TransactionDetails';
-import BottomNavigation from '@/components/BottomNavigation';
 import Profile from '@/pages/Profile';
 import { AuthProvider } from '@/contexts/AuthContext';
 import SignIn from '@/pages/SignIn';
@@ -25,8 +23,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <NetworkProvider>
-          <LocaleProvider>
+        <LocaleProvider>
+          <NetworkProvider>
             <NotificationProvider>
               <div className="min-h-screen flex flex-col">
                 <Toaster />
@@ -42,8 +40,8 @@ function App() {
                 </Routes>
               </div>
             </NotificationProvider>
-          </LocaleProvider>
-        </NetworkProvider>
+          </NetworkProvider>
+        </LocaleProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

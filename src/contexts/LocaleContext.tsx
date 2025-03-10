@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -107,6 +108,7 @@ const translations: Record<Locale, Record<string, string>> = {
 };
 
 export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  // Changed the default locale initialization to ensure it's a valid value
   const [locale, setLocale] = useState<Locale>('en');
   
   // Initialize locale from stored preference or user profile
@@ -115,7 +117,7 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
       // Try to get from localStorage first
       const storedLocale = localStorage.getItem('yumvi-locale');
       if (storedLocale && (storedLocale === 'en' || storedLocale === 'fr')) {
-        setLocale(storedLocale);
+        setLocale(storedLocale as Locale);
         return;
       }
       
@@ -147,15 +149,24 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
   
   // Update locale in localStorage
   const updateLocale = async (newLocale: Locale) => {
+    // Make sure we're setting a valid locale
+    if (newLocale !== 'en' && newLocale !== 'fr') {
+      newLocale = 'en'; // Default to English if invalid
+    }
+    
     setLocale(newLocale);
     localStorage.setItem('yumvi-locale', newLocale);
     
     // We'll implement database storage when the column is available
+    console.log(`Locale switched to: ${newLocale}`);
   };
   
   // Translation function
   const t = (key: string): string => {
-    return translations[locale][key] || key;
+    // Make sure we're using a valid locale
+    const currentLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
+    
+    return translations[currentLocale][key] || key;
   };
   
   const value = {
