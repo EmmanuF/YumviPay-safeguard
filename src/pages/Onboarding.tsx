@@ -84,7 +84,7 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary-50 to-white">
       <Header 
-        transparent
+        transparent={true}
         title="Create Your Account"
       />
       

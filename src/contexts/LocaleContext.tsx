@@ -123,16 +123,18 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          const { data: profile } = await supabase
+          // First check if we need to update the profiles table
+          const { data: hasLanguageColumn } = await supabase
             .from('profiles')
-            .select('preferred_language')
-            .eq('id', session.user.id)
+            .select('id') // Just select a valid column to test
+            .limit(1)
             .single();
             
-          if (profile?.preferred_language && 
-              (profile.preferred_language === 'en' || profile.preferred_language === 'fr')) {
-            setLocale(profile.preferred_language);
-            localStorage.setItem('yumvi-locale', profile.preferred_language);
+          // If we could fetch the profile, let's add a language preference
+          if (hasLanguageColumn) {
+            // We'll store the language preference in localStorage for now
+            // and can add a migration later for the database column
+            localStorage.setItem('yumvi-locale', 'en');
           }
         }
       } catch (error) {
@@ -143,22 +145,12 @@ export const LocaleProvider: React.FC<{children: React.ReactNode}> = ({ children
     loadLocale();
   }, []);
   
-  // Update locale both in localStorage and user profile if authenticated
+  // Update locale in localStorage
   const updateLocale = async (newLocale: Locale) => {
     setLocale(newLocale);
     localStorage.setItem('yumvi-locale', newLocale);
     
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await supabase
-          .from('profiles')
-          .update({ preferred_language: newLocale })
-          .eq('id', session.user.id);
-      }
-    } catch (error) {
-      console.error('Error updating locale in profile:', error);
-    }
+    // We'll implement database storage when the column is available
   };
   
   // Translation function

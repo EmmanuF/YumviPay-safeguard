@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
@@ -12,6 +13,8 @@ interface HeaderProps {
   showBackButton?: boolean;
   onBackClick?: () => void;
   rightElement?: React.ReactNode;
+  transparent?: boolean;
+  showNotification?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -19,6 +22,8 @@ const Header: React.FC<HeaderProps> = ({
   showBackButton = false,
   onBackClick,
   rightElement,
+  transparent = false,
+  showNotification = false,
 }) => {
   const navigate = useNavigate();
   const { t } = useLocale();
@@ -32,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent' : 'bg-white border-b border-gray-200'}`}>
       <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
         <div className="flex items-center">
           {showBackButton && (
@@ -49,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({
         
         <div className="flex items-center space-x-2">
           <LocaleSwitcher />
-          {rightElement || <HeaderRight />}
+          {rightElement || <HeaderRight showNotification={showNotification} />}
         </div>
       </div>
     </header>
