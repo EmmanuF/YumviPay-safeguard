@@ -4,8 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getTransactionById, Transaction, updateTransactionStatus } from '@/services/transactions';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import HeaderRight from '@/components/HeaderRight';
 import BottomNavigation from '@/components/BottomNavigation';
