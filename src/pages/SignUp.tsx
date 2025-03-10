@@ -15,7 +15,6 @@ const SignUp: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
     phoneNumber: '',
     country: 'CM', // Default to Cameroon as receiving country
   });
@@ -44,6 +43,13 @@ const SignUp: React.FC = () => {
       if (!formData.email.trim()) {
         throw new Error('Please enter your email address');
       }
+      
+      console.log('Starting registration process with:', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        country: formData.country
+      });
       
       await registerUser(
         formData.name,
@@ -108,6 +114,9 @@ const SignUp: React.FC = () => {
               placeholder="Enter your email"
               required
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Use a valid email address you can access
+            </p>
           </div>
           
           <div>
