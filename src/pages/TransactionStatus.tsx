@@ -1,60 +1,98 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-
+import { useParams, useNavigate } from 'react-router-dom';
+import { getTransactionById, Transaction } from '@/services/transactions';
+import { useNotifications } from '@/contexts/NotificationContext';
 import Header from '@/components/Header';
 import HeaderRight from '@/components/HeaderRight';
 import {
   StatusContent,
   ActionButtons,
   LoadingState,
-  TransactionNotFound
+  TransactionNotFound,
+  StatusUpdateBar,
+  NotificationToggle
 } from '@/components/transaction';
-
-interface TransactionDetails {
-  id: string;
-  status: 'pending' | 'completed' | 'failed';
-  amount: string;
-  fee: string;
-  totalAmount: string;
-  recipient: string;
-  date: string;
-  estimatedDelivery: string;
-}
 
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
-  const [transaction, setTransaction] = useState<TransactionDetails | null>(null);
+  const navigate = useNavigate();
+  const { addNotification } = useNotifications();
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating API fetch for transaction details
+    // Fetch transaction details
     const fetchTransactionDetails = () => {
       setLoading(true);
-      // Mock data - in a real app, this would be fetched from an API
-      setTimeout(() => {
-        setTransaction({
-          id: id || '',
-          status: 'completed',
-          amount: '250.00',
-          fee: '4.99',
-          totalAmount: '254.99',
-          recipient: '+234 701 234 5678',
-          date: new Date().toLocaleDateString(),
-          estimatedDelivery: '1-2 business days',
-        });
+      
+      if (!id) {
         setLoading(false);
-      }, 1000);
+        return;
+      }
+      
+      const fetchedTransaction = getTransactionById(id);
+      setTransaction(fetchedTransaction || null);
+      setLoading(false);
+      
+      // Add notification for completed transactions
+      if (fetchedTransaction && fetchedTransaction.status === 'completed') {
+        addNotification({
+          title: "Transfer Successful",
+          message: `Your transfer of $${fetchedTransaction.amount} to ${fetchedTransaction.recipientName} was successful.`,
+          type: 'success',
+          transactionId: fetchedTransaction.id
+        });
+      }
     };
 
-    if (id) {
-      fetchTransactionDetails();
-    }
-  }, [id]);
+    fetchTransactionDetails();
+  }, [id, addNotification]);
+
+  // Helper function to format transaction for status content
+  const formatTransactionForDisplay = (tx: Transaction) => {
+    return {
+      id: tx.id,
+      status: tx.status,
+      amount: tx.amount,
+      fee: tx.fee,
+      totalAmount: tx.totalAmount,
+      recipient: `${tx.recipientName} (${tx.recipientContact})`,
+      date: tx.createdAt.toLocaleDateString(),
+      estimatedDelivery: tx.estimatedDelivery,
+      failureReason: tx.failureReason
+    };
+  };
 
   const handleShareTransaction = () => {
     // In a real app, this would trigger native sharing
-    alert('Sharing functionality would be implemented here');
+    if (navigator.share && transaction) {
+      navigator.share({
+        title: `Yumvi Pay Transfer - ${transaction.id}`,
+        text: `I sent $${transaction.amount} to ${transaction.recipientName} in ${transaction.country}`,
+        url: window.location.href
+      }).catch(error => {
+        console.log('Error sharing:', error);
+      });
+    } else {
+      alert('Transaction receipt link copied to clipboard!');
+    }
+  };
+
+  const handleSendAgain = () => {
+    if (!transaction) return;
+    
+    navigate('/send', {
+      state: {
+        selectedRecipient: {
+          id: transaction.recipientId,
+          name: transaction.recipientName,
+          contact: transaction.recipientContact,
+          country: transaction.country,
+          isFavorite: false
+        }
+      }
+    });
   };
 
   if (loading) {
@@ -92,10 +130,14 @@ const TransactionStatus = () => {
       />
       
       <div className="flex-1 p-4">
-        <StatusContent transaction={transaction} />
+        <StatusContent transaction={formatTransactionForDisplay(transaction)} />
         
         <div className="mt-6">
-          <ActionButtons handleShareTransaction={handleShareTransaction} />
+          <ActionButtons 
+            handleShareTransaction={handleShareTransaction} 
+            handleSendAgain={handleSendAgain}
+            transactionStatus={transaction.status}
+          />
         </div>
       </div>
     </div>

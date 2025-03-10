@@ -1,20 +1,21 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import StatusUpdateBar from './StatusUpdateBar';
 
 interface TransactionDetails {
   id: string;
-  status: 'pending' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   amount: string;
   fee: string;
   totalAmount: string;
   recipient: string;
   date: string;
   estimatedDelivery: string;
+  failureReason?: string;
 }
 
 interface StatusContentProps {
@@ -22,6 +23,43 @@ interface StatusContentProps {
 }
 
 const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
+  const renderStatusHeader = () => {
+    switch (transaction.status) {
+      case 'completed':
+        return (
+          <div className="bg-primary-500 p-6 text-center text-white">
+            <CheckCircle className="h-12 w-12 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">Money Sent Successfully!</h2>
+            <p className="opacity-90 text-sm mt-1">
+              Transaction ID: {transaction.id}
+            </p>
+          </div>
+        );
+      case 'failed':
+        return (
+          <div className="bg-red-500 p-6 text-center text-white">
+            <XCircle className="h-12 w-12 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">Transaction Failed</h2>
+            <p className="opacity-90 text-sm mt-1">
+              Transaction ID: {transaction.id}
+            </p>
+          </div>
+        );
+      case 'pending':
+      case 'processing':
+      default:
+        return (
+          <div className="bg-amber-500 p-6 text-center text-white">
+            <Clock className="h-12 w-12 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">Transaction Processing</h2>
+            <p className="opacity-90 text-sm mt-1">
+              Transaction ID: {transaction.id}
+            </p>
+          </div>
+        );
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -29,19 +67,20 @@ const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
       transition={{ duration: 0.3 }}
     >
       <Card className="overflow-hidden">
-        <div className="bg-primary-500 p-6 text-center text-white">
-          <CheckCircle className="h-12 w-12 mx-auto mb-2" />
-          <h2 className="text-xl font-semibold">Money Sent Successfully!</h2>
-          <p className="opacity-90 text-sm mt-1">
-            Transaction ID: {transaction.id}
-          </p>
-        </div>
+        {renderStatusHeader()}
         
         <div className="p-5 space-y-6">
           {/* Status Update Notifications */}
           <div className="mb-4">
             <StatusUpdateBar transactionId={transaction.id} />
           </div>
+          
+          {transaction.status === 'failed' && transaction.failureReason && (
+            <div className="bg-red-50 p-4 rounded-lg border border-red-100 mb-4">
+              <h3 className="text-red-800 font-medium mb-1">Reason for Failure</h3>
+              <p className="text-red-700 text-sm">{transaction.failureReason}</p>
+            </div>
+          )}
           
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-3">

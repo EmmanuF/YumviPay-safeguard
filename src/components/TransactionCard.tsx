@@ -1,19 +1,16 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ArrowDownLeft, ArrowUpRight, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { formatDistanceToNow } from 'date-fns';
 
 export interface Transaction {
   id: string;
-  amount: number;
-  currency: string;
+  amount: string;
   recipientName: string;
-  recipientCountry: string;
-  recipientCountryCode: string;
-  status: 'completed' | 'pending' | 'failed';
-  date: string;
-  type: 'send' | 'receive';
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  createdAt: Date;
+  country: string;
 }
 
 interface TransactionCardProps {
@@ -22,65 +19,62 @@ interface TransactionCardProps {
 }
 
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, onClick }) => {
-  const { amount, currency, recipientName, status, date, type } = transaction;
-  
-  const statusColor = {
-    completed: 'text-green-500',
-    pending: 'text-amber-500',
-    failed: 'text-red-500',
+  const getStatusIcon = () => {
+    switch (transaction.status) {
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'failed':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'pending':
+      case 'processing':
+      default:
+        return <Clock className="h-5 w-5 text-amber-500" />;
+    }
   };
-  
-  const statusBg = {
-    completed: 'bg-green-100',
-    pending: 'bg-amber-100',
-    failed: 'bg-red-100',
+
+  const getStatusColor = () => {
+    switch (transaction.status) {
+      case 'completed':
+        return 'text-green-600';
+      case 'failed':
+        return 'text-red-600';
+      case 'pending':
+      case 'processing':
+      default:
+        return 'text-amber-600';
+    }
   };
-  
-  const statusIcon = {
-    completed: type === 'send' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownLeft className="w-4 h-4" />,
-    pending: <Clock className="w-4 h-4" />,
-    failed: <Clock className="w-4 h-4" />,
+
+  const formatTimeAgo = (date: Date) => {
+    return formatDistanceToNow(date, { addSuffix: true });
   };
-  
+
   return (
-    <motion.div
-      whileTap={{ scale: 0.98 }}
+    <Card
+      className="mb-3 p-4 cursor-pointer hover:shadow-md transition-shadow"
       onClick={onClick}
-      className="glass-effect w-full rounded-xl p-4 mb-3 cursor-pointer hover:shadow-md transition-all"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <div className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center mr-3",
-            statusBg[status]
-          )}>
-            {statusIcon[status]}
+          <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center mr-3">
+            <ArrowUpRight className="h-5 w-5 text-primary-500" />
           </div>
           <div>
-            <h3 className="font-medium text-foreground">
-              {type === 'send' ? `To ${recipientName}` : `From ${recipientName}`}
-            </h3>
-            <p className="text-xs text-gray-500">{new Date(date).toLocaleDateString()}</p>
+            <p className="font-medium">{transaction.recipientName}</p>
+            <p className="text-sm text-gray-500">{formatTimeAgo(transaction.createdAt)}</p>
           </div>
         </div>
-        
         <div className="text-right">
-          <p className={cn(
-            "font-semibold",
-            type === 'send' ? 'text-red-500' : 'text-green-500'
-          )}>
-            {type === 'send' ? '-' : '+'}{amount} {currency}
-          </p>
-          <span className={cn(
-            "text-xs py-1 px-2 rounded-full",
-            statusBg[status],
-            statusColor[status]
-          )}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
+          <p className="font-medium">${transaction.amount}</p>
+          <div className="flex items-center justify-end">
+            {getStatusIcon()}
+            <span className={`text-xs ml-1 ${getStatusColor()}`}>
+              {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+            </span>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </Card>
   );
 };
 

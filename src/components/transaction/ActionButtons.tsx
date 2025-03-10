@@ -1,52 +1,59 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Share, SendHorizontal, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ActionButtonsProps {
   handleShareTransaction: () => void;
+  handleSendAgain?: () => void;
+  transactionStatus?: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({ handleShareTransaction }) => {
-  const navigate = useNavigate();
-  
-  const handleGoToHome = () => {
-    navigate('/dashboard');
-  };
-
-  const handleNewTransaction = () => {
-    navigate('/send');
-  };
+const ActionButtons: React.FC<ActionButtonsProps> = ({ 
+  handleShareTransaction,
+  handleSendAgain,
+  transactionStatus = 'completed'
+}) => {
+  const showSendAgain = transactionStatus === 'completed' || transactionStatus === 'failed';
   
   return (
-    <div className="space-y-4">
-      <div className="flex gap-3">
-        <Button 
-          variant="outline" 
-          className="flex-1"
-          onClick={handleShareTransaction}
-        >
-          <Share2 className="h-4 w-4 mr-2" />
-          Share
-        </Button>
-        <Button 
-          className="flex-1"
-          onClick={handleNewTransaction}
-        >
-          New Transaction
-        </Button>
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.2 }}
+      className="space-y-3"
+    >
+      <Button 
+        onClick={handleShareTransaction} 
+        variant="outline" 
+        className="w-full flex justify-center items-center"
+        size="lg"
+      >
+        <Share className="mr-2 h-4 w-4" />
+        Share Receipt
+      </Button>
       
       <Button 
-        variant="ghost" 
-        className="w-full"
-        onClick={handleGoToHome}
+        variant="outline" 
+        className="w-full flex justify-center items-center"
+        size="lg"
       >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Dashboard
+        <Download className="mr-2 h-4 w-4" />
+        Download PDF
       </Button>
-    </div>
+      
+      {showSendAgain && handleSendAgain && (
+        <Button 
+          onClick={handleSendAgain} 
+          className="w-full flex justify-center items-center"
+          size="lg"
+        >
+          <SendHorizontal className="mr-2 h-4 w-4" />
+          Send Again
+        </Button>
+      )}
+    </motion.div>
   );
 };
 
