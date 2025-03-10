@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,16 +30,10 @@ const queryClient = new QueryClient({
       retry: 3,
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
-      // Add error handling for all queries
-      onError: (error) => {
-        console.error('Query error:', error);
-      },
     },
     mutations: {
-      // Add error handling for all mutations
-      onError: (error) => {
-        console.error('Mutation error:', error);
-      },
+      // React Query v5 doesn't have global onError handlers
+      // We'll handle errors at the component level
     }
   },
 });

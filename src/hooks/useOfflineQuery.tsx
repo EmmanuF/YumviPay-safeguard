@@ -25,17 +25,22 @@ export function useOfflineQuery<TData = unknown, TError = unknown>(
       
       // Custom retry logic
       const shouldRetry = 
-        failureCount < (options?.retry as number || 3) && 
+        failureCount < (typeof options?.retry === 'number' ? options.retry : 3) && 
         (error as any)?.type !== 'authentication-error';
       
       return shouldRetry;
     },
-    // Handle errors gracefully
-    onError: (error) => {
-      if (options?.onError) {
-        options.onError(error);
-      } else {
-        showErrorToast(error);
+    meta: {
+      ...options?.meta,
+      // Use the meta object to store custom handlers
+      errorHandler: (error: TError) => {
+        // Call the user-provided error handler if available
+        if (options?.meta?.errorHandler) {
+          (options.meta.errorHandler as Function)(error);
+        } else {
+          // Default error handling
+          showErrorToast(error);
+        }
       }
     },
     ...options,
