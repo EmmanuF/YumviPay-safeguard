@@ -1,5 +1,5 @@
 
-import { AlertTriangle, WifiOff, RefreshCw, Toggle } from 'lucide-react';
+import { AlertTriangle, WifiOff, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -83,7 +83,11 @@ export function OfflineBanner() {
           className="h-6 text-xs text-amber-800"
           onClick={toggleOfflineMode}
         >
-          <Toggle className="h-3 w-3 mr-1" />
+          {offlineModeActive ? (
+            <ToggleRight className="h-3 w-3 mr-1" />
+          ) : (
+            <ToggleLeft className="h-3 w-3 mr-1" />
+          )}
           {offlineModeActive ? 'Disable offline mode' : 'Enable offline mode'}
         </Button>
       </div>
