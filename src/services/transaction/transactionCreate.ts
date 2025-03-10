@@ -101,7 +101,7 @@ export const createTransaction = (
       if (!userId) {
         console.error('User not authenticated');
         addOfflineTransaction(transaction);
-        return;
+        return Promise.resolve({ data: null, error: new Error('User not authenticated') });
       }
       
       return supabase
@@ -126,10 +126,11 @@ export const createTransaction = (
         .select()
         .single();
     })
-    .then(({ data } = { data: null }) => {
-      if (data) {
-        console.log('Transaction created in Supabase:', data);
+    .then(result => {
+      if (result && result.data) {
+        console.log('Transaction created in Supabase:', result.data);
       }
+      return Promise.resolve();
     })
     .catch(error => {
       console.error('Error creating transaction via Supabase:', error);

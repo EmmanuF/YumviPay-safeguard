@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { countries as mockCountries } from '@/data/countries';
 import { Json } from '@/integrations/supabase/types';
+import { PaymentMethod } from '@/types/country';
 
 // Function to initialize countries in Supabase
 export const initializeCountries = async (): Promise<void> => {
@@ -26,6 +27,16 @@ export const initializeCountries = async (): Promise<void> => {
     
     // Insert countries into Supabase one by one to avoid type issues
     for (const country of mockCountries) {
+      // Convert PaymentMethod[] to a JSON-compatible format
+      const paymentMethodsJson: Json = country.paymentMethods.map(pm => ({
+        id: pm.id,
+        name: pm.name,
+        description: pm.description,
+        icon: pm.icon,
+        fees: pm.fees,
+        processingTime: pm.processingTime
+      }));
+
       const { error: insertError } = await supabase
         .from('countries')
         .insert({
@@ -36,7 +47,7 @@ export const initializeCountries = async (): Promise<void> => {
           flag_emoji: country.code === 'CM' ? '🇨🇲' : country.code === 'NG' ? '🇳🇬' : '🇬🇭',
           is_sending_enabled: country.isSendingEnabled,
           is_receiving_enabled: country.isReceivingEnabled,
-          payment_methods: country.paymentMethods as unknown as Json
+          payment_methods: paymentMethodsJson
         });
         
       if (insertError) {

@@ -17,18 +17,28 @@ export function useCountries() {
     if (!paymentMethodsJson) return [];
     
     try {
-      // If it's already an array, validate each item has the required properties
+      // If it's already an array, we need to ensure each item has the required properties
       if (Array.isArray(paymentMethodsJson)) {
-        return paymentMethodsJson.filter((method): method is PaymentMethod => 
-          typeof method === 'object' && 
-          method !== null &&
-          'id' in method && 
-          'name' in method && 
-          'description' in method && 
-          'icon' in method && 
-          'fees' in method && 
-          'processingTime' in method
-        );
+        // Validate that each item in the array has the required properties of PaymentMethod
+        return paymentMethodsJson
+          .filter(item => 
+            typeof item === 'object' && 
+            item !== null &&
+            'id' in item && 
+            'name' in item && 
+            'description' in item && 
+            'icon' in item && 
+            'fees' in item && 
+            'processingTime' in item
+          )
+          .map(item => ({
+            id: String(item.id),
+            name: String(item.name),
+            description: String(item.description),
+            icon: String(item.icon),
+            fees: String(item.fees),
+            processingTime: String(item.processingTime)
+          }));
       }
       return [];
     } catch (e) {
