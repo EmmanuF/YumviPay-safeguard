@@ -11,7 +11,7 @@ import {
   updateTransactionStatus,
   simulateKadoWebhook,
   initializeTransactions
-} from "@/services/transactionService";
+} from "@/services/transaction";
 
 // Re-export types
 export type { Transaction, TransactionStatus };
