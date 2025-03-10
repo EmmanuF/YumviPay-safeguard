@@ -1,14 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import BiometricSettings from './BiometricSettings';
+import ChangePasswordDialog from './ChangePasswordDialog';
 
 interface SecuritySettingsProps {
   onChangePassword: () => void;
 }
 
-const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onChangePassword }) => {
+const SecuritySettings: React.FC<SecuritySettingsProps> = () => {
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+
   return (
     <Card>
       <CardHeader>
@@ -23,11 +27,20 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onChangePassword })
               <p className="text-sm text-muted-foreground">Change your password</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={onChangePassword}>
+          <Button variant="ghost" size="sm" onClick={() => setPasswordDialogOpen(true)}>
             Change
           </Button>
         </div>
+        
+        {/* Biometric authentication settings */}
+        <BiometricSettings />
       </CardContent>
+      
+      {/* Password change dialog */}
+      <ChangePasswordDialog 
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
+      />
     </Card>
   );
 };
