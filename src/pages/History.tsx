@@ -35,7 +35,13 @@ const History = () => {
             date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
             type: 'send',
             createdAt: new Date(Date.now() - 86400000),
-            country: 'Nigeria'
+            country: 'Nigeria',
+            fee: '5.00',
+            totalAmount: '505.00',
+            recipientContact: '+234123456789',
+            recipientId: 'rec_123456',
+            paymentMethod: 'bank_transfer',
+            estimatedDelivery: '1-2 business days'
           },
           {
             id: 'tx_123457',
@@ -48,7 +54,13 @@ const History = () => {
             date: new Date().toISOString(),
             type: 'send',
             createdAt: new Date(),
-            country: 'Kenya'
+            country: 'Kenya',
+            fee: '3.50',
+            totalAmount: '203.50',
+            recipientContact: '+254987654321',
+            recipientId: 'rec_123457',
+            paymentMethod: 'mobile_money',
+            estimatedDelivery: '1-2 business days'
           },
           {
             id: 'tx_123458',
@@ -61,7 +73,13 @@ const History = () => {
             date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
             type: 'send',
             createdAt: new Date(Date.now() - 172800000),
-            country: 'Ghana'
+            country: 'Ghana',
+            fee: '4.25',
+            totalAmount: '354.25',
+            recipientContact: '+233123456789',
+            recipientId: 'rec_123458',
+            paymentMethod: 'bank_transfer',
+            estimatedDelivery: '1-2 business days'
           },
           {
             id: 'tx_123459',
@@ -74,7 +92,14 @@ const History = () => {
             date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
             type: 'send',
             createdAt: new Date(Date.now() - 259200000),
-            country: 'Cameroon'
+            country: 'Cameroon',
+            fee: '2.50',
+            totalAmount: '102.50',
+            recipientContact: '+237123456789',
+            recipientId: 'rec_123459',
+            paymentMethod: 'mobile_money',
+            estimatedDelivery: '1-2 business days',
+            failureReason: 'Payment authorization failed'
           },
           {
             id: 'tx_123460',
@@ -87,7 +112,13 @@ const History = () => {
             date: new Date(Date.now() - 432000000).toISOString(), // 5 days ago
             type: 'send',
             createdAt: new Date(Date.now() - 432000000),
-            country: 'South Africa'
+            country: 'South Africa',
+            fee: '3.00',
+            totalAmount: '153.00',
+            recipientContact: '+27123456789',
+            recipientId: 'rec_123460',
+            paymentMethod: 'bank_transfer',
+            estimatedDelivery: '1-2 business days'
           },
         ];
         

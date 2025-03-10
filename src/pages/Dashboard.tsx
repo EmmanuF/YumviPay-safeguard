@@ -44,7 +44,13 @@ const Dashboard = () => {
             date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
             type: 'send',
             createdAt: new Date(Date.now() - 86400000),
-            country: 'Nigeria'
+            country: 'Nigeria',
+            fee: '5.00',
+            totalAmount: '505.00',
+            recipientContact: '+234123456789',
+            recipientId: 'rec_123456',
+            paymentMethod: 'bank_transfer',
+            estimatedDelivery: '1-2 business days'
           },
           {
             id: 'tx_123457',
@@ -57,7 +63,13 @@ const Dashboard = () => {
             date: new Date().toISOString(),
             type: 'send',
             createdAt: new Date(),
-            country: 'Kenya'
+            country: 'Kenya',
+            fee: '3.50',
+            totalAmount: '203.50',
+            recipientContact: '+254987654321',
+            recipientId: 'rec_123457',
+            paymentMethod: 'mobile_money',
+            estimatedDelivery: '1-2 business days'
           },
         ];
         
