@@ -34,7 +34,7 @@ const Dashboard = () => {
         const mockTransactions: Transaction[] = [
           {
             id: 'tx_123456',
-            amount: 500,
+            amount: '500',
             currency: 'USD',
             recipientName: 'John Doe',
             recipientCountry: 'Nigeria',
@@ -42,10 +42,12 @@ const Dashboard = () => {
             status: 'completed',
             date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
             type: 'send',
+            createdAt: new Date(Date.now() - 86400000),
+            country: 'Nigeria'
           },
           {
             id: 'tx_123457',
-            amount: 200,
+            amount: '200',
             currency: 'USD',
             recipientName: 'Sarah Johnson',
             recipientCountry: 'Kenya',
@@ -53,6 +55,8 @@ const Dashboard = () => {
             status: 'pending',
             date: new Date().toISOString(),
             type: 'send',
+            createdAt: new Date(),
+            country: 'Kenya'
           },
         ];
         

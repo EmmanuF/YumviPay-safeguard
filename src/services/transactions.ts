@@ -24,6 +24,13 @@ export interface Transaction {
   estimatedDelivery: string;
   exchangeRate?: number;
   totalAmount: string;
+  
+  // Adding additional properties to align with usage in other components
+  recipientCountry?: string;
+  recipientCountryCode?: string;
+  date?: string;
+  type?: string;
+  currency?: string;
 }
 
 // Mock storage for transactions

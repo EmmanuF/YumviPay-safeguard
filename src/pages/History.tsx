@@ -25,7 +25,7 @@ const History = () => {
         const mockTransactions: Transaction[] = [
           {
             id: 'tx_123456',
-            amount: 500,
+            amount: '500',
             currency: 'USD',
             recipientName: 'John Doe',
             recipientCountry: 'Nigeria',
@@ -33,10 +33,12 @@ const History = () => {
             status: 'completed',
             date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
             type: 'send',
+            createdAt: new Date(Date.now() - 86400000),
+            country: 'Nigeria'
           },
           {
             id: 'tx_123457',
-            amount: 200,
+            amount: '200',
             currency: 'USD',
             recipientName: 'Sarah Johnson',
             recipientCountry: 'Kenya',
@@ -44,10 +46,12 @@ const History = () => {
             status: 'pending',
             date: new Date().toISOString(),
             type: 'send',
+            createdAt: new Date(),
+            country: 'Kenya'
           },
           {
             id: 'tx_123458',
-            amount: 350,
+            amount: '350',
             currency: 'USD',
             recipientName: 'Michael Brown',
             recipientCountry: 'Ghana',
@@ -55,10 +59,12 @@ const History = () => {
             status: 'completed',
             date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
             type: 'send',
+            createdAt: new Date(Date.now() - 172800000),
+            country: 'Ghana'
           },
           {
             id: 'tx_123459',
-            amount: 100,
+            amount: '100',
             currency: 'USD',
             recipientName: 'Emma Wilson',
             recipientCountry: 'Cameroon',
@@ -66,10 +72,12 @@ const History = () => {
             status: 'failed',
             date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
             type: 'send',
+            createdAt: new Date(Date.now() - 259200000),
+            country: 'Cameroon'
           },
           {
             id: 'tx_123460',
-            amount: 150,
+            amount: '150',
             currency: 'USD',
             recipientName: 'James Taylor',
             recipientCountry: 'South Africa',
@@ -77,6 +85,8 @@ const History = () => {
             status: 'completed',
             date: new Date(Date.now() - 432000000).toISOString(), // 5 days ago
             type: 'send',
+            createdAt: new Date(Date.now() - 432000000),
+            country: 'South Africa'
           },
         ];
         
@@ -98,7 +108,7 @@ const History = () => {
     } else {
       const filtered = transactions.filter(transaction => 
         transaction.recipientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        transaction.recipientCountry.toLowerCase().includes(searchQuery.toLowerCase())
+        (transaction.recipientCountry && transaction.recipientCountry.toLowerCase().includes(searchQuery.toLowerCase()))
       );
       setFilteredTransactions(filtered);
     }
@@ -134,8 +144,8 @@ const History = () => {
     const groups: Record<string, Transaction[]> = {};
     
     transactions.forEach(transaction => {
-      const date = new Date(transaction.date);
-      const dateStr = date.toDateString();
+      const dateStr = transaction.date ? new Date(transaction.date).toDateString() : 
+                       transaction.createdAt.toDateString();
       
       if (!groups[dateStr]) {
         groups[dateStr] = [];

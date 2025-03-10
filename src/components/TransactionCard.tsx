@@ -11,6 +11,15 @@ export interface Transaction {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   createdAt: Date;
   country: string;
+  // Additional properties that might be used in other components
+  recipientContact?: string;
+  recipientCountry?: string;
+  recipientCountryCode?: string;
+  date?: string;
+  type?: string;
+  currency?: string;
+  fee?: string;
+  totalAmount?: string;
 }
 
 interface TransactionCardProps {
