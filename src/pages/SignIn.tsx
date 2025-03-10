@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,13 +10,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { BiometricLogin } from '@/components/auth';
 import { BiometricService } from '@/services/biometric';
 
+interface LocationState {
+  from?: Location;
+}
+
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  
+  // Get the pathname the user was trying to access
+  const fromPath = (location.state as LocationState)?.from?.pathname || '/';
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +55,8 @@ const SignIn: React.FC = () => {
         description: "You have successfully signed in.",
       });
 
-      navigate('/');
+      // Redirect to the page the user was trying to access or home
+      navigate(fromPath);
     } catch (error: any) {
       toast({
         title: "Sign in failed",

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Recipient } from '@/types/recipient';
@@ -8,7 +9,8 @@ import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
 import AmountStep from '@/components/send-money/AmountStep';
 import PaymentStep from '@/components/send-money/PaymentStep';
 import ConfirmationStep from '@/components/send-money/ConfirmationStep';
-import { hasCompletedOnboarding } from '@/services/auth';
+import { hasCompletedOnboarding, isAuthenticated } from '@/services/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LocationState {
   selectedRecipient?: Recipient;
@@ -20,6 +22,7 @@ const SendMoney = () => {
   const { toast } = useToast();
   const { updateLastUsed } = useRecipients();
   const { selectedRecipient } = (location.state as LocationState) || {};
+  const { isLoggedIn } = useAuth();
   
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState('');
@@ -31,19 +34,6 @@ const SendMoney = () => {
   const [selectedProvider, setSelectedProvider] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check if user has completed onboarding
-  useEffect(() => {
-    const checkOnboarding = async () => {
-      const completed = await hasCompletedOnboarding();
-      if (!completed) {
-        // Redirect to onboarding if not completed
-        navigate('/onboarding');
-      }
-    };
-    
-    checkOnboarding();
-  }, [navigate]);
-
   // If a recipient is passed via location state, pre-fill the form
   useEffect(() => {
     if (selectedRecipient) {
@@ -54,7 +44,29 @@ const SendMoney = () => {
     }
   }, [selectedRecipient]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Check if user is authenticated before proceeding beyond step 1
+    if (step === 1) {
+      // If we're moving from first step to second, check authentication
+      if (!isLoggedIn) {
+        // Redirect to sign in page if not authenticated
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to continue with your transaction",
+        });
+        navigate('/signin');
+        return;
+      }
+      
+      // Check if user has completed onboarding
+      const completed = await hasCompletedOnboarding();
+      if (!completed) {
+        // Redirect to onboarding if not completed
+        navigate('/onboarding');
+        return;
+      }
+    }
+    
     if (step < 3) {
       setStep(step + 1);
     }
@@ -67,6 +79,17 @@ const SendMoney = () => {
   };
 
   const handleConfirmTransaction = async () => {
+    // Double-check authentication before confirming transaction
+    if (!isLoggedIn) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to confirm your transaction",
+        variant: "destructive"
+      });
+      navigate('/signin');
+      return;
+    }
+    
     if (!selectedRecipient && !recipientId) {
       toast({
         title: "Recipient required",

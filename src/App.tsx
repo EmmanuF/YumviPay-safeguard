@@ -30,10 +30,13 @@ function App() {
                 <Toaster />
                 <OfflineBanner />
                 <Routes>
+                  {/* Authentication routes */}
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
+                  
+                  {/* Main app routes */}
+                  <Route path="/" element={<SendMoney />} />
                   <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
                   <Route path="/transaction/:id" element={<ProtectedRoute><TransactionDetails /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
