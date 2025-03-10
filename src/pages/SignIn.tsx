@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -9,7 +8,7 @@ import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { BiometricLogin } from '@/components/auth';
 import { BiometricService } from '@/services/biometric';
-import { enableMockAuth } from '@/services/auth';
+import { enableMockAuth } from '@/services/auth/session';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +19,6 @@ const SignIn: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const isDev = import.meta.env.DEV;
 
-  // Check if we're already signed in
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -44,7 +42,6 @@ const SignIn: React.FC = () => {
 
       if (error) throw error;
 
-      // Store credentials for biometric login if remember me is checked
       if (rememberMe) {
         const biometricEnabled = await BiometricService.isEnabled();
         if (biometricEnabled) {
