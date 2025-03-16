@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import CountrySelector from '@/components/CountrySelector';
 
-interface AmountStepProps {
+export interface AmountStepProps {
   transactionData: {
     amount: number;
     sourceCurrency: string;

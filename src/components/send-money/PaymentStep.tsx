@@ -8,7 +8,7 @@ import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
 import { providerOptions } from './PaymentProviderData';
 
-interface PaymentStepProps {
+export interface PaymentStepProps {
   transactionData: {
     amount: number;
     sourceCurrency: string;

@@ -1,13 +1,11 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
 import { useCountries } from '@/hooks/useCountries';
 
-interface ConfirmationStepProps {
+export interface ConfirmationStepProps {
   transactionData: {
     amount: number;
     sourceCurrency: string;
@@ -32,21 +30,6 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const { getCountryByCode } = useCountries();
   const selectedCountryData = getCountryByCode(transactionData.targetCurrency);
   
-  const paymentMethodName = selectedCountryData?.paymentMethods.find(
-    pm => pm.id === transactionData.paymentMethod
-  )?.name || transactionData.paymentMethod;
-  
-  // Calculate fee (simplified logic, same as in transactions service)
-  const calculatedFee = (() => {
-    const numAmount = transactionData.amount;
-    const baseFee = 2.99;
-    const percentageFee = numAmount * 0.015;
-    return (baseFee + percentageFee).toFixed(2);
-  })();
-  
-  // Calculate total
-  const totalAmount = (transactionData.amount + parseFloat(calculatedFee)).toFixed(2);
-  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -64,6 +47,14 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     }
   };
 
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -72,99 +63,93 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       className="space-y-6"
     >
       <motion.div variants={itemVariants}>
-        <Card className="p-5">
-          <div className="flex items-start space-x-3 mb-4">
-            <div className="flex-shrink-0 mt-0.5">
-              <CheckCircle className="h-5 w-5 text-primary-500" />
-            </div>
-            <div>
-              <h4 className="text-base font-medium text-primary-700">Confirm Your Transfer</h4>
-              <p className="text-sm text-gray-600">Please review your transfer details before proceeding to payment</p>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">AMOUNT</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Amount to send</span>
-                  <span className="font-medium">${transactionData.amount}</span>
+        <h2 className="text-xl font-bold mb-4">Confirm Your Transfer</h2>
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium">Transfer Details</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="text-gray-500">Amount:</div>
+                <div className="font-medium text-right">
+                  {formatCurrency(transactionData.amount, transactionData.sourceCurrency)}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Transfer fee</span>
-                  <span className="font-medium">${calculatedFee}</span>
+                
+                <div className="text-gray-500">Recipient gets:</div>
+                <div className="font-medium text-right">
+                  {formatCurrency(transactionData.convertedAmount, transactionData.targetCurrency)}
                 </div>
-                <Separator />
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total</span>
-                  <span className="font-semibold">${totalAmount}</span>
+                
+                <div className="text-gray-500">Fee:</div>
+                <div className="font-medium text-right text-green-600">
+                  {formatCurrency(0, transactionData.sourceCurrency)}
+                </div>
+                
+                <div className="text-gray-500">Exchange rate:</div>
+                <div className="font-medium text-right">
+                  1 {transactionData.sourceCurrency} = {(transactionData.convertedAmount / transactionData.amount).toFixed(2)} {transactionData.targetCurrency}
                 </div>
               </div>
             </div>
             
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">RECIPIENT</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Name</span>
-                  <span className="font-medium">{transactionData.recipientName || 'Not specified'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Contact</span>
-                  <span className="font-medium">{transactionData.recipient || 'Not specified'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Country</span>
-                  <span className="font-medium">{selectedCountryData?.name || transactionData.targetCurrency}</span>
-                </div>
+            <div className="pt-2 border-t space-y-2">
+              <h3 className="text-lg font-medium">Recipient</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="text-gray-500">Name:</div>
+                <div className="font-medium text-right">{transactionData.recipientName || 'Not specified'}</div>
+                
+                <div className="text-gray-500">Contact:</div>
+                <div className="font-medium text-right">{transactionData.recipient || 'Not specified'}</div>
+                
+                <div className="text-gray-500">Country:</div>
+                <div className="font-medium text-right">{selectedCountryData?.name || transactionData.targetCurrency}</div>
               </div>
             </div>
             
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">PAYMENT METHOD</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Method</span>
-                  <span className="font-medium">{paymentMethodName}</span>
+            <div className="pt-2 border-t space-y-2">
+              <h3 className="text-lg font-medium">Payment Method</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="text-gray-500">Method:</div>
+                <div className="font-medium text-right">
+                  {selectedCountryData?.paymentMethods.find(pm => pm.id === transactionData.paymentMethod)?.name || 
+                   transactionData.paymentMethod || 'Not specified'}
                 </div>
+                
                 {transactionData.selectedProvider && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Provider</span>
-                    <span className="font-medium">{transactionData.selectedProvider}</span>
-                  </div>
+                  <>
+                    <div className="text-gray-500">Provider:</div>
+                    <div className="font-medium text-right">{transactionData.selectedProvider}</div>
+                  </>
                 )}
               </div>
             </div>
-            
-            <div className="bg-amber-50 p-3 rounded-lg flex items-start space-x-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800">
-                By proceeding, you'll be redirected to Kado to complete your payment securely. Make sure recipient details are correct as funds cannot be recovered if sent to the wrong person.
-              </p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="flex flex-col space-y-3 pt-4">
+      <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
         <Button 
-          onClick={onConfirm} 
-          className="w-full" 
-          size="lg"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Processing..." : "Proceed to Payment"}
-        </Button>
-        
-        <Button 
-          variant="outline" 
+          variant="outline"
           onClick={onBack} 
-          className="w-full" 
+          className="w-1/2" 
           size="lg"
           disabled={isSubmitting}
         >
           Back
+        </Button>
+        <Button 
+          onClick={onConfirm} 
+          className="w-1/2" 
+          size="lg"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing
+            </>
+          ) : (
+            'Confirm & Pay'
+          )}
         </Button>
       </motion.div>
     </motion.div>
