@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -30,7 +31,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   onBack
 }) => {
   const { toast } = useToast();
-  const { recipients, isLoading } = useRecipients();
+  const { recipients, loading } = useRecipients();
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -84,7 +85,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
         
         <TabsContent value="recent" className="space-y-4">
           <motion.div variants={itemVariants} className="space-y-2">
-            {isLoading ? (
+            {loading ? (
               <div className="text-center py-8">Loading recipients...</div>
             ) : recipients && recipients.length > 0 ? (
               recipients.map((recipient) => (
