@@ -1,10 +1,13 @@
 
 import React from 'react';
+import { Button } from "@/components/ui/button";
 import { usePaymentStep } from '@/hooks/usePaymentStep';
 import PaymentMethodList from './PaymentMethodList';
+import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
+import SavePreferenceToggle from './payment/SavePreferenceToggle';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import PaymentLoadingState from './payment/PaymentLoadingState';
-import { isNextButtonDisabled } from '@/utils/paymentUtils';
+import { handlePaymentPreference, isNextButtonDisabled } from '@/utils/paymentUtils';
 
 interface PaymentStepProps {
   onNext: () => void;
@@ -24,14 +27,20 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const {
     isLoading,
     countryCode,
-    selectedCountry
+    selectedCountry,
+    savePreference,
+    handleToggleSavePreference
   } = usePaymentStep({ transactionData, updateTransactionData });
 
   if (isLoading) {
     return <PaymentLoadingState />;
   }
 
+  // Get user's preferred payment methods (if any)
+  const preferredMethods = transactionData.user?.preferences?.paymentMethods || [];
+
   const handleContinue = () => {
+    handlePaymentPreference(savePreference, updateTransactionData);
     onNext();
   };
 
@@ -43,13 +52,17 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           Choose how you would like to pay for this transaction.
         </p>
       </div>
-      
-      {selectedCountry && (
-        <div className="bg-amber-50 p-4 rounded-lg border border-amber-100 mb-6">
-          <p className="text-amber-800 font-medium flex items-center">
-            <span className="mr-2">💳</span>
-            MTN MoMo and Orange Money wallets
-          </p>
+
+      {preferredMethods.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-gray-700">Your saved payment methods</h3>
+          <PreferredPaymentMethods
+            preferredMethods={preferredMethods}
+            countryCode={countryCode}
+            selectedCountry={selectedCountry}
+            transactionData={transactionData}
+            updateTransactionData={updateTransactionData}
+          />
         </div>
       )}
       
@@ -63,6 +76,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           countryCode={countryCode}
         />
       )}
+
+      <SavePreferenceToggle 
+        checked={savePreference}
+        onChange={handleToggleSavePreference}
+      />
 
       <PaymentStepNavigation
         onBack={onBack}
