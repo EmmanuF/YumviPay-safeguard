@@ -27,5 +27,5 @@ export {
   initializeTransactions
 };
 
-// Call initialize on import
-initializeTransactions();
+// Initialize transactions on import but don't block
+initializeTransactions().catch(err => console.error('Error initializing transactions:', err));

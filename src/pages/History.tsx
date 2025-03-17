@@ -24,7 +24,7 @@ const History = () => {
     refetch 
   } = useOfflineQuery<Transaction[]>(
     ['transactions', 'history'],
-    getAllTransactions,
+    getAllTransactions, // Now this returns a Promise correctly
     {
       offlineData: [],
       showOfflineToast: isOffline || offlineModeActive,

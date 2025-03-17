@@ -9,6 +9,8 @@ export interface RequestOptions extends RequestInit {
   retry?: boolean;
   maxRetries?: number;
   retryDelay?: number;
+  forceNetwork?: boolean; // Added for offline support
+  queueOffline?: boolean; // Added for offline request queueing
 }
 
 // Default request options
@@ -19,5 +21,7 @@ export const defaultOptions: Partial<RequestOptions> = {
   },
   retry: true,
   maxRetries: 2,
-  retryDelay: 500
+  retryDelay: 500,
+  queueOffline: true, // Default to queueing offline requests
+  forceNetwork: false // Default to not forcing network requests when offline
 };

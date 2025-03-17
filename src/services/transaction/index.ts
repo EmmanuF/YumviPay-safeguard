@@ -1,24 +1,54 @@
 
-import { Transaction, TransactionStatus } from "@/types/transaction";
-
-// Re-export types
-export type { Transaction, TransactionStatus };
-
-// Re-export functions from individual modules
-export { createTransaction } from "./transactionCreate";
-export { 
-  getTransaction, 
-  getTransactions, 
-  getRecentTransactions,
+// Export functions from transaction submodules
+import { 
   getTransactionById,
-  getAllTransactions
-} from "./transactionRetrieve";
-export { 
-  updateTransactionStatus, 
-  simulateKadoWebhook 
-} from "./transactionUpdate";
-export { initializeTransactions } from "./transactionStore";
+  getTransaction,
+  getTransactions,
+  getAllTransactions,
+  getRecentTransactions
+} from './transactionRetrieve';
 
-// Initialize transactions on import
-import { initializeTransactions } from "./transactionStore";
-initializeTransactions();
+import {
+  updateTransactionStatus,
+  simulateKadoWebhook
+} from './transactionUpdate';
+
+import {
+  createTransaction
+} from './transactionCreate';
+
+import {
+  initializeTransactions,
+  getStoredTransactions,
+  getOfflineTransactions,
+  setOfflineTransactions,
+  addOfflineTransaction,
+  updateOfflineTransaction,
+  clearTransactionsStore
+} from './transactionStore';
+
+// Export everything for use throughout the app
+export {
+  // Retrieval functions
+  getTransactionById,
+  getTransaction,
+  getTransactions,
+  getAllTransactions,
+  getRecentTransactions,
+  
+  // Update functions
+  updateTransactionStatus,
+  simulateKadoWebhook,
+  
+  // Creation functions
+  createTransaction,
+  
+  // Storage functions
+  initializeTransactions,
+  getStoredTransactions,
+  getOfflineTransactions,
+  setOfflineTransactions,
+  addOfflineTransaction,
+  updateOfflineTransaction,
+  clearTransactionsStore
+};
