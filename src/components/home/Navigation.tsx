@@ -87,18 +87,18 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   }
   
   return (
-    <header className="px-4 py-4 relative z-30">
+    <header className="px-4 py-2 relative z-30">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div 
-            className="text-xl font-bold text-primary-600 cursor-pointer" 
+            className="text-2xl font-bold text-primary-700 cursor-pointer" 
             onClick={() => !isNavigating && navigate('/')}
           >
             {t('app.name')}
           </div>
         </div>
         
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden md:flex items-center space-x-8">
           {navItems.slice(0, 3).map((item) => (
             <button
               key={item.name}
@@ -106,8 +106,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               className={cn(
                 "text-sm font-medium transition-colors",
                 location.pathname === item.path 
-                  ? "text-primary-600" 
-                  : "text-gray-600 hover:text-primary-500"
+                  ? "text-primary-600 font-semibold" 
+                  : "text-gray-700 hover:text-primary-500"
               )}
               disabled={isNavigating}
             >
@@ -140,7 +140,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           <button
             onClick={handleStarted}
             className={cn(
-              "bg-primary-500 hover:bg-primary-600 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm",
+              "bg-primary-500 hover:bg-primary-600 text-white font-medium px-5 py-2 rounded-full transition-colors text-sm",
               isNavigating && "opacity-75 pointer-events-none"
             )}
             disabled={isNavigating}
