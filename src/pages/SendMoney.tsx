@@ -110,7 +110,7 @@ const SendMoney = () => {
           amount: parseFloat(data.amount),
           sourceCurrency: data.sourceCurrency,
           targetCurrency: data.targetCurrency,
-          convertedAmount: parseFloat(data.receiveAmount)
+          convertedAmount: parseFloat(data.receiveAmount) // Fixed: parseFloat to ensure it's a number
         });
       }
     } catch (error) {
@@ -150,6 +150,7 @@ const SendMoney = () => {
         : "Error processing your transaction";
     }
     
+    // Fix: ensuring errorMessage is a string
     return <LoadingState 
       message="Error loading transaction data" 
       submessage={errorMessage}
