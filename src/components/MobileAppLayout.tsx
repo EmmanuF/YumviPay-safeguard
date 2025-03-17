@@ -82,7 +82,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
               stiffness: animSettings.stiffness * 0.9,
               damping: animSettings.damping
             }}
-            className="w-full h-full"
+            className="w-full h-full pb-16" // Added bottom padding to account for the navigation bar
           >
             {children}
           </motion.div>
@@ -112,21 +112,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
         )}
       </AnimatePresence>
       
-      {!isHome && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            delay: 0.2,
-            duration: animSettings.duration,
-            type: "spring",
-            stiffness: animSettings.stiffness,
-            damping: animSettings.damping
-          }}
-        >
-          <BottomNavigation />
-        </motion.div>
-      )}
+      {!isHome && <BottomNavigation />}
       
       <Toaster 
         position="top-center"

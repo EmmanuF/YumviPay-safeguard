@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, Users, BarChart3 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const BottomNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -25,19 +26,33 @@ const BottomNavigation: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 flex items-center justify-around shadow-sm z-20">
-      {navItems.map((item) => (
-        <div
-          key={item.path}
-          className={`flex flex-col items-center justify-center w-full h-full cursor-pointer ${
-            isActive(item.path) ? 'text-primary' : 'text-gray-500'
-          }`}
-          onClick={() => navigateTo(item.path)}
-        >
-          {item.icon}
-          <span className="text-xs mt-1">{item.label}</span>
+    <div className="relative">
+      {/* Diagonal background design */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 overflow-hidden z-10">
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-primary-600"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-24">
+          <div className="absolute top-0 left-0 right-0 h-14 bg-[#FFDD33] transform -skew-y-6 origin-left"></div>
         </div>
-      ))}
+      </div>
+
+      {/* Navigation bar */}
+      <div className="fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around z-20">
+        {navItems.map((item, index) => (
+          <motion.div
+            key={item.path}
+            className={`flex flex-col items-center justify-center cursor-pointer p-2 rounded-lg z-30 ${
+              isActive(item.path) ? 'text-white' : 'text-white/80 hover:text-white'
+            }`}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigateTo(item.path)}
+          >
+            <div className={`p-1 rounded-full ${isActive(item.path) ? 'bg-white/20' : ''}`}>
+              {item.icon}
+            </div>
+            <span className="text-xs mt-1 font-medium">{item.label}</span>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };
