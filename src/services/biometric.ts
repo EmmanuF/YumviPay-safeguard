@@ -1,6 +1,7 @@
 
 import { Device } from '@capacitor/device';
 import { Preferences } from '@capacitor/preferences';
+import { NativeBiometric } from 'capacitor-native-biometric';
 
 const BIOMETRIC_ENABLED_KEY = 'biometric_auth_enabled';
 const BIOMETRIC_CREDENTIALS_PREFIX = 'bio_cred_';
@@ -14,9 +15,15 @@ export const BiometricService = {
    */
   isAvailable: async (): Promise<boolean> => {
     try {
+      // First check if we're on a native platform
       const info = await Device.getInfo();
-      // Biometrics generally available on iOS and Android
-      return info.platform === 'ios' || info.platform === 'android';
+      if (info.platform !== 'ios' && info.platform !== 'android') {
+        return false;
+      }
+
+      // Then check if biometrics are available on the device
+      const result = await NativeBiometric.isAvailable();
+      return result.isAvailable;
     } catch (error) {
       console.error('Error checking biometric availability:', error);
       return false;
@@ -61,17 +68,15 @@ export const BiometricService = {
     }
     
     try {
-      // Store credentials in secure storage
-      // Note: In a production app, this should be more secure
-      await Preferences.set({
-        key: `${BIOMETRIC_CREDENTIALS_PREFIX}username`,
-        value: username,
+      // Store credentials securely using the native biometric plugin
+      await NativeBiometric.setCredentials({
+        username,
+        password,
+        server: 'app.yumvipay.com',
       });
       
-      await Preferences.set({
-        key: `${BIOMETRIC_CREDENTIALS_PREFIX}password`,
-        value: password,
-      });
+      // Also set the enabled flag
+      await BiometricService.setEnabled(true);
     } catch (error) {
       console.error('Error storing credentials:', error);
       throw error;
@@ -83,18 +88,14 @@ export const BiometricService = {
    */
   getStoredCredentials: async (): Promise<{ username: string; password: string } | null> => {
     try {
-      const usernameResult = await Preferences.get({ 
-        key: `${BIOMETRIC_CREDENTIALS_PREFIX}username` 
+      const credentials = await NativeBiometric.getCredentials({
+        server: 'app.yumvipay.com',
       });
       
-      const passwordResult = await Preferences.get({ 
-        key: `${BIOMETRIC_CREDENTIALS_PREFIX}password` 
-      });
-      
-      if (usernameResult.value && passwordResult.value) {
+      if (credentials && credentials.username && credentials.password) {
         return {
-          username: usernameResult.value,
-          password: passwordResult.value,
+          username: credentials.username,
+          password: credentials.password,
         };
       }
       
@@ -107,8 +108,6 @@ export const BiometricService = {
   
   /**
    * Perform the biometric authentication
-   * Note: This is a simplified version for prototype purposes
-   * In a real app, we would use a proper native biometric plugin
    */
   authenticate: async (): Promise<boolean> => {
     try {
@@ -119,14 +118,15 @@ export const BiometricService = {
         return false;
       }
       
-      // Since we can't use the native plugin, we'll simulate success for now
-      // In a real implementation, this would integrate with the native biometric APIs
+      // Request biometric authentication
+      const result = await NativeBiometric.verifyIdentity({
+        reason: 'Verify your identity',
+        title: 'Biometric Authentication',
+        subtitle: 'Use your fingerprint or face to authenticate',
+        cancelButtonTitle: 'Cancel',
+      });
       
-      // This is where you would normally call the native biometric API
-      // For now, we'll just return true to simulate successful authentication
-      console.log('Biometric authentication would happen here with a native plugin');
-      
-      return true;
+      return result.verified;
     } catch (error) {
       console.error('Error during biometric authentication:', error);
       return false;
@@ -138,11 +138,77 @@ export const BiometricService = {
    */
   clearCredentials: async (): Promise<void> => {
     try {
-      await Preferences.remove({ key: `${BIOMETRIC_CREDENTIALS_PREFIX}username` });
-      await Preferences.remove({ key: `${BIOMETRIC_CREDENTIALS_PREFIX}password` });
+      await NativeBiometric.deleteCredentials({
+        server: 'app.yumvipay.com',
+      });
+      await BiometricService.setEnabled(false);
     } catch (error) {
       console.error('Error clearing credentials:', error);
       throw error;
     }
   }
+};
+
+/**
+ * Custom hook for biometric authentication
+ */
+export const useBiometricAuth = () => {
+  const [isAvailable, setIsAvailable] = React.useState(false);
+  const [isEnabled, setIsEnabled] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkBiometricStatus = async () => {
+      try {
+        setIsLoading(true);
+        const available = await BiometricService.isAvailable();
+        setIsAvailable(available);
+        
+        if (available) {
+          const enabled = await BiometricService.isEnabled();
+          setIsEnabled(enabled);
+        }
+      } catch (error) {
+        console.error('Error checking biometric status:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkBiometricStatus();
+  }, []);
+
+  const enableBiometrics = async (username: string, password: string): Promise<boolean> => {
+    try {
+      if (!isAvailable) return false;
+      
+      await BiometricService.storeCredentials(username, password);
+      setIsEnabled(true);
+      return true;
+    } catch (error) {
+      console.error('Error enabling biometrics:', error);
+      return false;
+    }
+  };
+
+  const disableBiometrics = async (): Promise<boolean> => {
+    try {
+      await BiometricService.clearCredentials();
+      setIsEnabled(false);
+      return true;
+    } catch (error) {
+      console.error('Error disabling biometrics:', error);
+      return false;
+    }
+  };
+
+  return {
+    isAvailable,
+    isEnabled,
+    isLoading,
+    enableBiometrics,
+    disableBiometrics,
+    authenticate: BiometricService.authenticate,
+    getCredentials: BiometricService.getStoredCredentials
+  };
 };

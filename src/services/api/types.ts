@@ -12,6 +12,9 @@ export interface RequestOptions extends RequestInit {
   forceNetwork?: boolean; // Added for offline support
   queueOffline?: boolean; // Added for offline request queueing
   kadoUserRef?: string; // Added for Kado integration
+  biometricProtected?: boolean; // Added for biometric protection
+  deepLinkReturn?: string; // Added for deep link return path
+  usePushNotification?: boolean; // Added for push notifications
 }
 
 // Default request options
@@ -25,5 +28,8 @@ export const defaultOptions: Partial<RequestOptions> = {
   retryDelay: 500,
   queueOffline: true, // Default to queueing offline requests
   forceNetwork: false, // Default to not forcing network requests when offline
-  kadoUserRef: undefined // Default to no Kado user reference
+  kadoUserRef: undefined, // Default to no Kado user reference
+  biometricProtected: false, // Default to not requiring biometric auth
+  deepLinkReturn: undefined, // Default to no deep link return path
+  usePushNotification: false // Default to not using push notifications
 };

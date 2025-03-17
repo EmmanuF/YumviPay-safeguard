@@ -1,8 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint } from 'lucide-react';
-import { BiometricService } from '@/services/biometric';
+import { useBiometricAuth } from '@/services/biometric';
 import { toast } from '@/hooks/use-toast';
 
 interface BiometricLoginProps {
@@ -10,39 +10,19 @@ interface BiometricLoginProps {
 }
 
 const BiometricLogin: React.FC<BiometricLoginProps> = ({ onSuccess }) => {
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkBiometricStatus = async () => {
-      try {
-        setIsLoading(true);
-        const available = await BiometricService.isAvailable();
-        setIsAvailable(available);
-        
-        if (available) {
-          const enabled = await BiometricService.isEnabled();
-          setIsEnabled(enabled);
-        }
-      } catch (error) {
-        console.error('Error checking biometric status:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkBiometricStatus();
-  }, []);
+  const { isAvailable, isEnabled, isLoading, authenticate, getCredentials } = useBiometricAuth();
+  const [authenticating, setAuthenticating] = React.useState(false);
 
   const handleBiometricLogin = async () => {
+    if (authenticating) return;
+    
     try {
-      setIsLoading(true);
+      setAuthenticating(true);
       
-      const isAuthenticated = await BiometricService.authenticate();
+      const isAuthenticated = await authenticate();
       
       if (isAuthenticated) {
-        const credentials = await BiometricService.getStoredCredentials();
+        const credentials = await getCredentials();
         
         if (credentials) {
           onSuccess(credentials);
@@ -68,7 +48,7 @@ const BiometricLogin: React.FC<BiometricLoginProps> = ({ onSuccess }) => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setAuthenticating(false);
     }
   };
 
@@ -82,10 +62,10 @@ const BiometricLogin: React.FC<BiometricLoginProps> = ({ onSuccess }) => {
       size="lg"
       className="w-full mb-4 flex items-center justify-center"
       onClick={handleBiometricLogin}
-      disabled={isLoading}
+      disabled={authenticating}
     >
       <Fingerprint className="mr-2" />
-      {isLoading ? "Authenticating..." : "Login with Biometrics"}
+      {authenticating ? "Authenticating..." : "Login with Biometrics"}
     </Button>
   );
 };

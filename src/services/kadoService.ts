@@ -1,4 +1,3 @@
-
 import { Transaction } from '@/types/transaction';
 import { simulateKadoWebhook, getTransactionById } from '@/services/transactions';
 import { toast } from '@/hooks/use-toast';
@@ -6,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { deepLinkService } from './deepLinkService';
 import { isPlatform } from '@/utils/platformUtils';
 import { supabase } from '@/integrations/supabase/client';
+import { BiometricService } from './biometric';
 
 /**
  * Interface for Kado redirect params
@@ -19,6 +19,7 @@ export interface KadoRedirectParams {
   transactionId: string;
   returnUrl: string;
   userRef?: string; // Added userRef param for KYC tracking
+  deepLinkBack?: boolean; // Added to support deep links back to app
 }
 
 /**
@@ -68,14 +69,34 @@ export const kadoService = {
         console.log(`Using authenticated user ID as userRef: ${userRef}`);
       }
       
+      // Verify identity with biometrics for high-value transactions if available
+      // This is an additional security measure for payment initiation
+      const amount = parseFloat(params.amount);
+      if (amount > 100) { // Only for transactions over $100 equivalent
+        const isAvailable = await BiometricService.isAvailable();
+        const isEnabled = await BiometricService.isEnabled();
+        
+        if (isAvailable && isEnabled) {
+          const authenticated = await BiometricService.authenticate();
+          if (!authenticated) {
+            toast({
+              title: "Authentication Required",
+              description: "Biometric verification failed. Please try again.",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+      }
+      
       // Generate appropriate return URL based on platform
       let returnUrl: string;
       
-      if (isPlatform('mobile')) {
+      if (isPlatform('mobile') && params.deepLinkBack) {
         // Generate a deep link for native apps
         returnUrl = deepLinkService.generateDeepLink(
           `transaction/${params.transactionId}`,
-          { source: 'kado', userRef }
+          { source: 'kado', userRef: userRef || 'guest' }
         );
       } else {
         // Use web URL format for browser
@@ -208,6 +229,41 @@ export const kadoService = {
       }
     };
     */
+  },
+  
+  /**
+   * Request KYC verification for a user
+   * @param userRef User reference ID
+   * @returns Promise with KYC initiation status
+   */
+  requestKycVerification: async (userRef: string): Promise<{ success: boolean; redirectUrl?: string; message?: string }> => {
+    try {
+      console.log(`Requesting KYC verification for user: ${userRef}`);
+      
+      // In a real implementation, this would call the Kado API to start KYC
+      // For now, just simulate a success response with a redirect URL
+      
+      // Generate a deep link to return to the app after KYC
+      const returnUrl = deepLinkService.generateDeepLink('profile/verification', { 
+        status: 'completed',
+        userRef 
+      });
+      
+      // Mock URL for KYC verification
+      const kycUrl = `https://kado.com/kyc?user_ref=${userRef}&return_url=${encodeURIComponent(returnUrl)}`;
+      
+      return {
+        success: true,
+        redirectUrl: kycUrl,
+        message: 'KYC verification initiated'
+      };
+    } catch (error) {
+      console.error('Error requesting KYC verification:', error);
+      return {
+        success: false,
+        message: 'Failed to initiate KYC verification'
+      };
+    }
   }
 };
 
@@ -226,6 +282,9 @@ export const useKado = () => {
     const { data: { session } } = await supabase.auth.getSession();
     const userRef = session?.user?.id;
     
+    // Determine if we should use deep linking
+    const useDeepLink = isPlatform('mobile');
+    
     // Construct the return URL to the transaction status page
     const returnUrl = `${window.location.origin}/transaction/${params.transactionId}`;
     
@@ -233,7 +292,8 @@ export const useKado = () => {
     await kadoService.redirectToKado({
       ...params,
       returnUrl,
-      userRef
+      userRef,
+      deepLinkBack: useDeepLink
     });
     
     // Navigate to the transaction status page
@@ -261,9 +321,37 @@ export const useKado = () => {
     }
   };
   
+  /**
+   * Request KYC verification for current user
+   */
+  const requestCurrentUserKycVerification = async (): Promise<{ success: boolean; redirectUrl?: string; message?: string }> => {
+    try {
+      // Get current user
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user?.id) {
+        console.log('No authenticated user to request KYC verification');
+        return {
+          success: false,
+          message: 'No authenticated user found'
+        };
+      }
+      
+      // Request KYC verification
+      return await kadoService.requestKycVerification(session.user.id);
+    } catch (error) {
+      console.error('Error requesting KYC verification:', error);
+      return {
+        success: false,
+        message: 'Error requesting KYC verification'
+      };
+    }
+  };
+  
   return {
     ...kadoService,
     redirectToKadoAndReturn,
-    checkCurrentUserKycStatus
+    checkCurrentUserKycStatus,
+    requestCurrentUserKycVerification
   };
 };

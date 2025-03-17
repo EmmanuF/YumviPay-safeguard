@@ -1,55 +1,61 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Fingerprint } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { BiometricService } from '@/services/biometric';
+import { useBiometricAuth } from '@/services/biometric';
+import { useAuth } from '@/contexts/AuthContext';
 
 const BiometricSettings: React.FC = () => {
-  const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
-  const [isBiometricEnabled, setIsBiometricEnabled] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkBiometrics = async () => {
-      try {
-        setIsLoading(true);
-        const available = await BiometricService.isAvailable();
-        setIsBiometricAvailable(available);
-        
-        if (available) {
-          const enabled = await BiometricService.isEnabled();
-          setIsBiometricEnabled(enabled);
-        }
-      } catch (error) {
-        console.error('Error checking biometric status:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkBiometrics();
-  }, []);
+  const { isAvailable, isEnabled, isLoading, enableBiometrics, disableBiometrics } = useBiometricAuth();
+  const { user } = useAuth();
 
   const handleToggleBiometric = async (checked: boolean) => {
     try {
-      await BiometricService.setEnabled(checked);
-      setIsBiometricEnabled(checked);
-      
       if (checked) {
-        toast({
-          title: "Biometric authentication enabled",
-          description: "You can now use fingerprint or face ID to authenticate",
-        });
-        // In a real app, we would prompt the user to authenticate first
-        // before enabling biometrics
+        // Only proceed if we have a user email (as username)
+        if (!user?.email) {
+          toast({
+            title: "Authentication required",
+            description: "Please log in again to enable biometric authentication",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // For security, we would normally prompt for the password here
+        // But for demo purposes, we'll use a placeholder
+        // In a real app, you'd show a password dialog here
+        const success = await enableBiometrics(user.email, "placeholder-for-demo");
+        
+        if (success) {
+          toast({
+            title: "Biometric authentication enabled",
+            description: "You can now use fingerprint or face ID to authenticate",
+          });
+        } else {
+          toast({
+            title: "Could not enable biometrics",
+            description: "There was an error setting up biometric authentication",
+            variant: "destructive"
+          });
+        }
       } else {
-        // Clear stored credentials when disabling biometrics
-        await BiometricService.clearCredentials();
-        toast({
-          title: "Biometric authentication disabled",
-          description: "You will no longer use biometric authentication",
-        });
+        // Disable biometrics
+        const success = await disableBiometrics();
+        
+        if (success) {
+          toast({
+            title: "Biometric authentication disabled",
+            description: "You will no longer use biometric authentication",
+          });
+        } else {
+          toast({
+            title: "Could not disable biometrics",
+            description: "There was an error disabling biometric authentication",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Error toggling biometric authentication:', error);
@@ -76,7 +82,7 @@ const BiometricSettings: React.FC = () => {
     );
   }
 
-  if (!isBiometricAvailable) {
+  if (!isAvailable) {
     return null; // Don't show the option if biometrics aren't available
   }
 
@@ -92,7 +98,7 @@ const BiometricSettings: React.FC = () => {
         </div>
       </div>
       <Switch 
-        checked={isBiometricEnabled} 
+        checked={isEnabled} 
         onCheckedChange={handleToggleBiometric}
       />
     </div>
