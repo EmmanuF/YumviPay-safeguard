@@ -16,7 +16,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
   const isHome = location.pathname === '/';
   
   return (
-    <div className="flex flex-col h-dvh overflow-hidden bg-gradient-to-b from-secondary-50 to-secondary-100/50">
+    <div className="flex flex-col h-dvh overflow-hidden bg-gradient-to-b from-secondary-100 to-secondary-50/80">
       <OfflineBanner />
       
       {!isHome && (
@@ -40,9 +40,9 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
         toastOptions={{
           style: {
             borderRadius: '0.75rem',
-            background: 'rgba(255, 253, 231, 0.9)',
+            background: 'rgba(255, 236, 179, 0.9)',
             backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 240, 180, 0.3)',
+            border: '1px solid rgba(255, 183, 77, 0.3)',
             boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.1)',
             color: '#333',
           },

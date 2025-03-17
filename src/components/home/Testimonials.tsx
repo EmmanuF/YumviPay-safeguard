@@ -30,7 +30,7 @@ const Testimonials = () => {
 
   return (
     <motion.div 
-      className="py-16 bg-secondary-100/50 rounded-3xl my-20"
+      className="py-16 bg-secondary-100/80 rounded-3xl my-20"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -55,11 +55,11 @@ const Testimonials = () => {
               <Quote className="absolute top-4 right-4 text-primary-200 h-8 w-8 opacity-50" />
               <div className="flex items-center mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-secondary-500 fill-current" />
+                  <Star key={i} className="w-4 h-4 text-secondary-600 fill-current" />
                 ))}
               </div>
               <p className="text-gray-600 mb-4 italic">"{testimonial.text}"</p>
-              <div className="mt-4 pt-4 border-t border-secondary-100">
+              <div className="mt-4 pt-4 border-t border-secondary-200">
                 <p className="font-semibold">{testimonial.name}</p>
                 <p className="text-sm text-gray-500">{testimonial.location}</p>
               </div>

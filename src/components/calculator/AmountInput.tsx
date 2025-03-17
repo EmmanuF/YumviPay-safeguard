@@ -18,8 +18,8 @@ const AmountInput: React.FC<AmountInputProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`bg-secondary-50 rounded-xl p-4 ${className}`}>
-      <label className="text-sm text-gray-500 mb-1 block">{label}</label>
+    <div className={`bg-secondary-100 rounded-xl p-4 ${className}`}>
+      <label className="text-sm text-gray-600 mb-1 block">{label}</label>
       <div className="flex">
         {readOnly ? (
           <div className="text-xl font-medium flex-1">{value}</div>

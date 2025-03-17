@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,7 +26,7 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Updated Yumvi-Pay colors based on the image
+                // Updated Yumvi-Pay colors - thicker yellow
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
@@ -43,16 +44,16 @@ export default {
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#fffde7',
-                    100: '#fff9c4',
-                    200: '#fff59d',
-                    300: '#fff176',
-                    400: '#ffee58',
-                    500: '#FFDD33', // Main secondary yellow color
-                    600: '#fdd835',
-                    700: '#fbc02d',
-                    800: '#f9a825',
-                    900: '#f57f17',
+                    50: '#fff8e1', // Darker yellow tint
+                    100: '#ffecb3', // Thicker yellow tint
+                    200: '#ffe082',
+                    300: '#ffd54f',
+                    400: '#ffca28',
+                    500: '#FFC107', // Thicker main yellow
+                    600: '#ffb300',
+                    700: '#ffa000',
+                    800: '#ff8f00',
+                    900: '#ff6f00',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
