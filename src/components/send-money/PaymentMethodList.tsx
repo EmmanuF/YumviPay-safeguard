@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Smartphone, Building, CreditCard } from 'lucide-react';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 import { useToast } from '@/components/ui/use-toast';
 import { Country } from '@/hooks/useCountries';
@@ -40,11 +41,6 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     }
   };
 
-  // Debug information to help identify issues
-  console.log("Selected Country:", selectedCountry);
-  console.log("Selected Country Data:", selectedCountryData);
-  console.log("Payment Methods:", selectedCountryData?.paymentMethods);
-
   const handlePaymentMethodSelect = (method: string) => {
     onSelectPaymentMethod(method);
     
@@ -62,27 +58,27 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     <motion.div variants={itemVariants} className="mb-4">
       <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
       <div className="space-y-3">
-        {selectedCountryData?.paymentMethods && selectedCountryData.paymentMethods.length > 0 ? (
-          selectedCountryData.paymentMethods.map((method) => {
-            // Get providers for this payment method and country
-            const providers = getProviderOptions(method.id, selectedCountry);
-            
-            return (
-              <PaymentMethodCard
-                key={method.id}
-                name={method.name}
-                description={method.description}
-                icon={getIconComponent(method.icon)}
-                isSelected={selectedPaymentMethod === method.id}
-                onClick={() => handlePaymentMethodSelect(method.id)}
-                options={providers}
-                countryCode={selectedCountry}
-                selectedOption={selectedPaymentMethod === method.id ? selectedProvider : ''}
-                onOptionSelect={onSelectProvider}
-              />
-            );
-          })
-        ) : (
+        {selectedCountryData?.paymentMethods.map((method) => {
+          // Get providers for this payment method and country
+          const providers = getProviderOptions(method.id, selectedCountry);
+          
+          return (
+            <PaymentMethodCard
+              key={method.id}
+              name={method.name}
+              description={method.description}
+              icon={getIconComponent(method.icon)}
+              isSelected={selectedPaymentMethod === method.id}
+              onClick={() => handlePaymentMethodSelect(method.id)}
+              options={providers}
+              countryCode={selectedCountry}
+              selectedOption={selectedPaymentMethod === method.id ? selectedProvider : ''}
+              onOptionSelect={onSelectProvider}
+            />
+          );
+        })}
+        
+        {(!selectedCountryData || selectedCountryData.paymentMethods.length === 0) && (
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-amber-800 text-sm">
               No payment methods available for this country. Please select a different country.

@@ -31,14 +31,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onBack
 }) => {
   const { toast } = useToast();
-  const { getCountryByCode, countries } = useCountries();
-  
-  // Debug the countries data
-  console.log("All Countries:", countries);
-  console.log("Target Currency:", transactionData.targetCurrency);
-  
+  const { getCountryByCode } = useCountries();
   const selectedCountryData = getCountryByCode(transactionData.targetCurrency);
-  console.log("Selected Country Data:", selectedCountryData);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -65,8 +59,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         transactionData.paymentMethod, 
         selectedCountryData.code
       );
-      
-      console.log("Available providers:", providers);
       
       // If there are providers and we don't have one selected yet, select the first one
       if (providers.length > 0 && !transactionData.selectedProvider) {
@@ -129,7 +121,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           onClick={handleProceedToPayment} 
           className="w-1/2" 
           size="lg"
-          disabled={!transactionData.paymentMethod || !transactionData.selectedProvider}
+          disabled={!transactionData.paymentMethod || !transactionData.selectedProvider || !selectedCountryData || selectedCountryData.paymentMethods.length === 0}
         >
           Continue
         </Button>
