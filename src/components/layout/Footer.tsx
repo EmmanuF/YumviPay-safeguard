@@ -26,6 +26,11 @@ const Footer = () => {
           <div className="md:col-span-4 lg:col-span-3">
             <CompanyInfo />
             <SocialIcons />
+            
+            {/* App Download Links moved to bottom left */}
+            <div className="mt-8">
+              <AppDownloadLinks />
+            </div>
           </div>
           
           {/* Navigation Links Columns */}
@@ -55,7 +60,7 @@ const Footer = () => {
                 <FooterLink to="/support">{t('footer.support')}</FooterLink>
               </FooterSection>
               
-              {/* Countries */}
+              {/* Countries moved to where App download was */}
               <FooterSection title={t('footer.countries')}>
                 <FooterLink to="/country/cameroon">Cameroon</FooterLink>
                 {/* Placeholder for future countries */}
@@ -67,9 +72,8 @@ const Footer = () => {
             </div>
           </div>
           
-          {/* Newsletter and App Download Column */}
+          {/* Newsletter Column (Remove App Download from here) */}
           <div className="md:col-span-12 lg:col-span-3 space-y-8">
-            <AppDownloadLinks />
             <NewsletterSubscription />
           </div>
         </div>
