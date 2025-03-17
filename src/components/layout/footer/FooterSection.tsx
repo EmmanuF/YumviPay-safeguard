@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FooterSectionProps {
@@ -27,7 +27,7 @@ const FooterSection: React.FC<FooterSectionProps> = ({
           onClick={() => setExpanded(!expanded)}
         >
           <h3 className="text-base font-semibold text-primary-800">{title}</h3>
-          <ArrowRight 
+          <ChevronRight 
             className={cn(
               "h-4 w-4 text-primary-500 transition-transform", 
               expanded ? "rotate-90" : ""
@@ -35,7 +35,7 @@ const FooterSection: React.FC<FooterSectionProps> = ({
           />
         </button>
         <div className={cn(
-          "space-y-1 overflow-hidden transition-all", 
+          "flex flex-col space-y-1 overflow-hidden transition-all", 
           expanded ? "max-h-96" : "max-h-0"
         )}>
           {children}
@@ -47,7 +47,7 @@ const FooterSection: React.FC<FooterSectionProps> = ({
   return (
     <div className={cn("mb-8", className)}>
       <h3 className="text-base font-semibold text-primary-800 mb-4">{title}</h3>
-      <div className="space-y-1">
+      <div className="flex flex-col space-y-1">
         {children}
       </div>
     </div>

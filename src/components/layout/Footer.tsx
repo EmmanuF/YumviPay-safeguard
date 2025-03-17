@@ -30,7 +30,7 @@ const Footer = () => {
           
           {/* Navigation Links Columns */}
           <div className="md:col-span-8 lg:col-span-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-8">
               {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>
@@ -56,11 +56,13 @@ const Footer = () => {
               </FooterSection>
               
               {/* Countries */}
-              <FooterSection title={t('footer.countries')} className="col-span-2 md:col-span-3">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <FooterLink to="/country/cameroon">Cameroon</FooterLink>
-                  {/* More countries can be added here as the app expands */}
-                </div>
+              <FooterSection title={t('footer.countries')}>
+                <FooterLink to="/country/cameroon">Cameroon</FooterLink>
+                {/* Placeholder for future countries */}
+                <FooterLink to="/country/senegal">Senegal</FooterLink>
+                <FooterLink to="/country/nigeria">Nigeria</FooterLink>
+                <FooterLink to="/country/ghana">Ghana</FooterLink>
+                <FooterLink to="/country/kenya">Kenya</FooterLink>
               </FooterSection>
             </div>
           </div>

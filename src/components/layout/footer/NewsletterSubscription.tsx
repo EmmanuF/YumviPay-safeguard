@@ -16,8 +16,8 @@ const NewsletterSubscription: React.FC = () => {
   
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <p className="text-base font-semibold text-primary-800 mb-2">{t('footer.newsletter')}</p>
-      <div className="flex gap-2">
+      <p className="text-base font-semibold text-primary-800 mb-3">{t('footer.newsletter')}</p>
+      <div className="flex flex-col sm:flex-row gap-2">
         <Input
           type="email"
           placeholder={t('footer.newsletter.placeholder')}
@@ -26,7 +26,7 @@ const NewsletterSubscription: React.FC = () => {
           className="bg-white border-gray-200"
           required
         />
-        <Button type="submit" size="sm" className="bg-primary-600 hover:bg-primary-700">
+        <Button type="submit" className="bg-primary-600 hover:bg-primary-700 whitespace-nowrap">
           {t('footer.newsletter.button')}
         </Button>
       </div>
