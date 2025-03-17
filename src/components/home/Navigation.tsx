@@ -5,6 +5,7 @@ import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface NavItem {
   name: string;
@@ -20,31 +21,32 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn } = useAuth();
+  const { t } = useLocale();
   const [isNavigating, setIsNavigating] = useState(false);
   
   const navItems: NavItem[] = [
     {
-      name: 'Home',
+      name: t('nav.home'),
       icon: <Home className="w-5 h-5" />,
       path: '/',
     },
     {
-      name: 'Send',
+      name: t('nav.send'),
       icon: <Send className="w-5 h-5" />,
       path: '/send',
     },
     {
-      name: 'Recipients',
+      name: t('nav.recipients'),
       icon: <UserPlus className="w-5 h-5" />,
       path: '/recipients',
     },
     {
-      name: 'History',
+      name: t('nav.history'),
       icon: <Clock className="w-5 h-5" />,
       path: '/history',
     },
     {
-      name: 'Profile',
+      name: t('nav.profile'),
       icon: <User className="w-5 h-5" />,
       path: '/profile',
     },
@@ -88,7 +90,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             className="text-xl font-bold text-primary-600 cursor-pointer" 
             onClick={() => !isNavigating && navigate('/')}
           >
-            Yumvi-Pay
+            {t('app.name')}
           </div>
         </div>
         
@@ -117,7 +119,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
               disabled={isNavigating}
             >
-              Sign In
+              {t('auth.signin')}
             </button>
           ) : (
             <button
@@ -125,7 +127,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
               disabled={isNavigating}
             >
-              Profile
+              {t('nav.profile')}
             </button>
           )}
           
@@ -137,7 +139,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             )}
             disabled={isNavigating}
           >
-            {isLoggedIn ? "Dashboard" : "Get Started"}
+            {isLoggedIn ? t('nav.dashboard') : t('auth.signup')}
           </button>
         </div>
       </div>

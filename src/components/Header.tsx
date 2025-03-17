@@ -3,8 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import HeaderRight from './HeaderRight';
-
-// Add LocaleSwitcher import
 import LocaleSwitcher from './LocaleSwitcher';
 import { useLocale } from '@/contexts/LocaleContext';
 
@@ -54,7 +52,9 @@ const Header: React.FC<HeaderProps> = ({
               <ChevronLeft className="h-6 w-6 text-gray-700" />
             </button>
           )}
-          <h1 className="text-lg font-semibold text-gray-800">{title && t(title) || t('app.name')}</h1>
+          <h1 className="text-lg font-semibold text-gray-800">
+            {title ? t(title) : t('app.name')}
+          </h1>
         </div>
         
         <div className="flex items-center space-x-2">

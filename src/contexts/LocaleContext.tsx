@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -53,6 +52,41 @@ const translations: Record<Locale, Record<string, string>> = {
     'bank.account_format': 'Format: XXXXX XXXXX XXXXX XXXXXX',
     'bank.provider': 'Choose Bank',
     
+    // Recipients
+    'recipients.title': 'Recipients',
+    'recipients.add': 'Add Recipient',
+    'recipients.list': 'Your Recipients',
+    'recipients.empty': 'No recipients yet',
+    'recipients.add_first': 'Add your first recipient',
+    'recipients.edit': 'Edit Recipient',
+    'recipients.delete': 'Delete Recipient',
+    'recipients.confirm_delete': 'Are you sure you want to delete this recipient?',
+    'recipients.search': 'Search recipients',
+    'recipients.saved': 'Recipient saved successfully',
+    'recipients.deleted': 'Recipient deleted successfully',
+    
+    // Tabs and Navigation
+    'nav.home': 'Home',
+    'nav.send': 'Send',
+    'nav.recipients': 'Recipients',
+    'nav.history': 'History',
+    'nav.profile': 'Profile',
+    'nav.dashboard': 'Dashboard',
+    
+    // Profile and Authentication
+    'profile.title': 'Profile',
+    'profile.account': 'Account Information',
+    'profile.security': 'Security Settings',
+    'profile.notification': 'Notifications',
+    'profile.edit': 'Edit Profile',
+    'profile.save': 'Save Changes',
+    'profile.change_password': 'Change Password',
+    'profile.logout': 'Logout',
+    'auth.signin': 'Sign In',
+    'auth.signup': 'Sign Up',
+    'auth.forgot': 'Forgot Password',
+    'auth.reset': 'Reset Password',
+    
     // Other
     'error.invalid_number': 'Invalid phone number',
     'error.invalid_account': 'Invalid account number',
@@ -97,6 +131,41 @@ const translations: Record<Locale, Record<string, string>> = {
     'bank.enter_account': 'Entrez le numéro de compte',
     'bank.account_format': 'Format: XXXXX XXXXX XXXXX XXXXXX',
     'bank.provider': 'Choisir une Banque',
+    
+    // Recipients
+    'recipients.title': 'Destinataires',
+    'recipients.add': 'Ajouter un Destinataire',
+    'recipients.list': 'Vos Destinataires',
+    'recipients.empty': 'Pas encore de destinataires',
+    'recipients.add_first': 'Ajoutez votre premier destinataire',
+    'recipients.edit': 'Modifier le Destinataire',
+    'recipients.delete': 'Supprimer le Destinataire',
+    'recipients.confirm_delete': 'Êtes-vous sûr de vouloir supprimer ce destinataire?',
+    'recipients.search': 'Rechercher des destinataires',
+    'recipients.saved': 'Destinataire enregistré avec succès',
+    'recipients.deleted': 'Destinataire supprimé avec succès',
+    
+    // Tabs and Navigation
+    'nav.home': 'Accueil',
+    'nav.send': 'Envoyer',
+    'nav.recipients': 'Destinataires',
+    'nav.history': 'Historique',
+    'nav.profile': 'Profil',
+    'nav.dashboard': 'Tableau de Bord',
+    
+    // Profile and Authentication
+    'profile.title': 'Profil',
+    'profile.account': 'Informations du Compte',
+    'profile.security': 'Paramètres de Sécurité',
+    'profile.notification': 'Notifications',
+    'profile.edit': 'Modifier le Profil',
+    'profile.save': 'Enregistrer les Modifications',
+    'profile.change_password': 'Changer le Mot de Passe',
+    'profile.logout': 'Déconnexion',
+    'auth.signin': 'Se Connecter',
+    'auth.signup': 'S\'inscrire',
+    'auth.forgot': 'Mot de Passe Oublié',
+    'auth.reset': 'Réinitialiser le Mot de Passe',
     
     // Other
     'error.invalid_number': 'Numéro de téléphone invalide',
