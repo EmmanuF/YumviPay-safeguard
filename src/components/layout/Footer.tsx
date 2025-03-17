@@ -35,7 +35,7 @@ const Footer = () => {
           
           {/* Navigation Links Columns */}
           <div className="md:col-span-8 lg:col-span-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
               {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>
@@ -60,10 +60,9 @@ const Footer = () => {
                 <FooterLink to="/support">{t('footer.support')}</FooterLink>
               </FooterSection>
               
-              {/* Countries moved to where App download was */}
+              {/* Countries moved to be in line with other sections */}
               <FooterSection title={t('footer.countries')}>
                 <FooterLink to="/country/cameroon">Cameroon</FooterLink>
-                {/* Placeholder for future countries */}
                 <FooterLink to="/country/senegal">Senegal</FooterLink>
                 <FooterLink to="/country/nigeria">Nigeria</FooterLink>
                 <FooterLink to="/country/ghana">Ghana</FooterLink>
@@ -72,7 +71,7 @@ const Footer = () => {
             </div>
           </div>
           
-          {/* Newsletter Column (Remove App Download from here) */}
+          {/* Newsletter Column */}
           <div className="md:col-span-12 lg:col-span-3 space-y-8">
             <NewsletterSubscription />
           </div>
