@@ -119,7 +119,7 @@ const SendMoney = () => {
   if (transactionError) {
     return <LoadingState 
       message="Error loading transaction data" 
-      submessage={transactionError}
+      submessage={transactionError.toString()} // Convert any error to string
     />;
   }
 
