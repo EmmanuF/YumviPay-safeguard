@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
@@ -46,7 +45,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     {
       name: t('nav.history'),
       icon: <Clock className="w-5 h-5" />,
-      path: '/history',
+      path: '/transactions',
     },
     {
       name: t('nav.profile'),

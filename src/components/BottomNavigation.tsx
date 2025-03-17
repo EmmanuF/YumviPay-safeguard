@@ -20,8 +20,8 @@ const BottomNavigation: React.FC = () => {
   const navItems = [
     { path: '/dashboard', icon: <Home size={24} />, label: 'Home' },
     { path: '/send', icon: <Send size={24} />, label: 'Send' },
-    { path: '/history', icon: <Clock size={24} />, label: 'History' },
-    { path: '/analytics', icon: <BarChart3 size={24} />, label: 'Analytics' },
+    { path: '/transactions', icon: <Clock size={24} />, label: 'History' },
+    { path: '/profile', icon: <BarChart3 size={24} />, label: 'Profile' },
     { path: '/recipients', icon: <Users size={24} />, label: 'Recipients' },
   ];
 

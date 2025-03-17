@@ -18,6 +18,7 @@ import SendMoney from '@/pages/SendMoney';
 import TransactionHistory from '@/pages/TransactionHistory';
 import Recipients from '@/pages/Recipients';
 import NotFound from '@/pages/NotFound';
+import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
@@ -41,6 +42,11 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />
