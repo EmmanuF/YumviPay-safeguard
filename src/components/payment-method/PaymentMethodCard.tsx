@@ -59,13 +59,13 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
           "transition-all duration-200",
           isSelected 
             ? "ring-2 ring-primary-500 shadow-md" 
-            : "hover:bg-white/90 hover:shadow-md"
+            : "hover:bg-secondary-50/90 hover:shadow-md"
         )}
       >
         <div className="flex items-center">
           <div className={cn(
             "w-12 h-12 rounded-full flex items-center justify-center mr-4",
-            isSelected ? "bg-primary-100" : "bg-gray-100"
+            isSelected ? "bg-primary-100" : "bg-secondary-100"
           )}>
             {icon}
           </div>

@@ -1,16 +1,17 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 50 100% 97%;
     --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%;
+    --card: 50 100% 98%;
     --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 0 0% 100%;
+    --popover: 50 100% 98%;
     --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 262 74% 56%;
@@ -19,17 +20,17 @@
     --secondary: 50 100% 60%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 50 100% 94%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 50 100% 94%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 50 100% 89%;
+    --input: 50 100% 89%;
     --ring: 262 74% 56%;
 
     --radius: 1rem;
@@ -37,16 +38,16 @@
 
   .dark {
     --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --foreground: 50 100% 98%;
 
     --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card-foreground: 50 100% 98%;
 
     --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover-foreground: 50 100% 98%;
 
     --primary: 262 74% 56%;
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 50 100% 98%;
 
     --secondary: 50 100% 60%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -55,10 +56,10 @@
     --muted-foreground: 215 20.2% 65.1%;
 
     --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent-foreground: 50 100% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 50 100% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
@@ -85,7 +86,7 @@
 @layer utilities {
   /* Enhanced glass card effects */
   .glass-card {
-    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-secondary-50/90 backdrop-blur-lg border border-secondary-100/40 shadow-lg;
     transition: transform 0.2s ease, box-shadow 0.3s ease;
   }
   
@@ -104,7 +105,7 @@
   
   /* Enhanced glass effects */
   .glass-effect {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+    @apply bg-secondary-50/80 backdrop-blur-xl border border-secondary-100/30;
     box-shadow: 0 8px 32px -4px rgba(110, 54, 229, 0.15);
   }
 
@@ -193,7 +194,7 @@
 
 /* Enhanced neomorphic effects */
 .neo-button {
-  @apply bg-gradient-to-br from-white to-gray-100;
+  @apply bg-gradient-to-br from-secondary-50 to-secondary-100;
   box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.05), 
               -6px -6px 12px rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
@@ -225,7 +226,7 @@
 
 /* Form control enhancements */
 .form-control-modern {
-  @apply bg-gray-50/70 backdrop-blur-sm border border-gray-200/80 rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-300/50 focus:border-primary-300/50 focus:outline-none transition-all duration-200;
+  @apply bg-secondary-50/70 backdrop-blur-sm border border-secondary-100/80 rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-300/50 focus:border-primary-300/50 focus:outline-none transition-all duration-200;
 }
 
 /* Input with floating label */

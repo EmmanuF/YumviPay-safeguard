@@ -32,7 +32,7 @@ const Home = () => {
   
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary-50/30">
+      <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-secondary-100/50">
         <Navigation onGetStarted={handleGetStarted} />
         
         <div className="container mx-auto px-4 pb-24">

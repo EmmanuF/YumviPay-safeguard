@@ -30,7 +30,7 @@ const Testimonials = () => {
 
   return (
     <motion.div 
-      className="py-16 bg-secondary-50 rounded-3xl my-20"
+      className="py-16 bg-secondary-100/50 rounded-3xl my-20"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -59,7 +59,7 @@ const Testimonials = () => {
                 ))}
               </div>
               <p className="text-gray-600 mb-4 italic">"{testimonial.text}"</p>
-              <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="mt-4 pt-4 border-t border-secondary-100">
                 <p className="font-semibold">{testimonial.name}</p>
                 <p className="text-sm text-gray-500">{testimonial.location}</p>
               </div>

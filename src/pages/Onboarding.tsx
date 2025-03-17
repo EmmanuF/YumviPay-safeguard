@@ -8,7 +8,7 @@ const Onboarding: React.FC = () => {
   const { pendingTransaction, sourceCountry } = useOnboarding();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary-50 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-secondary-50 to-secondary-200">
       <Header 
         transparent={true}
         title="Create Your Account"
