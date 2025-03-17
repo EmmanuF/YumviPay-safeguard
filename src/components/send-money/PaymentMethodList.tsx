@@ -34,10 +34,6 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     }
   };
 
-  console.log('PaymentMethodList - paymentMethods:', paymentMethods);
-  console.log('PaymentMethodList - selectedMethod:', selectedMethod);
-  console.log('PaymentMethodList - selectedProvider:', selectedProvider);
-
   const handlePaymentMethodSelect = (method: string) => {
     onSelect(method);
     
@@ -55,7 +51,7 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
   if (!paymentMethods || paymentMethods.length === 0) {
     return (
       <motion.div variants={itemVariants} className="mb-4">
-        <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
+        <h3 className="text-lg font-medium mb-3 text-center">Choose Provider</h3>
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
           <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
           <div>
@@ -73,12 +69,11 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
 
   return (
     <motion.div variants={itemVariants} className="mb-4">
-      <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
-      <div className="space-y-3">
+      <h3 className="text-lg font-medium mb-3 text-center">Choose Provider</h3>
+      <div className="space-y-4">
         {paymentMethods.map((method) => {
           // Get providers for this payment method and country
           const providers = getProviderOptions(method.id, countryCode);
-          console.log(`Providers for ${method.id}:`, providers);
           
           // Check if this is a recommended method for this country
           const recommendedMethods = getRecommendedPaymentMethods(countryCode);

@@ -29,7 +29,7 @@ export interface PaymentMethodDetails {
   description?: string;
 }
 
-// Updated payment method details for Cameroon
+// Updated payment method details for Cameroon - removed bank transfer option
 export const cameroonPaymentMethods: PaymentMethodDetails[] = [
   {
     id: 'mobile_money',
@@ -40,7 +40,7 @@ export const cameroonPaymentMethods: PaymentMethodDetails[] = [
       {
         id: 'mtn_momo',
         name: 'MTN Mobile Money',
-        logoUrl: '/lovable-uploads/e46e0ffc-bb69-4357-975a-9143d4045639.png',
+        logoUrl: '/lovable-uploads/22233ec1-46db-405a-8fb2-1d57fccbbb01.png',
         description: 'Pay with your MTN Mobile Money account - the most widely used mobile money service in Cameroon',
         instructions: [
           'Enter your MTN number in the format +237 6XX XX XX XX',

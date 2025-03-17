@@ -96,21 +96,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-100"
+      className="mt-4 p-5 bg-gray-50 rounded-xl border border-gray-200 shadow-sm"
     >
-      {options.length > 0 && (
-        <div className="mb-4">
-          <Label htmlFor="provider" className="text-sm font-medium mb-2 block">
-            {methodId === 'mobile_money' ? t('momo.provider') : t('bank.provider')}
-          </Label>
-          <ProviderOptions
-            options={options}
-            selectedOption={selectedOption}
-            onSelect={onOptionSelect}
-            methodId={methodId}
-          />
-        </div>
-      )}
+      <h3 className="text-lg font-medium mb-4 text-center">Recipient</h3>
       
       <RecipientInfo
         methodName={methodName}
@@ -148,15 +136,15 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
 
       {/* Provider-specific instructions */}
       {providerDetails?.instructions && (
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
           <h4 className="font-medium text-blue-800 mb-2">Instructions:</h4>
-          <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
+          <ul className="list-disc pl-5 text-sm text-blue-700 space-y-2">
             {providerDetails.instructions.map((instruction, idx) => (
               <li key={idx}>{instruction}</li>
             ))}
           </ul>
           {providerDetails.processingTime && (
-            <p className="mt-2 text-xs text-blue-600">
+            <p className="mt-3 text-xs text-blue-600 font-medium">
               Estimated processing time: {providerDetails.processingTime}
             </p>
           )}

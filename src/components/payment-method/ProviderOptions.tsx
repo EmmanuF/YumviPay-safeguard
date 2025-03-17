@@ -33,14 +33,15 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
             key={option.id}
             onClick={() => onSelect(option.id)}
             className={cn(
-              "p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center",
+              "p-6 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center",
+              "hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200",
               selectedOption === option.id
                 ? "border-primary-500 bg-primary-50 text-primary-700 shadow-md"
                 : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
             )}
           >
             {providerDetails?.logoUrl ? (
-              <div className="mb-3 flex items-center justify-center h-12 w-full">
+              <div className="mb-3 flex items-center justify-center h-16 w-full">
                 <img 
                   src={providerDetails.logoUrl} 
                   alt={option.name} 
@@ -48,7 +49,7 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
                 />
               </div>
             ) : null}
-            <div className="text-center font-medium">
+            <div className="text-center font-medium text-lg">
               {t(`payment.${option.id}`) || option.name}
             </div>
           </div>
