@@ -115,13 +115,18 @@ const SendMoney = () => {
     />;
   }
 
-  // Fix for TS18047: Add proper null/undefined check for transactionError
-  if (transactionError !== null && transactionError !== undefined) {
-    // Fix for TS2322: Ensure error message is always a string before passing to LoadingState
-    const errorMessage = typeof transactionError === 'object' 
-      ? (transactionError.message || 'Unknown error') 
-      : String(transactionError); // Convert to string explicitly
-      
+  // Properly handle the transaction error - fix TypeScript errors
+  if (typeof transactionError === 'string' || typeof transactionError === 'number' || 
+      (transactionError && typeof transactionError === 'object')) {
+    let errorMessage: string;
+    
+    if (typeof transactionError === 'object') {
+      errorMessage = transactionError.message || 'Unknown error';
+    } else {
+      // Ensure we convert to string for both string and number cases
+      errorMessage = String(transactionError);
+    }
+    
     return <LoadingState 
       message="Error loading transaction data" 
       submessage={errorMessage}
