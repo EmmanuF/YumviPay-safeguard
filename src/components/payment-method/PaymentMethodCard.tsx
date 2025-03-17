@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import ExpandedContent from './ExpandedContent';
@@ -15,7 +15,9 @@ interface PaymentMethodCardProps {
     id: string;
     name: string;
   }>;
-  countryCode?: string; // Added country code
+  countryCode?: string;
+  selectedOption?: string;
+  onOptionSelect?: (optionId: string) => void;
 }
 
 const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
@@ -25,12 +27,35 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   isSelected,
   onClick,
   options,
-  countryCode = 'CM', // Default to Cameroon
+  countryCode = 'CM',
+  selectedOption = '',
+  onOptionSelect,
 }) => {
   const { t } = useLocale();
   const [recipientName, setRecipientName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
-  const [selectedOption, setSelectedOption] = useState('');
+  const [localSelectedOption, setLocalSelectedOption] = useState(selectedOption);
+
+  // Update local state when prop changes
+  useEffect(() => {
+    setLocalSelectedOption(selectedOption);
+  }, [selectedOption]);
+
+  // Auto-select first option if none selected and options exist
+  useEffect(() => {
+    if (isSelected && options.length > 0 && !localSelectedOption && onOptionSelect) {
+      const firstOption = options[0].id;
+      setLocalSelectedOption(firstOption);
+      onOptionSelect(firstOption);
+    }
+  }, [isSelected, options, localSelectedOption, onOptionSelect]);
+
+  const handleOptionSelect = (optionId: string) => {
+    setLocalSelectedOption(optionId);
+    if (onOptionSelect) {
+      onOptionSelect(optionId);
+    }
+  };
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -59,11 +84,11 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
           <ExpandedContent
             methodName={name}
             options={options}
-            selectedOption={selectedOption}
+            selectedOption={localSelectedOption}
             recipientName={recipientName}
             accountNumber={accountNumber}
             countryCode={countryCode}
-            onOptionSelect={setSelectedOption}
+            onOptionSelect={handleOptionSelect}
             onRecipientNameChange={setRecipientName}
             onAccountNumberChange={setAccountNumber}
           />

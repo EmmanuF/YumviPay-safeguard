@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useCountries } from '@/hooks/useCountries';
 import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
-import { providerOptions } from './PaymentProviderData';
+import { providerOptions, getProviderOptions } from './PaymentProviderData';
 
 export interface PaymentStepProps {
   transactionData: {
@@ -51,6 +51,22 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
+  // Reset provider selection when payment method changes
+  useEffect(() => {
+    if (transactionData.paymentMethod && selectedCountryData) {
+      // Get available providers for this payment method and country
+      const providers = getProviderOptions(
+        transactionData.paymentMethod, 
+        selectedCountryData.code
+      );
+      
+      // If there are providers and we don't have one selected yet, select the first one
+      if (providers.length > 0 && !transactionData.selectedProvider) {
+        updateTransactionData({ selectedProvider: providers[0].id });
+      }
+    }
+  }, [transactionData.paymentMethod, selectedCountryData, updateTransactionData, transactionData.selectedProvider]);
+
   const handleProceedToPayment = () => {
     toast({
       title: "Processing payment",
@@ -71,7 +87,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         selectedCountry={transactionData.targetCurrency}
         selectedCountryData={selectedCountryData}
         selectedPaymentMethod={transactionData.paymentMethod}
-        onSelectPaymentMethod={(method) => updateTransactionData({ paymentMethod: method })}
+        selectedProvider={transactionData.selectedProvider}
+        onSelectPaymentMethod={(method) => updateTransactionData({ 
+          paymentMethod: method,
+          selectedProvider: null  // Reset provider when method changes
+        })}
+        onSelectProvider={(providerId) => updateTransactionData({ 
+          selectedProvider: providerId 
+        })}
         providerOptions={providerOptions}
       />
 
@@ -82,6 +105,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         recipientName={transactionData.recipientName || ''}
         recipient={transactionData.recipient || ''}
         selectedPaymentMethod={transactionData.paymentMethod}
+        selectedProvider={transactionData.selectedProvider}
       />
 
       <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
@@ -97,7 +121,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           onClick={handleProceedToPayment} 
           className="w-1/2" 
           size="lg"
-          disabled={!transactionData.paymentMethod || !selectedCountryData || selectedCountryData.paymentMethods.length === 0}
+          disabled={!transactionData.paymentMethod || !transactionData.selectedProvider || !selectedCountryData || selectedCountryData.paymentMethods.length === 0}
         >
           Continue
         </Button>
