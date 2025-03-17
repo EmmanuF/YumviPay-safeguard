@@ -23,6 +23,12 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
   const countryCode = transaction.recipientCountryCode || 'CM';
   const country = getCountryByCode(countryCode);
   
+  // Helper function to convert amount to string
+  const formatAmount = (amount: string | number | undefined): string => {
+    if (amount === undefined) return '0';
+    return typeof amount === 'number' ? amount.toString() : amount;
+  };
+  
   const getStatusIcon = () => {
     switch (transaction.status) {
       case 'completed':
@@ -86,20 +92,21 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
             <div>
               <p className="text-sm text-primary-700">Amount Sent</p>
               <p className="text-2xl font-bold text-primary-900">
-                ${transaction.amount}
+                ${formatAmount(transaction.amount)}
               </p>
             </div>
             <div className="text-right">
               <p className="text-sm text-primary-700">Fee</p>
               <p className="text-lg font-semibold text-primary-900">
-                ${transaction.fee || '0.00'}
+                ${formatAmount(transaction.fee) || '0.00'}
               </p>
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
             <p className="text-sm font-medium text-primary-700">Total</p>
             <p className="text-lg font-bold text-primary-900">
-              ${transaction.totalAmount || (parseFloat(transaction.amount) + parseFloat(transaction.fee || '0')).toFixed(2)}
+              ${transaction.totalAmount ? formatAmount(transaction.totalAmount) : 
+                (parseFloat(formatAmount(transaction.amount)) + parseFloat(formatAmount(transaction.fee) || '0')).toFixed(2)}
             </p>
           </div>
         </div>

@@ -103,11 +103,11 @@ export const createTransaction = (
         const { data, error } = await supabase
           .from('transactions')
           .insert({
-            id: transaction.id,
+            // Don't specify id here, let Supabase generate it
             user_id: userId,
             recipient_id: transaction.recipientId,
-            amount: transaction.amount,
-            fee: transaction.fee,
+            amount: typeof transaction.amount === 'number' ? transaction.amount.toString() : transaction.amount,
+            fee: typeof transaction.fee === 'number' ? transaction.fee.toString() : transaction.fee,
             recipient_name: transaction.recipientName,
             recipient_contact: transaction.recipientContact,
             payment_method: transaction.paymentMethod,
@@ -117,7 +117,9 @@ export const createTransaction = (
             created_at: transaction.createdAt.toISOString(),
             updated_at: transaction.updatedAt.toISOString(),
             estimated_delivery: transaction.estimatedDelivery,
-            total_amount: transaction.totalAmount
+            total_amount: typeof transaction.totalAmount === 'number' 
+              ? transaction.totalAmount.toString() 
+              : transaction.totalAmount
           })
           .select()
           .single();
@@ -153,11 +155,11 @@ export const createTransaction = (
       const result = await supabase
         .from('transactions')
         .insert({
-          id: transaction.id,
+          // Don't include ID in insert, let Supabase generate it
           user_id: userId,
           recipient_id: transaction.recipientId,
-          amount: transaction.amount,
-          fee: transaction.fee,
+          amount: typeof transaction.amount === 'number' ? transaction.amount.toString() : transaction.amount,
+          fee: typeof transaction.fee === 'number' ? transaction.fee.toString() : transaction.fee,
           recipient_name: transaction.recipientName,
           recipient_contact: transaction.recipientContact,
           payment_method: transaction.paymentMethod,
@@ -167,7 +169,9 @@ export const createTransaction = (
           created_at: transaction.createdAt.toISOString(),
           updated_at: transaction.updatedAt.toISOString(),
           estimated_delivery: transaction.estimatedDelivery,
-          total_amount: transaction.totalAmount
+          total_amount: typeof transaction.totalAmount === 'number' 
+            ? transaction.totalAmount.toString() 
+            : transaction.totalAmount
         })
         .select()
         .single();

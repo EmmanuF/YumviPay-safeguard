@@ -26,6 +26,13 @@ import { Button } from '@/components/ui/button';
 import { Mail, Smartphone, Download } from 'lucide-react';
 import { useNetwork } from '@/contexts/NetworkContext';
 
+// Utility function to safely parse a number
+const safeParseNumber = (value: string | number | undefined): number => {
+  if (value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  return parseFloat(value) || 0;
+};
+
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -62,9 +69,7 @@ const TransactionStatus = () => {
         // Add notification for completed transactions
         if (fetchedTransaction && fetchedTransaction.status === 'completed') {
           // Convert to number if needed for notification
-          const amount = typeof fetchedTransaction.amount === 'string' 
-            ? parseFloat(fetchedTransaction.amount) 
-            : fetchedTransaction.amount;
+          const amount = safeParseNumber(fetchedTransaction.amount);
             
           addNotification({
             title: "Transfer Successful",
