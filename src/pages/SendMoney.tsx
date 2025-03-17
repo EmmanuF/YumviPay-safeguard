@@ -8,7 +8,7 @@ import ConfirmationStep from '@/components/send-money/ConfirmationStep';
 import { useToast } from '@/components/ui/use-toast';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
-import LoadingState from '@/components/transaction/LoadingState';
+import LoadingState from '@/components/dashboard/LoadingState';
 import PageTransition from '@/components/PageTransition';
 import { useCountries } from '@/hooks/useCountries';
 
@@ -152,7 +152,10 @@ const SendMoney = () => {
 
   // Show loading state if we're still initializing
   if (loading || countriesLoading || !initialDataLoaded || !authChecked) {
-    return <LoadingState message="Preparing your transaction..." />;
+    return <LoadingState 
+      message="Preparing your transaction..." 
+      submessage="Please wait while we fetch your data"
+    />;
   }
 
   const renderStep = () => {
