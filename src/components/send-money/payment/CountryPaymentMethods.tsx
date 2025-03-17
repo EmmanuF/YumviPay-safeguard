@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { getPaymentMethods } from '@/data/cameroonPaymentProviders';
+import { getPaymentMethodById, getProviderById } from '@/data/cameroonPaymentProviders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCountries } from '@/hooks/useCountries';
+import { getProviderOptions } from '@/utils/paymentUtils';
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
@@ -42,14 +43,14 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     setActiveTab(value);
     
     // Get the first provider for this payment method
-    const providers = getPaymentMethods(countryCode, value);
+    const providers = getProviderOptions(value, countryCode);
     if (providers && providers.length > 0) {
       onSelect(value, providers[0].id);
     }
   };
 
   const renderPaymentMethodContent = (methodId: string) => {
-    const providers = getPaymentMethods(countryCode, methodId);
+    const providers = getProviderOptions(methodId, countryCode);
     
     if (!providers || providers.length === 0) {
       return <p className="text-sm text-muted-foreground py-2">No providers available</p>;

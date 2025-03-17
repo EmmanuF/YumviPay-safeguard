@@ -18,7 +18,7 @@ const FavoriteRecipients: React.FC<FavoriteRecipientsProps> = ({
   transactionData,
   updateTransactionData,
 }) => {
-  const { recipients, isLoading } = useRecipients();
+  const { recipients, loading } = useRecipients();
   const [favoriteRecipients, setFavoriteRecipients] = useState<any[]>([]);
   
   useEffect(() => {
@@ -29,7 +29,7 @@ const FavoriteRecipients: React.FC<FavoriteRecipientsProps> = ({
     }
   }, [recipients]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <Card className="mb-4">
         <CardHeader>
