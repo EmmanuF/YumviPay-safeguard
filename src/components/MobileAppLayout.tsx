@@ -1,11 +1,11 @@
 
 import React, { ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import OfflineBanner from './OfflineBanner';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import BottomNavigation from './BottomNavigation';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -33,9 +33,11 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
       
       <main className="flex-1 overflow-auto overscroll-none">
         <AnimatePresence mode="wait">
-          {children || <Outlet />}
+          {children}
         </AnimatePresence>
       </main>
+      
+      {!isHome && <BottomNavigation />}
       
       <Toaster 
         position="top-center"

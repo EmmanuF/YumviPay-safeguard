@@ -9,6 +9,7 @@ import { LocaleProvider } from "@/contexts/LocaleContext";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppInitializer from "@/components/AppInitializer";
+import MobileAppLayout from "@/components/MobileAppLayout";
 
 // Pages
 import Home from "./pages/Home";
@@ -46,83 +47,85 @@ function App() {
             <LocaleProvider>
               <Router>
                 <AppInitializer />
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/onboarding" element={<Onboarding />} />
+                <MobileAppLayout>
+                  <Routes>
+                    {/* Public routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/signin" element={<SignIn />} />
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="/onboarding" element={<Onboarding />} />
 
-                  {/* Protected routes */}
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/send"
-                    element={
-                      <ProtectedRoute>
-                        <SendMoney />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/history"
-                    element={
-                      <ProtectedRoute>
-                        <History />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/analytics"
-                    element={
-                      <ProtectedRoute>
-                        <Analytics />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/recipients"
-                    element={
-                      <ProtectedRoute>
-                        <Recipients />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/transaction/:id"
-                    element={
-                      <ProtectedRoute>
-                        <TransactionDetails />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/transaction-status/:id"
-                    element={
-                      <ProtectedRoute>
-                        <TransactionStatus />
-                      </ProtectedRoute>
-                    }
-                  />
+                    {/* Protected routes */}
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/send"
+                      element={
+                        <ProtectedRoute>
+                          <SendMoney />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/history"
+                      element={
+                        <ProtectedRoute>
+                          <History />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/analytics"
+                      element={
+                        <ProtectedRoute>
+                          <Analytics />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/recipients"
+                      element={
+                        <ProtectedRoute>
+                          <Recipients />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/transaction/:id"
+                      element={
+                        <ProtectedRoute>
+                          <TransactionDetails />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/transaction-status/:id"
+                      element={
+                        <ProtectedRoute>
+                          <TransactionStatus />
+                        </ProtectedRoute>
+                      }
+                    />
 
-                  {/* 404 route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                    {/* 404 route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </MobileAppLayout>
                 <Toaster />
               </Router>
             </LocaleProvider>

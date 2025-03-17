@@ -6,7 +6,6 @@ import Navigation from '@/components/home/Navigation';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';
 import AppDownload from '@/components/home/AppDownload';
-import BottomNavigation from '@/components/BottomNavigation';
 import PageTransition from '@/components/PageTransition';
 
 const Home = () => {
@@ -44,8 +43,6 @@ const Home = () => {
             <AppDownload />
           </motion.div>
         </div>
-        
-        <BottomNavigation />
       </div>
     </PageTransition>
   );
