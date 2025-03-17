@@ -1,16 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import CountryPaymentMethods from './payment/CountryPaymentMethods';
-import RecurringPaymentOption from './payment/RecurringPaymentOption';
-import FavoriteRecipients from './payment/FavoriteRecipients';
-import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
-import NameMatchConfirmation from './payment/NameMatchConfirmation';
 import { useCountries } from '@/hooks/useCountries';
-import { createRecurringPayment } from '@/services/recurringPayments';
+import PaymentMethodSelection from './payment-step/PaymentMethodSelection';
+import PaymentOptionsPanel from './payment-step/PaymentOptionsPanel';
+import RecurringPaymentPanel from './payment-step/RecurringPaymentPanel';
+import PaymentStepActions from './payment-step/PaymentStepActions';
+import { validatePaymentSelection, setupRecurringPayment } from './payment-step/validatePaymentSelection';
 
 interface PaymentStepProps {
   transactionData: {
@@ -66,67 +63,48 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     });
   };
 
-  const handleContinue = async () => {
-    if (transactionData.paymentMethod && comingSoonMethods.includes(transactionData.paymentMethod)) {
-      toast({
-        title: "Coming Soon",
-        description: "This payment method will be available soon. Please select Mobile Money for now.",
-        variant: "default",
-      });
-      return;
+  const handleConfirmationChange = (checked: boolean) => {
+    setIsDetailsConfirmed(checked);
+    if (checked) {
+      setShowConfirmationError(false);
     }
-    
-    if (transactionData.selectedProvider && comingSoonProviders.includes(transactionData.selectedProvider)) {
-      toast({
-        title: "Coming Soon",
-        description: "This payment provider will be available soon. Please select MTN Mobile Money or Orange Money.",
-        variant: "default",
-      });
-      return;
-    }
+  };
 
-    if (!transactionData.paymentMethod || !transactionData.selectedProvider) {
-      toast({
-        title: "Payment method required",
-        description: "Please select a payment method to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleContinue = async () => {
+    // Validate the payment selection
+    const validationResult = validatePaymentSelection(
+      transactionData.paymentMethod,
+      transactionData.selectedProvider,
+      isDetailsConfirmed,
+      comingSoonMethods,
+      comingSoonProviders
+    );
     
-    if (!isDetailsConfirmed) {
-      setShowConfirmationError(true);
-      toast({
-        title: "Confirmation required",
-        description: "Please confirm that the recipient details match what's registered with the payment provider.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (isRecurring && transactionData.recipient) {
-      try {
-        await createRecurringPayment(
-          transactionData.recipient,
-          transactionData.amount.toString(),
-          transactionData.targetCurrency,
-          transactionData.paymentMethod,
-          transactionData.selectedProvider || '',
-          recurringFrequency
-        );
-        
-        toast({
-          title: "Recurring payment scheduled",
-          description: `Your payment will be processed ${recurringFrequency} until cancelled.`,
-        });
-      } catch (error) {
-        console.error('Error setting up recurring payment:', error);
-        toast({
-          title: "Couldn't schedule recurring payment",
-          description: "We'll still process this one-time payment.",
-          variant: "destructive",
-        });
+    if (!validationResult.isValid) {
+      if (validationResult.errorToast) {
+        toast(validationResult.errorToast);
       }
+      
+      if (!isDetailsConfirmed) {
+        setShowConfirmationError(true);
+      }
+      
+      return;
+    }
+    
+    // Set up recurring payment if needed
+    if (isRecurring) {
+      const recurringResult = await setupRecurringPayment(
+        isRecurring,
+        transactionData,
+        recurringFrequency
+      );
+      
+      toast({
+        title: recurringResult.success ? "Recurring payment scheduled" : "Couldn't schedule recurring payment",
+        description: recurringResult.message,
+        variant: recurringResult.success ? "default" : "destructive",
+      });
     }
     
     onNext();
@@ -140,22 +118,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
-    }
-  };
-
-  const handleConfirmationChange = (checked: boolean) => {
-    setIsDetailsConfirmed(checked);
-    if (checked) {
-      setShowConfirmationError(false);
-    }
-  };
-
   return (
     <motion.div
       variants={containerVariants}
@@ -163,69 +125,36 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       animate="visible"
       className="space-y-6"
     >
-      <motion.div variants={itemVariants}>
-        <h2 className="text-xl font-bold mb-4">Select Payment Method</h2>
-        
-        <FavoriteRecipients
-          transactionData={transactionData}
-          updateTransactionData={updateTransactionData}
-        />
-        
-        <PreferredPaymentMethods
-          preferredMethods={preferredMethods}
-          countryCode={transactionData.recipientCountry || 'CM'}
-          selectedCountry={selectedCountry}
-          transactionData={transactionData}
-          updateTransactionData={updateTransactionData}
-        />
-        
-        <Card className="overflow-hidden mb-4">
-          <CountryPaymentMethods
-            countryCode={transactionData.recipientCountry || 'CM'}
-            selectedPaymentMethod={transactionData.paymentMethod}
-            selectedProvider={transactionData.selectedProvider}
-            onSelect={(method, provider) => {
-              updateTransactionData({
-                paymentMethod: method,
-                selectedProvider: provider
-              });
-            }}
-          />
-        </Card>
-        
-        {transactionData.paymentMethod && transactionData.selectedProvider && transactionData.recipientName && (
-          <NameMatchConfirmation 
-            isChecked={isDetailsConfirmed}
-            onCheckedChange={handleConfirmationChange}
-            showError={showConfirmationError}
-          />
-        )}
-        
-        <RecurringPaymentOption
-          transactionData={transactionData}
-          onRecurringChange={handleRecurringChange}
-        />
-      </motion.div>
+      {/* Payment options panel with favorites and preferred methods */}
+      <PaymentOptionsPanel
+        transactionData={transactionData}
+        updateTransactionData={updateTransactionData}
+        preferredMethods={preferredMethods}
+        selectedCountry={selectedCountry}
+      />
       
-      <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
-        <Button 
-          variant="outline"
-          onClick={onBack} 
-          className="w-1/2" 
-          size="lg"
-          disabled={isSubmitting}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </Button>
-        <Button 
-          onClick={handleContinue} 
-          className="w-1/2" 
-          size="lg"
-          disabled={isSubmitting || !transactionData.paymentMethod}
-        >
-          Continue <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </motion.div>
+      {/* Payment method selection */}
+      <PaymentMethodSelection
+        transactionData={transactionData}
+        updateTransactionData={updateTransactionData}
+        isDetailsConfirmed={isDetailsConfirmed}
+        onConfirmationChange={handleConfirmationChange}
+        showConfirmationError={showConfirmationError}
+      />
+      
+      {/* Recurring payment options */}
+      <RecurringPaymentPanel
+        transactionData={transactionData}
+        onRecurringChange={handleRecurringChange}
+      />
+      
+      {/* Navigation buttons */}
+      <PaymentStepActions
+        onNext={handleContinue}
+        onBack={onBack}
+        isSubmitting={isSubmitting}
+        isPaymentMethodSelected={!!transactionData.paymentMethod}
+      />
     </motion.div>
   );
 };
