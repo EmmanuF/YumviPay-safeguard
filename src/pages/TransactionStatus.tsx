@@ -68,7 +68,7 @@ const TransactionStatus = () => {
         
         // Add notification for completed transactions
         if (fetchedTransaction && fetchedTransaction.status === 'completed') {
-          // Convert to number if needed for notification
+          // Convert amount to number for notification
           const amount = safeParseNumber(fetchedTransaction.amount);
             
           addNotification({
@@ -221,7 +221,8 @@ const TransactionStatus = () => {
         recipientName: transaction.recipientName,
         recipientContact: transaction.recipientContact,
         transactionId: transaction.id,
-        amount: transaction.amount,
+        // Fix: Convert amount to number with safeParseNumber
+        amount: safeParseNumber(transaction.amount),
         notificationType: transaction.status === 'completed' 
           ? 'transaction_completed' 
           : transaction.status === 'failed' 
