@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Camera } from '@capacitor/camera';
+import { Camera, CameraPermissionState } from '@capacitor/camera';
 import { isPlatform } from '@/utils/platformUtils';
 
 interface UseQRCodeOptions {
@@ -21,8 +21,8 @@ export const useQRCode = (options: UseQRCodeOptions = {}) => {
     const checkPermissions = async () => {
       if (isPlatform('capacitor')) {
         try {
-          const { camera } = await Camera.checkPermissions();
-          if (camera !== 'granted') {
+          const permissionStatus = await Camera.checkPermissions();
+          if (permissionStatus.camera !== 'granted') {
             console.log('Camera permission not granted. Will request when needed.');
           }
         } catch (err) {

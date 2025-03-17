@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { isPlatform } from '@/utils/platformUtils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -45,8 +45,8 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = ({
         const image = await Camera.getPhoto({
           quality: 90,
           allowEditing: false,
-          resultType: 'base64',
-          source: 'CAMERA'
+          resultType: CameraResultType.Base64,
+          source: CameraSource.Camera
         });
         
         if (image.base64String) {
