@@ -115,12 +115,12 @@ const SendMoney = () => {
     />;
   }
 
-  // If there's a transaction error, show it - fixing the null check
-  if (transactionError) {
-    // Ensure the error is always a string
+  // Fix for TS18047: Add proper null/undefined check for transactionError
+  if (transactionError !== null && transactionError !== undefined) {
+    // Fix for TS2322: Ensure error message is always a string before passing to LoadingState
     const errorMessage = typeof transactionError === 'object' 
       ? (transactionError.message || 'Unknown error') 
-      : String(transactionError);
+      : String(transactionError); // Convert to string explicitly
       
     return <LoadingState 
       message="Error loading transaction data" 
