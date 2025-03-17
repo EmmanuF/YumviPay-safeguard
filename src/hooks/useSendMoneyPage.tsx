@@ -17,16 +17,13 @@ export const useSendMoneyPage = () => {
   
   // Check authentication status
   useEffect(() => {
-    console.log('SendMoney: Checking auth status...', { authLoading });
+    console.log('SendMoney: Checking auth status...', { authLoading, isLoggedIn });
     
-    const timer = setTimeout(() => {
-      if (!authLoading) {
-        console.log('SendMoney: Auth check complete:', { isLoggedIn });
-        setAuthChecked(true);
-      }
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    // Don't use setTimeout to avoid potential race conditions
+    if (!authLoading) {
+      console.log('SendMoney: Auth check complete:', { isLoggedIn });
+      setAuthChecked(true);
+    }
   }, [authLoading, isLoggedIn]);
 
   // Redirect to login if not authenticated
@@ -39,6 +36,12 @@ export const useSendMoneyPage = () => {
         variant: "default"
       });
       navigate('/signin', { state: { redirectTo: '/send' } });
+    }
+    
+    // Set pageLoading to false once auth is checked (regardless of result)
+    if (authChecked) {
+      console.log('SendMoney: Auth check finished, setting pageLoading to false');
+      setPageLoading(false);
     }
   }, [authChecked, isLoggedIn, authLoading, navigate]);
 

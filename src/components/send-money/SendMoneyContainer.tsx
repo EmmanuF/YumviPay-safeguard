@@ -32,6 +32,18 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
   
   // Combined error state
   const combinedError = error || transactionError || stepError;
+
+  // Debug log for component state
+  useEffect(() => {
+    console.log('SendMoneyContainer rendering with states:', {
+      isLoading,
+      needsInitialData,
+      error: error ? true : false,
+      transactionError: transactionError ? true : false,
+      isInitialized,
+      currentStep
+    });
+  }, [isLoading, needsInitialData, error, transactionError, isInitialized, currentStep]);
   
   // Format error message for display
   const getErrorMessage = (err: string | Error | null): string => {
@@ -55,7 +67,8 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
   };
 
   // Show loading state if necessary
-  if (isLoading) {
+  // Set a maximum loading time of 10 seconds to prevent infinite loading
+  if (isLoading && !isInitialized) {
     return <LoadingState 
       message="Preparing your transaction..." 
       submessage="Please wait while we fetch your data"

@@ -17,6 +17,15 @@ const SendMoney = () => {
   
   const [error, setError] = useState<string | Error | null>(null);
   
+  useEffect(() => {
+    console.log('SendMoney page rendering with states:', { 
+      authLoading, 
+      authChecked, 
+      pageLoading, 
+      needsInitialData 
+    });
+  }, [authLoading, authChecked, pageLoading, needsInitialData]);
+  
   // Handler for continuing after selecting amount and currencies
   const handleInitialDataContinue = () => {
     console.log('Initial data continue handler called');

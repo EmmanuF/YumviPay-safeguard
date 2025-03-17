@@ -25,6 +25,12 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
   const defaultCountry = countries.find(c => c.code === defaultCountryCode) || 
                          countries.find(c => c.code === 'CM');
   
+  console.log('useSendMoneyTransaction initialized with country:', { 
+    defaultCountryCode,
+    defaultCountry,
+    countriesLoaded: countries.length > 0
+  });
+  
   const [transactionData, setTransactionData] = useState<TransactionData>({
     amount: 0,
     sourceCurrency: 'USD',
@@ -41,46 +47,48 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
 
   // Load pending transaction from localStorage if available
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        // First try to get the processed transaction from the refactored flow
-        const processedPendingTransaction = localStorage.getItem('processedPendingTransaction');
-        const pendingTransaction = processedPendingTransaction || localStorage.getItem('pendingTransaction');
-        
-        if (pendingTransaction) {
-          try {
-            const data = JSON.parse(pendingTransaction);
-            console.log('Found pending transaction:', data);
-            
-            // Find the country with matching currency code
-            const targetCountry = countries.find(c => c.currency === data.targetCurrency)?.code || 'CM';
-            
-            setTransactionData(prev => ({
-              ...prev,
-              amount: parseFloat(data.amount) || 0,
-              sourceCurrency: data.sourceCurrency || 'USD',
-              targetCurrency: data.targetCurrency || 'XAF',
-              targetCountry,
-              convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 0,
-            }));
-            
-            // Clear the pending transaction data
-            localStorage.removeItem('pendingTransaction');
-            localStorage.removeItem('processedPendingTransaction');
-          } catch (error) {
-            console.error('Error parsing pending transaction:', error);
-            setError('Failed to load transaction data. Please try again.');
-          }
-        }
-      } catch (err) {
-        console.error('Error in transaction initialization:', err);
-        setError('An error occurred while loading transaction data. Please refresh the page.');
-      } finally {
-        setInitialDataLoaded(true);
-      }
-    }, 100);
+    console.log('Transaction data initialization running, countries loaded:', countries.length);
     
-    return () => clearTimeout(timer);
+    try {
+      // First try to get the processed transaction from the refactored flow
+      const processedPendingTransaction = localStorage.getItem('processedPendingTransaction');
+      const pendingTransaction = processedPendingTransaction || localStorage.getItem('pendingTransaction');
+      
+      if (pendingTransaction) {
+        try {
+          const data = JSON.parse(pendingTransaction);
+          console.log('Found pending transaction:', data);
+          
+          // Find the country with matching currency code
+          const targetCountry = countries.find(c => c.currency === data.targetCurrency)?.code || 'CM';
+          
+          setTransactionData(prev => ({
+            ...prev,
+            amount: parseFloat(data.amount) || 0,
+            sourceCurrency: data.sourceCurrency || 'USD',
+            targetCurrency: data.targetCurrency || 'XAF',
+            targetCountry,
+            convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 0,
+          }));
+          
+          // Clear the pending transaction data
+          localStorage.removeItem('pendingTransaction');
+          localStorage.removeItem('processedPendingTransaction');
+        } catch (error) {
+          console.error('Error parsing pending transaction:', error);
+          setError('Failed to load transaction data. Please try again.');
+        }
+      } else {
+        console.log('No pending transaction found, using default values');
+      }
+    } catch (err) {
+      console.error('Error in transaction initialization:', err);
+      setError('An error occurred while loading transaction data. Please refresh the page.');
+    } finally {
+      // Always set initialization as completed to avoid infinite loading
+      console.log('Transaction data initialization complete');
+      setInitialDataLoaded(true);
+    }
   }, [countries]);
 
   const updateTransactionData = (data: Partial<TransactionData>) => {
