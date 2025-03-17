@@ -13,7 +13,7 @@ const Dashboard = () => {
   
   // Item animation variants for staggered animations
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       y: 0,
       opacity: 1,
@@ -30,7 +30,7 @@ const Dashboard = () => {
   
   return (
     <PageTransition>
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary-50 to-white">
+      <div className="flex flex-col">
         <DashboardContainer>
           {/* Balance Card */}
           <BalanceCard 

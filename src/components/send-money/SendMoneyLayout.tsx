@@ -20,7 +20,6 @@ const SendMoneyLayout: React.FC<SendMoneyLayoutProps> = ({
     if (!currentStep) return title;
     
     switch(currentStep) {
-      // Removed 'amount' case since we're skipping that step
       case 'recipient': return 'Add Recipient';
       case 'payment': return 'Payment Method';
       case 'confirmation': return 'Confirm Transfer';
@@ -43,8 +42,7 @@ const SendMoneyLayout: React.FC<SendMoneyLayoutProps> = ({
   const stepInfo = getStepInfo();
   
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header title={stepTitle} showBackButton={true} />
+    <div className="flex flex-col min-h-full bg-background">
       <div className="flex-1 p-4">
         {stepCount && currentStep && (
           <div className="mb-6">

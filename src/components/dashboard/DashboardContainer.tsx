@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Transaction } from '@/types/transaction';
 
 interface DashboardContainerProps {
   children: React.ReactNode;
