@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavItem {
   name: string;
@@ -18,6 +19,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isLoggedIn } = useAuth();
   const [isNavigating, setIsNavigating] = useState(false);
   
   const navItems: NavItem[] = [
@@ -71,7 +73,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       if (onGetStarted) {
         onGetStarted();
       } else {
-        navigate('/signin');
+        // If already logged in, navigate to dashboard instead of sign in
+        navigate(isLoggedIn ? '/dashboard' : '/signin');
       }
       setTimeout(() => setIsNavigating(false), 400);
     }, 50);
@@ -108,13 +111,23 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => handleNavigation('/signin')}
-            className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
-            disabled={isNavigating}
-          >
-            Sign In
-          </button>
+          {!isLoggedIn ? (
+            <button
+              onClick={() => handleNavigation('/signin')}
+              className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+              disabled={isNavigating}
+            >
+              Sign In
+            </button>
+          ) : (
+            <button
+              onClick={() => handleNavigation('/profile')}
+              className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+              disabled={isNavigating}
+            >
+              Profile
+            </button>
+          )}
           
           <button
             onClick={handleStarted}
@@ -124,7 +137,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             )}
             disabled={isNavigating}
           >
-            Get Started
+            {isLoggedIn ? "Dashboard" : "Get Started"}
           </button>
         </div>
       </div>
