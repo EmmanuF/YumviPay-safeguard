@@ -3,7 +3,8 @@ import { RequestOptions, defaultOptions } from './types';
 import { timeoutRequest } from './utils';
 import { getCachedData, setCachedData, isCacheValid } from './cache';
 import { createNetworkError, handleNetworkError } from '@/utils/errorHandling';
-import { retryWithBackoff } from '@/utils/networkUtils';
+import { retryWithBackoff, isOffline, addPausedRequest } from '@/utils/networkUtils';
+import { isPlatform } from '@/utils/platformUtils';
 
 // Main API request function
 export async function apiRequest<T = any>(
@@ -19,18 +20,21 @@ export async function apiRequest<T = any>(
     retry, 
     maxRetries, 
     retryDelay,
+    forceNetwork = false,
+    queueOffline = true,
     ...fetchOptions 
   } = mergedOptions;
   
   const requestKey = cacheKey || `${url}_${JSON.stringify(fetchOptions)}`;
+  const isDeviceOffline = isOffline();
   
   // Try to get from cache if offline or if cacheable is true
-  if (!navigator.onLine || cacheable) {
+  if ((isDeviceOffline && !forceNetwork) || cacheable) {
     try {
       const cachedResponse = await getCachedData(requestKey);
       
       if (cachedResponse && (
-        !navigator.onLine || 
+        (isDeviceOffline && !forceNetwork) || 
         (cacheTTL && isCacheValid(cachedResponse, cacheTTL))
       )) {
         console.info('Using cached response for:', url);
@@ -41,7 +45,19 @@ export async function apiRequest<T = any>(
     }
     
     // If offline and no cache available, throw a connection error
-    if (!navigator.onLine) {
+    if (isDeviceOffline && !forceNetwork) {
+      // If we should queue this request for later, do so
+      if (queueOffline) {
+        console.log(`Queueing offline request: ${url}`);
+        
+        // Queue the request to be executed when back online
+        addPausedRequest(() => apiRequest(url, {
+          ...options,
+          queueOffline: false, // Prevent re-queueing
+          forceNetwork: true // Force network when retrying
+        }));
+      }
+      
       throw createNetworkError(
         'You are currently offline and no cached data is available. Please check your internet connection.',
         'connection-error'
@@ -81,13 +97,26 @@ export async function apiRequest<T = any>(
       data = await fetchFn();
     }
     
-    // Cache the successful response if cacheable
-    if (cacheable) {
+    // Cache the successful response if cacheable or on native platform
+    // Native apps benefit more from aggressive caching
+    if (cacheable || isPlatform('capacitor')) {
       await setCachedData(requestKey, data);
     }
     
     return data;
   } catch (error) {
+    // If network error and queueOffline is true, queue the request for later
+    if (queueOffline && error.name === 'connection-error') {
+      console.log(`Adding failed request to queue: ${url}`);
+      
+      // Queue the request to be executed when back online
+      addPausedRequest(() => apiRequest(url, {
+        ...options,
+        queueOffline: false, // Prevent re-queueing
+        forceNetwork: true // Force network when retrying
+      }));
+    }
+    
     throw handleNetworkError(error);
   }
 }

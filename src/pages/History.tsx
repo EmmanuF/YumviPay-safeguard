@@ -7,12 +7,34 @@ import { Transaction } from '@/types/transaction';
 import { TransactionsList } from '@/components/history';
 import SearchAndFilter from '@/components/history/SearchAndFilter';
 import { useTransactionFilters } from '@/hooks/useTransactionFilters';
-import { getHistoryMockTransactions } from '@/data/historyMockTransactions';
+import { useNetwork } from '@/contexts/NetworkContext';
+import { useOfflineQuery } from '@/hooks/useOfflineQuery';
+import { getAllTransactions } from '@/services/transaction';
+import { OfflineStatus } from '@/components/offline';
 
 const History = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const { isOffline, offlineModeActive } = useNetwork();
+  
+  // Use offline-ready query for transactions
+  const { 
+    data: transactions = [], 
+    isLoading, 
+    isOfflineData,
+    refetch 
+  } = useOfflineQuery<Transaction[]>(
+    ['transactions', 'history'],
+    getAllTransactions,
+    {
+      offlineData: [],
+      showOfflineToast: isOffline || offlineModeActive,
+      offlineToastMessage: isOffline 
+        ? "You're offline. Showing saved transactions."
+        : "Offline mode active. Showing saved transactions.",
+      persistOfflineData: true,
+      storageKey: 'transaction_history',
+    }
+  );
   
   // Use our custom hook for filtering
   const {
@@ -30,24 +52,6 @@ const History = () => {
     uniqueCountries,
     hasActiveFilters
   } = useTransactionFilters(transactions);
-  
-  useEffect(() => {
-    // Simulate loading transaction data
-    const fetchTransactions = async () => {
-      try {
-        // In a real app, we would fetch from an API
-        // For now, use our mock data
-        const mockTransactions = getHistoryMockTransactions();
-        setTransactions(mockTransactions);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching transactions:', error);
-        setIsLoading(false);
-      }
-    };
-    
-    fetchTransactions();
-  }, []);
   
   const handleTransactionClick = (transactionId: string) => {
     window.location.href = `/transaction/${transactionId}`;
@@ -74,6 +78,26 @@ const History = () => {
           animate="visible"
           className="max-w-md mx-auto"
         >
+          {/* Offline Status */}
+          {(isOffline || offlineModeActive) && (
+            <OfflineStatus className="mb-4" />
+          )}
+          
+          {/* Offline Data Indicator */}
+          {isOfflineData && !isOffline && !offlineModeActive && (
+            <div className="mb-4 text-sm bg-blue-50 p-3 rounded-md flex items-center">
+              <span className="text-blue-600">
+                Showing offline data. 
+                <button 
+                  onClick={() => refetch()} 
+                  className="ml-1 underline"
+                >
+                  Refresh
+                </button>
+              </span>
+            </div>
+          )}
+          
           {/* Search and Filter Component */}
           <SearchAndFilter
             searchQuery={searchQuery}

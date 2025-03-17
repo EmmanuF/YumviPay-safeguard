@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNetworkStatus as useDeviceNetworkStatus } from '@/hooks/useNetworkStatus';
 import { toast } from 'sonner';
+import { clearApiCache } from '@/services/api/cache';
 
 type NetworkContextType = {
   isOffline: boolean;
@@ -12,6 +13,8 @@ type NetworkContextType = {
   syncOfflineData: () => Promise<boolean>;
   lastSyncTime: Date | null;
   pendingOperationsCount: number;
+  isSyncing: boolean;
+  offlineSince: Date | null;
 };
 
 interface NetworkProviderProps {
@@ -24,25 +27,71 @@ const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 const pausedRequests: (() => Promise<any>)[] = [];
 
 export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) => {
-  const { isOnline } = useDeviceNetworkStatus();
+  const { isOnline, lastOnlineAt } = useDeviceNetworkStatus();
   const [isOffline, setIsOffline] = useState(!isOnline);
   const [offlineModeActive, setOfflineModeActive] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [pendingOperationsCount, setPendingOperationsCount] = useState(pausedRequests.length);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [offlineSince, setOfflineSince] = useState<Date | null>(null);
 
+  // Effect to handle network status changes
   useEffect(() => {
     setIsOffline(!isOnline);
     
     // If coming back online, notify the user
     if (isOnline && isOffline) {
       toast.info('Your connection has been restored');
+      setOfflineSince(null);
+      // Automatically attempt to sync if there are pending operations
+      if (pausedRequests.length > 0 && !offlineModeActive) {
+        syncOfflineData();
+      }
     } else if (!isOnline && !isOffline) {
       toast.warning('You are now offline');
+      setOfflineSince(new Date());
     }
     
     // Update pending operations count
     setPendingOperationsCount(pausedRequests.length);
   }, [isOnline, isOffline]);
+
+  // Load offline status from storage on mount
+  useEffect(() => {
+    const loadOfflineMode = async () => {
+      try {
+        const { Preferences } = await import('@capacitor/preferences');
+        const { value } = await Preferences.get({ key: 'offlineModeActive' });
+        if (value) {
+          setOfflineModeActive(value === 'true');
+        }
+      } catch (error) {
+        console.error('Failed to load offline mode status:', error);
+      }
+    };
+
+    loadOfflineMode();
+
+    // If we start with pending requests, set initial pending count
+    setPendingOperationsCount(pausedRequests.length);
+  }, []);
+
+  // Save offline mode status when it changes
+  useEffect(() => {
+    const saveOfflineMode = async () => {
+      try {
+        const { Preferences } = await import('@capacitor/preferences');
+        await Preferences.set({
+          key: 'offlineModeActive',
+          value: offlineModeActive.toString(),
+        });
+      } catch (error) {
+        console.error('Failed to save offline mode status:', error);
+      }
+    };
+
+    saveOfflineMode();
+  }, [offlineModeActive]);
 
   // Function to manually sync offline data
   const syncOfflineData = async (): Promise<boolean> => {
@@ -59,6 +108,8 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
     try {
       console.log(`Processing ${pausedRequests.length} queued requests`);
       toast.info(`Syncing ${pausedRequests.length} pending operations`);
+      
+      setIsSyncing(true);
       
       // Create a copy of the requests to process
       const requestsToProcess = [...pausedRequests];
@@ -85,7 +136,11 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
       setPendingOperationsCount(pausedRequests.length);
       
       // Update last sync time
-      setLastSyncTime(new Date());
+      const syncTime = new Date();
+      setLastSyncTime(syncTime);
+      
+      // Clear API cache to ensure fresh data on next fetch
+      await clearApiCache();
       
       // Show success/failure message
       if (failureCount === 0) {
@@ -94,25 +149,45 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
         toast.warning(`Synced ${successCount} operations, ${failureCount} failed`);
       }
       
+      // If we're in offline mode but back online with successful sync, 
+      // ask if the user wants to exit offline mode
+      if (offlineModeActive && failureCount === 0) {
+        const exitOfflineMode = window.confirm(
+          'All operations have been synced. Do you want to exit offline mode?'
+        );
+        
+        if (exitOfflineMode) {
+          setOfflineModeActive(false);
+        }
+      }
+      
       return failureCount === 0;
     } catch (error) {
       console.error('Error syncing offline data:', error);
       toast.error('Failed to sync offline data');
       return false;
+    } finally {
+      setIsSyncing(false);
     }
   };
 
-  // Automatically sync when coming back online
-  useEffect(() => {
-    if (isOnline && pausedRequests.length > 0) {
-      syncOfflineData();
-    }
-  }, [isOnline]);
-
   // Function to toggle offline mode manually
   const toggleOfflineMode = () => {
-    setOfflineModeActive(!offlineModeActive);
-    toast.info(!offlineModeActive ? 'Offline mode activated' : 'Offline mode deactivated');
+    const newMode = !offlineModeActive;
+    setOfflineModeActive(newMode);
+    
+    toast.info(newMode ? 'Offline mode activated' : 'Offline mode deactivated');
+    
+    // If turning off offline mode and we have pending requests, ask to sync
+    if (!newMode && pausedRequests.length > 0 && isOnline) {
+      const shouldSync = window.confirm(
+        `You have ${pausedRequests.length} pending operations. Do you want to sync them now?`
+      );
+      
+      if (shouldSync) {
+        syncOfflineData();
+      }
+    }
   };
 
   // Function to add a request to the queue
@@ -131,7 +206,9 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
       toggleOfflineMode,
       syncOfflineData,
       lastSyncTime,
-      pendingOperationsCount
+      pendingOperationsCount,
+      isSyncing,
+      offlineSince
     }}>
       {children}
     </NetworkContext.Provider>
