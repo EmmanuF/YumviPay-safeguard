@@ -34,17 +34,17 @@ const Home = () => {
     <PageTransition>
       <div className="min-h-screen">
         {/* First section with diagonal purple header and yellow background */}
-        <div className="relative">
-          {/* Diagonal purple header design - with increased z-index and height */}
-          <div className="absolute top-0 left-0 right-0 h-32 overflow-hidden z-10">
+        <div className="relative overflow-visible">
+          {/* Purple header - positioned ABOVE the yellow content */}
+          <div className="absolute top-0 left-0 right-0 h-32 z-20">
             <div className="absolute top-0 left-0 right-0 h-20 bg-primary-600"></div>
             <div className="absolute top-0 left-0 right-0 h-32">
               <div className="absolute bottom-0 left-0 right-0 h-20 bg-primary-500 transform skew-y-6 origin-right"></div>
             </div>
           </div>
           
-          {/* Yellow background section - with higher z-index and padding to account for header */}
-          <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-20">
+          {/* Yellow background section - positioned BELOW the purple header */}
+          <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-10 mt-8">
             <Navigation onGetStarted={handleGetStarted} />
             <Hero onGetStarted={handleGetStarted} />
           </div>

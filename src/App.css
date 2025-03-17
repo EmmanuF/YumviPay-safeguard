@@ -1,3 +1,4 @@
+
 #root {
   max-width: 100%;
   margin: 0 auto;
@@ -142,8 +143,8 @@
 /* Home page diagonal purple header - enhanced with stronger colors and higher contrast */
 .home-purple-header {
   position: relative;
-  overflow: hidden;
-  z-index: 15;
+  overflow: visible;
+  z-index: 25;
 }
 
 .home-purple-header::before {
@@ -164,7 +165,7 @@
   right: 0;
   height: 40px;
   background-color: #8250ED;
-  transform: skewY(-4deg);
+  transform: skew-y(-4deg);
   transform-origin: right;
 }
 
@@ -176,7 +177,8 @@
   left: 0;
   right: 0;
   height: 4rem;
-  z-index: 5;
+  z-index: 25;
+  pointer-events: none;
 }
 
 .homepage-header-diagonal {
@@ -186,7 +188,9 @@
   right: 0;
   height: 2.5rem;
   background-color: #8250ED;
-  transform: skewY(-6deg);
+  transform: skew-y(-6deg);
   transform-origin: right;
-  z-index: 5;
+  z-index: 25;
+  pointer-events: none;
 }
+
