@@ -1,7 +1,8 @@
 
+import React, { useState, useEffect } from 'react';
 import { Device } from '@capacitor/device';
 import { Preferences } from '@capacitor/preferences';
-import { NativeBiometric } from 'capacitor-native-biometric';
+import { NativeBiometric, BiometricOptions } from 'capacitor-native-biometric';
 
 const BIOMETRIC_ENABLED_KEY = 'biometric_auth_enabled';
 const BIOMETRIC_CREDENTIALS_PREFIX = 'bio_cred_';
@@ -118,15 +119,19 @@ export const BiometricService = {
         return false;
       }
       
-      // Request biometric authentication
-      const result = await NativeBiometric.verifyIdentity({
+      // Request biometric authentication with correct options
+      const options: BiometricOptions = {
         reason: 'Verify your identity',
         title: 'Biometric Authentication',
         subtitle: 'Use your fingerprint or face to authenticate',
-        cancelButtonTitle: 'Cancel',
-      });
+      };
       
-      return result.verified;
+      // NativeBiometric.verifyIdentity returns void when successful
+      // It throws an error when authentication fails
+      await NativeBiometric.verifyIdentity(options);
+      
+      // If we reach this point, authentication was successful
+      return true;
     } catch (error) {
       console.error('Error during biometric authentication:', error);
       return false;
@@ -153,11 +158,11 @@ export const BiometricService = {
  * Custom hook for biometric authentication
  */
 export const useBiometricAuth = () => {
-  const [isAvailable, setIsAvailable] = React.useState(false);
-  const [isEnabled, setIsEnabled] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const checkBiometricStatus = async () => {
       try {
         setIsLoading(true);

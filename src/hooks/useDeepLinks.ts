@@ -63,13 +63,21 @@ export const useDeepLinks = (onDeepLink?: (data: DeepLinkParams) => void) => {
     });
 
     // Listen for deep links while app is active
-    const listener = App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+    let listenerCleanup: (() => void) | undefined;
+    
+    // The addListener method returns a promise that resolves to a PluginListenerHandle
+    App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       handleDeepLink(event.url);
+    }).then(listener => {
+      // Store the remove function for cleanup
+      listenerCleanup = () => listener.remove();
     });
 
     // Cleanup
     return () => {
-      listener.remove();
+      if (listenerCleanup) {
+        listenerCleanup();
+      }
     };
   }, [handleDeepLink]);
 
