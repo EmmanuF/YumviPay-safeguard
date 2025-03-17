@@ -66,7 +66,9 @@ export const createTransaction = (
   amount: string,
   recipient: Recipient,
   paymentMethod: string,
-  provider?: string
+  provider?: string,
+  isRecurring: boolean = false,
+  recurringPaymentId?: string
 ): Transaction => {
   const { isOffline, addPausedRequest } = getNetworkStatus();
   const fee = calculateFee(amount, recipient.country);
@@ -87,7 +89,9 @@ export const createTransaction = (
     createdAt: new Date(),
     updatedAt: new Date(),
     estimatedDelivery: getEstimatedDelivery(recipient.country, paymentMethod),
-    totalAmount
+    totalAmount,
+    isRecurring: isRecurring,
+    recurringPaymentId
   };
   
   if (isOffline) {
@@ -119,7 +123,9 @@ export const createTransaction = (
             estimated_delivery: transaction.estimatedDelivery,
             total_amount: typeof transaction.totalAmount === 'number' 
               ? transaction.totalAmount.toString() 
-              : transaction.totalAmount
+              : transaction.totalAmount,
+            is_recurring: transaction.isRecurring,
+            recurring_payment_id: transaction.recurringPaymentId
           })
           .select()
           .single();
@@ -171,7 +177,9 @@ export const createTransaction = (
           estimated_delivery: transaction.estimatedDelivery,
           total_amount: typeof transaction.totalAmount === 'number' 
             ? transaction.totalAmount.toString() 
-            : transaction.totalAmount
+            : transaction.totalAmount,
+          is_recurring: transaction.isRecurring,
+          recurring_payment_id: transaction.recurringPaymentId
         })
         .select()
         .single();

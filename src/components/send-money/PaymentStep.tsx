@@ -1,189 +1,190 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { usePaymentStep } from '@/hooks/usePaymentStep';
-import { useToast } from '@/hooks/use-toast';
-import PaymentMethodList from './PaymentMethodList';
-import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
-import SavePreferenceToggle from './payment/SavePreferenceToggle';
-import PaymentStepNavigation from './payment/PaymentStepNavigation';
-import PaymentLoadingState from './payment/PaymentLoadingState';
-import { handlePaymentPreference, isNextButtonDisabled, getProviderOptions } from '@/utils/paymentUtils';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Info } from 'lucide-react';
-import QRCodeOption from './payment/QRCodeOption';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
+import CountryPaymentMethods from './payment/CountryPaymentMethods';
+import RecurringPaymentOption from './payment/RecurringPaymentOption';
+import FavoriteRecipients from './payment/FavoriteRecipients';
+import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
+import { useCountries } from '@/hooks/useCountries';
+import { createRecurringPayment } from '@/services/recurringPayments';
 
 interface PaymentStepProps {
+  transactionData: {
+    amount: number;
+    sourceCurrency: string;
+    targetCurrency: string;
+    convertedAmount: number;
+    recipient: string | null;
+    recipientName?: string;
+    recipientCountry?: string;
+    paymentMethod: string | null;
+    selectedProvider?: string;
+  };
+  updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
   onBack: () => void;
-  transactionData: any;
-  updateTransactionData: (data: Partial<any>) => void;
-  isSubmitting: boolean;
+  isSubmitting?: boolean;
 }
 
 const PaymentStep: React.FC<PaymentStepProps> = ({
-  onNext,
-  onBack,
   transactionData,
   updateTransactionData,
-  isSubmitting,
+  onNext,
+  onBack,
+  isSubmitting = false
 }) => {
   const { toast } = useToast();
-  const {
-    isLoading,
-    countryCode,
-    selectedCountry,
-    savePreference,
-    handleToggleSavePreference
-  } = usePaymentStep({ transactionData, updateTransactionData });
+  const { getCountryByCode } = useCountries();
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [preferredMethods, setPreferredMethods] = useState<Array<{ methodId: string; providerId: string }>>([]);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState('monthly');
+  
+  useEffect(() => {
+    if (transactionData.recipientCountry) {
+      const country = getCountryByCode(transactionData.recipientCountry);
+      setSelectedCountry(country);
+    }
+  }, [transactionData.recipientCountry, getCountryByCode]);
 
-  if (isLoading) {
-    return <PaymentLoadingState />;
-  }
-
-  // Get user's preferred payment methods (if any)
-  const preferredMethods = transactionData.user?.preferences?.paymentMethods || [];
-
-  const handleContinue = () => {
-    handlePaymentPreference(savePreference, updateTransactionData);
+  const handleRecurringChange = (isRecurring: boolean, frequency: string) => {
+    setIsRecurring(isRecurring);
+    setRecurringFrequency(frequency);
     
-    // Show a toast message when continuing
-    if (transactionData.paymentMethod && transactionData.selectedProvider) {
-      const methodName = selectedCountry?.paymentMethods.find(m => m.id === transactionData.paymentMethod)?.name || "payment method";
-      const providerOptions = getProviderOptions(transactionData.paymentMethod, countryCode);
-      const providerName = providerOptions.find((p: any) => p.id === transactionData.selectedProvider)?.name || "";
-      
+    // Update transaction data with recurring info
+    updateTransactionData({
+      isRecurring,
+      recurringFrequency: isRecurring ? frequency : null
+    });
+  };
+
+  const handleContinue = async () => {
+    if (!transactionData.paymentMethod || !transactionData.selectedProvider) {
       toast({
-        title: "Payment method selected",
-        description: `You'll be using ${providerName} ${methodName} for this transaction`,
+        title: "Payment method required",
+        description: "Please select a payment method to continue.",
+        variant: "destructive",
       });
+      return;
+    }
+    
+    // Create recurring payment if enabled
+    if (isRecurring && transactionData.recipientId) {
+      try {
+        await createRecurringPayment(
+          transactionData.recipientId,
+          transactionData.amount.toString(),
+          transactionData.targetCurrency,
+          transactionData.paymentMethod,
+          transactionData.selectedProvider || '',
+          recurringFrequency
+        );
+        
+        toast({
+          title: "Recurring payment scheduled",
+          description: `Your payment will be processed ${recurringFrequency} until cancelled.`,
+        });
+      } catch (error) {
+        console.error('Error setting up recurring payment:', error);
+        toast({
+          title: "Couldn't schedule recurring payment",
+          description: "We'll still process this one-time payment.",
+          variant: "destructive",
+        });
+      }
     }
     
     onNext();
   };
 
-  const handleQRScanComplete = (qrData: any) => {
-    if (qrData && qrData.id) {
-      toast({
-        title: "QR Code Scanned",
-        description: `Transaction details loaded from QR code`,
-      });
-      
-      // Update transaction data with QR information
-      updateTransactionData({
-        qrCodeData: qrData,
-        amount: qrData.amount || transactionData.amount,
-        recipientName: qrData.recipient || transactionData.recipientName,
-      });
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="space-y-1"
-      >
-        <h2 className="text-2xl font-semibold text-gray-900">Payment Method</h2>
-        <p className="text-sm text-gray-600">
-          Choose how you would like to pay for this transaction.
-        </p>
-      </motion.div>
-
-      {/* QR Code Option */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <QRCodeOption 
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      <motion.div variants={itemVariants}>
+        <h2 className="text-xl font-bold mb-4">Select Payment Method</h2>
+        
+        {/* Favorite Recipients Section */}
+        <FavoriteRecipients
           transactionData={transactionData}
-          onScanComplete={handleQRScanComplete}
+          updateTransactionData={updateTransactionData}
         />
-      </motion.div>
-
-      {preferredMethods.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="space-y-2"
-        >
-          <h3 className="text-sm font-medium text-gray-700 flex items-center">
-            <span>Your saved payment methods</span>
-            <Info className="h-4 w-4 ml-1 text-primary-400" />
-          </h3>
-          <PreferredPaymentMethods
-            preferredMethods={preferredMethods}
-            countryCode={countryCode}
-            selectedCountry={selectedCountry}
-            transactionData={transactionData}
-            updateTransactionData={updateTransactionData}
-          />
-        </motion.div>
-      )}
-      
-      {selectedCountry && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-        >
-          <PaymentMethodList
-            paymentMethods={selectedCountry.paymentMethods || []}
-            selectedMethod={transactionData.paymentMethod}
+        
+        {/* Preferred Payment Methods */}
+        <PreferredPaymentMethods
+          preferredMethods={preferredMethods}
+          countryCode={transactionData.recipientCountry || 'CM'}
+          selectedCountry={selectedCountry}
+          transactionData={transactionData}
+          updateTransactionData={updateTransactionData}
+        />
+        
+        {/* Recurring Payment Option */}
+        <RecurringPaymentOption
+          transactionData={transactionData}
+          onRecurringChange={handleRecurringChange}
+        />
+        
+        {/* Country Payment Methods */}
+        <Card className="overflow-hidden mb-4">
+          <CountryPaymentMethods
+            countryCode={transactionData.recipientCountry || 'CM'}
+            selectedPaymentMethod={transactionData.paymentMethod}
             selectedProvider={transactionData.selectedProvider}
-            onSelect={(method) => updateTransactionData({ paymentMethod: method })}
-            onSelectProvider={(provider) => updateTransactionData({ selectedProvider: provider })}
-            countryCode={countryCode}
+            onSelect={(method, provider) => {
+              updateTransactionData({
+                paymentMethod: method,
+                selectedProvider: provider
+              });
+            }}
           />
-        </motion.div>
-      )}
-
-      {transactionData.paymentMethod && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
+        </Card>
+      </motion.div>
+      
+      <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
+        <Button 
+          variant="outline"
+          onClick={onBack} 
+          className="w-1/2" 
+          size="lg"
+          disabled={isSubmitting}
         >
-          <SavePreferenceToggle 
-            checked={savePreference}
-            onChange={handleToggleSavePreference}
-          />
-        </motion.div>
-      )}
-
-      {/* Security information card */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.5 }}
-        className="p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3"
-      >
-        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-        <div>
-          <h4 className="text-sm font-medium text-blue-800">Transaction Security</h4>
-          <p className="text-xs text-blue-700 mt-1">
-            Your payment information is securely processed. For added protection, transactions above 100,000 XAF may require additional verification.
-          </p>
-        </div>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+        <Button 
+          onClick={handleContinue} 
+          className="w-1/2" 
+          size="lg"
+          disabled={isSubmitting || !transactionData.paymentMethod}
+        >
+          Continue <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.6 }}
-      >
-        <PaymentStepNavigation
-          onBack={onBack}
-          isNextDisabled={isNextButtonDisabled(transactionData, selectedCountry)}
-          isSubmitting={isSubmitting}
-          onNext={handleContinue}
-        />
-      </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

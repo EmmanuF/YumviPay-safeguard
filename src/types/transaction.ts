@@ -26,4 +26,6 @@ export interface Transaction {
   totalAmount?: string | number;
   date?: string;
   type?: string;
+  isRecurring?: boolean;
+  recurringPaymentId?: string;
 }

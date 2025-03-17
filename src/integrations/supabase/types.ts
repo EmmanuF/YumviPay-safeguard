@@ -108,6 +108,75 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_payments: {
+        Row: {
+          amount: string
+          created_at: string
+          currency: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          last_transaction_id: string | null
+          next_date: string
+          payment_method: string | null
+          provider: string | null
+          recipient_id: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: string
+          created_at?: string
+          currency?: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_transaction_id?: string | null
+          next_date: string
+          payment_method?: string | null
+          provider?: string | null
+          recipient_id: string
+          start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: string
+          created_at?: string
+          currency?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_transaction_id?: string | null
+          next_date?: string
+          payment_method?: string | null
+          provider?: string | null
+          recipient_id?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_payments_last_transaction_id_fkey"
+            columns: ["last_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_payments_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: string
@@ -118,11 +187,13 @@ export type Database = {
           failure_reason: string | null
           fee: string | null
           id: string
+          is_recurring: boolean | null
           payment_method: string | null
           provider: string | null
           recipient_contact: string | null
           recipient_id: string | null
           recipient_name: string
+          recurring_payment_id: string | null
           status: string
           total_amount: string | null
           updated_at: string
@@ -137,11 +208,13 @@ export type Database = {
           failure_reason?: string | null
           fee?: string | null
           id?: string
+          is_recurring?: boolean | null
           payment_method?: string | null
           provider?: string | null
           recipient_contact?: string | null
           recipient_id?: string | null
           recipient_name: string
+          recurring_payment_id?: string | null
           status: string
           total_amount?: string | null
           updated_at?: string
@@ -156,11 +229,13 @@ export type Database = {
           failure_reason?: string | null
           fee?: string | null
           id?: string
+          is_recurring?: boolean | null
           payment_method?: string | null
           provider?: string | null
           recipient_contact?: string | null
           recipient_id?: string | null
           recipient_name?: string
+          recurring_payment_id?: string | null
           status?: string
           total_amount?: string | null
           updated_at?: string
@@ -172,6 +247,13 @@ export type Database = {
             columns: ["recipient_id"]
             isOneToOne: false
             referencedRelation: "recipients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_recurring_payment_id_fkey"
+            columns: ["recurring_payment_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_payments"
             referencedColumns: ["id"]
           },
         ]
