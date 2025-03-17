@@ -54,18 +54,15 @@ const Footer = () => {
                 <FooterLink to="/contact">{t('footer.contact')}</FooterLink>
                 <FooterLink to="/support">{t('footer.support')}</FooterLink>
               </FooterSection>
-            </div>
-            
-            {/* Countries section in its own row */}
-            <div className="mt-8">
+              
+              {/* Countries */}
               <FooterSection title={t('footer.countries')}>
-                <div className="grid grid-cols-2 gap-x-4">
-                  <FooterLink to="/country/cameroon">Cameroon</FooterLink>
-                  <FooterLink to="/country/senegal">Senegal</FooterLink>
-                  <FooterLink to="/country/nigeria">Nigeria</FooterLink>
-                  <FooterLink to="/country/ghana">Ghana</FooterLink>
-                  <FooterLink to="/country/kenya">Kenya</FooterLink>
-                </div>
+                <FooterLink to="/country/cameroon">Cameroon</FooterLink>
+                {/* Placeholder for future countries */}
+                <FooterLink to="/country/senegal">Senegal</FooterLink>
+                <FooterLink to="/country/nigeria">Nigeria</FooterLink>
+                <FooterLink to="/country/ghana">Ghana</FooterLink>
+                <FooterLink to="/country/kenya">Kenya</FooterLink>
               </FooterSection>
             </div>
           </div>
