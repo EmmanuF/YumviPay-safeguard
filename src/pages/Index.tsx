@@ -13,7 +13,6 @@ const Index = () => {
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       if (isLoggedIn) {
-        console.log('User is logged in, redirecting to dashboard');
         // If user is logged in, redirect to dashboard
         navigate('/dashboard');
         return;
@@ -23,7 +22,6 @@ const Index = () => {
       const onboardingCompleted = await hasCompletedOnboarding();
       
       if (onboardingCompleted && !isLoggedIn) {
-        console.log('Onboarding completed but not logged in, redirecting to signin');
         // If onboarding was completed but not logged in, direct to sign in
         navigate('/signin');
       }
