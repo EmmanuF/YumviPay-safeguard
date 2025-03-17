@@ -62,7 +62,8 @@ const SignIn: React.FC = () => {
         throw new Error('Please enter both email and password');
       }
       
-      await signInUser(formData.email, formData.password);
+      // Use the email as-is without any modifications
+      const user = await signInUser(formData.email, formData.password);
 
       toast({
         title: "Welcome back!",

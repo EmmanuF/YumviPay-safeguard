@@ -1,10 +1,10 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Preferences } from '@capacitor/preferences';
 
 // Keys for storage
 const AUTH_STATE_KEY = 'yumvi_auth_state';
 const ORIGINAL_EMAIL_KEY = 'original_email';
+const MODIFIED_EMAIL_KEY_PREFIX = 'modified_email_for_';
 
 // Register a new user
 export const registerUser = async (
@@ -31,18 +31,8 @@ export const registerUser = async (
       value: cleanedEmail
     });
     
-    // For testing purposes, we'll add a workaround for test emails by adding a timestamp
+    // Use the original email as is - no more modification
     let finalEmail = cleanedEmail;
-    
-    // If we're using common test domains that Supabase might restrict, modify the email slightly
-    // This is just for development purposes - in production we would handle this differently
-    if (finalEmail.endsWith('@gmail.com') || finalEmail.endsWith('@example.com')) {
-      // Generate a timestamp and add it before the @ to make emails unique and pass validation
-      const timestamp = new Date().getTime();
-      const [username, domain] = finalEmail.split('@');
-      finalEmail = `${username}+${timestamp}@${domain}`;
-      console.log('Modified email for testing:', finalEmail);
-    }
     
     // Prepare user metadata - only include phone if provided
     const userData: Record<string, string> = {
@@ -106,49 +96,19 @@ export const registerUser = async (
 // Sign in user
 export const signInUser = async (email: string, password: string): Promise<any> => {
   try {
-    console.log('Attempting to sign in with email:', email);
+    console.log('Attempting to sign in with provided email:', email);
     
-    // Check if we have a stored original email that might be different from what user entered
-    const { value: storedEmail } = await Preferences.get({ key: ORIGINAL_EMAIL_KEY });
-    
-    // If the entered email matches what we stored originally during registration,
-    // but we modified it for Supabase, retrieve the modified email
-    let finalEmail = email.trim().toLowerCase();
-    if (storedEmail && storedEmail.toLowerCase() === finalEmail) {
-      // This means the user is using their original email,
-      // but we might have modified it for Supabase
-      const { value } = await Preferences.get({ key: `modified_email_for_${storedEmail}` });
-      if (value) {
-        finalEmail = value;
-        console.log('Using modified email for login:', finalEmail);
-      }
-    }
+    // Always use the email as provided by the user, without modifications
+    const cleanedEmail = email.trim().toLowerCase();
     
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: finalEmail,
+      email: cleanedEmail,
       password,
     });
 
     if (error) {
       console.error('Sign in error:', error);
-      
-      // Check if the error is due to using original email vs modified email
-      if (error.message === 'Invalid login credentials' && storedEmail) {
-        // Try the stored email as a fallback
-        const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-          email: storedEmail,
-          password,
-        });
-        
-        if (retryError) {
-          console.error('Retry sign in error:', retryError);
-          throw new Error('Invalid login credentials. Please check your email and password.');
-        }
-        
-        return retryData.user;
-      }
-      
-      throw error;
+      throw new Error('Invalid login credentials. Please check your email and password.');
     }
 
     return data.user;
