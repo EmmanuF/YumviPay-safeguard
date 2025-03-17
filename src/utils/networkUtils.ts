@@ -1,13 +1,19 @@
 
 // Track the offline status (can be used outside of components)
 let _isOffline = false;
+let _offlineModeActive = false;
 let _addPausedRequest: ((callback: () => Promise<any>) => void) | null = null;
 let _maxNetworkRetries = 3;
 let _retryDelay = 1000;
 
 // Function to check if we're offline
 export const isOffline = (): boolean => {
-  return _isOffline;
+  return _isOffline || _offlineModeActive;
+};
+
+// Check if offline mode is manually activated
+export const isOfflineModeActive = (): boolean => {
+  return _offlineModeActive;
 };
 
 // Add paused requests that will be executed when back online
@@ -22,9 +28,11 @@ export const addPausedRequest = (callback: () => Promise<any>): void => {
 // Update the offline status and reference to addPausedRequest function
 export const updateNetworkStatus = (
   offline: boolean, 
+  offlineMode: boolean,
   addRequest: ((callback: () => Promise<any>) => void)
 ): void => {
   _isOffline = offline;
+  _offlineModeActive = offlineMode;
   _addPausedRequest = addRequest;
 };
 
@@ -76,12 +84,12 @@ export const useNetworkStatus = () => {
   const { useEffect } = require('react');
   const { useNetwork } = require('@/contexts/NetworkContext');
   
-  const { isOffline, addPausedRequest } = useNetwork();
+  const { isOffline, offlineModeActive, addPausedRequest } = useNetwork();
   
   // Update the offline status whenever it changes
   useEffect(() => {
-    updateNetworkStatus(isOffline, addPausedRequest);
-  }, [isOffline, addPausedRequest]);
+    updateNetworkStatus(isOffline, offlineModeActive, addPausedRequest);
+  }, [isOffline, offlineModeActive, addPausedRequest]);
   
-  return { isOffline, addPausedRequest, retryWithBackoff };
+  return { isOffline, offlineModeActive, addPausedRequest, retryWithBackoff };
 };

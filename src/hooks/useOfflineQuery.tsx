@@ -1,12 +1,14 @@
 
 import { useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useState } from 'react';
 
 type OfflineQueryOptions<TData, TError> = Omit<UseQueryOptions<TData, TError>, 'queryFn'> & {
   offlineData?: TData;
   offlineFallback?: () => Promise<TData>;
+  showOfflineToast?: boolean;
+  offlineToastMessage?: string;
 };
 
 export function useOfflineQuery<TData = unknown, TError = unknown>(
@@ -17,13 +19,17 @@ export function useOfflineQuery<TData = unknown, TError = unknown>(
   const { isOnline, isOffline, addPausedRequest, offlineModeActive } = useNetwork();
   const [isOfflineData, setIsOfflineData] = useState<boolean>(false);
   
+  // Default toast settings
+  const showOfflineToast = options?.showOfflineToast ?? true;
+  const offlineToastMessage = options?.offlineToastMessage ?? 'Using offline data';
+  
   // Determine if we should use the offlineFallback function
-  const shouldUseOfflineFallback = isOffline && options?.offlineFallback;
+  const shouldUseOfflineFallback = (isOffline || offlineModeActive) && options?.offlineFallback;
   
   // Create a function that will execute the original queryFn
   // but queue it for later if offline
   const wrappedQueryFn = async () => {
-    // If we're online, execute the normal query
+    // If we're online and not in offline mode, execute the normal query
     if (isOnline && !offlineModeActive) {
       setIsOfflineData(false);
       return queryFn();
@@ -32,6 +38,10 @@ export function useOfflineQuery<TData = unknown, TError = unknown>(
     // If we're offline but have a fallback function, use that
     if (shouldUseOfflineFallback) {
       setIsOfflineData(true);
+      if (showOfflineToast) {
+        toast.info(offlineToastMessage);
+      }
+      
       const result = await options.offlineFallback!();
       
       // Queue the original query to run when we're back online
@@ -54,6 +64,9 @@ export function useOfflineQuery<TData = unknown, TError = unknown>(
       
       // If we have offline data, return that
       if (options?.offlineData !== undefined) {
+        if (showOfflineToast) {
+          toast.info(offlineToastMessage);
+        }
         return options.offlineData;
       }
       
@@ -70,11 +83,11 @@ export function useOfflineQuery<TData = unknown, TError = unknown>(
     // Enable/disable based on network status
     enabled: options?.enabled !== false && (!offlineModeActive || !!shouldUseOfflineFallback),
     // Use longer stale/cache times when offline
-    staleTime: isOffline ? Infinity : options?.staleTime,
-    gcTime: isOffline ? Infinity : options?.gcTime,
+    staleTime: (isOffline || offlineModeActive) ? Infinity : options?.staleTime,
+    gcTime: (isOffline || offlineModeActive) ? Infinity : options?.gcTime,
     // Don't retry too aggressively when offline
     retry: (failureCount, error) => {
-      if (isOffline) return false;
+      if (isOffline || offlineModeActive) return false;
       if (typeof options?.retry === 'function') {
         return options.retry(failureCount, error);
       }

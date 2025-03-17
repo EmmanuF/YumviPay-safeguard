@@ -1,35 +1,26 @@
 
-import React, { ReactNode } from 'react';
-import BottomNavigation from '@/components/BottomNavigation';
-import OfflineBanner from '@/components/OfflineBanner';
-import LocaleSwitcher from '@/components/LocaleSwitcher';
-import { useIsMobile } from '@/hooks/use-mobile';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import Header from './Header';
+import OfflineBanner from './OfflineBanner';
+import { Toaster } from 'sonner';
 
-interface MobileAppLayoutProps {
-  children: ReactNode;
-}
-
-const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
-  const isMobile = useIsMobile();
+const MobileAppLayout: React.FC = () => {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-dvh overflow-hidden">
       <OfflineBanner />
       
-      {/* Main content */}
-      <div className="flex-1 pb-16">
-        {children}
-      </div>
+      {!isHome && <Header />}
       
-      {/* FloatingLanguageSwitcher - only visible on mobile */}
-      {isMobile && (
-        <div className="fixed top-4 right-4 z-40">
-          <LocaleSwitcher />
-        </div>
-      )}
+      <main className="flex-1 overflow-auto">
+        <Outlet />
+      </main>
       
-      {/* Bottom Navigation - only visible on mobile */}
-      {isMobile && <BottomNavigation />}
+      <Toaster position="top-center" />
     </div>
   );
 };

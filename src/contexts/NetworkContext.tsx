@@ -1,12 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNetworkStatus as useDeviceNetworkStatus } from '@/hooks/useNetworkStatus';
+import { toast } from 'sonner';
 
 type NetworkContextType = {
   isOffline: boolean;
   isOnline: boolean;
   addPausedRequest: (callback: () => Promise<any>) => void;
   offlineModeActive: boolean;
+  toggleOfflineMode: () => void;
 };
 
 interface NetworkProviderProps {
@@ -29,6 +31,7 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
     // If coming back online, process any queued requests
     if (isOnline && pausedRequests.length > 0) {
       console.log(`Processing ${pausedRequests.length} queued requests`);
+      toast.info(`Processing ${pausedRequests.length} pending operations`);
       
       // Process all paused requests
       [...pausedRequests].forEach(async (request) => {
@@ -41,10 +44,17 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
           }
         } catch (error) {
           console.error('Error processing queued request:', error);
+          toast.error('Failed to process offline request');
         }
       });
     }
   }, [isOnline]);
+
+  // Function to toggle offline mode manually
+  const toggleOfflineMode = () => {
+    setOfflineModeActive(!offlineModeActive);
+    toast.info(!offlineModeActive ? 'Offline mode activated' : 'Offline mode deactivated');
+  };
 
   // Function to add a request to the queue
   const addPausedRequest = (callback: () => Promise<any>) => {
@@ -57,7 +67,8 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
       isOffline, 
       isOnline, 
       addPausedRequest,
-      offlineModeActive
+      offlineModeActive,
+      toggleOfflineMode
     }}>
       {children}
     </NetworkContext.Provider>
