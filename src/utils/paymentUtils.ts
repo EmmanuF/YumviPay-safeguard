@@ -108,3 +108,35 @@ export const isNextButtonDisabled = (
          !selectedCountry.paymentMethods || 
          selectedCountry.paymentMethods.length === 0;
 };
+
+// Function to get provider options for the selected payment method and country
+export const getProviderOptions = (methodId: string, countryCode: string) => {
+  const providerOptions = {
+    mobile_money: {
+      CM: [
+        { id: 'mtn_momo', name: 'MTN Mobile Money' },
+        { id: 'orange_money', name: 'Orange Money' }
+      ],
+      default: []
+    }
+  };
+  
+  // For Cameroon, only return mobile money options if that's the method
+  if (countryCode === 'CM' && methodId === 'mobile_money') {
+    return providerOptions.mobile_money.CM;
+  }
+  
+  // For other methods/countries, use standard logic
+  const methodProviders = providerOptions[methodId as keyof typeof providerOptions];
+  if (!methodProviders) {
+    return [];
+  }
+  
+  // First try to get country-specific providers, then fall back to default
+  const providers = methodProviders[countryCode as keyof typeof methodProviders] || 
+                   methodProviders.CM || 
+                   methodProviders.default || 
+                   [];
+  
+  return providers;
+};

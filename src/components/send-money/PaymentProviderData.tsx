@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Smartphone, CreditCard, CreditCard as CardIcon } from 'lucide-react';
+import { Smartphone, CreditCard } from 'lucide-react';
 import { cameroonPaymentMethods } from '@/data/cameroonPaymentProviders';
 
 export const getIconComponent = (iconName: string) => {
@@ -10,7 +10,7 @@ export const getIconComponent = (iconName: string) => {
     case 'credit-card':
       return <CreditCard className="h-5 w-5 text-primary-500" />;
     case 'card':
-      return <CardIcon className="h-5 w-5 text-primary-500" />;
+      return <CreditCard className="h-5 w-5 text-primary-500" />;
     default:
       return <CreditCard className="h-5 w-5 text-primary-500" />;
   }
