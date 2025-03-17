@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Languages } from 'lucide-react';
+import { Globe } from 'lucide-react'; // Changed from Languages to Globe
 import { useLocale } from '@/contexts/LocaleContext';
 import { Locale } from '@/types/locale';
 import {
@@ -36,7 +36,7 @@ const LocaleSwitcher: React.FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Languages className="h-[1.2rem] w-[1.2rem]" />
+          <Globe className="h-[1.2rem] w-[1.2rem]" /> {/* Changed from Languages to Globe */}
           <span className="sr-only">{t('settings.language')}</span>
           <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-primary-500 text-[8px] font-bold flex items-center justify-center text-white">
             {currentLocale === 'en' ? 'EN' : 'FR'}
