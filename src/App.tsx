@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
@@ -27,6 +28,13 @@ import TermsOfService from '@/pages/legal/TermsOfService';
 import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
 import Contact from '@/pages/support/Contact';
 import FAQ from '@/pages/support/FAQ';
+
+// Country pages
+import Cameroon from '@/pages/country/Cameroon';
+import Senegal from '@/pages/country/Senegal';
+import Nigeria from '@/pages/country/Nigeria';
+import Ghana from '@/pages/country/Ghana';
+import Kenya from '@/pages/country/Kenya';
 
 function App() {
   return (
@@ -73,6 +81,13 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
+                
+                {/* Country Pages */}
+                <Route path="/country/cameroon" element={<Cameroon />} />
+                <Route path="/country/senegal" element={<Senegal />} />
+                <Route path="/country/nigeria" element={<Nigeria />} />
+                <Route path="/country/ghana" element={<Ghana />} />
+                <Route path="/country/kenya" element={<Kenya />} />
                 
                 {/* 404 Not Found */}
                 <Route path="*" element={<NotFound />} />
