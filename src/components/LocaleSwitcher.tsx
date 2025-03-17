@@ -2,7 +2,8 @@
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Languages } from 'lucide-react';
-import { useLocale, Locale } from '@/contexts/LocaleContext';
+import { useLocale } from '@/contexts/LocaleContext';
+import { Locale } from '@/types/locale';
 import {
   DropdownMenu,
   DropdownMenuContent,
