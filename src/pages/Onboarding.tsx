@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
@@ -7,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowRight, Shield, Phone } from 'lucide-react';
 import { registerUser, setOnboardingComplete } from '@/services/auth';
+import { useCountries } from '@/hooks/useCountries';
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { countries } = useCountries();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,13 +21,50 @@ const Onboarding = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
+  const [sourceCountry, setSourceCountry] = useState({ 
+    code: 'US', 
+    phoneCode: '+1',
+    name: 'United States' 
+  });
   
-  React.useEffect(() => {
+  useEffect(() => {
+    // Check if user is already logged in via Supabase
+    const checkAuthStatus = async () => {
+      const { data } = await import('@/integrations/supabase/client').then(m => m.supabase.auth.getSession());
+      if (data.session) {
+        // If user is already logged in, redirect them to the appropriate page
+        if (pendingTransaction) {
+          navigate('/send');
+        } else {
+          navigate('/dashboard');
+        }
+      }
+    };
+    
+    checkAuthStatus();
+    
+    // Get transaction data from localStorage
     const transactionData = localStorage.getItem('pendingTransaction');
     if (transactionData) {
-      setPendingTransaction(JSON.parse(transactionData));
+      const parsedData = JSON.parse(transactionData);
+      setPendingTransaction(parsedData);
+      
+      // Find the source country based on the currency
+      if (parsedData.sourceCurrency) {
+        const sourceCountryData = countries.find(
+          country => country.currency === parsedData.sourceCurrency && country.isSendingEnabled
+        );
+        
+        if (sourceCountryData) {
+          setSourceCountry({
+            code: sourceCountryData.code,
+            phoneCode: sourceCountryData.phonePrefix || '+1',
+            name: sourceCountryData.name
+          });
+        }
+      }
     }
-  }, []);
+  }, [navigate, countries]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -57,7 +97,7 @@ const Onboarding = () => {
         formData.name,
         formData.email,
         formData.phone,
-        "CM" // Set Cameroon as default country for MVP
+        sourceCountry.code // Use source country code instead of fixed "CM"
       );
       
       await setOnboardingComplete();
@@ -164,11 +204,13 @@ const Onboarding = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+237xxxxxxxxx"
+                  placeholder={`${sourceCountry.phoneCode}xxxxxxxxx`}
                   className="glass-effect w-full pl-10 px-4 py-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all"
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">Format: Include country code (e.g., +237 for Cameroon)</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Format: Include country code (e.g., {sourceCountry.phoneCode} for {sourceCountry.name})
+              </p>
             </div>
           </div>
           

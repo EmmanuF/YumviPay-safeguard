@@ -21,7 +21,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   onContinue 
 }) => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading } = useAuth();
   const { countries } = useCountries();
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
@@ -68,16 +68,16 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     // Save the transaction data to localStorage
     localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
     
-    // If user is logged in, go straight to the send flow
+    // If loading, wait (this prevents incorrect redirects during auth check)
+    if (loading) return;
+    
+    // If user is already logged in, go straight to the send flow
     if (isLoggedIn) {
       navigate('/send');
     } else {
-      // If not logged in, go to onboarding first
-      if (onContinue) {
-        onContinue();
-      } else {
-        navigate('/onboarding');
-      }
+      // If not logged in, go to signin page instead of onboarding
+      // since we have a separate signin/signup flow
+      navigate('/signin', { state: { redirectTo: '/send' } });
     }
   };
 

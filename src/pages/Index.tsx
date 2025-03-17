@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -22,7 +21,7 @@ const Index = () => {
       // Check if onboarding was completed previously
       const onboardingCompleted = await hasCompletedOnboarding();
       
-      if (onboardingCompleted) {
+      if (onboardingCompleted && !isLoggedIn) {
         // If onboarding was completed but not logged in, direct to sign in
         navigate('/signin');
       }
@@ -36,7 +35,9 @@ const Index = () => {
   }, [isLoggedIn, loading, navigate]);
   
   const handleGetStarted = () => {
-    navigate('/onboarding');
+    // If user already has an account, send them to sign in
+    // otherwise, send them to onboarding
+    navigate('/signin');
   };
   
   // Show loading state if we're checking auth or onboarding status

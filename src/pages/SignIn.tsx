@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
@@ -7,60 +7,81 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
-import { BiometricLogin } from '@/components/auth';
-import { BiometricService } from '@/services/biometric';
-
-interface LocationState {
-  from?: Location;
-}
+import { AlertCircle, Mail, Lock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Get the pathname the user was trying to access
-  const fromPath = (location.state as LocationState)?.from?.pathname || '/';
+  // Get redirect destination from location state
+  const redirectTo = location.state?.redirectTo || '/dashboard';
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        // If already logged in, redirect to the specified destination
+        navigate(redirectTo);
+      }
+    };
+    
+    checkSession();
+  }, [navigate, redirectTo]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (error) setError(null);
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
+      // Check for empty fields
+      if (!formData.email.trim() || !formData.password.trim()) {
+        throw new Error('Please enter both email and password');
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
       });
 
       if (error) throw error;
 
-      // Store credentials for biometric login if remember me is checked
-      if (rememberMe) {
-        const biometricEnabled = await BiometricService.isEnabled();
-        if (biometricEnabled) {
-          await BiometricService.storeCredentials(email, password);
-          toast({
-            title: "Biometric login enabled",
-            description: "You can now sign in with biometrics next time.",
-          });
-        }
-      }
-
       toast({
         title: "Welcome back!",
-        description: "You have successfully signed in.",
+        description: "You have successfully signed in",
       });
 
-      // Redirect to the page the user was trying to access or home
-      navigate(fromPath);
+      // Check if there's a transaction pending and redirect accordingly
+      const pendingTransaction = localStorage.getItem('pendingTransaction');
+      if (pendingTransaction) {
+        navigate('/send');
+      } else {
+        navigate(redirectTo);
+      }
     } catch (error: any) {
+      console.error('Sign in error:', error);
+      setError(error.message || "Failed to sign in");
+      
       toast({
         title: "Sign in failed",
-        description: error.message || "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again",
         variant: "destructive",
       });
     } finally {
@@ -70,62 +91,77 @@ const SignIn: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary-50 to-white">
-      <Header title="Sign In" />
+      <Header 
+        title="Sign In"
+        transparent={true}
+      />
       
       <div className="flex-1 flex flex-col px-4 py-6 max-w-md mx-auto w-full">
-        <BiometricLogin />
-        
-        <form onSubmit={handleSignIn} className="flex flex-col space-y-6">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+        <div className="glass-effect rounded-2xl p-6 shadow-xl">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">Welcome back</h2>
           
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-              Remember me for biometric login
-            </label>
-          </div>
-          
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
-          </Button>
-          
-          <div className="text-center">
-            <p className="text-sm text-gray-500">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-primary-600 hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </form>
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <div>
+              <Label htmlFor="email" className="text-sm font-medium mb-1.5 block">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="password" className="text-sm font-medium mb-1.5 block">
+                Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </Button>
+            
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                Don't have an account?{" "}
+                <Link to="/signup" className="text-primary-600 hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

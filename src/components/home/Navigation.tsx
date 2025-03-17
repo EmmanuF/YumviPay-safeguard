@@ -56,7 +56,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     if (onGetStarted) {
       onGetStarted();
     } else {
-      navigate('/onboarding');
+      navigate('/signin');
     }
   };
   
@@ -64,7 +64,12 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     <header className="px-4 py-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <div className="text-xl font-bold text-primary-600">Yumvi-Pay</div>
+          <div 
+            className="text-xl font-bold text-primary-600 cursor-pointer" 
+            onClick={() => navigate('/')}
+          >
+            Yumvi-Pay
+          </div>
         </div>
         
         <div className="hidden md:flex items-center space-x-6">
