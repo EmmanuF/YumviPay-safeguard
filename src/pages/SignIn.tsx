@@ -9,7 +9,6 @@ import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertCircle, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { signInUser } from '@/services/auth';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -29,10 +28,14 @@ const SignIn: React.FC = () => {
   // Check if user is already logged in
   useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        // If already logged in, redirect to the specified destination
-        navigate(redirectTo);
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          // If already logged in, redirect to the specified destination
+          navigate(redirectTo);
+        }
+      } catch (err) {
+        console.error('Error checking session:', err);
       }
     };
     
@@ -89,12 +92,30 @@ const SignIn: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    
+    // Add a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (isLoading) {
+        setIsLoading(false);
+        setError("Sign in request timed out. Please try again.");
+        toast({
+          title: "Request timed out",
+          description: "The sign in process is taking too long. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 15000); // 15 seconds timeout
 
     try {
       // Check for empty fields
       if (!formData.email.trim() || !formData.password.trim()) {
+        clearTimeout(timeoutId);
+        setIsLoading(false);
         throw new Error('Please enter both email and password');
       }
+      
+      // Log the start of the authentication attempt
+      console.log('Attempting authentication with:', { email: formData.email });
       
       // Direct Supabase auth call to get detailed error messages
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -102,18 +123,24 @@ const SignIn: React.FC = () => {
         password: formData.password,
       });
 
+      // Clear the timeout since we got a response
+      clearTimeout(timeoutId);
+
       if (error) {
         console.error('Sign in error:', error);
         
         // Special handling for "Email not confirmed" error
         if (error.message.includes('Email not confirmed')) {
           setError("Your email is not confirmed. Please check your inbox or click below to resend the confirmation link.");
+          setIsLoading(false);
           throw new Error("Email not confirmed");
         }
         
         throw error;
       }
 
+      console.log('Sign in successful:', data.user?.id);
+      
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in",
@@ -140,6 +167,7 @@ const SignIn: React.FC = () => {
       }
     } finally {
       setIsLoading(false);
+      clearTimeout(timeoutId);
     }
   };
 

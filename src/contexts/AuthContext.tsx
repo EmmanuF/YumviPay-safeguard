@@ -26,7 +26,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const refreshAuthState = async () => {
     try {
       console.log('Refreshing auth state...');
-      const state = await getAuthState();
+      
+      // Add timeout protection for auth state refresh
+      const authPromise = getAuthState();
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise<any>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Auth state refresh timed out'));
+        }, 10000); // 10 seconds timeout
+      });
+      
+      // Race the auth state refresh against the timeout
+      const state = await Promise.race([authPromise, timeoutPromise]);
+      
       console.log('Auth state refreshed:', state);
       setAuthState(prev => ({
         ...prev,
@@ -35,7 +48,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         loading: false,
         authError: null
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error refreshing auth state:', error);
       setAuthState(prev => ({
         ...prev,
@@ -69,6 +82,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         await refreshAuthState();
       } else if (event === 'PASSWORD_RECOVERY') {
         console.log('Password recovery initiated');
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed, updating state');
+        await refreshAuthState();
       }
     });
     
