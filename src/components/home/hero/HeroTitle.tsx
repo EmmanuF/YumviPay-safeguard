@@ -19,7 +19,7 @@ const HeroTitle: React.FC = () => {
             <path d="M0,5 Q25,0 50,5 Q75,10 100,5 L100,15 L0,15 Z" fill="#4CD4A9" />
           </svg>
         </span>
-        <span className="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-[#4CD4A9] to-[#00B894]">Boundaries</span>
+        <span className="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-600">Boundaries</span>
       </h1>
       
       <motion.div 
