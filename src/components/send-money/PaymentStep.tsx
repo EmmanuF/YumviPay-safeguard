@@ -1,16 +1,15 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useToast } from '@/hooks/use-toast';
-import { useCountries } from '@/hooks/useCountries';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
 import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
-import { providerOptions, getProviderOptions, getRecommendedPaymentMethods } from './PaymentProviderData';
+import { providerOptions, getProviderOptions } from './PaymentProviderData';
 import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
 import SavePreferenceToggle from './payment/SavePreferenceToggle';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
+import { usePaymentStep } from '@/hooks/usePaymentStep';
+import { renderLoadingState, handlePaymentPreference, isNextButtonDisabled } from '@/utils/paymentUtils';
 
 export interface PaymentStepProps {
   transactionData: {
@@ -36,16 +35,17 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onNext,
   onBack
 }) => {
-  const { toast } = useToast();
-  const { countries, getCountryByCode, isLoading } = useCountries();
   const { user } = useAuth();
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [savePreference, setSavePreference] = useState(transactionData.savePaymentPreference || false);
-  
-  const countryCode = transactionData.targetCountry || 
-                     (countries.find(country => country.currency === transactionData.targetCurrency)?.code || 'CM');
-  
-  const selectedCountry = getCountryByCode(countryCode);
+  const { 
+    isLoading, 
+    countryCode, 
+    selectedCountry, 
+    savePreference, 
+    handleToggleSavePreference 
+  } = usePaymentStep({ 
+    transactionData, 
+    updateTransactionData 
+  });
   
   console.log('PaymentStep - transactionData:', transactionData);
   console.log('PaymentStep - countryCode:', countryCode);
@@ -64,74 +64,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     { methodId: 'mobile_money', providerId: 'orange_money' }
   ];
 
-  useEffect(() => {
-    if (!transactionData.targetCountry && countryCode && !isInitialized) {
-      updateTransactionData({ targetCountry: countryCode });
-      setIsInitialized(true);
-      
-      if (countryCode === 'CM' && !isLoading) {
-        toast({
-          title: "Cameroon Selected",
-          description: "Cameroon is our primary supported country for this MVP."
-        });
-      }
-    }
-  }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized, isLoading, toast]);
-
-  useEffect(() => {
-    if (transactionData.paymentMethod && countryCode) {
-      if (countryCode === 'CM' && transactionData.paymentMethod === 'mobile_money' && !transactionData.selectedProvider) {
-        updateTransactionData({ selectedProvider: 'mtn_momo' });
-        return;
-      }
-      
-      const providers = getProviderOptions(
-        transactionData.paymentMethod, 
-        countryCode
-      );
-      
-      console.log('Available providers:', providers);
-      
-      if (providers.length > 0 && !transactionData.selectedProvider) {
-        const recommended = getRecommendedProviders(transactionData.paymentMethod)[0];
-        updateTransactionData({ 
-          selectedProvider: recommended?.id || providers[0].id 
-        });
-        console.log('Auto-selected provider:', recommended?.id || providers[0].id);
-      }
-    }
-  }, [transactionData.paymentMethod, countryCode, updateTransactionData, transactionData.selectedProvider]);
-
   const handleProceedToPayment = () => {
-    if (savePreference) {
-      updateTransactionData({ savePaymentPreference: true });
-      toast({
-        title: "Payment preference saved",
-        description: "Your preferred payment method has been saved for future transactions"
-      });
-    }
-    
-    toast({
-      title: "Processing payment",
-      description: "Redirecting to payment gateway"
-    });
+    handlePaymentPreference(savePreference, updateTransactionData);
     onNext();
-  };
-
-  const handleToggleSavePreference = (checked: boolean) => {
-    setSavePreference(checked);
-    updateTransactionData({ savePaymentPreference: checked });
   };
 
   if (isLoading) {
     return renderLoadingState();
   }
 
-  const isNextDisabled = !transactionData.paymentMethod || 
-                         !transactionData.selectedProvider || 
-                         !selectedCountry || 
-                         !selectedCountry.paymentMethods || 
-                         selectedCountry.paymentMethods.length === 0;
+  const isNextDisabled = isNextButtonDisabled(transactionData, selectedCountry);
 
   return (
     <motion.div
@@ -187,28 +129,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       />
     </motion.div>
   );
-};
-
-// Helper function for loading state
-const renderLoadingState = () => {
-  return (
-    <div className="flex flex-col items-center justify-center py-12 space-y-4">
-      <Loader2 className="h-12 w-12 text-primary animate-spin" />
-      <p className="text-gray-600">Loading payment options...</p>
-    </div>
-  );
-};
-
-// Helper function to get recommended providers for a payment method
-export const getRecommendedProviders = (methodId: string) => {
-  if (methodId === 'mobile_money') {
-    return [
-      { id: 'mtn_momo', name: 'MTN Mobile Money' },
-      { id: 'orange_money', name: 'Orange Money' }
-    ];
-  }
-  
-  return [];
 };
 
 export default PaymentStep;
