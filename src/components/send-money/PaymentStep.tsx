@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import TransactionSummary from './TransactionSummary';
 import { providerOptions, getProviderOptions, getRecommendedPaymentMethods, getRecommendedProviders } from './PaymentProviderData';
 import { Loader2, Clock, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getProviderById } from '@/data/cameroonPaymentProviders';
 
 export interface PaymentStepProps {
   transactionData: {
@@ -43,12 +43,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const [savePreference, setSavePreference] = useState(transactionData.savePaymentPreference || false);
   const [showPreferredMethods, setShowPreferredMethods] = useState(true);
   
-  // The country code to use - either from targetCountry or found by currency
-  // If nothing is found, default to Cameroon (CM) as the MVP
   const countryCode = transactionData.targetCountry || 
                      (countries.find(country => country.currency === transactionData.targetCurrency)?.code || 'CM');
   
-  // Find the selected country data
   const selectedCountry = getCountryByCode(countryCode);
   
   console.log('PaymentStep - transactionData:', transactionData);
@@ -72,19 +69,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
-  // Load preferred payment methods
   const preferredMethods = [
     { methodId: 'mobile_money', providerId: 'mtn_momo' },
     { methodId: 'mobile_money', providerId: 'orange_money' }
   ];
 
-  // Ensure we have a targetCountry set
   useEffect(() => {
     if (!transactionData.targetCountry && countryCode && !isInitialized) {
       updateTransactionData({ targetCountry: countryCode });
       setIsInitialized(true);
       
-      // If countryCode is CM, show a toast highlighting it's the MVP
       if (countryCode === 'CM' && !isLoading) {
         toast({
           title: "Cameroon Selected",
@@ -94,16 +88,13 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized, isLoading, toast]);
 
-  // Reset provider selection when payment method changes
   useEffect(() => {
     if (transactionData.paymentMethod && countryCode) {
-      // For Cameroon, auto-select MTN if no provider is selected
       if (countryCode === 'CM' && transactionData.paymentMethod === 'mobile_money' && !transactionData.selectedProvider) {
         updateTransactionData({ selectedProvider: 'mtn_momo' });
         return;
       }
       
-      // Get available providers for this payment method and country
       const providers = getProviderOptions(
         transactionData.paymentMethod, 
         countryCode
@@ -111,9 +102,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       
       console.log('Available providers:', providers);
       
-      // If there are providers and we don't have one selected yet, select the first one
       if (providers.length > 0 && !transactionData.selectedProvider) {
-        // Try to select a recommended provider first
         const recommended = getRecommendedProviders(transactionData.paymentMethod)[0];
         updateTransactionData({ 
           selectedProvider: recommended?.id || providers[0].id 
@@ -124,11 +113,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   }, [transactionData.paymentMethod, countryCode, updateTransactionData, transactionData.selectedProvider]);
 
   const handleProceedToPayment = () => {
-    // Save payment preference if selected
     if (savePreference) {
       updateTransactionData({ savePaymentPreference: true });
-      
-      // This would normally save to a database
       toast({
         title: "Payment preference saved",
         description: "Your preferred payment method has been saved for future transactions"
@@ -167,7 +153,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       animate="visible"
       className="space-y-6"
     >
-      {/* Preferred Payment Methods Toggle with better design */}
       {preferredMethods.length > 0 && (
         <motion.div 
           variants={itemVariants} 
@@ -187,7 +172,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </motion.div>
       )}
 
-      {/* Preferred Payment Methods */}
       {showPreferredMethods && preferredMethods.length > 0 && (
         <motion.div variants={itemVariants} className="mb-4">
           <div className="flex items-center gap-2 mb-3">
@@ -196,7 +180,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           </div>
           <div className="space-y-2 bg-muted/30 p-3 rounded-lg">
             {preferredMethods.map((method, index) => {
-              // Only show MTN and Orange Money for Cameroon
               if (countryCode === 'CM' && method.methodId === 'mobile_money') {
                 if (method.providerId !== 'mtn_momo' && method.providerId !== 'orange_money') {
                   return null;
@@ -210,7 +193,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               const provider = providers.find(p => p.id === method.providerId);
               if (!provider) return null;
               
-              // Get provider details for the logo
               const providerData = method.methodId === 'mobile_money' ? 
                 getProviderById('mobile_money', method.providerId) : undefined;
               
@@ -259,7 +241,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         selectedProvider={transactionData.selectedProvider}
         onSelectPaymentMethod={(method) => updateTransactionData({ 
           paymentMethod: method,
-          selectedProvider: null  // Reset provider when method changes
+          selectedProvider: null 
         })}
         onSelectProvider={(providerId) => updateTransactionData({ 
           selectedProvider: providerId 
@@ -277,7 +259,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         selectedProvider={transactionData.selectedProvider}
       />
 
-      {/* Save payment preference option */}
       {user && (
         <motion.div variants={itemVariants} className="flex items-center justify-between mt-4 p-3 bg-muted/50 rounded-lg">
           <div>
