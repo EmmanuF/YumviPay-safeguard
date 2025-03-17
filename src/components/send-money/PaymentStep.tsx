@@ -9,6 +9,7 @@ import CountryPaymentMethods from './payment/CountryPaymentMethods';
 import RecurringPaymentOption from './payment/RecurringPaymentOption';
 import FavoriteRecipients from './payment/FavoriteRecipients';
 import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
+import NameMatchConfirmation from './payment/NameMatchConfirmation';
 import { useCountries } from '@/hooks/useCountries';
 import { createRecurringPayment } from '@/services/recurringPayments';
 
@@ -43,6 +44,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const [preferredMethods, setPreferredMethods] = useState<Array<{ methodId: string; providerId: string }>>([]);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState('monthly');
+  const [isDetailsConfirmed, setIsDetailsConfirmed] = useState(false);
+  const [showConfirmationError, setShowConfirmationError] = useState(false);
   
   useEffect(() => {
     if (transactionData.recipientCountry) {
@@ -67,6 +70,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       toast({
         title: "Payment method required",
         description: "Please select a payment method to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isDetailsConfirmed) {
+      setShowConfirmationError(true);
+      toast({
+        title: "Confirmation required",
+        description: "Please confirm that the recipient details match what's registered with the payment provider.",
         variant: "destructive",
       });
       return;
@@ -118,6 +131,13 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
+  const handleConfirmationChange = (checked: boolean) => {
+    setIsDetailsConfirmed(checked);
+    if (checked) {
+      setShowConfirmationError(false);
+    }
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -143,12 +163,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           updateTransactionData={updateTransactionData}
         />
         
-        {/* Recurring Payment Option */}
-        <RecurringPaymentOption
-          transactionData={transactionData}
-          onRecurringChange={handleRecurringChange}
-        />
-        
         {/* Country Payment Methods */}
         <Card className="overflow-hidden mb-4">
           <CountryPaymentMethods
@@ -163,6 +177,21 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             }}
           />
         </Card>
+        
+        {/* Name Match Confirmation */}
+        {transactionData.paymentMethod && transactionData.selectedProvider && transactionData.recipientName && (
+          <NameMatchConfirmation 
+            isChecked={isDetailsConfirmed}
+            onCheckedChange={handleConfirmationChange}
+            showError={showConfirmationError}
+          />
+        )}
+        
+        {/* Recurring Payment Option */}
+        <RecurringPaymentOption
+          transactionData={transactionData}
+          onRecurringChange={handleRecurringChange}
+        />
       </motion.div>
       
       <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
