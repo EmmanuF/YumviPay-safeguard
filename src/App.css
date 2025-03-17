@@ -120,3 +120,23 @@
   transform-origin: right;
   z-index: -1;
 }
+
+/* Top diagonal header */
+.diagonal-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.diagonal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-color: #6E36E5;
+  transform: skewY(6deg);
+  transform-origin: right;
+  z-index: -1;
+}
+

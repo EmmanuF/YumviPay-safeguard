@@ -40,19 +40,19 @@ const Header: React.FC<HeaderProps> = ({
   const rightComponent = rightElement || rightContent;
 
   return (
-    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent' : 'bg-white border-b border-gray-200'}`}>
+    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent' : 'bg-transparent border-b border-white/20'}`}>
       <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
         <div className="flex items-center">
           {showBackButton && (
             <button
               onClick={handleBackClick}
-              className="mr-3 rounded-full p-1 hover:bg-gray-100 transition-colors"
+              className="mr-3 rounded-full p-1 hover:bg-white/10 transition-colors"
               aria-label="Go back"
             >
-              <ChevronLeft className="h-6 w-6 text-gray-700" />
+              <ChevronLeft className="h-6 w-6 text-white" />
             </button>
           )}
-          <h1 className="text-lg font-semibold text-gray-800">
+          <h1 className="text-lg font-semibold text-white">
             {title ? t(title) : t('app.name')}
           </h1>
         </div>

@@ -42,21 +42,21 @@ const SendMoneyLayout: React.FC<SendMoneyLayoutProps> = ({
   const stepInfo = getStepInfo();
   
   return (
-    <div className="flex flex-col min-h-full bg-background">
-      <div className="flex-1 p-4">
+    <div className="flex flex-col min-h-full bg-transparent">
+      <div className="flex-1 p-4 pt-8 relative z-10">
         {stepCount && currentStep && (
           <div className="mb-6">
             <div className="flex justify-between mb-2">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-white">
                 Step {stepInfo.number} of {stepCount}
               </span>
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-white">
                 {stepInfo.percent}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-white/30 rounded-full h-2">
               <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300" 
+                className="bg-white h-2 rounded-full transition-all duration-300" 
                 style={{ width: stepInfo.percent }}
               ></div>
             </div>
