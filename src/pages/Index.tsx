@@ -36,6 +36,12 @@ const Index = () => {
     }
   }, [isLoggedIn, loading, navigate]);
   
+  const handleGetStarted = () => {
+    // If user already has an account, send them to sign in
+    // otherwise, send them to onboarding
+    navigate('/signin');
+  };
+  
   // Show loading state if we're checking auth or onboarding status
   if (loading || checkingOnboarding) {
     return (
