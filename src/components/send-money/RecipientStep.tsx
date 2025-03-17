@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { useRecipients } from '@/hooks/useRecipients';
+import { Avatar } from '@/components/ui/avatar';
 
 export interface RecipientStepProps {
   transactionData: {
@@ -31,7 +32,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   onBack
 }) => {
   const { toast } = useToast();
-  const { recipients, loading } = useRecipients();
+  const { recipients, loading, toggleFavorite, updateLastUsed } = useRecipients();
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -50,11 +51,37 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
-  const handleSelectRecipient = (contact: string, name: string) => {
+  // Filter favorites and recent recipients
+  const favoriteRecipients = recipients
+    .filter(r => r.isFavorite)
+    .sort((a, b) => {
+      const dateA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
+      const dateB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
+      return dateB - dateA;
+    });
+  
+  const recentRecipients = recipients
+    .filter(r => !r.isFavorite)
+    .sort((a, b) => {
+      const dateA = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
+      const dateB = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
+      return dateB - dateA;
+    })
+    .slice(0, 5);
+
+  const handleSelectRecipient = async (contact: string, name: string, recipientId: string) => {
+    // Update the last used timestamp
+    await updateLastUsed(recipientId);
+    
     updateTransactionData({ 
       recipient: contact,
       recipientName: name
     });
+  };
+
+  const handleToggleFavorite = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    await toggleFavorite(id);
   };
 
   const handleNewRecipient = () => {
@@ -77,40 +104,90 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       animate="visible"
       className="space-y-6"
     >
-      <Tabs defaultValue="recent" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="recent">Recent Recipients</TabsTrigger>
-          <TabsTrigger value="new">New Recipient</TabsTrigger>
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="favorites">Favorites</TabsTrigger>
+          <TabsTrigger value="new">New</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="recent" className="space-y-4">
+        <TabsContent value="all" className="space-y-4">
           <motion.div variants={itemVariants} className="space-y-2">
             {loading ? (
               <div className="text-center py-8">Loading recipients...</div>
             ) : recipients && recipients.length > 0 ? (
-              recipients.map((recipient) => (
-                <Card 
-                  key={recipient.id}
-                  className={`p-4 cursor-pointer transition-all ${
-                    transactionData.recipient === recipient.contact ? 
-                    'border-primary-500 bg-primary-50' : 'hover:border-gray-300'
-                  }`}
-                  onClick={() => handleSelectRecipient(recipient.contact, recipient.name)}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-medium">{recipient.name}</h4>
-                      <p className="text-sm text-gray-500">{recipient.contact}</p>
+              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                {recipients.map((recipient) => (
+                  <Card 
+                    key={recipient.id}
+                    className={`p-3 cursor-pointer transition-all ${
+                      transactionData.recipient === recipient.contact ? 
+                      'border-primary bg-primary/5' : 'hover:border-gray-300'
+                    }`}
+                    onClick={() => handleSelectRecipient(recipient.contact, recipient.name, recipient.id)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 bg-primary/10 text-primary">
+                          <span>{recipient.name[0]}</span>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-medium">{recipient.name}</h4>
+                          <p className="text-sm text-gray-500">{recipient.contact}</p>
+                        </div>
+                      </div>
+                      <Star 
+                        className={`h-5 w-5 ${recipient.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                        onClick={(e) => handleToggleFavorite(e, recipient.id)}
+                      />
                     </div>
-                    {recipient.isFavorite && (
-                      <span className="text-yellow-500">★</span>
-                    )}
-                  </div>
-                </Card>
-              ))
+                  </Card>
+                ))}
+              </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                No recent recipients found
+                No recipients found. Add your first recipient.
+              </div>
+            )}
+          </motion.div>
+        </TabsContent>
+        
+        <TabsContent value="favorites" className="space-y-4">
+          <motion.div variants={itemVariants} className="space-y-2">
+            {loading ? (
+              <div className="text-center py-8">Loading favorites...</div>
+            ) : favoriteRecipients.length > 0 ? (
+              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                {favoriteRecipients.map((recipient) => (
+                  <Card 
+                    key={recipient.id}
+                    className={`p-3 cursor-pointer transition-all ${
+                      transactionData.recipient === recipient.contact ? 
+                      'border-primary bg-primary/5' : 'hover:border-gray-300'
+                    }`}
+                    onClick={() => handleSelectRecipient(recipient.contact, recipient.name, recipient.id)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 bg-primary/10 text-primary">
+                          <span>{recipient.name[0]}</span>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-medium">{recipient.name}</h4>
+                          <p className="text-sm text-gray-500">{recipient.contact}</p>
+                        </div>
+                      </div>
+                      <Star 
+                        className="h-5 w-5 fill-yellow-400 text-yellow-400"
+                        onClick={(e) => handleToggleFavorite(e, recipient.id)}
+                      />
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                No favorite recipients yet. Mark recipients as favorites to see them here.
               </div>
             )}
           </motion.div>
