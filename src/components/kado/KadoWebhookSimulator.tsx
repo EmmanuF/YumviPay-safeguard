@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Check, X, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { updateTransactionStatus } from '@/services/transactions';
+import { updateTransactionStatus } from '@/services/transaction';
 import { toast } from '@/hooks/use-toast';
 
 interface KadoWebhookSimulatorProps {
@@ -42,7 +41,6 @@ const KadoWebhookSimulator: React.FC<KadoWebhookSimulatorProps> = ({
       let failureReason;
       
       if (status === 'failed') {
-        // Map the selected reason to a human-readable message
         failureReason = failureReasons.find(r => r.value === reason)?.label || 'Transaction failed';
       }
       
