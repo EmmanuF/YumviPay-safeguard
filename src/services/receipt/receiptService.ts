@@ -66,12 +66,20 @@ export const deleteReceipt = (receiptId: string): void => {
   }
 };
 
+// Convert string to number safely
+const safeParseNumber = (value: string | number | undefined): number => {
+  if (value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  return parseFloat(value) || 0;
+};
+
 // Format currency
-const formatCurrency = (amount: number): string => {
+const formatCurrency = (amount: number | string): string => {
+  const numAmount = safeParseNumber(amount);
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  }).format(amount);
+  }).format(numAmount);
 };
 
 // Format date
@@ -247,16 +255,21 @@ export const generateReceipt = async (transaction: Transaction): Promise<Transac
   // Create HTML content
   const htmlContent = generateHtmlReceipt(transaction);
   
+  // Parse transaction values to numbers
+  const amount = safeParseNumber(transaction.amount);
+  const fee = safeParseNumber(transaction.fee);
+  const totalAmount = safeParseNumber(transaction.totalAmount);
+  
   // Create receipt object
   const receipt: TransactionReceipt = {
     id: `receipt_${transaction.id}`,
     transactionId: transaction.id,
     recipientName: transaction.recipientName,
-    recipientContact: transaction.recipientContact,
-    amount: transaction.amount,
-    fee: transaction.fee,
-    totalAmount: transaction.totalAmount,
-    paymentMethod: transaction.paymentMethod,
+    recipientContact: transaction.recipientContact || '',
+    amount: amount,
+    fee: fee,
+    totalAmount: totalAmount,
+    paymentMethod: transaction.paymentMethod || '',
     status: transaction.status,
     generatedAt: new Date(),
     htmlContent: htmlContent,

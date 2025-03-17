@@ -61,9 +61,14 @@ const TransactionStatus = () => {
         
         // Add notification for completed transactions
         if (fetchedTransaction && fetchedTransaction.status === 'completed') {
+          // Convert to number if needed for notification
+          const amount = typeof fetchedTransaction.amount === 'string' 
+            ? parseFloat(fetchedTransaction.amount) 
+            : fetchedTransaction.amount;
+            
           addNotification({
             title: "Transfer Successful",
-            message: `Your transfer of $${fetchedTransaction.amount} to ${fetchedTransaction.recipientName} was successful.`,
+            message: `Your transfer of $${amount} to ${fetchedTransaction.recipientName} was successful.`,
             type: 'success',
             transactionId: fetchedTransaction.id
           });

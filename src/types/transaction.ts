@@ -5,9 +5,9 @@ export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed
 // Transaction data interface
 export interface Transaction {
   id: string;
-  amount: string;
+  amount: string | number;
   currency?: string;
-  fee?: string;
+  fee?: string | number;
   recipientId?: string;
   recipientName: string;
   recipientContact?: string;
@@ -23,7 +23,7 @@ export interface Transaction {
   failureReason?: string;
   estimatedDelivery?: string;
   exchangeRate?: number;
-  totalAmount?: string;
+  totalAmount?: string | number;
   date?: string;
   type?: string;
 }
