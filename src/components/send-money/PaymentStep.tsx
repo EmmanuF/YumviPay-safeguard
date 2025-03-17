@@ -2,12 +2,15 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { usePaymentStep } from '@/hooks/usePaymentStep';
+import { useToast } from '@/hooks/use-toast';
 import PaymentMethodList from './PaymentMethodList';
 import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
 import SavePreferenceToggle from './payment/SavePreferenceToggle';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import PaymentLoadingState from './payment/PaymentLoadingState';
 import { handlePaymentPreference, isNextButtonDisabled } from '@/utils/paymentUtils';
+import { motion } from 'framer-motion';
+import { InfoCircle, Info } from 'lucide-react';
 
 interface PaymentStepProps {
   onNext: () => void;
@@ -24,6 +27,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   updateTransactionData,
   isSubmitting,
 }) => {
+  const { toast } = useToast();
   const {
     isLoading,
     countryCode,
@@ -41,21 +45,47 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   const handleContinue = () => {
     handlePaymentPreference(savePreference, updateTransactionData);
+    
+    // Show a toast message when continuing
+    if (transactionData.paymentMethod && transactionData.selectedProvider) {
+      const methodName = selectedCountry?.paymentMethods.find(m => m.id === transactionData.paymentMethod)?.name || "payment method";
+      const providerOptions = selectedCountry?.paymentMethods.find(m => m.id === transactionData.paymentMethod)?.providers || [];
+      const providerName = providerOptions.find((p: any) => p.id === transactionData.selectedProvider)?.name || "";
+      
+      toast({
+        title: "Payment method selected",
+        description: `You'll be using ${providerName} ${methodName} for this transaction`,
+      });
+    }
+    
     onNext();
   };
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="space-y-1">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-1"
+      >
         <h2 className="text-2xl font-semibold text-gray-900">Payment Method</h2>
         <p className="text-sm text-gray-600">
           Choose how you would like to pay for this transaction.
         </p>
-      </div>
+      </motion.div>
 
       {preferredMethods.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-700">Your saved payment methods</h3>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="space-y-2"
+        >
+          <h3 className="text-sm font-medium text-gray-700 flex items-center">
+            <span>Your saved payment methods</span>
+            <InfoCircle className="h-4 w-4 ml-1 text-primary-400" />
+          </h3>
           <PreferredPaymentMethods
             preferredMethods={preferredMethods}
             countryCode={countryCode}
@@ -63,31 +93,67 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             transactionData={transactionData}
             updateTransactionData={updateTransactionData}
           />
-        </div>
+        </motion.div>
       )}
       
       {selectedCountry && (
-        <PaymentMethodList
-          paymentMethods={selectedCountry.paymentMethods || []}
-          selectedMethod={transactionData.paymentMethod}
-          selectedProvider={transactionData.selectedProvider}
-          onSelect={(method) => updateTransactionData({ paymentMethod: method })}
-          onSelectProvider={(provider) => updateTransactionData({ selectedProvider: provider })}
-          countryCode={countryCode}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <PaymentMethodList
+            paymentMethods={selectedCountry.paymentMethods || []}
+            selectedMethod={transactionData.paymentMethod}
+            selectedProvider={transactionData.selectedProvider}
+            onSelect={(method) => updateTransactionData({ paymentMethod: method })}
+            onSelectProvider={(provider) => updateTransactionData({ selectedProvider: provider })}
+            countryCode={countryCode}
+          />
+        </motion.div>
       )}
 
-      <SavePreferenceToggle 
-        checked={savePreference}
-        onChange={handleToggleSavePreference}
-      />
+      {transactionData.paymentMethod && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <SavePreferenceToggle 
+            checked={savePreference}
+            onChange={handleToggleSavePreference}
+          />
+        </motion.div>
+      )}
 
-      <PaymentStepNavigation
-        onBack={onBack}
-        isNextDisabled={isNextButtonDisabled(transactionData, selectedCountry)}
-        isSubmitting={isSubmitting}
-        onNext={handleContinue}
-      />
+      {/* Security information card */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+        className="p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3"
+      >
+        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <h4 className="text-sm font-medium text-blue-800">Transaction Security</h4>
+          <p className="text-xs text-blue-700 mt-1">
+            Your payment information is securely processed. For added protection, transactions above 100,000 XAF may require additional verification.
+          </p>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.5 }}
+      >
+        <PaymentStepNavigation
+          onBack={onBack}
+          isNextDisabled={isNextButtonDisabled(transactionData, selectedCountry)}
+          isSubmitting={isSubmitting}
+          onNext={handleContinue}
+        />
+      </motion.div>
     </div>
   );
 };

@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
-import { Shield, AlertTriangle } from 'lucide-react';
+import { Shield, AlertTriangle, Clock, PiggyBank, Phone } from 'lucide-react';
 import ProviderOptions from './ProviderOptions';
 import RecipientInfo from './RecipientInfo';
 import { useLocale } from '@/contexts/LocaleContext';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 import { verifyRecipient } from '@/utils/recipientUtils';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 interface ExpandedContentProps {
   methodName: string;
@@ -37,7 +37,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
   onAccountNumberChange,
 }) => {
   const { t } = useLocale();
-  const methodId = methodName.toLowerCase().includes('mobile') ? 'mobile_money' : 'bank_transfer';
+  const methodId = methodName.toLowerCase().includes('mobile') 
+    ? 'mobile_money' 
+    : methodName.toLowerCase().includes('bank') 
+      ? 'bank_transfer' 
+      : 'cash_pickup';
   const [isValid, setIsValid] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [hasVerified, setHasVerified] = useState(false);
@@ -79,9 +83,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
       setVerificationMessage(result.message || '');
       
       if (result.isValid && !hasVerified) {
-        toast("Recipient information valid", {
-          description: "The recipient information format has been verified",
-          className: "bg-green-50 border-green-200"
+        toast({
+          title: "Recipient information valid",
+          description: "The recipient information format has been verified"
         });
         setHasVerified(true);
       }
@@ -89,7 +93,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
       setIsValid(false);
       setHasVerified(false);
     }
-  }, [recipientName, accountNumber, selectedOption, countryCode, hasVerified]);
+  }, [recipientName, accountNumber, selectedOption, countryCode, hasVerified, toast]);
 
   return (
     <motion.div
@@ -101,7 +105,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
       {options.length > 0 && (
         <div className="mb-4">
           <Label htmlFor="provider" className="text-sm font-medium mb-2 block">
-            {methodId === 'mobile_money' ? t('momo.provider') : t('bank.provider')}
+            {methodId === 'mobile_money' 
+              ? t('momo.provider') || "Select Mobile Money Provider"
+              : methodId === 'bank_transfer'
+                ? t('bank.provider') || "Select Bank"
+                : t('cash.provider') || "Select Cash Pickup Provider"}
           </Label>
           <ProviderOptions
             options={options}
@@ -146,6 +154,55 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
         </div>
       )}
 
+      {/* Provider-specific details and fees */}
+      {providerDetails && (
+        <div className="mt-4 space-y-3">
+          {/* Processing time */}
+          {providerDetails.processingTime && (
+            <div className="p-3 bg-blue-50 rounded-lg flex items-start gap-2">
+              <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-blue-800">Processing Time</h4>
+                <p className="text-sm text-blue-700">
+                  {providerDetails.processingTime}
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {/* Fees information */}
+          {providerDetails.fees && (
+            <div className="p-3 bg-purple-50 rounded-lg flex items-start gap-2">
+              <PiggyBank className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-purple-800">Transaction Fees</h4>
+                <p className="text-sm text-purple-700">
+                  {providerDetails.fees.percentage}% + {providerDetails.fees.fixed} {providerDetails.fees.currency}
+                </p>
+                {providerDetails.limits && (
+                  <p className="text-xs text-purple-600 mt-1">
+                    Transaction limits: {providerDetails.limits.min} - {providerDetails.limits.max} {providerDetails.limits.currency}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Support information */}
+          {providerDetails.supportPhone && (
+            <div className="p-3 bg-green-50 rounded-lg flex items-start gap-2">
+              <Phone className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-green-800">Customer Support</h4>
+                <p className="text-sm text-green-700">
+                  {providerDetails.supportPhone}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Provider-specific instructions */}
       {providerDetails?.instructions && (
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
@@ -155,16 +212,6 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
               <li key={idx}>{instruction}</li>
             ))}
           </ul>
-          {providerDetails.processingTime && (
-            <p className="mt-2 text-xs text-blue-600">
-              Estimated processing time: {providerDetails.processingTime}
-            </p>
-          )}
-          {providerDetails.supportPhone && (
-            <p className="mt-1 text-xs text-blue-600">
-              Support: {providerDetails.supportPhone}
-            </p>
-          )}
         </div>
       )}
     </motion.div>

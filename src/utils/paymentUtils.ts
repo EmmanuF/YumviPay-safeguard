@@ -1,18 +1,7 @@
 
 import { toast } from "@/hooks/use-toast";
 import { Country } from "@/hooks/useCountries";
-
-// Helper function to get recommended providers for a payment method
-export const getRecommendedProviders = (methodId: string) => {
-  if (methodId === 'mobile_money') {
-    return [
-      { id: 'mtn_momo', name: 'MTN Mobile Money' },
-      { id: 'orange_money', name: 'Orange Money' }
-    ];
-  }
-  
-  return [];
-};
+import { cameroonPaymentMethods, getPaymentMethodById } from "@/data/cameroonPaymentProviders";
 
 // Function to initialize payment data
 export const initializePaymentData = (
@@ -45,9 +34,18 @@ export const initializeProviderSelection = (
   getRecommendedProviders: (methodId: string) => Array<{id: string; name: string}>
 ) => {
   if (transactionData.paymentMethod && countryCode) {
-    if (countryCode === 'CM' && transactionData.paymentMethod === 'mobile_money' && !transactionData.selectedProvider) {
-      updateTransactionData({ selectedProvider: 'mtn_momo' });
-      return;
+    // For Cameroon, set default providers based on payment method
+    if (countryCode === 'CM') {
+      if (transactionData.paymentMethod === 'mobile_money' && !transactionData.selectedProvider) {
+        updateTransactionData({ selectedProvider: 'mtn_momo' });
+        return;
+      } else if (transactionData.paymentMethod === 'bank_transfer' && !transactionData.selectedProvider) {
+        updateTransactionData({ selectedProvider: 'ecobank' });
+        return;
+      } else if (transactionData.paymentMethod === 'cash_pickup' && !transactionData.selectedProvider) {
+        updateTransactionData({ selectedProvider: 'express_union' });
+        return;
+      }
     }
     
     const providers = getProviderOptions(
@@ -97,19 +95,52 @@ export const isNextButtonDisabled = (
 
 // Function to get provider options for the selected payment method and country
 export const getProviderOptions = (methodId: string, countryCode: string) => {
+  // For Cameroon, get providers from cameroonPaymentMethods
+  if (countryCode === 'CM') {
+    const method = getPaymentMethodById(methodId);
+    if (method && method.providers.length > 0) {
+      return method.providers.map(provider => ({
+        id: provider.id,
+        name: provider.name
+      }));
+    }
+  }
+  
+  // Fallback to static options if needed
   const providerOptions = {
     mobile_money: {
       CM: [
         { id: 'mtn_momo', name: 'MTN Mobile Money' },
-        { id: 'orange_money', name: 'Orange Money' }
+        { id: 'orange_money', name: 'Orange Money' },
+        { id: 'yoomee_money', name: 'YooMee Money' }
+      ],
+      default: []
+    },
+    bank_transfer: {
+      CM: [
+        { id: 'ecobank', name: 'Ecobank' },
+        { id: 'afriland', name: 'Afriland First Bank' }
+      ],
+      default: []
+    },
+    cash_pickup: {
+      CM: [
+        { id: 'express_union', name: 'Express Union' },
+        { id: 'emi_money', name: 'EMI Money' }
       ],
       default: []
     }
   };
   
-  // For Cameroon, only return mobile money options if that's the method
-  if (countryCode === 'CM' && methodId === 'mobile_money') {
-    return providerOptions.mobile_money.CM;
+  // For Cameroon, return method-specific providers
+  if (countryCode === 'CM') {
+    if (methodId === 'mobile_money') {
+      return providerOptions.mobile_money.CM;
+    } else if (methodId === 'bank_transfer') {
+      return providerOptions.bank_transfer.CM;
+    } else if (methodId === 'cash_pickup') {
+      return providerOptions.cash_pickup.CM;
+    }
   }
   
   // For other methods/countries, use standard logic
@@ -125,4 +156,40 @@ export const getProviderOptions = (methodId: string, countryCode: string) => {
                    [];
   
   return providers;
+};
+
+// Calculate fees based on payment method and amount
+export const calculateTransactionFee = (
+  amount: number, 
+  paymentMethod: string, 
+  providerId: string
+): number => {
+  if (!paymentMethod || !providerId) return 0;
+  
+  const method = getPaymentMethodById(paymentMethod);
+  if (!method) return 0;
+  
+  const provider = method.providers.find(p => p.id === providerId);
+  if (!provider || !provider.fees) return 0;
+  
+  // Calculate fee using provider's fee structure
+  const percentageFee = amount * (provider.fees.percentage / 100);
+  const fixedFee = provider.fees.fixed;
+  
+  return percentageFee + fixedFee;
+};
+
+// Get estimated delivery time based on payment method and provider
+export const getEstimatedDeliveryTime = (
+  paymentMethod: string,
+  providerId: string
+): string => {
+  if (!paymentMethod || !providerId) return 'Unknown';
+  
+  const method = getPaymentMethodById(paymentMethod);
+  if (!method) return 'Unknown';
+  
+  const provider = method.providers.find(p => p.id === providerId);
+  
+  return provider?.processingTime || 'Unknown';
 };
