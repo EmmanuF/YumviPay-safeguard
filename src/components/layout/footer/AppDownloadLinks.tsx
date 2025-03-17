@@ -18,7 +18,7 @@ const AppDownloadLinks: React.FC = () => {
           <img 
             src="/app-store-badge.svg" 
             alt="Download on App Store" 
-            className="h-full"
+            className="h-full w-auto"
           />
         </a>
         <a 
@@ -30,7 +30,7 @@ const AppDownloadLinks: React.FC = () => {
           <img 
             src="/google-play-badge.svg" 
             alt="Get it on Google Play" 
-            className="h-full"
+            className="h-full w-auto"
           />
         </a>
       </div>

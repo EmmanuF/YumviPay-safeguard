@@ -1,9 +1,13 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 
 const AppDownload = () => {
+  // URL to your app's download page or Play Store/App Store listing
+  const appDownloadUrl = "https://yumvipay.com/download";
+
   return (
     <motion.div 
       className="mt-20 flex flex-col md:flex-row items-center gap-8 bg-primary-50 rounded-3xl p-8"
@@ -13,20 +17,18 @@ const AppDownload = () => {
       viewport={{ once: true }}
     >
       <div className="bg-white p-4 rounded-xl">
-        <svg width="120" height="120" viewBox="0 0 100 100">
-          <path d="M0,0 h30v30h-30z M10,10 h10v10h-10z" fill="black" />
-          <path d="M40,0 h30v30h-30z M50,10 h10v10h-10z" fill="black" />
-          <path d="M0,40 h30v30h-30z M10,50 h10v10h-10z" fill="black" />
-          <path d="M40,40 h10v10h-10z" fill="black" />
-          <path d="M60,40 h10v10h-10z" fill="black" />
-          <path d="M80,40 h20v20h-20z M85,45 h10v10h-10z" fill="black" />
-          <path d="M40,60 h10v10h-10z" fill="black" />
-          <path d="M60,60 h10v10h-10z" fill="black" />
-          <path d="M80,70 h10v10h-10z" fill="black" />
-          <path d="M0,80 h30v20h-30z" fill="black" />
-          <path d="M40,80 h10v20h-10z" fill="black" />
-          <path d="M60,80 h10v20h-10z" fill="black" />
-        </svg>
+        <QRCodeSVG
+          value={appDownloadUrl}
+          size={120}
+          level="H" // High error correction
+          includeMargin={true}
+          imageSettings={{
+            src: '/logo-sm.png',
+            excavate: true,
+            height: 24,
+            width: 24,
+          }}
+        />
       </div>
       
       <div>
