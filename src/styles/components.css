@@ -1,0 +1,87 @@
+
+/* Top diagonal header - simplified */
+.diagonal-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.diagonal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-color: #6E36E5;
+  z-index: -1;
+}
+
+/* Home page header - simplified */
+.home-purple-header {
+  position: relative;
+  overflow: visible;
+  z-index: 25;
+}
+
+.home-purple-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #6E36E5;
+}
+
+/* Enhanced specific styles for homepage header - simplified */
+.homepage-header-purple {
+  background-color: #6E36E5;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5rem;
+  z-index: 25;
+  pointer-events: none;
+}
+
+/* Additional style for header transitions */
+.header-wave-bottom {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 15px;
+  background-color: #9B6DF3;
+  z-index: 24;
+  pointer-events: none;
+}
+
+/* Home page diagonal purple header - enhanced with smoother transitions */
+.home-purple-header {
+  position: relative;
+  overflow: visible;
+  z-index: 25;
+}
+
+.home-purple-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #6E36E5;
+}
+
+.home-purple-header::after {
+  content: '';
+  position: absolute;
+  top: 70px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: #8250ED;
+  transform: skewY(-3deg);
+  transform-origin: right;
+}
