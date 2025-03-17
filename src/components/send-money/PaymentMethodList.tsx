@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 import { Country } from '@/hooks/useCountries';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
-import { getProviderOptions, getIconComponent } from './PaymentProviderData';
-import { Loader2 } from 'lucide-react';
+import { getProviderOptions, getIconComponent, getRecommendedPaymentMethods } from './PaymentProviderData';
+import { Loader2, AlertTriangle } from 'lucide-react';
 
 interface PaymentMethodListProps {
   selectedCountry: string;
@@ -58,6 +58,20 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     });
   };
 
+  // If we don't have a country code but we're in loading state
+  if (!selectedCountryData && !selectedCountry) {
+    return (
+      <motion.div variants={itemVariants} className="mb-4">
+        <h3 className="text-sm font-medium mb-3">Select Destination Country First</h3>
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-amber-800 text-sm">
+            Please select a destination country to see available payment methods.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   // Loading state
   if (!selectedCountryData && selectedCountry) {
     return (
@@ -71,15 +85,21 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     );
   }
 
-  // If we don't have a valid country, show a message
-  if (!selectedCountryData) {
+  // If we don't have a valid country or no payment methods, show a message with a recommendation
+  if (!selectedCountryData || !selectedCountryData.paymentMethods || selectedCountryData.paymentMethods.length === 0) {
     return (
       <motion.div variants={itemVariants} className="mb-4">
         <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-amber-800 text-sm">
-            Country information not available. Please try selecting Cameroon (CM) as your destination country.
-          </p>
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+          <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-amber-800 text-sm">
+              No payment methods available for this country.
+            </p>
+            <p className="text-amber-700 text-sm mt-1">
+              Try selecting Cameroon (CM) as your destination country for our MVP services.
+            </p>
+          </div>
         </div>
       </motion.div>
     );
@@ -89,34 +109,31 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     <motion.div variants={itemVariants} className="mb-4">
       <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
       <div className="space-y-3">
-        {selectedCountryData?.paymentMethods && selectedCountryData.paymentMethods.length > 0 ? (
-          selectedCountryData.paymentMethods.map((method) => {
-            // Get providers for this payment method and country
-            const providers = getProviderOptions(method.id, selectedCountry);
-            console.log(`Providers for ${method.id}:`, providers);
-            
-            return (
-              <PaymentMethodCard
-                key={method.id}
-                name={method.name}
-                description={method.description}
-                icon={getIconComponent(method.icon)}
-                isSelected={selectedPaymentMethod === method.id}
-                onClick={() => handlePaymentMethodSelect(method.id)}
-                options={providers}
-                countryCode={selectedCountry}
-                selectedOption={selectedPaymentMethod === method.id ? selectedProvider : ''}
-                onOptionSelect={onSelectProvider}
-              />
-            );
-          })
-        ) : (
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-amber-800 text-sm">
-              No payment methods available for this country. Please select a different country.
-            </p>
-          </div>
-        )}
+        {selectedCountryData.paymentMethods.map((method) => {
+          // Get providers for this payment method and country
+          const providers = getProviderOptions(method.id, selectedCountry);
+          console.log(`Providers for ${method.id}:`, providers);
+          
+          // Check if this is a recommended method for this country
+          const recommendedMethods = getRecommendedPaymentMethods(selectedCountry);
+          const isRecommended = recommendedMethods.includes(method.id);
+          
+          return (
+            <PaymentMethodCard
+              key={method.id}
+              name={method.name}
+              description={method.description}
+              icon={getIconComponent(method.icon)}
+              isSelected={selectedPaymentMethod === method.id}
+              onClick={() => handlePaymentMethodSelect(method.id)}
+              options={providers}
+              countryCode={selectedCountry}
+              selectedOption={selectedPaymentMethod === method.id ? selectedProvider : ''}
+              onOptionSelect={onSelectProvider}
+              isRecommended={isRecommended}
+            />
+          );
+        })}
       </div>
     </motion.div>
   );

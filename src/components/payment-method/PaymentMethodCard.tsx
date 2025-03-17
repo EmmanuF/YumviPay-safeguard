@@ -1,10 +1,9 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import RecipientInfo from './RecipientInfo';
+import ExpandedContent from './ExpandedContent';
 
 interface PaymentMethodCardProps {
   name: string;
@@ -19,6 +18,7 @@ interface PaymentMethodCardProps {
   countryCode?: string;
   selectedOption?: string;
   onOptionSelect?: (optionId: string) => void;
+  isRecommended?: boolean;
 }
 
 const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
@@ -30,7 +30,8 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   options = [],
   countryCode = 'CM',
   selectedOption = '',
-  onOptionSelect
+  onOptionSelect,
+  isRecommended = false
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [accountNumber, setAccountNumber] = useState('');
@@ -46,12 +47,6 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   const toggleExpand = (e: React.MouseEvent) => {
     e.stopPropagation();
     setExpanded(!expanded);
-  };
-
-  const handleOptionSelect = (optionId: string) => {
-    if (onOptionSelect) {
-      onOptionSelect(optionId);
-    }
   };
 
   return (
@@ -75,7 +70,15 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
             {icon}
           </div>
           <div>
-            <h3 className="font-medium text-foreground">{name}</h3>
+            <div className="flex items-center">
+              <h3 className="font-medium text-foreground">{name}</h3>
+              {isRecommended && (
+                <div className="ml-2 flex items-center text-amber-500">
+                  <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                  <span className="text-xs ml-1">Recommended</span>
+                </div>
+              )}
+            </div>
             <p className="text-sm text-gray-500">{description}</p>
           </div>
         </div>
@@ -102,41 +105,17 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
 
       {/* Expanded section for options */}
       {expanded && options.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-100"
-        >
-          <div className="mb-4">
-            <Label htmlFor="provider" className="text-sm font-medium mb-2 block">Select Provider</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {options.map((option) => (
-                <div
-                  key={option.id}
-                  onClick={() => handleOptionSelect(option.id)}
-                  className={cn(
-                    "p-3 rounded-md border text-center cursor-pointer transition-all",
-                    selectedOption === option.id
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  )}
-                >
-                  {option.name}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <RecipientInfo
-            methodName={name}
-            recipientName={recipientName}
-            accountNumber={accountNumber}
-            onRecipientNameChange={setRecipientName}
-            onAccountNumberChange={setAccountNumber}
-            countryCode={countryCode}
-          />
-        </motion.div>
+        <ExpandedContent
+          methodName={name}
+          options={options}
+          selectedOption={selectedOption}
+          recipientName={recipientName}
+          accountNumber={accountNumber}
+          countryCode={countryCode}
+          onOptionSelect={onOptionSelect || (() => {})}
+          onRecipientNameChange={setRecipientName}
+          onAccountNumberChange={setAccountNumber}
+        />
       )}
     </div>
   );

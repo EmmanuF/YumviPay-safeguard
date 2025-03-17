@@ -7,7 +7,8 @@ import { useCountries } from '@/hooks/useCountries';
 import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
 import { providerOptions, getProviderOptions } from './PaymentProviderData';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export interface PaymentStepProps {
   transactionData: {
@@ -37,6 +38,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   
   // The country code to use - either from targetCountry or found by currency
+  // If nothing is found, default to Cameroon (CM) as the MVP
   const countryCode = transactionData.targetCountry || 
                      (countries.find(country => country.currency === transactionData.targetCurrency)?.code || 'CM');
   
@@ -69,8 +71,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     if (!transactionData.targetCountry && countryCode && !isInitialized) {
       updateTransactionData({ targetCountry: countryCode });
       setIsInitialized(true);
+      
+      // If countryCode is CM, show a toast highlighting it's the MVP
+      if (countryCode === 'CM' && !isLoading) {
+        toast.info("Cameroon Selected", {
+          description: "Cameroon is our primary supported country for this MVP."
+        });
+      }
     }
-  }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized]);
+  }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized, isLoading]);
 
   // Reset provider selection when payment method changes
   useEffect(() => {
@@ -109,6 +118,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     );
   }
 
+  // Show warning if not using Cameroon (MVP)
+  const showMvpWarning = selectedCountry && selectedCountry.code !== 'CM';
+
   return (
     <motion.div
       variants={containerVariants}
@@ -116,6 +128,20 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       animate="visible"
       className="space-y-6"
     >
+      {showMvpWarning && (
+        <motion.div variants={itemVariants} className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start space-x-2">
+          <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-blue-800 text-sm">
+              <strong>Note:</strong> Cameroon is our primary supported country for the MVP.
+            </p>
+            <p className="text-blue-700 text-xs mt-1">
+              Other countries may have limited payment options or features during this phase.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
       <PaymentMethodList 
         selectedCountry={countryCode}
         selectedCountryData={selectedCountry}

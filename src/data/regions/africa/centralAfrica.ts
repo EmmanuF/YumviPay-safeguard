@@ -7,8 +7,9 @@ export const centralAfricanCountries: Country[] = [
     code: 'CM',
     flagUrl: 'https://flagcdn.com/cm.svg',
     currency: 'XAF',
-    isSendingEnabled: false, // Changed from true to false
+    isSendingEnabled: true, // Changed back to true to enable as MVP country
     isReceivingEnabled: true,
+    phonePrefix: '+237',
     paymentMethods: [
       {
         id: 'mobile_money',
@@ -35,6 +36,7 @@ export const centralAfricanCountries: Country[] = [
     currency: 'CDF',
     isSendingEnabled: false,
     isReceivingEnabled: true,
+    phonePrefix: '+243',
     paymentMethods: [
       {
         id: 'mobile_money',
