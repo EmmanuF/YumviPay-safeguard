@@ -4,13 +4,14 @@ import { motion } from 'framer-motion';
 import { Transaction } from '@/types/transaction';
 import { Card, CardContent } from '@/components/ui/card';
 import TransactionGroup from './TransactionGroup';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TransactionsListProps {
   isLoading: boolean;
   filteredTransactions: Transaction[];
-  transactions?: Transaction[]; // Added for backward compatibility
-  error?: any; // Added for backward compatibility
-  onRefresh?: () => Promise<void>; // Added for backward compatibility
+  transactions?: Transaction[]; // For backward compatibility
+  error?: any; // For backward compatibility
+  onRefresh?: () => Promise<void>; // For backward compatibility
   onTransactionClick: (transactionId: string) => void;
 }
 
@@ -20,12 +21,32 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   transactions, // For backward compatibility
   onTransactionClick 
 }) => {
+  const isMobile = useIsMobile();
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
+    }
+  };
+  
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { 
+      y: 20, 
+      opacity: 0,
+      scale: 0.98
+    },
     visible: {
       y: 0,
       opacity: 1,
+      scale: 1,
       transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
         duration: 0.4,
         ease: [0.22, 1, 0.36, 1],
       },
@@ -59,16 +80,30 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
 
   if (isLoading) {
     return (
-      <motion.div variants={itemVariants} className="text-center py-8">
-        <div className="animate-pulse-subtle">Loading transactions...</div>
+      <motion.div 
+        variants={itemVariants} 
+        className="text-center py-8"
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="glass-effect rounded-xl p-6 animate-pulse-subtle">
+          <div className="w-48 h-6 bg-primary-100/50 rounded-md mx-auto"></div>
+          <div className="mt-4 w-full h-12 bg-primary-100/30 rounded-md"></div>
+          <div className="mt-2 w-full h-12 bg-primary-100/30 rounded-md"></div>
+        </div>
       </motion.div>
     );
   }
   
   if (dataToUse.length === 0) {
     return (
-      <motion.div variants={itemVariants} className="text-center py-8">
-        <Card>
+      <motion.div 
+        variants={itemVariants} 
+        className="text-center py-8"
+        initial="hidden"
+        animate="visible"
+      >
+        <Card className="glass-effect border-0 shadow-sm">
           <CardContent className="pt-6">
             <p className="text-muted-foreground">No transactions found</p>
           </CardContent>
@@ -78,7 +113,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   }
   
   return (
-    <div>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-4"
+    >
       {groupedTransactions.map((group) => (
         <TransactionGroup
           key={group.date}
@@ -87,7 +127,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
           onTransactionClick={onTransactionClick}
         />
       ))}
-    </div>
+    </motion.div>
   );
 };
 
