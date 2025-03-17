@@ -19,7 +19,8 @@ export const NativeSharingService = {
     
     try {
       // Check if the Share plugin is available (which it should be on mobile)
-      return await Share.canShare();
+      const canShareResult = await Share.canShare();
+      return canShareResult.value;
     } catch (error) {
       console.error('Error checking share availability:', error);
       return false;

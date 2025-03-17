@@ -18,9 +18,22 @@ interface AccountInformationProps {
 interface ProfileTabsProps {
   user?: any;
   onEditField?: (field: string, value: string) => void;
+  onChangePassword?: () => void;
+  notificationSettings?: NotificationSettings;
+  notificationsLoading?: boolean;
+  onNotificationChange?: (key: keyof NotificationSettings, checked: boolean) => Promise<void>;
+  onResetNotifications?: () => Promise<void>;
 }
 
-const ProfileTabs: React.FC<ProfileTabsProps> = ({ user, onEditField }) => {
+const ProfileTabs: React.FC<ProfileTabsProps> = ({ 
+  user, 
+  onEditField,
+  onChangePassword,
+  notificationSettings,
+  notificationsLoading,
+  onNotificationChange,
+  onResetNotifications
+}) => {
   return (
     <Tabs defaultValue="account" className="w-full">
       <TabsList>
@@ -32,10 +45,16 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ user, onEditField }) => {
         <AccountTabContent user={user} onEdit={onEditField} />
       </TabsContent>
       <TabsContent value="security" className="space-y-4">
-        <SecurityTabContent />
+        <SecurityTabContent onChangePassword={onChangePassword} />
       </TabsContent>
       <TabsContent value="settings">
-        <SettingsTabContent />
+        <SettingsTabContent 
+          onChangePassword={onChangePassword}
+          notificationSettings={notificationSettings}
+          notificationsLoading={notificationsLoading}
+          onNotificationChange={onNotificationChange}
+          onResetNotifications={onResetNotifications}
+        />
       </TabsContent>
     </Tabs>
   );
@@ -54,8 +73,16 @@ const AccountTabContent: React.FC<AccountInformationProps> = ({ user, onEdit }) 
   );
 };
 
-const SecurityTabContent: React.FC = () => {
+const SecurityTabContent: React.FC<{ onChangePassword?: () => void }> = ({ onChangePassword }) => {
   const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+
+  const handleChangePassword = () => {
+    if (onChangePassword) {
+      onChangePassword();
+    } else {
+      setShowChangePasswordDialog(true);
+    }
+  };
 
   return (
     <motion.div
@@ -65,7 +92,7 @@ const SecurityTabContent: React.FC = () => {
       transition={{ duration: 0.2 }}
       className="space-y-6 py-4"
     >
-      <SecuritySettings onChangePassword={() => setShowChangePasswordDialog(true)} />
+      <SecuritySettings onChangePassword={handleChangePassword} />
       <ChangePasswordDialog
         open={showChangePasswordDialog}
         onOpenChange={setShowChangePasswordDialog}
@@ -74,10 +101,42 @@ const SecurityTabContent: React.FC = () => {
   );
 };
 
-// Fix the Settings tab content
-const SettingsTabContent = () => {
+interface SettingsTabContentProps {
+  onChangePassword?: () => void;
+  notificationSettings?: NotificationSettings;
+  notificationsLoading?: boolean;
+  onNotificationChange?: (key: keyof NotificationSettings, checked: boolean) => Promise<void>;
+  onResetNotifications?: () => Promise<void>;
+}
+
+const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
+  onChangePassword,
+  notificationSettings,
+  notificationsLoading,
+  onNotificationChange,
+  onResetNotifications
+}) => {
   const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
-  const { settings, loading, updateSetting, resetSettings } = useNotificationSettings();
+  const { 
+    settings: localSettings, 
+    loading: localLoading, 
+    updateSetting: localUpdateSetting, 
+    resetSettings: localResetSettings 
+  } = useNotificationSettings();
+
+  // Use props if provided, otherwise use local state
+  const settings = notificationSettings || localSettings;
+  const loading = notificationsLoading !== undefined ? notificationsLoading : localLoading;
+  const updateSetting = onNotificationChange || localUpdateSetting;
+  const resetSettings = onResetNotifications || localResetSettings;
+
+  const handleChangePassword = () => {
+    if (onChangePassword) {
+      onChangePassword();
+    } else {
+      setShowChangePasswordDialog(true);
+    }
+  };
 
   return (
     <motion.div
@@ -90,7 +149,7 @@ const SettingsTabContent = () => {
       {/* Add MobileAppSettings at the top of the settings tab */}
       <MobileAppSettings />
       
-      <SecuritySettings onChangePassword={() => setShowChangePasswordDialog(true)} />
+      <SecuritySettings onChangePassword={handleChangePassword} />
       
       <NotificationPreferences
         settings={settings}
