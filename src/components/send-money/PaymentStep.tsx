@@ -11,6 +11,7 @@ import PaymentLoadingState from './payment/PaymentLoadingState';
 import { handlePaymentPreference, isNextButtonDisabled, getProviderOptions } from '@/utils/paymentUtils';
 import { motion } from 'framer-motion';
 import { Info } from 'lucide-react';
+import QRCodeOption from './payment/QRCodeOption';
 
 interface PaymentStepProps {
   onNext: () => void;
@@ -61,6 +62,22 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     onNext();
   };
 
+  const handleQRScanComplete = (qrData: any) => {
+    if (qrData && qrData.id) {
+      toast({
+        title: "QR Code Scanned",
+        description: `Transaction details loaded from QR code`,
+      });
+      
+      // Update transaction data with QR information
+      updateTransactionData({
+        qrCodeData: qrData,
+        amount: qrData.amount || transactionData.amount,
+        recipientName: qrData.recipient || transactionData.recipientName,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 pb-20">
       <motion.div
@@ -75,11 +92,23 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </p>
       </motion.div>
 
+      {/* QR Code Option */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <QRCodeOption 
+          transactionData={transactionData}
+          onScanComplete={handleQRScanComplete}
+        />
+      </motion.div>
+
       {preferredMethods.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
           className="space-y-2"
         >
           <h3 className="text-sm font-medium text-gray-700 flex items-center">
@@ -100,7 +129,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
         >
           <PaymentMethodList
             paymentMethods={selectedCountry.paymentMethods || []}
@@ -117,7 +146,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
         >
           <SavePreferenceToggle 
             checked={savePreference}
@@ -130,7 +159,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4 }}
+        transition={{ duration: 0.3, delay: 0.5 }}
         className="p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3"
       >
         <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -145,7 +174,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.5 }}
+        transition={{ duration: 0.3, delay: 0.6 }}
       >
         <PaymentStepNavigation
           onBack={onBack}
