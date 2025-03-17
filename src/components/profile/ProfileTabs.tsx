@@ -1,13 +1,26 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AccountInformation, SecuritySettings, NotificationPreferences, ChangePasswordDialog } from '@/components/profile';
+import { SecuritySettings, NotificationPreferences, ChangePasswordDialog, AccountInformation } from '@/components/profile';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
+import { NotificationSettings } from '@/types/notification';
 
-// Import the new MobileAppSettings component
+// Import the MobileAppSettings component
 import MobileAppSettings from './MobileAppSettings';
 
-const ProfileTabs: React.FC = () => {
+// Define props for AccountInformation
+interface AccountInformationProps {
+  user: any;
+  onEdit: (field: string, value: string) => void;
+}
+
+interface ProfileTabsProps {
+  user?: any;
+  onEditField?: (field: string, value: string) => void;
+}
+
+const ProfileTabs: React.FC<ProfileTabsProps> = ({ user, onEditField }) => {
   return (
     <Tabs defaultValue="account" className="w-full">
       <TabsList>
@@ -16,7 +29,7 @@ const ProfileTabs: React.FC = () => {
         <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
       <TabsContent value="account" className="space-y-4">
-        <AccountTabContent />
+        <AccountTabContent user={user} onEdit={onEditField} />
       </TabsContent>
       <TabsContent value="security" className="space-y-4">
         <SecurityTabContent />
@@ -28,7 +41,7 @@ const ProfileTabs: React.FC = () => {
   );
 };
 
-const AccountTabContent: React.FC = () => {
+const AccountTabContent: React.FC<AccountInformationProps> = ({ user, onEdit }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -36,7 +49,7 @@ const AccountTabContent: React.FC = () => {
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.2 }}
     >
-      <AccountInformation />
+      <AccountInformation user={user} onEdit={onEdit} />
     </motion.div>
   );
 };
@@ -61,10 +74,10 @@ const SecurityTabContent: React.FC = () => {
   );
 };
 
-// Add the MobileAppSettings component to the Settings tab content
+// Fix the Settings tab content
 const SettingsTabContent = () => {
   const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
-  const { settings, isLoading, updateSettings, resetToDefaults } = useNotificationSettings();
+  const { settings, loading, updateSetting, resetSettings } = useNotificationSettings();
 
   return (
     <motion.div
@@ -81,9 +94,9 @@ const SettingsTabContent = () => {
       
       <NotificationPreferences
         settings={settings}
-        isLoading={isLoading}
-        onSettingChange={updateSettings}
-        onResetDefaults={resetToDefaults}
+        isLoading={loading}
+        onSettingChange={updateSetting}
+        onResetDefaults={resetSettings}
       />
       
       <ChangePasswordDialog

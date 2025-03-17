@@ -3,12 +3,17 @@ import { Capacitor } from '@capacitor/core';
 
 /**
  * Check if the app is running on a specific platform
- * @param platform 'web', 'ios', 'android', or 'capacitor' (any native platform)
+ * @param platform 'web', 'ios', 'android', 'capacitor', 'mobile', or 'native'
  * @returns boolean indicating if the app is running on the specified platform
  */
-export function isPlatform(platform: 'web' | 'ios' | 'android' | 'capacitor'): boolean {
-  if (platform === 'capacitor') {
+export function isPlatform(platform: 'web' | 'ios' | 'android' | 'capacitor' | 'mobile' | 'native'): boolean {
+  if (platform === 'capacitor' || platform === 'native') {
     return Capacitor.isNativePlatform();
+  }
+  
+  if (platform === 'mobile') {
+    const currentPlatform = Capacitor.getPlatform();
+    return currentPlatform === 'ios' || currentPlatform === 'android';
   }
   
   if (platform === 'web') {
