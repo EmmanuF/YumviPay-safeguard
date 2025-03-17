@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCountries } from '@/hooks/useCountries';
 import { getExchangeRate } from '@/data/exchangeRates';
+import { toast } from '@/hooks/use-toast';
 
 export interface ExchangeRateCalculatorState {
   sendAmount: string;
@@ -59,14 +60,28 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     
     setIsProcessing(true);
     
+    // Validate amount
+    const amountValue = parseFloat(sendAmount);
+    if (!amountValue || amountValue <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount to send.",
+        variant: "destructive"
+      });
+      setIsProcessing(false);
+      return;
+    }
+    
     // Store the current exchange information in localStorage for use in next steps
     const transactionData = {
       sourceCurrency,
       targetCurrency,
-      amount: parseFloat(sendAmount), // Ensuring it's a number
+      amount: amountValue,
       receiveAmount: receiveAmount.replace(/,/g, ''),
       exchangeRate
     };
+    
+    console.log('Saving transaction data:', transactionData);
     
     // Save the transaction data to localStorage
     localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));

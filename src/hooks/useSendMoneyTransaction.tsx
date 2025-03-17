@@ -24,11 +24,11 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
                          countries.find(c => c.code === 'CM');
   
   const [transactionData, setTransactionData] = useState<TransactionData>({
-    amount: 100,
+    amount: 0, // Start with 0 so we'll need to collect initial data
     sourceCurrency: 'USD',
     targetCurrency: defaultCountry?.currency || 'XAF',
     targetCountry: defaultCountry?.code || 'CM',
-    convertedAmount: 61000,
+    convertedAmount: 0, // Start with 0
     recipient: null,
     recipientName: '',
     paymentMethod: null,
@@ -51,11 +51,11 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
             
             setTransactionData(prev => ({
               ...prev,
-              amount: parseFloat(data.amount) || 100, // Make sure this is a number
+              amount: parseFloat(data.amount) || 0, // Make sure this is a number
               sourceCurrency: data.sourceCurrency || 'USD',
               targetCurrency: data.targetCurrency || 'XAF',
               targetCountry,
-              convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 61000,
+              convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 0,
             }));
             
             localStorage.removeItem('pendingTransaction');

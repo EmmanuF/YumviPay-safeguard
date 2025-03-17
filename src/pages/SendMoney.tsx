@@ -17,7 +17,7 @@ const SendMoney = () => {
   const { isLoggedIn, loading: authLoading, user } = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
-  const [needsInitialData, setNeedsInitialData] = useState(false);
+  const [needsInitialData, setNeedsInitialData] = useState(true); // Start by assuming we need initial data
   
   console.log('SendMoney: Auth status:', { isLoggedIn, authLoading, user });
   
@@ -36,15 +36,14 @@ const SendMoney = () => {
   
   // Check if we need to collect initial transaction data
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && transactionData) {
       // Check if we have the necessary data to proceed
-      const hasRequiredData = transactionData && 
-                             transactionData.sourceCurrency && 
+      const hasRequiredData = transactionData.sourceCurrency && 
                              transactionData.targetCurrency && 
-                             transactionData.amount;
+                             transactionData.amount > 0;
                              
       setNeedsInitialData(!hasRequiredData);
-      console.log('SendMoney: Needs initial data?', !hasRequiredData);
+      console.log('SendMoney: Needs initial data?', !hasRequiredData, 'Data:', transactionData);
     }
   }, [isInitialized, transactionData]);
   
@@ -115,15 +114,18 @@ const SendMoney = () => {
     />;
   }
 
-  // Properly handle the transaction error - fix TypeScript errors
-  if (typeof transactionError === 'string' || typeof transactionError === 'number' || 
-      (transactionError && typeof transactionError === 'object')) {
+  // Fix TypeScript errors with proper null checks and type handling
+  if (transactionError) {
     let errorMessage: string;
     
-    if (typeof transactionError === 'object') {
+    if (typeof transactionError === 'object' && transactionError !== null) {
+      // Handle object type errors (like Error instances)
       errorMessage = transactionError.message || 'Unknown error';
+    } else if (typeof transactionError === 'number') {
+      // Handle number type errors by converting to string
+      errorMessage = String(transactionError);
     } else {
-      // Ensure we convert to string for both string and number cases
+      // Handle string or any other type
       errorMessage = String(transactionError);
     }
     
