@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import { registerUser } from '@/services/auth';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
@@ -15,10 +16,14 @@ const SignUp: React.FC = () => {
     name: '',
     email: '',
     phoneNumber: '',
+    password: '',
+    confirmPassword: '',
     country: 'CM', // Default to Cameroon as receiving country
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,6 +31,14 @@ const SignUp: React.FC = () => {
     
     // Clear error when user starts typing
     if (error) setError(null);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -43,6 +56,18 @@ const SignUp: React.FC = () => {
         throw new Error('Please enter your email address');
       }
       
+      if (!formData.password) {
+        throw new Error('Please enter a password');
+      }
+
+      if (formData.password.length < 6) {
+        throw new Error('Password must be at least 6 characters long');
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error('Passwords do not match');
+      }
+      
       console.log('Starting registration process with:', {
         name: formData.name,
         email: formData.email,
@@ -54,7 +79,8 @@ const SignUp: React.FC = () => {
         formData.name,
         formData.email,
         formData.phoneNumber,
-        formData.country
+        formData.country,
+        formData.password // Pass the user-defined password to registerUser
       );
 
       toast({
@@ -117,6 +143,53 @@ const SignUp: React.FC = () => {
             <p className="text-xs text-gray-500 mt-1">
               Use a valid email address you can access
             </p>
+          </div>
+          
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Create a password"
+                required
+              />
+              <button 
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Password must be at least 6 characters
+            </p>
+          </div>
+          
+          <div>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm your password"
+                required
+              />
+              <button 
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                onClick={toggleConfirmPasswordVisibility}
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           
           <div>

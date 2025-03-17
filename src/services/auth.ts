@@ -10,7 +10,8 @@ export const registerUser = async (
   name: string,
   email: string,
   phone: string,
-  country: string
+  country: string,
+  password?: string // Make password optional to maintain backward compatibility
 ): Promise<any> => {
   try {
     console.log('Registering user with:', { name, email, phone, country });
@@ -47,15 +48,19 @@ export const registerUser = async (
       userData.phone_number = phone;
     }
     
-    // Generate a more secure random password
-    const randomPart = Math.random().toString(36).substring(2, 10);
-    const password = `YumviUser_${randomPart}`;
+    // Use provided password or generate a secure random one if not provided
+    let userPassword = password;
+    if (!userPassword) {
+      const randomPart = Math.random().toString(36).substring(2, 10);
+      userPassword = `YumviUser_${randomPart}`;
+      console.log('Generated random password as none was provided');
+    }
     
     console.log('Attempting signup with:', { email: finalEmail }); 
     
     const { data, error } = await supabase.auth.signUp({
       email: finalEmail,
-      password,
+      password: userPassword,
       options: {
         data: userData
       }
