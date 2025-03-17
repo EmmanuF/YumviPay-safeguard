@@ -43,7 +43,10 @@ const KadoWebhookSimulator: React.FC<KadoWebhookSimulatorProps> = ({
         failureReason = failureReasons.find(r => r.value === reason)?.label || 'Transaction failed';
       }
       
-      const updatedTransaction = updateTransactionStatus(transactionId, status, failureReason);
+      const updatedTransaction = await updateTransactionStatus(transactionId, status, {
+        failureReason: status === 'failed' ? failureReason : undefined,
+        completedAt: status === 'completed' ? new Date() : undefined
+      });
       
       if (updatedTransaction) {
         toast({
