@@ -51,6 +51,40 @@ const SignIn: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleResendConfirmation = async () => {
+    if (!formData.email) {
+      setError("Please enter your email to resend the confirmation link");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: formData.email,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Confirmation email sent",
+        description: "Please check your inbox and follow the link to confirm your email",
+      });
+      
+    } catch (error: any) {
+      console.error('Error resending confirmation:', error);
+      setError(error.message || "Failed to resend confirmation email");
+      
+      toast({
+        title: "Failed to resend confirmation",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -62,8 +96,23 @@ const SignIn: React.FC = () => {
         throw new Error('Please enter both email and password');
       }
       
-      // Use the email as-is without any modifications
-      const user = await signInUser(formData.email, formData.password);
+      // Direct Supabase auth call to get detailed error messages
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        
+        // Special handling for "Email not confirmed" error
+        if (error.message.includes('Email not confirmed')) {
+          setError("Your email is not confirmed. Please check your inbox or click below to resend the confirmation link.");
+          throw new Error("Email not confirmed");
+        }
+        
+        throw error;
+      }
 
       toast({
         title: "Welcome back!",
@@ -79,13 +128,16 @@ const SignIn: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
-      setError(error.message || "Failed to sign in");
       
-      toast({
-        title: "Sign in failed",
-        description: error.message || "Please check your credentials and try again",
-        variant: "destructive",
-      });
+      if (error.message !== "Email not confirmed") {
+        setError(error.message || "Failed to sign in");
+        
+        toast({
+          title: "Sign in failed",
+          description: error.message || "Please check your credentials and try again",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +158,18 @@ const SignIn: React.FC = () => {
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
+              
+              {error.includes("email is not confirmed") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResendConfirmation}
+                  className="mt-2 w-full"
+                  disabled={isLoading}
+                >
+                  Resend confirmation email
+                </Button>
+              )}
             </Alert>
           )}
           

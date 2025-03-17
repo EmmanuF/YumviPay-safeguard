@@ -2,12 +2,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAuthState } from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
+import { showErrorToast } from '@/utils/errorHandling';
 
 type AuthContextType = {
   isLoggedIn: boolean;
   user: any | null;
   loading: boolean;
   refreshAuthState: () => Promise<void>;
+  authError: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,17 +19,21 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     isLoggedIn: false,
     user: null,
     loading: true,
-    refreshAuthState: async () => {}
+    refreshAuthState: async () => {},
+    authError: null
   });
 
   const refreshAuthState = async () => {
     try {
+      console.log('Refreshing auth state...');
       const state = await getAuthState();
+      console.log('Auth state refreshed:', state);
       setAuthState(prev => ({
         ...prev,
         isLoggedIn: state.isAuthenticated,
         user: state.user,
-        loading: false
+        loading: false,
+        authError: null
       }));
     } catch (error) {
       console.error('Error refreshing auth state:', error);
@@ -35,7 +41,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         ...prev,
         isLoggedIn: false,
         user: null,
-        loading: false
+        loading: false,
+        authError: error instanceof Error ? error.message : 'Unknown authentication error'
       }));
     }
   };
@@ -50,7 +57,19 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     // Set up auth state change listener
     const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
-      await refreshAuthState();
+      
+      if (event === 'SIGNED_IN') {
+        console.log('User signed in, refreshing state');
+        await refreshAuthState();
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out, refreshing state');
+        await refreshAuthState();
+      } else if (event === 'USER_UPDATED') {
+        console.log('User updated, refreshing state');
+        await refreshAuthState();
+      } else if (event === 'PASSWORD_RECOVERY') {
+        console.log('Password recovery initiated');
+      }
     });
     
     // Clean up the subscription
