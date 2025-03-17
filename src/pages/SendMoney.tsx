@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingState from '@/components/transaction/LoadingState';
+import PageTransition from '@/components/PageTransition';
 
 type SendMoneyStep = 'recipient' | 'payment' | 'confirmation';
 
@@ -161,16 +162,18 @@ const SendMoney = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <SendMoneyLayout 
-        currentStep={currentStep} 
-        stepCount={3}
-      >
-        {renderStep()}
-      </SendMoneyLayout>
-      <div className="pb-16"></div>
-      <BottomNavigation />
-    </div>
+    <PageTransition>
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <SendMoneyLayout 
+          currentStep={currentStep} 
+          stepCount={3}
+        >
+          {renderStep()}
+        </SendMoneyLayout>
+        <div className="pb-16"></div>
+        <BottomNavigation />
+      </div>
+    </PageTransition>
   );
 };
 

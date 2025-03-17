@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -18,6 +18,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isNavigating, setIsNavigating] = useState(false);
   
   const navItems: NavItem[] = [
     {
@@ -48,16 +49,32 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   ];
   
   const handleNavigation = (path: string) => {
+    // Prevent multiple navigations happening simultaneously
+    if (isNavigating || path === location.pathname) return;
+    
     console.log(`Navigating to: ${path}`);
-    navigate(path);
+    setIsNavigating(true);
+    
+    // Add a small delay to ensure smooth transition
+    setTimeout(() => {
+      navigate(path);
+      // Reset after a short delay to allow the animation to complete
+      setTimeout(() => setIsNavigating(false), 400);
+    }, 50);
   };
 
   const handleStarted = () => {
-    if (onGetStarted) {
-      onGetStarted();
-    } else {
-      navigate('/signin');
-    }
+    if (isNavigating) return;
+    
+    setIsNavigating(true);
+    setTimeout(() => {
+      if (onGetStarted) {
+        onGetStarted();
+      } else {
+        navigate('/signin');
+      }
+      setTimeout(() => setIsNavigating(false), 400);
+    }, 50);
   };
   
   return (
@@ -66,7 +83,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         <div className="flex items-center">
           <div 
             className="text-xl font-bold text-primary-600 cursor-pointer" 
-            onClick={() => navigate('/')}
+            onClick={() => !isNavigating && navigate('/')}
           >
             Yumvi-Pay
           </div>
@@ -83,6 +100,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
                   ? "text-primary-600" 
                   : "text-gray-600 hover:text-primary-500"
               )}
+              disabled={isNavigating}
             >
               {item.name}
             </button>
@@ -91,15 +109,20 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/signin')}
+            onClick={() => handleNavigation('/signin')}
             className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+            disabled={isNavigating}
           >
             Sign In
           </button>
           
           <button
             onClick={handleStarted}
-            className="bg-primary-500 hover:bg-primary-600 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+            className={cn(
+              "bg-primary-500 hover:bg-primary-600 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm",
+              isNavigating && "opacity-75 pointer-events-none"
+            )}
+            disabled={isNavigating}
           >
             Get Started
           </button>
@@ -117,13 +140,15 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             key={item.name}
             onClick={() => handleNavigation(item.path)}
             className="flex flex-col items-center justify-center relative"
+            disabled={isNavigating}
           >
             <div 
               className={cn(
                 "p-2 rounded-full transition-all duration-300",
                 location.pathname === item.path 
                   ? "text-primary-500" 
-                  : "text-gray-500 hover:text-primary-400"
+                  : "text-gray-500 hover:text-primary-400",
+                isNavigating && "opacity-75"
               )}
             >
               {item.icon}
