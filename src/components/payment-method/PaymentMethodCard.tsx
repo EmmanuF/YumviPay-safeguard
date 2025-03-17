@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ChevronDown } from 'lucide-react';
@@ -53,7 +52,6 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
     if (onOptionSelect) {
       onOptionSelect(optionId);
     }
-    setSelectedOption(optionId);
   };
 
   return (
