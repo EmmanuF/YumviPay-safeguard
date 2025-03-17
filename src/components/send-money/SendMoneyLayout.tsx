@@ -20,13 +20,27 @@ const SendMoneyLayout: React.FC<SendMoneyLayoutProps> = ({
     if (!currentStep) return title;
     
     switch(currentStep) {
-      case 'amount': return 'Enter Amount';
+      // Removed 'amount' case since we're skipping that step
       case 'recipient': return 'Add Recipient';
       case 'payment': return 'Payment Method';
       case 'confirmation': return 'Confirm Transfer';
       default: return title;
     }
   })();
+  
+  // Calculate step number and percentage based on current step
+  const getStepInfo = () => {
+    if (!currentStep) return { number: 0, percent: '0%' };
+    
+    switch(currentStep) {
+      case 'recipient': return { number: 1, percent: '33%' };
+      case 'payment': return { number: 2, percent: '66%' };
+      case 'confirmation': return { number: 3, percent: '100%' };
+      default: return { number: 0, percent: '0%' };
+    }
+  };
+  
+  const stepInfo = getStepInfo();
   
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -36,29 +50,16 @@ const SendMoneyLayout: React.FC<SendMoneyLayoutProps> = ({
           <div className="mb-6">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-muted-foreground">
-                Step {
-                  currentStep === 'amount' ? '1' :
-                  currentStep === 'recipient' ? '2' :
-                  currentStep === 'payment' ? '3' : '4'
-                } of {stepCount}
+                Step {stepInfo.number} of {stepCount}
               </span>
               <span className="text-sm font-medium">
-                {
-                  currentStep === 'amount' ? '25%' :
-                  currentStep === 'recipient' ? '50%' :
-                  currentStep === 'payment' ? '75%' : '100%'
-                }
+                {stepInfo.percent}
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-primary h-2 rounded-full transition-all duration-300" 
-                style={{ 
-                  width: 
-                    currentStep === 'amount' ? '25%' :
-                    currentStep === 'recipient' ? '50%' :
-                    currentStep === 'payment' ? '75%' : '100%'
-                }}
+                style={{ width: stepInfo.percent }}
               ></div>
             </div>
           </div>

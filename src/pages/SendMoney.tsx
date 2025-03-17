@@ -1,18 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
-import AmountStep from '@/components/send-money/AmountStep';
 import RecipientStep from '@/components/send-money/RecipientStep';
 import PaymentStep from '@/components/send-money/PaymentStep';
 import ConfirmationStep from '@/components/send-money/ConfirmationStep';
 import { useToast } from '@/components/ui/use-toast';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Skeleton } from '@/components/ui/skeleton';
 import LoadingState from '@/components/transaction/LoadingState';
 
-type SendMoneyStep = 'amount' | 'recipient' | 'payment' | 'confirmation';
+type SendMoneyStep = 'recipient' | 'payment' | 'confirmation';
 
 const SendMoney = () => {
   const navigate = useNavigate();
@@ -22,7 +19,6 @@ const SendMoney = () => {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   
-  // Initialize with default values
   const [transactionData, setTransactionData] = useState<any>({
     amount: 100,
     sourceCurrency: 'USD',
@@ -34,10 +30,8 @@ const SendMoney = () => {
     selectedProvider: '',
   });
   
-  // Initialize starting step - will be updated if we have pending transaction
-  const [currentStep, setCurrentStep] = useState<SendMoneyStep>('amount');
+  const [currentStep, setCurrentStep] = useState<SendMoneyStep>('recipient');
 
-  // Check for pending transaction data with a small delay to avoid UI jank
   useEffect(() => {
     const timer = setTimeout(() => {
       const pendingTransaction = localStorage.getItem('pendingTransaction');
@@ -47,7 +41,6 @@ const SendMoney = () => {
           const data = JSON.parse(pendingTransaction);
           console.log('Found pending transaction:', data);
           
-          // Update transaction data with values from localStorage
           setTransactionData(prev => ({
             ...prev,
             amount: parseFloat(data.sendAmount) || 100,
@@ -56,10 +49,6 @@ const SendMoney = () => {
             convertedAmount: parseFloat(data.receiveAmount.replace(/,/g, '')) || 61000,
           }));
           
-          // Skip to recipient step if we already have transaction details from homepage
-          setCurrentStep('recipient');
-          
-          // Clear pending transaction after loading it
           localStorage.removeItem('pendingTransaction');
         } catch (error) {
           console.error('Error parsing pending transaction:', error);
@@ -67,12 +56,11 @@ const SendMoney = () => {
       }
       
       setInitialDataLoaded(true);
-    }, 50); // Small delay for better performance
+    }, 50);
     
     return () => clearTimeout(timer);
   }, []);
 
-  // Check authentication status separately with a small timeout
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!loading) {
@@ -84,7 +72,6 @@ const SendMoney = () => {
     return () => clearTimeout(timer);
   }, [loading, isLoggedIn]);
 
-  // Perform redirect if needed once both data and auth are checked
   useEffect(() => {
     if (initialDataLoaded && authChecked && !loading && !isLoggedIn) {
       console.log('User not logged in, redirecting to signin');
@@ -93,17 +80,12 @@ const SendMoney = () => {
   }, [initialDataLoaded, authChecked, isLoggedIn, loading, navigate]);
 
   const handleNext = () => {
-    // This is no longer needed as we handle redirect in the useEffect
-    // but we'll keep the check as a fallback for safety
-    if (!isLoggedIn && currentStep === 'amount') {
+    if (!isLoggedIn) {
       navigate('/signin', { state: { redirectTo: '/send' } });
       return;
     }
 
     switch (currentStep) {
-      case 'amount':
-        setCurrentStep('recipient');
-        break;
       case 'recipient':
         setCurrentStep('payment');
         break;
@@ -111,9 +93,7 @@ const SendMoney = () => {
         setCurrentStep('confirmation');
         break;
       case 'confirmation':
-        // Handle transaction completion
         setIsSubmitting(true);
-        // Simulate API call
         setTimeout(() => {
           setIsSubmitting(false);
           toast({
@@ -121,16 +101,13 @@ const SendMoney = () => {
             description: "Your transaction has been initiated successfully.",
           });
           navigate('/transaction/new');
-        }, 1000); // Reduced from 1500 for better performance
+        }, 1000);
         break;
     }
   };
 
   const handleBack = () => {
     switch (currentStep) {
-      case 'recipient':
-        setCurrentStep('amount');
-        break;
       case 'payment':
         setCurrentStep('recipient');
         break;
@@ -146,29 +123,19 @@ const SendMoney = () => {
     setTransactionData(prev => ({ ...prev, ...data }));
   };
 
-  // Show better loading UI until we've checked everything
   if (!initialDataLoaded || loading || !authChecked) {
     return <LoadingState />;
   }
 
-  // If we've reached this point, the user is authenticated and data is loaded
   const renderStep = () => {
     switch (currentStep) {
-      case 'amount':
-        return (
-          <AmountStep
-            transactionData={transactionData}
-            updateTransactionData={updateTransactionData}
-            onNext={handleNext}
-          />
-        );
       case 'recipient':
         return (
           <RecipientStep
             transactionData={transactionData}
             updateTransactionData={updateTransactionData}
             onNext={handleNext}
-            onBack={handleBack}
+            onBack={() => navigate('/')}
           />
         );
       case 'payment':
@@ -196,7 +163,7 @@ const SendMoney = () => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <SendMoneyLayout 
         currentStep={currentStep} 
-        stepCount={4}
+        stepCount={3}
       >
         {renderStep()}
       </SendMoneyLayout>

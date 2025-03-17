@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import CountrySelector from '@/components/CountrySelector';
 
+// NOTE: This component is no longer used in the main flow
+// It has been replaced by direct transaction data from the ExchangeRateCalculator
+// Kept for reference or potential future use
+
 export interface AmountStepProps {
   transactionData: {
     amount: number;
