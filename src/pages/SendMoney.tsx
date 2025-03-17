@@ -18,17 +18,22 @@ const SendMoney = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isLoggedIn, loading, user } = useAuth();
-  const { countries } = useCountries();
+  const { countries, isLoading: countriesLoading } = useCountries();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   
-  // Get user's country code for default target country if available
-  const defaultTargetCurrency = user?.country || 'CM';
+  console.log('SendMoney - Auth status:', { isLoggedIn, loading, user });
+  console.log('SendMoney - Countries loaded:', { countriesLoading, count: countries.length });
   
-  // Make sure we're using a valid country code, not currency code
-  const defaultCountry = countries.find(c => c.code === defaultTargetCurrency) || 
+  // Default to Cameroon if user country not available
+  const defaultCountryCode = user?.country || 'CM';
+  
+  // Find the country by code
+  const defaultCountry = countries.find(c => c.code === defaultCountryCode) || 
                          countries.find(c => c.code === 'CM');
+  
+  console.log('SendMoney - Default country:', { defaultCountryCode, defaultCountry });
   
   const [transactionData, setTransactionData] = useState<any>({
     amount: 100,
@@ -43,11 +48,10 @@ const SendMoney = () => {
   });
   
   console.log('SendMoney - Initial transaction data:', transactionData);
-  console.log('SendMoney - User data:', user);
-  console.log('SendMoney - Available countries:', countries.map(c => `${c.name} (${c.code}) - ${c.currency}`));
   
   const [currentStep, setCurrentStep] = useState<SendMoneyStep>('recipient');
 
+  // Load pending transaction from localStorage if available
   useEffect(() => {
     const timer = setTimeout(() => {
       const pendingTransaction = localStorage.getItem('pendingTransaction');
@@ -57,12 +61,15 @@ const SendMoney = () => {
           const data = JSON.parse(pendingTransaction);
           console.log('Found pending transaction:', data);
           
+          // Find the country with matching currency code
+          const targetCountry = countries.find(c => c.currency === data.targetCurrency)?.code || 'CM';
+          
           setTransactionData(prev => ({
             ...prev,
             amount: parseFloat(data.sendAmount) || 100,
             sourceCurrency: data.sourceCurrency || 'USD',
-            targetCurrency: data.targetCurrency || defaultCountry?.currency || 'XAF',
-            targetCountry: defaultCountry?.code || 'CM',
+            targetCurrency: data.targetCurrency || 'XAF',
+            targetCountry,
             convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 61000,
           }));
           
@@ -73,22 +80,24 @@ const SendMoney = () => {
       }
       
       setInitialDataLoaded(true);
-    }, 50);
+    }, 100);
     
     return () => clearTimeout(timer);
-  }, [defaultCountry]);
+  }, [countries]);
 
+  // Check authentication status
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!loading) {
-        console.log('Auth status check in SendMoney:', { isLoggedIn });
+        console.log('Auth status check complete:', { isLoggedIn });
         setAuthChecked(true);
       }
-    }, 50);
+    }, 100);
     
     return () => clearTimeout(timer);
   }, [loading, isLoggedIn]);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (initialDataLoaded && authChecked && !loading && !isLoggedIn) {
       console.log('User not logged in, redirecting to signin');
@@ -141,8 +150,9 @@ const SendMoney = () => {
     setTransactionData(prev => ({ ...prev, ...data }));
   };
 
-  if (!initialDataLoaded || loading || !authChecked) {
-    return <LoadingState />;
+  // Show loading state if we're still initializing
+  if (loading || countriesLoading || !initialDataLoaded || !authChecked) {
+    return <LoadingState message="Preparing your transaction..." />;
   }
 
   const renderStep = () => {

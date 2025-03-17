@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Country } from '@/hooks/useCountries';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 import { getProviderOptions, getIconComponent } from './PaymentProviderData';
+import { Loader2 } from 'lucide-react';
 
 interface PaymentMethodListProps {
   selectedCountry: string;
@@ -56,6 +57,19 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
       duration: 2000,
     });
   };
+
+  // Loading state
+  if (!selectedCountryData && selectedCountry) {
+    return (
+      <motion.div variants={itemVariants} className="mb-4">
+        <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
+        <div className="p-6 flex flex-col items-center justify-center bg-gray-50 border border-gray-200 rounded-lg">
+          <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
+          <p className="text-gray-600 text-sm">Loading payment methods...</p>
+        </div>
+      </motion.div>
+    );
+  }
 
   // If we don't have a valid country, show a message
   if (!selectedCountryData) {

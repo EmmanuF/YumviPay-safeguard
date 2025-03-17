@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -7,6 +7,7 @@ import { useCountries } from '@/hooks/useCountries';
 import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
 import { providerOptions, getProviderOptions } from './PaymentProviderData';
+import { Loader2 } from 'lucide-react';
 
 export interface PaymentStepProps {
   transactionData: {
@@ -18,6 +19,7 @@ export interface PaymentStepProps {
     recipientName?: string;
     paymentMethod: string | null;
     selectedProvider?: string;
+    targetCountry?: string;
   };
   updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
@@ -31,13 +33,18 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onBack
 }) => {
   const { toast } = useToast();
-  const { countries, getCountryByCode } = useCountries();
+  const { countries, getCountryByCode, isLoading } = useCountries();
+  const [isInitialized, setIsInitialized] = useState(false);
   
-  // Find the country with the matching currency code
-  const selectedCountry = countries.find(country => country.currency === transactionData.targetCurrency) || 
-                          countries.find(country => country.code === 'CM'); // Default to Cameroon
+  // The country code to use - either from targetCountry or found by currency
+  const countryCode = transactionData.targetCountry || 
+                     (countries.find(country => country.currency === transactionData.targetCurrency)?.code || 'CM');
+  
+  // Find the selected country data
+  const selectedCountry = getCountryByCode(countryCode);
   
   console.log('PaymentStep - transactionData:', transactionData);
+  console.log('PaymentStep - countryCode:', countryCode);
   console.log('PaymentStep - selectedCountry:', selectedCountry);
   
   const containerVariants = {
@@ -57,13 +64,21 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
+  // Ensure we have a targetCountry set
+  useEffect(() => {
+    if (!transactionData.targetCountry && countryCode && !isInitialized) {
+      updateTransactionData({ targetCountry: countryCode });
+      setIsInitialized(true);
+    }
+  }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized]);
+
   // Reset provider selection when payment method changes
   useEffect(() => {
-    if (transactionData.paymentMethod && selectedCountry) {
+    if (transactionData.paymentMethod && countryCode) {
       // Get available providers for this payment method and country
       const providers = getProviderOptions(
         transactionData.paymentMethod, 
-        selectedCountry.code
+        countryCode
       );
       
       console.log('Available providers:', providers);
@@ -74,7 +89,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         console.log('Auto-selected provider:', providers[0].id);
       }
     }
-  }, [transactionData.paymentMethod, selectedCountry, updateTransactionData, transactionData.selectedProvider]);
+  }, [transactionData.paymentMethod, countryCode, updateTransactionData, transactionData.selectedProvider]);
 
   const handleProceedToPayment = () => {
     toast({
@@ -85,6 +100,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     onNext();
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+        <Loader2 className="h-12 w-12 text-primary animate-spin" />
+        <p className="text-gray-600">Loading payment options...</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       variants={containerVariants}
@@ -93,7 +117,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       className="space-y-6"
     >
       <PaymentMethodList 
-        selectedCountry={selectedCountry?.code || 'CM'}
+        selectedCountry={countryCode}
         selectedCountryData={selectedCountry}
         selectedPaymentMethod={transactionData.paymentMethod}
         selectedProvider={transactionData.selectedProvider}
@@ -110,7 +134,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       <TransactionSummary 
         amount={String(transactionData.amount)}
         selectedCountryData={selectedCountry}
-        selectedCountry={selectedCountry?.code || 'CM'}
+        selectedCountry={countryCode}
         recipientName={transactionData.recipientName || ''}
         recipient={transactionData.recipient || ''}
         selectedPaymentMethod={transactionData.paymentMethod}
