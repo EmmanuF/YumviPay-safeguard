@@ -13,7 +13,7 @@ const FooterBottom: React.FC = () => {
       
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-xs text-gray-500">
-          {t('footer.copyright')}
+          © 2024 Yumvi-Pay. All rights reserved.
         </p>
         
         <div className="flex gap-6">

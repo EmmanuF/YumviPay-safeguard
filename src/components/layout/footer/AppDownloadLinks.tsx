@@ -7,7 +7,7 @@ const AppDownloadLinks: React.FC = () => {
   
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-600 font-medium">{t('footer.app.download')}</p>
+      <p className="text-base font-semibold text-primary-800 mb-2">{t('footer.app.download')}</p>
       <div className="flex space-x-3">
         <a 
           href="https://apps.apple.com" 

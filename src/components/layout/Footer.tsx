@@ -18,7 +18,7 @@ const Footer = () => {
   const isMobile = useIsMobile();
   
   return (
-    <footer className="bg-gradient-to-b from-white to-gray-50 pt-10 pb-6">
+    <footer className="bg-gradient-to-b from-white to-gray-50 pt-12 pb-6">
       <div className="container mx-auto px-5">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -30,7 +30,7 @@ const Footer = () => {
           
           {/* Navigation Links Columns */}
           <div className="md:col-span-8 lg:col-span-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-8">
               {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>

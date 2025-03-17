@@ -21,12 +21,12 @@ const FooterSection: React.FC<FooterSectionProps> = ({
   // Only make sections expandable on mobile
   if (isMobile) {
     return (
-      <div className={cn("mb-6", className)}>
+      <div className={cn("mb-8", className)}>
         <button 
-          className="flex items-center justify-between w-full text-left mb-2"
+          className="flex items-center justify-between w-full text-left mb-3"
           onClick={() => setExpanded(!expanded)}
         >
-          <h3 className="text-sm font-semibold text-primary-800">{title}</h3>
+          <h3 className="text-base font-semibold text-primary-800">{title}</h3>
           <ArrowRight 
             className={cn(
               "h-4 w-4 text-primary-500 transition-transform", 
@@ -35,7 +35,7 @@ const FooterSection: React.FC<FooterSectionProps> = ({
           />
         </button>
         <div className={cn(
-          "space-y-2.5 overflow-hidden transition-all", 
+          "space-y-1 overflow-hidden transition-all", 
           expanded ? "max-h-96" : "max-h-0"
         )}>
           {children}
@@ -45,9 +45,9 @@ const FooterSection: React.FC<FooterSectionProps> = ({
   }
   
   return (
-    <div className={cn("mb-6", className)}>
-      <h3 className="text-sm font-semibold text-primary-800 mb-4">{title}</h3>
-      <div className="space-y-2.5">
+    <div className={cn("mb-8", className)}>
+      <h3 className="text-base font-semibold text-primary-800 mb-4">{title}</h3>
+      <div className="space-y-1">
         {children}
       </div>
     </div>

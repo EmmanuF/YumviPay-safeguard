@@ -16,7 +16,7 @@ const NewsletterSubscription: React.FC = () => {
   
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <p className="text-sm text-gray-600 font-medium">{t('footer.newsletter')}</p>
+      <p className="text-base font-semibold text-primary-800 mb-2">{t('footer.newsletter')}</p>
       <div className="flex gap-2">
         <Input
           type="email"
