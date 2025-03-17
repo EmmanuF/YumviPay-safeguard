@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowRight, Shield, Phone } from 'lucide-react';
 import { registerUser, setOnboardingComplete } from '@/services/auth';
 import { useCountries } from '@/hooks/useCountries';
+import { supabase } from '@/integrations/supabase/client';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -30,9 +31,13 @@ const Onboarding = () => {
   useEffect(() => {
     // Check if user is already logged in via Supabase
     const checkAuthStatus = async () => {
-      const { data } = await import('@/integrations/supabase/client').then(m => m.supabase.auth.getSession());
+      const { data } = await supabase.auth.getSession();
+      console.log('Checking auth status:', data.session ? 'Authenticated' : 'Not authenticated');
+      
       if (data.session) {
         // If user is already logged in, redirect them to the appropriate page
+        await setOnboardingComplete(); // Ensure onboarding is marked as complete
+        
         if (pendingTransaction) {
           navigate('/send');
         } else {
@@ -94,13 +99,15 @@ const Onboarding = () => {
     setIsSubmitting(true);
     
     try {
-      await registerUser(
+      console.log('Starting registration process...');
+      const user = await registerUser(
         formData.name,
         formData.email,
         formData.phone,
         sourceCountry.code // Use source country code instead of fixed "CM"
       );
       
+      console.log('Registration successful:', user);
       await setOnboardingComplete();
       
       toast({
@@ -108,11 +115,14 @@ const Onboarding = () => {
         description: "Your account has been created successfully.",
       });
       
-      if (pendingTransaction) {
-        navigate('/send');
-      } else {
-        navigate('/dashboard');
-      }
+      // Add a slight delay before redirecting to ensure state is updated
+      setTimeout(() => {
+        if (pendingTransaction) {
+          navigate('/send');
+        } else {
+          navigate('/dashboard');
+        }
+      }, 500);
     } catch (error) {
       console.error('Registration error:', error);
       toast({
