@@ -1,34 +1,15 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useLocale } from '@/contexts/LocaleContext';
-import { Separator } from '@/components/ui/separator';
 
 const FooterBottom: React.FC = () => {
-  const { t } = useLocale();
-  
   return (
-    <>
-      <Separator className="my-6 bg-gray-200" />
-      
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-xs text-gray-500">
-          © 2024 Yumvi-Pay. All rights reserved.
-        </p>
-        
-        <div className="flex gap-6">
-          <Link to="/terms" className="text-xs text-gray-500 hover:text-primary-600 transition-colors">
-            {t('footer.terms')}
-          </Link>
-          <Link to="/privacy" className="text-xs text-gray-500 hover:text-primary-600 transition-colors">
-            {t('footer.privacy')}
-          </Link>
-          <Link to="/cookies" className="text-xs text-gray-500 hover:text-primary-600 transition-colors">
-            {t('footer.cookies')}
-          </Link>
+    <div className="mt-12 pt-6 border-t border-gray-200">
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="text-sm text-gray-500">
+          © {new Date().getFullYear()} Yumvi-Pay. All rights reserved.
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

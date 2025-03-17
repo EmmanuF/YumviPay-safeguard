@@ -25,7 +25,6 @@ const Footer = () => {
           {/* Company Information Column */}
           <div className="md:col-span-4 lg:col-span-3">
             <CompanyInfo />
-            <SocialIcons />
             
             {/* App Download Links moved to bottom left */}
             <div className="mt-8">
@@ -60,7 +59,7 @@ const Footer = () => {
                 <FooterLink to="/support">{t('footer.support')}</FooterLink>
               </FooterSection>
               
-              {/* Countries moved to be in line with other sections */}
+              {/* Countries section */}
               <FooterSection title={t('footer.countries')}>
                 <FooterLink to="/country/cameroon">Cameroon</FooterLink>
                 <FooterLink to="/country/senegal">Senegal</FooterLink>
@@ -77,8 +76,19 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Footer Bottom Bar */}
-        <FooterBottom />
+        {/* Footer Bottom Bar with Social Icons moved to far right */}
+        <div className="mt-12 pt-6 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="text-sm text-gray-500">
+              © {new Date().getFullYear()} Yumvi-Pay. All rights reserved.
+            </div>
+            
+            {/* Social Icons moved to bottom right */}
+            <div className="mt-4 md:mt-0">
+              <SocialIcons />
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   );
