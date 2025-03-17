@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import PageTransition from '@/components/PageTransition';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -21,10 +21,13 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 import MobileAppLayout from '@/components/MobileAppLayout';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { deepLinkService } from '@/services/deepLinkService';
+import { isPlatform } from '@/utils/platformUtils';
 import './App.css';
 
 function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Hide the splash screen with a fade animation
@@ -33,7 +36,37 @@ function App() {
     }).catch(error => {
       console.error('Error hiding splash screen:', error);
     });
-  }, []);
+    
+    // Set up deep link handling
+    if (isPlatform('mobile')) {
+      // Add a listener for deep links
+      const removeListener = deepLinkService.addListener((url) => {
+        try {
+          console.log('Deep link received in App.tsx:', url);
+          
+          // Parse the deep link URL
+          const { path, params } = deepLinkService.parseDeepLink(url);
+          
+          if (path) {
+            // Navigate to the appropriate route
+            navigate(`/${path}`, { 
+              state: { 
+                source: params.source,
+                ...params 
+              } 
+            });
+            
+            console.log(`Navigated to /${path} with params:`, params);
+          }
+        } catch (error) {
+          console.error('Error handling deep link:', error);
+        }
+      });
+      
+      // Clean up listener when component unmounts
+      return () => removeListener();
+    }
+  }, [navigate]);
   
   return (
     <AuthProvider>

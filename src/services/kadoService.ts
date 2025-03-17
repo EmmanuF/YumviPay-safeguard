@@ -3,6 +3,8 @@ import { Transaction } from '@/types/transaction';
 import { simulateKadoWebhook, getTransactionById } from '@/services/transactions';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { deepLinkService } from './deepLinkService';
+import { isPlatform } from '@/utils/platformUtils';
 
 /**
  * Interface for Kado redirect params
@@ -39,11 +41,26 @@ export const kadoService = {
    * @returns Promise that resolves when redirected
    */
   redirectToKado: async (params: KadoRedirectParams): Promise<void> => {
+    // Generate appropriate return URL based on platform
+    let returnUrl: string;
+    
+    if (isPlatform('mobile')) {
+      // Generate a deep link for native apps
+      returnUrl = deepLinkService.generateDeepLink(
+        `transaction/${params.transactionId}`,
+        { source: 'kado' }
+      );
+    } else {
+      // Use web URL format for browser
+      returnUrl = params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`;
+    }
+    
     // In a real app, this would construct a URL to Kado's payment page
-    const kadoUrl = `https://kado.com/pay?amount=${params.amount}&recipient=${encodeURIComponent(params.recipientName)}&country=${params.country}&payment_method=${params.paymentMethod}&transaction_id=${params.transactionId}&return_url=${encodeURIComponent(params.returnUrl)}`;
+    const kadoUrl = `https://kado.com/pay?amount=${params.amount}&recipient=${encodeURIComponent(params.recipientName)}&country=${params.country}&payment_method=${params.paymentMethod}&transaction_id=${params.transactionId}&return_url=${encodeURIComponent(returnUrl)}`;
     
     // For simulation purposes, we'll just log the URL
     console.log(`Redirecting to Kado: ${kadoUrl}`);
+    console.log(`Return URL: ${returnUrl}`);
     
     // Show a toast indicating that we're redirecting
     toast({

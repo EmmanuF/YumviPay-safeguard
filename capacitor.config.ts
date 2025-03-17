@@ -23,12 +23,23 @@ const config: CapacitorConfig = {
       style: 'dark',
       backgroundColor: '#5B3CC4',
     },
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
   },
   ios: {
     contentInset: 'always',
+    scheme: 'yumvipay',
+    appStoreTeamId: 'YumviPay',
   },
   android: {
     backgroundColor: "#5B3CC4",
+    allowMixedContent: true,
+    appendUserAgent: "YumviPayApp",
+    buildOptions: {
+      keystorePath: null,
+      keystoreAlias: null,
+    },
   },
 };
 
