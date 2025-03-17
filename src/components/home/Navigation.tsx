@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
@@ -6,6 +5,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 interface NavItem {
   name: string;
@@ -53,16 +53,13 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   ];
   
   const handleNavigation = (path: string) => {
-    // Prevent multiple navigations happening simultaneously
     if (isNavigating || path === location.pathname) return;
     
     console.log(`Navigating to: ${path}`);
     setIsNavigating(true);
     
-    // Add a small delay to ensure smooth transition
     setTimeout(() => {
       navigate(path);
-      // Reset after a short delay to allow the animation to complete
       setTimeout(() => setIsNavigating(false), 400);
     }, 50);
   };
@@ -75,7 +72,6 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       if (onGetStarted) {
         onGetStarted();
       } else {
-        // If already logged in, navigate to dashboard instead of sign in
         navigate(isLoggedIn ? '/dashboard' : '/signin');
       }
       setTimeout(() => setIsNavigating(false), 400);
@@ -113,6 +109,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <LocaleSwitcher />
+          
           {!isLoggedIn ? (
             <button
               onClick={() => handleNavigation('/signin')}
