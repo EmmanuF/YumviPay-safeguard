@@ -17,10 +17,10 @@ const Testimonials = () => {
     {
       id: 2,
       name: "Marie L.",
-      location: "Canada to Kenya",
+      location: "Canada to Cameroon",
       avatar: null,
       rating: 5,
-      text: "I've tried several transfer services, but Yumvi-Pay offers the best rates and fastest delivery to Kenya. Highly recommended!"
+      text: "I've tried several transfer services, but Yumvi-Pay offers the best rates and fastest delivery to Cameroon. Highly recommended!"
     },
     {
       id: 3,
