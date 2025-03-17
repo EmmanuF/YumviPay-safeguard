@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 interface SendMoneyLayoutProps {
   title?: string;
   children: ReactNode;
-  currentStep?: string;
+  currentStep?: number | string;
   stepCount?: number;
 }
 
@@ -19,24 +19,36 @@ const SendMoneyLayout: React.FC<SendMoneyLayoutProps> = ({
   const stepTitle = (() => {
     if (!currentStep) return title;
     
-    switch(currentStep) {
-      case 'recipient': return 'Add Recipient';
-      case 'payment': return 'Payment Method';
-      case 'confirmation': return 'Confirm Transfer';
-      default: return title;
+    if (typeof currentStep === 'string') {
+      switch(currentStep) {
+        case 'recipient': return 'Add Recipient';
+        case 'payment': return 'Payment Method';
+        case 'confirmation': return 'Confirm Transfer';
+        default: return title;
+      }
     }
+    
+    return title;
   })();
   
   // Calculate step number and percentage based on current step
   const getStepInfo = () => {
     if (!currentStep) return { number: 0, percent: '0%' };
     
-    switch(currentStep) {
-      case 'recipient': return { number: 1, percent: '33%' };
-      case 'payment': return { number: 2, percent: '66%' };
-      case 'confirmation': return { number: 3, percent: '100%' };
-      default: return { number: 0, percent: '0%' };
+    if (typeof currentStep === 'string') {
+      switch(currentStep) {
+        case 'recipient': return { number: 1, percent: '33%' };
+        case 'payment': return { number: 2, percent: '66%' };
+        case 'confirmation': return { number: 3, percent: '100%' };
+        default: return { number: 0, percent: '0%' };
+      }
     }
+    
+    // If it's a number, use it directly
+    return { 
+      number: currentStep, 
+      percent: `${Math.min(100, Math.round((currentStep / (stepCount || 1)) * 100))}%` 
+    };
   };
   
   const stepInfo = getStepInfo();
