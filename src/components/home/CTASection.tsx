@@ -1,12 +1,42 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail, Phone, MessageSquare } from 'lucide-react';
+import { ArrowRight, Mail, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 const CTASection = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate form submission
+    setTimeout(() => {
+      toast.success('Your message has been sent. We will contact you soon.');
+      setFormData({
+        name: '',
+        email: '',
+        message: ''
+      });
+      setIsSubmitting(false);
+    }, 1000);
+  };
   
   return (
     <motion.div 
@@ -48,8 +78,9 @@ const CTASection = () => {
                   variant="outline"
                   className="border-white/30 text-white hover:bg-white/10"
                   size="lg"
+                  onClick={() => navigate('/support/contact')}
                 >
-                  <Phone className="mr-2 h-5 w-5" />
+                  <Mail className="mr-2 h-5 w-5" />
                   Contact Us
                 </Button>
               </motion.div>
@@ -57,37 +88,51 @@ const CTASection = () => {
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
               <h3 className="text-xl font-semibold mb-4">Get In Touch</h3>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="bg-white/20 p-2 rounded-full mr-3">
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm opacity-80">Email Us</p>
-                    <p className="font-medium">support@yumvi-pay.com</p>
-                  </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Your Name"
+                    required
+                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white"
+                  />
                 </div>
                 
-                <div className="flex items-center">
-                  <div className="bg-white/20 p-2 rounded-full mr-3">
-                    <Phone className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm opacity-80">Call Us</p>
-                    <p className="font-medium">+1 (234) 567-8901</p>
-                  </div>
+                <div>
+                  <Input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Your Email"
+                    required
+                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white"
+                  />
                 </div>
                 
-                <div className="flex items-center">
-                  <div className="bg-white/20 p-2 rounded-full mr-3">
-                    <MessageSquare className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm opacity-80">Live Chat</p>
-                    <p className="font-medium">Available 24/7</p>
-                  </div>
+                <div>
+                  <Textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Your Message"
+                    required
+                    rows={3}
+                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white resize-none"
+                  />
                 </div>
-              </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-white text-primary-600 hover:bg-white/90" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  <Send className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
             </div>
           </div>
         </div>
