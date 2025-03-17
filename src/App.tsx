@@ -17,6 +17,7 @@ import SignUp from '@/pages/SignUp';
 import SendMoney from '@/pages/SendMoney';
 import TransactionHistory from '@/pages/TransactionHistory';
 import Recipients from '@/pages/Recipients';
+import NotFound from '@/pages/NotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
@@ -67,6 +68,9 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
+                
+                {/* 404 Not Found */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />
             </BrowserRouter>

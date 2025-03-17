@@ -48,6 +48,11 @@ const Recipients = () => {
     sortOption
   );
 
+  // Filter recipients based on active tab
+  const displayedRecipients = activeTab === 'favorites' 
+    ? filteredRecipients.filter(recipient => recipient.isFavorite)
+    : filteredRecipients;
+
   const handleAddRecipient = async (data: Omit<Recipient, 'id' | 'lastUsed' | 'usageCount' | 'verified'>) => {
     await addRecipient({
       ...data,
@@ -133,48 +138,61 @@ const Recipients = () => {
         <Header title="Recipients" showBackButton={true} />
         
         <div className="flex-1 p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="mb-4">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="all">All Recipients</TabsTrigger>
                 <TabsTrigger value="favorites">Favorites</TabsTrigger>
               </TabsList>
-            </Tabs>
-          </div>
-          
-          {/* Add categories filter */}
-          <div className="mb-4">
-            <RecipientCategories
-              selectedCategory={selectedCategory}
-              onChange={setSelectedCategory}
-            />
-          </div>
-          
-          <SearchSortToolbar 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
-          />
-
-          <div className="mb-4">
-            <ContactImporter onImport={handleImportContacts} />
-          </div>
-
-          <div className="space-y-3 mb-20">
-            <TabsContent value={activeTab} className="mt-0">
-              <RecipientsList 
-                recipients={filteredRecipients}
-                loading={loading}
-                searchQuery={searchQuery}
-                activeTab={activeTab}
-                onSelectRecipient={handleSelectRecipient}
-                onEditRecipient={handleEditRecipient}
-                onDeleteRecipient={handleDeleteRecipient}
-                onToggleFavorite={toggleFavorite}
+            </div>
+            
+            {/* Add categories filter */}
+            <div className="mb-4">
+              <RecipientCategories
+                selectedCategory={selectedCategory}
+                onChange={setSelectedCategory}
               />
-            </TabsContent>
-          </div>
+            </div>
+            
+            <SearchSortToolbar 
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+            />
+
+            <div className="mb-4">
+              <ContactImporter onImport={handleImportContacts} />
+            </div>
+
+            <div className="space-y-3 mb-20">
+              <TabsContent value="all">
+                <RecipientsList 
+                  recipients={displayedRecipients}
+                  loading={loading}
+                  searchQuery={searchQuery}
+                  activeTab={activeTab}
+                  onSelectRecipient={handleSelectRecipient}
+                  onEditRecipient={handleEditRecipient}
+                  onDeleteRecipient={handleDeleteRecipient}
+                  onToggleFavorite={toggleFavorite}
+                />
+              </TabsContent>
+              
+              <TabsContent value="favorites">
+                <RecipientsList 
+                  recipients={displayedRecipients}
+                  loading={loading}
+                  searchQuery={searchQuery}
+                  activeTab={activeTab}
+                  onSelectRecipient={handleSelectRecipient}
+                  onEditRecipient={handleEditRecipient}
+                  onDeleteRecipient={handleDeleteRecipient}
+                  onToggleFavorite={toggleFavorite}
+                />
+              </TabsContent>
+            </div>
+          </Tabs>
         </div>
 
         <div className="fixed bottom-20 left-0 right-0 px-4 z-10">
