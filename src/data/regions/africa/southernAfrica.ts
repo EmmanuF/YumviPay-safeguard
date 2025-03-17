@@ -7,7 +7,7 @@ export const southernAfricanCountries: Country[] = [
     code: 'ZA',
     flagUrl: 'https://flagcdn.com/za.svg',
     currency: 'ZAR',
-    isSendingEnabled: true,
+    isSendingEnabled: false, // Changed from true to false
     isReceivingEnabled: true,
     paymentMethods: [
       {

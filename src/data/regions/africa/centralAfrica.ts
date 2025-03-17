@@ -7,7 +7,7 @@ export const centralAfricanCountries: Country[] = [
     code: 'CM',
     flagUrl: 'https://flagcdn.com/cm.svg',
     currency: 'XAF',
-    isSendingEnabled: true,
+    isSendingEnabled: false, // Changed from true to false
     isReceivingEnabled: true,
     paymentMethods: [
       {

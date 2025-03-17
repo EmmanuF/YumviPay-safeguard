@@ -7,7 +7,7 @@ export const eastAfricanCountries: Country[] = [
     code: 'KE',
     flagUrl: 'https://flagcdn.com/ke.svg',
     currency: 'KES',
-    isSendingEnabled: true,
+    isSendingEnabled: false, // Changed from true to false
     isReceivingEnabled: true,
     paymentMethods: [
       {

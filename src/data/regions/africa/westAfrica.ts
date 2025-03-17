@@ -7,7 +7,7 @@ export const westAfricanCountries: Country[] = [
     code: 'NG',
     flagUrl: 'https://flagcdn.com/ng.svg',
     currency: 'NGN',
-    isSendingEnabled: true,
+    isSendingEnabled: false, // Changed from true to false
     isReceivingEnabled: true,
     paymentMethods: [
       {
@@ -33,7 +33,7 @@ export const westAfricanCountries: Country[] = [
     code: 'GH',
     flagUrl: 'https://flagcdn.com/gh.svg',
     currency: 'GHS',
-    isSendingEnabled: true,
+    isSendingEnabled: false, // Changed from true to false
     isReceivingEnabled: true,
     paymentMethods: [
       {
