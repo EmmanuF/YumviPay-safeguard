@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
 import { Device } from '@capacitor/device';
 import { Preferences } from '@capacitor/preferences';
 import { NativeBiometric, BiometricOptions } from 'capacitor-native-biometric';
+import { BiometricCredentials } from './types';
 
 const BIOMETRIC_ENABLED_KEY = 'biometric_auth_enabled';
 const BIOMETRIC_CREDENTIALS_PREFIX = 'bio_cred_';
@@ -87,7 +87,7 @@ export const BiometricService = {
   /**
    * Retrieve stored credentials
    */
-  getStoredCredentials: async (): Promise<{ username: string; password: string } | null> => {
+  getStoredCredentials: async (): Promise<BiometricCredentials | null> => {
     try {
       const credentials = await NativeBiometric.getCredentials({
         server: 'app.yumvipay.com',
@@ -152,68 +152,4 @@ export const BiometricService = {
       throw error;
     }
   }
-};
-
-/**
- * Custom hook for biometric authentication
- */
-export const useBiometricAuth = () => {
-  const [isAvailable, setIsAvailable] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkBiometricStatus = async () => {
-      try {
-        setIsLoading(true);
-        const available = await BiometricService.isAvailable();
-        setIsAvailable(available);
-        
-        if (available) {
-          const enabled = await BiometricService.isEnabled();
-          setIsEnabled(enabled);
-        }
-      } catch (error) {
-        console.error('Error checking biometric status:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkBiometricStatus();
-  }, []);
-
-  const enableBiometrics = async (username: string, password: string): Promise<boolean> => {
-    try {
-      if (!isAvailable) return false;
-      
-      await BiometricService.storeCredentials(username, password);
-      setIsEnabled(true);
-      return true;
-    } catch (error) {
-      console.error('Error enabling biometrics:', error);
-      return false;
-    }
-  };
-
-  const disableBiometrics = async (): Promise<boolean> => {
-    try {
-      await BiometricService.clearCredentials();
-      setIsEnabled(false);
-      return true;
-    } catch (error) {
-      console.error('Error disabling biometrics:', error);
-      return false;
-    }
-  };
-
-  return {
-    isAvailable,
-    isEnabled,
-    isLoading,
-    enableBiometrics,
-    disableBiometrics,
-    authenticate: BiometricService.authenticate,
-    getCredentials: BiometricService.getStoredCredentials
-  };
 };
