@@ -5,6 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NotificationSettings } from '@/hooks/useNotificationSettings';
 import { OfflineModeToggle } from '@/components/OfflineModeToggle';
+import { useNetwork } from '@/contexts/NetworkContext';
+import { Badge } from '@/components/ui/badge';
 
 interface NotificationPreferencesProps {
   settings: NotificationSettings;
@@ -19,6 +21,8 @@ export function NotificationPreferences({
   onSettingChange, 
   onResetDefaults 
 }: NotificationPreferencesProps) {
+  const { pendingOperationsCount, lastSyncTime } = useNetwork();
+  
   // Use the properties from the settings object
   const pushEnabled = settings.push;
   const emailEnabled = settings.email;
@@ -69,12 +73,19 @@ export function NotificationPreferences({
         
         <div className="pt-2 border-t">
           <h3 className="text-sm font-medium mb-4">Application Settings</h3>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="offline-mode" className="flex flex-col">
-              <span>Offline Mode</span>
-              <span className="text-sm text-gray-500">Work offline and sync when connection is restored</span>
-            </Label>
-            <OfflineModeToggle />
+          <div className="space-y-4">
+            <OfflineModeToggle showSync={true} />
+            
+            {lastSyncTime && (
+              <div className="text-xs text-gray-500 mt-1">
+                Last sync: {lastSyncTime.toLocaleString()}
+                {pendingOperationsCount > 0 && (
+                  <Badge variant="outline" className="ml-2">
+                    {pendingOperationsCount} pending
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
