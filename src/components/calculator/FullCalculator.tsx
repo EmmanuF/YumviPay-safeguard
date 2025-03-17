@@ -51,7 +51,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
       <div className="p-6">
         <h3 className="text-xl font-bold text-center mb-4">Send money to your loved ones</h3>
         <p className="text-center text-gray-600 text-sm mb-6">
-          We make sure more of your money goes to those you love, not to high service fees
+          Every transfer sends more than money—it sends your love, with industry-leading rates and zero hidden fees
         </p>
         
         <div className="flex items-center space-x-4 mb-4">
