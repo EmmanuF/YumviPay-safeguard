@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { Clock } from 'lucide-react';
-import Header from '@/components/Header';
-import HeaderRight from '@/components/HeaderRight';
+import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingStateProps {
   message?: string;
@@ -11,15 +10,19 @@ interface LoadingStateProps {
 
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
-  submessage
+  submessage = 'Please wait while we process your request'
 }) => {
   return (
-    <div className="flex-1 flex items-center justify-center p-4">
-      <div className="text-center">
-        <Clock className="h-10 w-10 text-primary mx-auto animate-pulse" />
-        <p className="mt-4 text-foreground">{message}</p>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center"
+      >
+        <Loader2 className="h-12 w-12 text-primary mx-auto animate-spin" />
+        <p className="mt-4 text-foreground font-medium">{message}</p>
         {submessage && <p className="mt-2 text-muted-foreground text-sm">{submessage}</p>}
-      </div>
+      </motion.div>
     </div>
   );
 };

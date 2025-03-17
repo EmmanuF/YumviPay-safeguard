@@ -4,7 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import LoadingState from '@/components/dashboard/LoadingState';
+import LoadingState from '@/components/transaction/LoadingState';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -21,6 +21,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkAuth = async () => {
       try {
         console.log('Checking auth in ProtectedRoute for', location.pathname);
+        
+        // If we already know the user is logged in from context, skip the check
+        if (isLoggedIn && !loading) {
+          console.log('User is already logged in according to context');
+          setIsAuthenticated(true);
+          setIsChecking(false);
+          return;
+        }
         
         // Add a timeout for the authentication check
         const authCheckPromise = supabase.auth.getSession();
@@ -43,6 +51,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         setIsAuthenticated(isAuthValid);
         
         if (!isAuthValid && authError) {
+          console.error('Authentication error:', authError);
           toast({
             title: "Authentication Error",
             description: authError,
@@ -64,11 +73,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
     
     checkAuth();
-  }, [authError, toast, location.pathname]);
+  }, [authError, toast, location.pathname, isLoggedIn, loading]);
   
   // Show loading state while checking authentication
   if (loading || isChecking) {
-    return <LoadingState />;
+    return <LoadingState 
+      message="Verifying authentication..." 
+      submessage="Please wait while we check your login status" 
+    />;
   }
   
   if (!isLoggedIn && !isAuthenticated) {

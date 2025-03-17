@@ -14,11 +14,18 @@ export const useSendMoneySteps = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Send Money Step:', currentStep);
-  }, [currentStep]);
+    console.log('Send Money Step:', currentStep, 'Submitting:', isSubmitting, 'Error:', error);
+  }, [currentStep, isSubmitting, error]);
+
+  const clearError = () => {
+    if (error) {
+      setError(null);
+    }
+  };
 
   const handleNext = () => {
     try {
+      clearError();
       console.log('Moving to next step from:', currentStep);
       
       switch (currentStep) {
@@ -30,6 +37,7 @@ export const useSendMoneySteps = () => {
           break;
         case 'confirmation':
           setIsSubmitting(true);
+          console.log('Submitting transaction...');
           setTimeout(() => {
             setIsSubmitting(false);
             // Use Sonner toast for better visibility
@@ -39,9 +47,12 @@ export const useSendMoneySteps = () => {
             navigate('/transaction/new');
           }, 1000);
           break;
+        default:
+          console.error('Unknown step:', currentStep);
       }
     } catch (error) {
       console.error('Error in handleNext:', error);
+      setIsSubmitting(false);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       toast.error("Error", {
         description: "There was a problem processing your request. Please try again.",
@@ -51,6 +62,7 @@ export const useSendMoneySteps = () => {
 
   const handleBack = () => {
     try {
+      clearError();
       console.log('Moving to previous step from:', currentStep);
       
       switch (currentStep) {
@@ -60,7 +72,12 @@ export const useSendMoneySteps = () => {
         case 'confirmation':
           setCurrentStep('payment');
           break;
+        case 'recipient':
+          console.log('Already at first step, navigating to home');
+          navigate('/');
+          break;
         default:
+          console.error('Unknown step:', currentStep);
           navigate('/');
       }
     } catch (error) {
