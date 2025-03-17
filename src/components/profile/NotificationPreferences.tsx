@@ -3,18 +3,31 @@ import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useProfileNotifications } from '@/hooks/useProfileNotifications';
+import { NotificationSettings } from '@/hooks/useNotificationSettings';
 import { OfflineModeToggle } from '@/components/OfflineModeToggle';
 
-export function NotificationPreferences() {
-  const { 
-    pushEnabled, 
-    emailEnabled, 
-    smsEnabled, 
-    togglePush, 
-    toggleEmail, 
-    toggleSms 
-  } = useProfileNotifications();
+interface NotificationPreferencesProps {
+  settings: NotificationSettings;
+  isLoading: boolean;
+  onSettingChange: (key: keyof NotificationSettings, checked: boolean) => void;
+  onResetDefaults: () => void;
+}
+
+export function NotificationPreferences({ 
+  settings, 
+  isLoading, 
+  onSettingChange, 
+  onResetDefaults 
+}: NotificationPreferencesProps) {
+  // Use the properties from the settings object
+  const pushEnabled = settings.push;
+  const emailEnabled = settings.email;
+  const smsEnabled = settings.sms;
+
+  // Create toggle functions that call onSettingChange
+  const togglePush = (checked: boolean) => onSettingChange('push', checked);
+  const toggleEmail = (checked: boolean) => onSettingChange('email', checked);
+  const toggleSms = (checked: boolean) => onSettingChange('sms', checked);
 
   return (
     <Card>
@@ -33,7 +46,7 @@ export function NotificationPreferences() {
                 <span>Push Notifications</span>
                 <span className="text-sm text-gray-500">Receive alerts on your device</span>
               </Label>
-              <Switch id="push" checked={pushEnabled} onCheckedChange={togglePush} />
+              <Switch id="push" checked={pushEnabled} onCheckedChange={togglePush} disabled={isLoading} />
             </div>
             
             <div className="flex items-center justify-between">
@@ -41,7 +54,7 @@ export function NotificationPreferences() {
                 <span>Email Notifications</span>
                 <span className="text-sm text-gray-500">Receive transaction updates via email</span>
               </Label>
-              <Switch id="email" checked={emailEnabled} onCheckedChange={toggleEmail} />
+              <Switch id="email" checked={emailEnabled} onCheckedChange={toggleEmail} disabled={isLoading} />
             </div>
             
             <div className="flex items-center justify-between">
@@ -49,7 +62,7 @@ export function NotificationPreferences() {
                 <span>SMS Notifications</span>
                 <span className="text-sm text-gray-500">Receive text messages for critical updates</span>
               </Label>
-              <Switch id="sms" checked={smsEnabled} onCheckedChange={toggleSms} />
+              <Switch id="sms" checked={smsEnabled} onCheckedChange={toggleSms} disabled={isLoading} />
             </div>
           </div>
         </div>

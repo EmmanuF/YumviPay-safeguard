@@ -1,12 +1,16 @@
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import OfflineBanner from './OfflineBanner';
 import { Toaster } from 'sonner';
 
-const MobileAppLayout: React.FC = () => {
+interface MobileAppLayoutProps {
+  children?: ReactNode;
+}
+
+const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
   
@@ -17,7 +21,7 @@ const MobileAppLayout: React.FC = () => {
       {!isHome && <Header />}
       
       <main className="flex-1 overflow-auto">
-        <Outlet />
+        {children || <Outlet />}
       </main>
       
       <Toaster position="top-center" />
