@@ -9,11 +9,14 @@ import PageTransition from '@/components/PageTransition';
 import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
 import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
 import { useSendMoneyTransaction } from '@/hooks/useSendMoneyTransaction';
+import { toast } from 'sonner';
 
 const SendMoney = () => {
   const navigate = useNavigate();
   const { isLoggedIn, loading, user } = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
+  
+  console.log('SendMoney: Auth status:', { isLoggedIn, loading, user });
   
   // Default to Cameroon if user country not available
   const defaultCountryCode = user?.country || 'CM';
@@ -23,13 +26,14 @@ const SendMoney = () => {
     useSendMoneyTransaction(defaultCountryCode);
   
   // Get step management
-  const { currentStep, isSubmitting, handleNext, handleBack } = useSendMoneySteps();
+  const { currentStep, isSubmitting, error, handleNext, handleBack } = useSendMoneySteps();
   
   // Check authentication status
   useEffect(() => {
+    console.log('SendMoney: Checking auth status...');
     const timer = setTimeout(() => {
       if (!loading) {
-        console.log('Auth status check complete:', { isLoggedIn });
+        console.log('SendMoney: Auth status check complete:', { isLoggedIn });
         setAuthChecked(true);
       }
     }, 100);
@@ -39,14 +43,29 @@ const SendMoney = () => {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (isInitialized && authChecked && !loading && !isLoggedIn) {
-      console.log('User not logged in, redirecting to signin');
+    if (authChecked && !loading && !isLoggedIn) {
+      console.log('SendMoney: User not logged in, redirecting to signin');
+      toast.info("Authentication Required", {
+        description: "Please sign in to continue with your transaction."
+      });
       navigate('/signin', { state: { redirectTo: '/send' } });
     }
-  }, [isInitialized, authChecked, isLoggedIn, loading, navigate]);
+  }, [authChecked, isLoggedIn, loading, navigate]);
 
-  // Show loading state if we're still initializing
-  if (loading || !isInitialized || !authChecked) {
+  // Log when transaction data is initialized
+  useEffect(() => {
+    console.log('SendMoney: Transaction initialized:', isInitialized, 'with data:', transactionData);
+  }, [isInitialized, transactionData]);
+
+  // Show appropriate loading state
+  if (loading || !authChecked) {
+    return <LoadingState 
+      message="Checking authentication..." 
+      submessage="Please wait while we verify your account"
+    />;
+  }
+  
+  if (!isInitialized) {
     return <LoadingState 
       message="Preparing your transaction..." 
       submessage="Please wait while we fetch your data"
@@ -67,6 +86,7 @@ const SendMoney = () => {
             onNext={handleNext}
             onBack={handleBack}
             isSubmitting={isSubmitting}
+            error={error}
           />
         </SendMoneyLayout>
         <div className="pb-16"></div>

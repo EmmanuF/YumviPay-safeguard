@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import RecipientStep, { RecipientStepProps } from './RecipientStep';
-import PaymentStep, { PaymentStepProps } from './PaymentStep';
-import ConfirmationStep, { ConfirmationStepProps } from './ConfirmationStep';
+import RecipientStep from './RecipientStep';
+import PaymentStep from './PaymentStep';
+import ConfirmationStep from './ConfirmationStep';
 import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface SendMoneyStepRendererProps {
   currentStep: SendMoneyStep;
@@ -13,6 +15,7 @@ interface SendMoneyStepRendererProps {
   onNext: () => void;
   onBack: () => void;
   isSubmitting: boolean;
+  error?: string | null;
 }
 
 const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
@@ -21,8 +24,21 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   updateTransactionData,
   onNext,
   onBack,
-  isSubmitting
+  isSubmitting,
+  error
 }) => {
+  console.log('Rendering step:', currentStep, 'with data:', transactionData);
+  
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
+
   const renderStep = () => {
     switch (currentStep) {
       case 'recipient':
@@ -52,6 +68,9 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
             isSubmitting={isSubmitting}
           />
         );
+      default:
+        console.error('Unknown step:', currentStep);
+        return <div>Unknown step: {currentStep}</div>;
     }
   };
 
