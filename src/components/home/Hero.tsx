@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Download, SendHorizonal, Coins } from 'lucide-react';
+import { ArrowRight, Download, Shield, Zap, Globe, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 
@@ -55,6 +55,17 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
           className="flex flex-col"
         >
           <motion.div variants={itemVariants} className="relative mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                <Zap size={16} className="mr-1" />
+                Fast & Secure
+              </span>
+              <span className="bg-secondary-100 text-secondary-700 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                <Shield size={16} className="mr-1" />
+                Protected Transfers
+              </span>
+            </div>
+            
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-600">Transfer</span>
               <span className="relative inline-block">
@@ -71,18 +82,18 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
               animate={{ rotate: [12, 5, 12], scale: [1, 1.05, 1] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Coins size={64} />
+              <Globe size={64} />
             </motion.div>
           </motion.div>
           
           <motion.p 
             variants={itemVariants}
-            className="text-lg text-gray-600 mb-8"
+            className="text-lg text-gray-600 mb-8 max-w-lg"
           >
-            Transfer money to Africa quickly, safely, and hassle-free. We make sure more of your money goes to those you love.
+            Send money to Africa with lower fees, better exchange rates, and lightning-fast transfers. Your loved ones receive funds directly to their mobile wallets or bank accounts.
           </motion.p>
           
-          <motion.div variants={itemVariants} className="flex space-x-4">
+          <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-8">
             <Button
               onClick={handleGetStarted}
               className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30"
@@ -114,7 +125,29 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
             </Button>
           </motion.div>
           
-          <motion.div variants={itemVariants} className="mt-12 flex items-center">
+          {/* Feature bullets */}
+          <motion.div variants={itemVariants} className="space-y-3 mb-8">
+            <div className="flex items-start gap-2">
+              <div className="bg-green-100 p-1 rounded-full mt-0.5">
+                <div className="text-green-600">✓</div>
+              </div>
+              <p className="text-sm text-gray-600">Fast transfers to 10+ African countries</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="bg-green-100 p-1 rounded-full mt-0.5">
+                <div className="text-green-600">✓</div>
+              </div>
+              <p className="text-sm text-gray-600">Up to 70% cheaper than traditional services</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="bg-green-100 p-1 rounded-full mt-0.5">
+                <div className="text-green-600">✓</div>
+              </div>
+              <p className="text-sm text-gray-600">No hidden fees or exchange rate markups</p>
+            </div>
+          </motion.div>
+          
+          <motion.div variants={itemVariants} className="mt-6 flex items-center">
             <div className="flex">
               <img 
                 src="https://randomuser.me/api/portraits/women/44.jpg" 
@@ -136,6 +169,21 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
               <div className="text-sm text-gray-500">Trusted by</div>
               <div className="text-sm font-semibold">10K+ users globally</div>
             </div>
+            
+            <motion.div 
+              className="ml-4 bg-white/80 px-3 py-1 rounded-full shadow-sm flex items-center"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            >
+              <div className="flex items-center">
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+              </div>
+              <span className="text-xs font-medium ml-1">4.9/5</span>
+            </motion.div>
           </motion.div>
         </motion.div>
         
@@ -150,12 +198,51 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
             variants={itemVariants}
             className="absolute inset-0 bg-gradient-to-br from-primary-100/30 to-transparent rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-60 backdrop-blur-sm"
           />
+          
+          {/* Decorative elements */}
+          <motion.div 
+            className="absolute -top-6 -left-6 w-12 h-12 bg-yellow-300 rounded-full opacity-70 z-0"
+            animate={{ 
+              y: [0, -8, 0],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ 
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut" 
+            }}
+          />
+          
+          <motion.div 
+            className="absolute -bottom-4 -right-4 w-16 h-16 bg-primary-300 rounded-full opacity-70 z-0"
+            animate={{ 
+              y: [0, 8, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{ 
+              duration: 4,
+              delay: 1,
+              repeat: Infinity,
+              ease: "easeInOut" 
+            }}
+          />
+          
           <motion.div
             variants={itemVariants}
             className="relative z-10 glass-strong rounded-2xl transform"
             whileHover={{ scale: 1.02, rotate: [-1, 1, 0], transition: { duration: 0.5 } }}
           >
             <ExchangeRateCalculator />
+            
+            <motion.div
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-1 text-gray-500 text-sm cursor-pointer"
+              whileHover={{ y: 2 }}
+              animate={{ y: [0, 4, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <span>See more rates</span>
+              <ChevronDown size={14} />
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
