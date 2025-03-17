@@ -63,8 +63,14 @@ export const providerOptions = {
 
 // Get provider options for the selected payment method and country
 export const getProviderOptions = (methodId: string, countryCode: string) => {
+  console.log('Getting provider options for:', methodId, countryCode);
   const methodProviders = providerOptions[methodId as keyof typeof providerOptions];
-  if (!methodProviders) return [];
+  if (!methodProviders) {
+    console.log('No method providers found for:', methodId);
+    return [];
+  }
   
-  return methodProviders[countryCode as keyof typeof methodProviders] || methodProviders.default || [];
+  const providers = methodProviders[countryCode as keyof typeof methodProviders] || methodProviders.default || [];
+  console.log('Providers found:', providers);
+  return providers;
 };

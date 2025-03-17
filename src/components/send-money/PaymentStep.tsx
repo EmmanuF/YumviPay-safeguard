@@ -34,6 +34,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const { getCountryByCode } = useCountries();
   const selectedCountryData = getCountryByCode(transactionData.targetCurrency);
   
+  console.log('PaymentStep - transactionData:', transactionData);
+  console.log('PaymentStep - selectedCountryData:', selectedCountryData);
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -60,9 +63,12 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         selectedCountryData.code
       );
       
+      console.log('Available providers:', providers);
+      
       // If there are providers and we don't have one selected yet, select the first one
       if (providers.length > 0 && !transactionData.selectedProvider) {
         updateTransactionData({ selectedProvider: providers[0].id });
+        console.log('Auto-selected provider:', providers[0].id);
       }
     }
   }, [transactionData.paymentMethod, selectedCountryData, updateTransactionData, transactionData.selectedProvider]);

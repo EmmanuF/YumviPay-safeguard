@@ -16,21 +16,27 @@ type SendMoneyStep = 'recipient' | 'payment' | 'confirmation';
 const SendMoney = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isLoggedIn, loading } = useAuth();
+  const { isLoggedIn, loading, user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   
+  // Get user's country code for default target currency if available
+  const defaultTargetCurrency = user?.country_code || 'CM';
+  
   const [transactionData, setTransactionData] = useState<any>({
     amount: 100,
     sourceCurrency: 'USD',
-    targetCurrency: 'XAF',
+    targetCurrency: defaultTargetCurrency,
     convertedAmount: 61000,
     recipient: null,
     recipientName: '',
     paymentMethod: null,
     selectedProvider: '',
   });
+  
+  console.log('SendMoney - Initial transaction data:', transactionData);
+  console.log('SendMoney - User data:', user);
   
   const [currentStep, setCurrentStep] = useState<SendMoneyStep>('recipient');
 
@@ -47,8 +53,8 @@ const SendMoney = () => {
             ...prev,
             amount: parseFloat(data.sendAmount) || 100,
             sourceCurrency: data.sourceCurrency || 'USD',
-            targetCurrency: data.targetCurrency || 'XAF',
-            convertedAmount: parseFloat(data.receiveAmount.replace(/,/g, '')) || 61000,
+            targetCurrency: data.targetCurrency || defaultTargetCurrency,
+            convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 61000,
           }));
           
           localStorage.removeItem('pendingTransaction');
@@ -61,7 +67,7 @@ const SendMoney = () => {
     }, 50);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [defaultTargetCurrency]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -122,6 +128,7 @@ const SendMoney = () => {
   };
 
   const updateTransactionData = (data: Partial<typeof transactionData>) => {
+    console.log('Updating transaction data:', data);
     setTransactionData(prev => ({ ...prev, ...data }));
   };
 
