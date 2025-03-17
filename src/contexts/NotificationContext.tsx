@@ -79,10 +79,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     setNotifications(prev => [notification, ...prev]);
     
     // Show toast for new notifications
-    toast({
-      title: notification.title,
+    // Fix: Use the correct format for Sonner's toast API
+    toast(notification.title, {
       description: notification.message,
-      variant: notification.type === 'error' ? 'destructive' : 'default',
+      // Use the correct variant mapping for Sonner
+      // Sonner doesn't have a direct "variant" option but we can customize it
+      // via className or style based on the notification type
+      className: notification.type === 'error' ? 'destructive' : 'default',
     });
     
     return notification.id;
