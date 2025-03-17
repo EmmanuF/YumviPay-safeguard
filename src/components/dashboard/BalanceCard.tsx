@@ -20,31 +20,42 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
   
   return (
     <motion.div variants={itemVariants} className="mb-6">
-      <div className="glass-effect rounded-xl p-6 bg-gradient-to-br from-primary-500 to-primary-700 text-white">
-        <div className="flex justify-between items-start mb-6">
+      <div className="rounded-xl p-6 bg-primary-gradient text-white shadow-lg relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10 blur-xl"></div>
+        <div className="absolute -left-4 -bottom-4 w-24 h-24 rounded-full bg-white/5 blur-lg"></div>
+        
+        <div className="flex justify-between items-start mb-6 relative">
           <div>
             <p className="text-primary-100 text-sm font-medium mb-1">Welcome back</p>
             <h2 className="text-xl font-bold">{userName}</h2>
           </div>
-          <div className="bg-white/20 rounded-full p-2">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white/20 rounded-full p-2 backdrop-blur-sm"
+          >
             <User className="w-5 h-5" />
-          </div>
+          </motion.div>
         </div>
         
-        <div className="flex justify-between items-end">
+        <div className="flex justify-between items-end relative">
           <div>
             <p className="text-primary-100 text-sm">Recent Transfer</p>
             <p className="text-2xl font-bold">
               {transactions.length > 0 ? `$${transactions[0].amount}` : '$0'}
             </p>
           </div>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/send')}
-            className="bg-white text-primary-500 font-medium py-2 px-4 rounded-lg flex items-center"
+            className="bg-white text-primary-500 font-medium py-2 px-4 rounded-lg flex items-center shadow-md"
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
             <Plus className="w-4 h-4 mr-1" />
             Send Money
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>
