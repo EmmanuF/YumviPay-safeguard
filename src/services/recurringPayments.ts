@@ -53,6 +53,14 @@ export const createRecurringPayment = async (
   frequency: string
 ): Promise<RecurringPayment | null> => {
   try {
+    // Get the current user's ID
+    const { data: authData } = await supabase.auth.getSession();
+    const userId = authData.session?.user.id;
+    
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
     // Calculate the next date based on frequency
     const startDate = new Date();
     const nextDate = calculateNextDate(startDate, frequency);
@@ -60,6 +68,7 @@ export const createRecurringPayment = async (
     const { data, error } = await supabase
       .from('recurring_payments')
       .insert({
+        user_id: userId,
         recipient_id: recipientId,
         amount,
         currency,
@@ -128,9 +137,18 @@ export const createRecurringPayment = async (
 // Get all recurring payments for the current user
 export const getRecurringPayments = async (): Promise<RecurringPayment[]> => {
   try {
+    // Get the current user's ID
+    const { data: authData } = await supabase.auth.getSession();
+    const userId = authData.session?.user.id;
+    
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
     const { data, error } = await supabase
       .from('recurring_payments')
       .select('*')
+      .eq('user_id', userId)
       .order('next_date', { ascending: true });
       
     if (error) throw error;

@@ -73,10 +73,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
     
     // Create recurring payment if enabled
-    if (isRecurring && transactionData.recipientId) {
+    if (isRecurring && transactionData.recipient) {
       try {
         await createRecurringPayment(
-          transactionData.recipientId,
+          transactionData.recipient,
           transactionData.amount.toString(),
           transactionData.targetCurrency,
           transactionData.paymentMethod,

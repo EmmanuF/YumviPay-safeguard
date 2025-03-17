@@ -28,4 +28,5 @@ export interface Transaction {
   type?: string;
   isRecurring?: boolean;
   recurringPaymentId?: string;
+  recurringFrequency?: string;
 }
