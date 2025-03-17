@@ -76,18 +76,11 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Footer Bottom Bar with Social Icons moved to far right */}
-        <div className="mt-12 pt-6 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-500">
-              © {new Date().getFullYear()} Yumvi-Pay. All rights reserved.
-            </div>
-            
-            {/* Social Icons moved to bottom right */}
-            <div className="mt-4 md:mt-0">
-              <SocialIcons />
-            </div>
-          </div>
+        <FooterBottom />
+        
+        {/* Social Icons moved to bottom right */}
+        <div className="flex justify-end -mt-14 md:-mt-12 relative z-10">
+          <SocialIcons />
         </div>
       </div>
     </footer>

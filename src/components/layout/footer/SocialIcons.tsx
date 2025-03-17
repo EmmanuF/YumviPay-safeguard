@@ -8,7 +8,7 @@ const SocialIcons: React.FC = () => {
   
   return (
     <div className="mb-4">
-      <h3 className="text-sm font-semibold text-primary-800 mb-3">
+      <h3 className="text-sm font-semibold text-primary-50 mb-2">
         {t('footer.follow')}
       </h3>
       <div className="flex space-x-3">
@@ -17,7 +17,7 @@ const SocialIcons: React.FC = () => {
           target="_blank" 
           rel="noopener noreferrer"
           aria-label="Twitter"
-          className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2 rounded-full transition-colors"
+          className="bg-white hover:bg-primary-100 text-primary-600 p-2 rounded-full transition-colors"
         >
           <Twitter className="h-4 w-4" />
         </a>
@@ -27,7 +27,7 @@ const SocialIcons: React.FC = () => {
           target="_blank" 
           rel="noopener noreferrer"
           aria-label="Facebook"
-          className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2 rounded-full transition-colors"
+          className="bg-white hover:bg-primary-100 text-primary-600 p-2 rounded-full transition-colors"
         >
           <Facebook className="h-4 w-4" />
         </a>
@@ -37,7 +37,7 @@ const SocialIcons: React.FC = () => {
           target="_blank" 
           rel="noopener noreferrer"
           aria-label="Instagram"
-          className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2 rounded-full transition-colors"
+          className="bg-white hover:bg-primary-100 text-primary-600 p-2 rounded-full transition-colors"
         >
           <Instagram className="h-4 w-4" />
         </a>
@@ -47,7 +47,7 @@ const SocialIcons: React.FC = () => {
           target="_blank" 
           rel="noopener noreferrer"
           aria-label="LinkedIn"
-          className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2 rounded-full transition-colors"
+          className="bg-white hover:bg-primary-100 text-primary-600 p-2 rounded-full transition-colors"
         >
           <Linkedin className="h-4 w-4" />
         </a>
