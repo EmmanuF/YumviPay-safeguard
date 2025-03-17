@@ -50,7 +50,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
       
       <div className="p-6">
         <h3 className="text-xl font-bold text-center mb-4">Send money to your loved ones</h3>
-        <p className="text-center text-gray-600 text-sm mb-6">
+        <p className="text-center text-primary-600 text-sm mb-6 animate-pulse-subtle">
           Every transfer sends more than money—it sends your love, with industry-leading rates and zero hidden fees
         </p>
         
