@@ -1,0 +1,26 @@
+
+/* Form control enhancements with improved visuals */
+.form-control-modern {
+  @apply bg-secondary-50/70 backdrop-blur-sm border border-secondary-100/80 
+         rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-300/50 
+         focus:border-primary-300/50 focus:outline-none transition-all duration-200;
+}
+
+/* Input with floating label - enhanced for better UX */
+.floating-input {
+  position: relative;
+}
+
+.floating-input input {
+  @apply h-14 pt-4;
+}
+
+.floating-input label {
+  @apply absolute left-4 top-4 text-gray-500 transition-all duration-200 pointer-events-none;
+  transform-origin: left top;
+}
+
+.floating-input input:focus + label,
+.floating-input input:not(:placeholder-shown) + label {
+  @apply transform -translate-y-3 scale-75 text-primary-500;
+}

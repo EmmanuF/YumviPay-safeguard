@@ -1,0 +1,64 @@
+
+/* Mobile optimized scrolling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-300/40 rounded-full;
+}
+
+/* Device-specific optimizations classes */
+.mobile-optimized {
+  /* Optimizations for mobile devices */
+  @apply touch-manipulation overscroll-none;
+  /* Prevents content shifting during interactions */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Performance optimized animations for lower-end devices */
+.low-motion {
+  @apply transition-all duration-200 ease-in-out;
+  /* Uses simpler animations that are less GPU-intensive */
+}
+
+/* Performance-optimized animations for reduced motion preference */
+@media (prefers-reduced-motion) {
+  .animate-float,
+  .animate-pulse-subtle,
+  .animate-shimmer,
+  .animate-bounce-subtle {
+    animation: none;
+    transform: none;
+  }
+  
+  .page-transition-enter-active,
+  .page-transition-exit-active {
+    transition-duration: 0.1s;
+  }
+  
+  .glass-card, 
+  .glass-effect,
+  .btn-hover-effect,
+  .card-hover {
+    transition: none;
+  }
+}
+
+/* Device-specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  /* iOS-specific optimizations */
+  .ios-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .ios-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
