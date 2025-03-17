@@ -1,17 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
-import ExpandedContent from './ExpandedContent';
-import { useLocale } from '@/contexts/LocaleContext';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronRight, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import RecipientInfo from './RecipientInfo';
 
 interface PaymentMethodCardProps {
   name: string;
   description: string;
   icon: React.ReactNode;
-  isSelected: boolean;
+  isSelected?: boolean;
   onClick: () => void;
-  options: Array<{
+  options?: Array<{
     id: string;
     name: string;
   }>;
@@ -24,76 +26,120 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   name,
   description,
   icon,
-  isSelected,
+  isSelected = false,
   onClick,
-  options,
+  options = [],
   countryCode = 'CM',
   selectedOption = '',
-  onOptionSelect,
+  onOptionSelect
 }) => {
-  const { t } = useLocale();
-  const [recipientName, setRecipientName] = useState('');
+  const [expanded, setExpanded] = useState(false);
   const [accountNumber, setAccountNumber] = useState('');
-  const [localSelectedOption, setLocalSelectedOption] = useState(selectedOption);
+  const [recipientName, setRecipientName] = useState('');
 
-  // Update local state when prop changes
-  useEffect(() => {
-    setLocalSelectedOption(selectedOption);
-  }, [selectedOption]);
-
-  // Auto-select first option if none selected and options exist
-  useEffect(() => {
-    if (isSelected && options.length > 0 && !localSelectedOption && onOptionSelect) {
-      const firstOption = options[0].id;
-      setLocalSelectedOption(firstOption);
-      onOptionSelect(firstOption);
-    }
-  }, [isSelected, options, localSelectedOption, onOptionSelect]);
-
-  const handleOptionSelect = (optionId: string) => {
-    setLocalSelectedOption(optionId);
-    if (onOptionSelect) {
-      onOptionSelect(optionId);
+  const handleClick = () => {
+    onClick();
+    if (options.length > 0 && !expanded) {
+      setExpanded(true);
     }
   };
 
+  const toggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpanded(!expanded);
+  };
+
+  const handleOptionSelect = (optionId: string) => {
+    if (onOptionSelect) {
+      onOptionSelect(optionId);
+    }
+    setSelectedOption(optionId);
+  };
+
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-      <div
-        className={`p-4 flex items-center justify-between cursor-pointer
-                  ${isSelected ? 'bg-primary-50 border-b border-primary-100' : 'bg-white'}`}
-        onClick={onClick}
+    <div className="mb-4">
+      <motion.div
+        whileTap={{ scale: 0.98 }}
+        onClick={handleClick}
+        className={cn(
+          "glass-effect w-full rounded-xl p-4 flex items-center justify-between cursor-pointer",
+          "transition-all duration-200",
+          isSelected 
+            ? "ring-2 ring-primary-500 shadow-md" 
+            : "hover:bg-white/90 hover:shadow-md"
+        )}
       >
-        <div className="flex items-center gap-3">
-          <div className="bg-primary-50 p-2 rounded-full">
+        <div className="flex items-center">
+          <div className={cn(
+            "w-12 h-12 rounded-full flex items-center justify-center mr-4",
+            isSelected ? "bg-primary-100" : "bg-gray-100"
+          )}>
             {icon}
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">{t(`payment.${name.toLowerCase().replace(/\s+/g, '_')}`) || name}</h3>
+            <h3 className="font-medium text-foreground">{name}</h3>
             <p className="text-sm text-gray-500">{description}</p>
           </div>
         </div>
-        <ChevronDown 
-          className={`h-5 w-5 text-gray-400 transition-transform duration-200 
-                     ${isSelected ? 'rotate-180' : ''}`} 
-        />
-      </div>
+        {options.length > 0 ? (
+          <button onClick={toggleExpand} className="ml-2">
+            {expanded ? 
+              <ChevronDown className={cn(
+                "w-5 h-5 transition-colors",
+                isSelected ? "text-primary-500" : "text-gray-400"
+              )} /> : 
+              <ChevronRight className={cn(
+                "w-5 h-5 transition-colors",
+                isSelected ? "text-primary-500" : "text-gray-400"
+              )} />
+            }
+          </button>
+        ) : (
+          <ChevronRight className={cn(
+            "w-5 h-5 transition-colors",
+            isSelected ? "text-primary-500" : "text-gray-400"
+          )} />
+        )}
+      </motion.div>
 
-      <AnimatePresence>
-        {isSelected && (
-          <ExpandedContent
+      {/* Expanded section for options */}
+      {expanded && options.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-100"
+        >
+          <div className="mb-4">
+            <Label htmlFor="provider" className="text-sm font-medium mb-2 block">Select Provider</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {options.map((option) => (
+                <div
+                  key={option.id}
+                  onClick={() => handleOptionSelect(option.id)}
+                  className={cn(
+                    "p-3 rounded-md border text-center cursor-pointer transition-all",
+                    selectedOption === option.id
+                      ? "border-primary-500 bg-primary-50 text-primary-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  )}
+                >
+                  {option.name}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <RecipientInfo
             methodName={name}
-            options={options}
-            selectedOption={localSelectedOption}
             recipientName={recipientName}
             accountNumber={accountNumber}
-            countryCode={countryCode}
-            onOptionSelect={handleOptionSelect}
             onRecipientNameChange={setRecipientName}
             onAccountNumberChange={setAccountNumber}
+            countryCode={countryCode}
           />
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
     </div>
   );
 };
