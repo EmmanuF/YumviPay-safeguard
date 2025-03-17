@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowRight, Shield, Phone } from 'lucide-react';
-import { registerUser, setOnboardingComplete, isAuthenticated } from '@/services/auth';
+import { registerUser, setOnboardingComplete } from '@/services/auth';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -14,29 +14,17 @@ const Onboarding = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '', // Added phone field
+    phone: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
   
-  // Check if user is already authenticated, redirect to send page if so
-  useEffect(() => {
-    const checkAuth = async () => {
-      const authenticated = await isAuthenticated();
-      
-      // Check for pending transaction data
-      const transactionData = localStorage.getItem('pendingTransaction');
-      if (transactionData) {
-        setPendingTransaction(JSON.parse(transactionData));
-      }
-      
-      if (authenticated) {
-        navigate('/send');
-      }
-    };
-    
-    checkAuth();
-  }, [navigate]);
+  React.useEffect(() => {
+    const transactionData = localStorage.getItem('pendingTransaction');
+    if (transactionData) {
+      setPendingTransaction(JSON.parse(transactionData));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,11 +53,10 @@ const Onboarding = () => {
     setIsSubmitting(true);
     
     try {
-      // Register user with name, email, phone number
       await registerUser(
         formData.name,
         formData.email,
-        formData.phone, // Pass phone number to registration
+        formData.phone,
         "CM" // Set Cameroon as default country for MVP
       );
       
@@ -80,12 +67,10 @@ const Onboarding = () => {
         description: "Your account has been created successfully.",
       });
       
-      // If there's a pending transaction, go to send money page
-      // Otherwise go to home
       if (pendingTransaction) {
         navigate('/send');
       } else {
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -99,7 +84,6 @@ const Onboarding = () => {
     }
   };
 
-  // Animation variants
   const fadeInVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 

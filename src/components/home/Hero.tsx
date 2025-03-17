@@ -37,9 +37,9 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
 
   const handleGetStarted = () => {
     if (onGetStarted) {
-      onGetStarted();
+      onGetStarted(); // Use the provided callback if available
     } else {
-      navigate('/onboarding');
+      navigate('/onboarding'); // Direct navigation otherwise
     }
   };
 
