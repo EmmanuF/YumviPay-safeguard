@@ -12,7 +12,7 @@ const HeroTitle: React.FC = () => {
       className="relative mb-6"
     >
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-600">Transfer</span>
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-600">Transfer </span>
         <span className="relative inline-block">
           <span className="relative z-10">Without</span>
           <svg className="absolute -bottom-2 left-0 w-full h-3 z-0" viewBox="0 0 100 15" xmlns="http://www.w3.org/2000/svg">
