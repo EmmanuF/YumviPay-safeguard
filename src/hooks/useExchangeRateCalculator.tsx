@@ -84,7 +84,7 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       sourceCurrency,
       targetCurrency,
       amount: amountValue,
-      receiveAmount: receiveAmount.replace(/,/g, ''),
+      receiveAmount: parseFloat(receiveAmount.replace(/,/g, '')).toString(),
       exchangeRate
     };
     

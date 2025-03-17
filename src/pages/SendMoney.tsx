@@ -11,6 +11,7 @@ import { useSendMoneyTransaction } from '@/hooks/useSendMoneyTransaction';
 import { toast } from '@/hooks/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
+import { showErrorToast } from '@/utils/errorHandling';
 
 const SendMoney = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const SendMoney = () => {
   const { currentStep, isSubmitting, error: stepError, handleNext, handleBack } = useSendMoneySteps();
   
   // Combined error state - ensure it's never null
-  const error = transactionError || stepError;
+  const error = transactionError || stepError || null;
   
   // Check if we need to collect initial transaction data
   useEffect(() => {
@@ -115,16 +116,19 @@ const SendMoney = () => {
     />;
   }
 
-  // Fix TypeScript errors with proper null checks and type handling
+  // Fix TypeScript errors with proper error handling
   if (error) {
-    // Safe type conversion to string for any error type
-    const errorMessage = typeof error === 'string' 
-      ? error 
-      : error instanceof Error 
+    // Safe conversion to string for any error type
+    let errorMessage = "An unexpected error occurred";
+    
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error && typeof error === 'object') {
+      // Check if error has a message property
+      errorMessage = 'message' in error && typeof error.message === 'string' 
         ? error.message 
-        : typeof error === 'object' && error !== null && 'message' in error 
-          ? String(error.message) 
-          : String(error);
+        : "Error processing your transaction";
+    }
     
     return <LoadingState 
       message="Error loading transaction data" 

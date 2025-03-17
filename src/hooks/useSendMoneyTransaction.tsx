@@ -17,7 +17,7 @@ export interface TransactionData {
 export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
   const { countries } = useCountries();
   const [isInitialized, setInitialDataLoaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | Error | null>(null);
   
   // Find the default country by code
   const defaultCountry = countries.find(c => c.code === defaultCountryCode) || 

@@ -41,6 +41,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
 }) => {
   const onContinueClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent any default form submission
+    e.stopPropagation(); // Stop event propagation
     console.log('Continue button clicked in InlineCalculator');
     handleContinue();
   };
@@ -94,6 +95,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
           disabled={authLoading || isProcessing}
+          type="button"
         >
           {authLoading || isProcessing ? 'Processing...' : 'Continue'}
           {!authLoading && !isProcessing && <ArrowRight className="ml-2 h-5 w-5" />}
