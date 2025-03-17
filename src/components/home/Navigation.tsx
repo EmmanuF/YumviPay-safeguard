@@ -107,7 +107,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
                 "text-sm font-medium transition-colors",
                 location.pathname === item.path 
                   ? "text-primary-600 font-semibold" 
-                  : "text-gray-700 hover:text-primary-500"
+                  : "text-primary-500 hover:text-primary-600"
               )}
               disabled={isNavigating}
             >
@@ -122,7 +122,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           {!isLoggedIn ? (
             <button
               onClick={() => handleNavigation('/signin')}
-              className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+              className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
               disabled={isNavigating}
             >
               {t('auth.signin')}
@@ -130,7 +130,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           ) : (
             <button
               onClick={() => handleNavigation('/profile')}
-              className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+              className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
               disabled={isNavigating}
             >
               {t('nav.profile')}
@@ -168,7 +168,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
                 "p-2 rounded-full transition-all duration-300",
                 location.pathname === item.path 
                   ? "text-primary-600 bg-primary-100/50" 
-                  : "text-gray-600 hover:text-primary-500 hover:bg-primary-50/50",
+                  : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/50",
                 isNavigating && "opacity-75"
               )}
             >
@@ -178,7 +178,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               "text-xs mt-1 font-medium",
               location.pathname === item.path
                 ? "text-primary-600"
-                : "text-gray-600"
+                : "text-primary-500"
             )}>
               {item.name}
             </span>
