@@ -6,20 +6,15 @@ export const generateTransactionId = (): string => {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
 };
 
-// Calculate fee based on amount and destination (simplified for demo)
+// Calculate fee (always returns 0 since transactions are free)
 export const calculateFee = (amount: string, country: string): string => {
-  const numAmount = parseFloat(amount);
-  // Base fee of $2.99 + 1.5% of amount
-  const baseFee = 2.99;
-  const percentageFee = numAmount * 0.015;
-  return (baseFee + percentageFee).toFixed(2);
+  return "0.00";
 };
 
-// Calculate total amount (amount + fee)
+// Calculate total amount (equal to amount since fees are free)
 export const calculateTotal = (amount: string, fee: string): string => {
   const numAmount = parseFloat(amount);
-  const numFee = parseFloat(fee);
-  return (numAmount + numFee).toFixed(2);
+  return numAmount.toFixed(2);
 };
 
 // Get estimated delivery based on destination country and payment method

@@ -101,12 +101,12 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
         
         <div className="flex justify-between font-medium">
           <span>Total Fee</span>
-          <span>{formatCurrency(amountValue * 0.015, sourceCurrency)}</span>
+          <span className="text-green-600">Free</span>
         </div>
         
         <div className="flex justify-between text-primary-800 font-bold">
           <span>Total to Pay</span>
-          <span>{formatCurrency(amountValue * 1.015, sourceCurrency)}</span>
+          <span>{formatCurrency(amountValue, sourceCurrency)}</span>
         </div>
       </div>
       

@@ -22,7 +22,7 @@ const ExchangeSummary: React.FC<ExchangeSummaryProps> = ({
       </div>
       <div className="flex justify-between">
         <span>Transfer fees:</span>
-        <span className="font-medium text-green-600">0.00 {sourceCurrency}</span>
+        <span className="font-medium text-green-600">Free</span>
       </div>
     </div>
   );

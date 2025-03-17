@@ -97,16 +97,15 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
             </div>
             <div className="text-right">
               <p className="text-sm text-primary-700">Fee</p>
-              <p className="text-lg font-semibold text-primary-900">
-                ${formatAmount(transaction.fee) || '0.00'}
+              <p className="text-lg font-semibold text-green-600">
+                Free
               </p>
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
             <p className="text-sm font-medium text-primary-700">Total</p>
             <p className="text-lg font-bold text-primary-900">
-              ${transaction.totalAmount ? formatAmount(transaction.totalAmount) : 
-                (parseFloat(formatAmount(transaction.amount)) + parseFloat(formatAmount(transaction.fee) || '0')).toFixed(2)}
+              ${formatAmount(transaction.amount)}
             </p>
           </div>
         </div>

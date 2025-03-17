@@ -104,7 +104,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 
                 <div className="text-gray-500">Fee:</div>
                 <div className="font-medium text-right text-green-600">
-                  {formatCurrency(0, transactionData.sourceCurrency)}
+                  Free
                 </div>
                 
                 <div className="text-gray-500">Exchange rate:</div>
