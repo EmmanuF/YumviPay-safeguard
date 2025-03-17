@@ -41,7 +41,7 @@ const SendMoney = () => {
       const hasRequiredData = transactionData && 
                              transactionData.sourceCurrency && 
                              transactionData.targetCurrency && 
-                             transactionData.amount; // Fixed: changed from sendAmount to amount
+                             transactionData.amount;
                              
       setNeedsInitialData(!hasRequiredData);
       console.log('SendMoney: Needs initial data?', !hasRequiredData);
@@ -117,9 +117,14 @@ const SendMoney = () => {
 
   // If there's a transaction error, show it
   if (transactionError) {
+    // Ensure the error is always a string
+    const errorMessage = typeof transactionError === 'object' 
+      ? (transactionError.message || 'Unknown error') 
+      : String(transactionError);
+      
     return <LoadingState 
       message="Error loading transaction data" 
-      submessage={transactionError.toString()} // Convert any error to string
+      submessage={errorMessage}
     />;
   }
 
@@ -173,3 +178,4 @@ const SendMoney = () => {
 };
 
 export default SendMoney;
+
