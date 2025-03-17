@@ -98,6 +98,26 @@ const SendMoney = () => {
   // Handler for continuing after selecting amount and currencies
   const handleInitialDataContinue = () => {
     console.log('Initial data continue handler called');
+    // Get the transaction data from localStorage
+    try {
+      const pendingTransaction = localStorage.getItem('pendingTransaction');
+      if (pendingTransaction) {
+        const data = JSON.parse(pendingTransaction);
+        console.log('Retrieved transaction data for continuation:', data);
+        
+        // Update our transaction data with the values from the calculator
+        updateTransactionData({
+          amount: parseFloat(data.amount),
+          sourceCurrency: data.sourceCurrency,
+          targetCurrency: data.targetCurrency,
+          convertedAmount: parseFloat(data.receiveAmount)
+        });
+      }
+    } catch (error) {
+      console.error('Error retrieving pending transaction:', error);
+    }
+    
+    // Move on to the next step
     setNeedsInitialData(false);
   };
 

@@ -56,7 +56,12 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
 
   const handleContinue = () => {
     // Debug the continue action
-    console.log('handleContinue called', { isProcessing, authLoading, onContinue });
+    console.log('handleContinue called in useExchangeRateCalculator', { 
+      isProcessing, 
+      authLoading, 
+      onContinue,
+      isLoggedIn
+    });
     
     // Prevent multiple clicks
     if (isProcessing || authLoading) {
@@ -79,12 +84,16 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       return;
     }
     
+    // Ensure we have a proper receive amount (convert string with commas to number)
+    const cleanedReceiveAmount = receiveAmount.replace(/,/g, '');
+    const receiveAmountValue = parseFloat(cleanedReceiveAmount);
+    
     // Store the current exchange information in localStorage for use in next steps
     const transactionData = {
       sourceCurrency,
       targetCurrency,
       amount: amountValue,
-      receiveAmount: parseFloat(receiveAmount.replace(/,/g, '')).toString(),
+      receiveAmount: receiveAmountValue.toString(),
       exchangeRate
     };
     
@@ -94,11 +103,11 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       // Save the transaction data to localStorage
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
       
-      // Short timeout to ensure UI feedback
+      // Wait to ensure the localStorage write completes
       setTimeout(() => {
         if (onContinue) {
-          console.log('Calling onContinue callback');
-          // If we're in inline mode, just call the onContinue callback
+          console.log('Calling onContinue callback directly');
+          // If we're in inline mode, call the onContinue callback
           onContinue();
         } else if (isLoggedIn) {
           console.log('User is logged in, navigating directly to /send');
@@ -107,7 +116,11 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
           console.log('User is not logged in, navigating to signin with redirect');
           navigate('/signin', { state: { redirectTo: '/send' } });
         }
-        setIsProcessing(false);
+        
+        // Reset processing state after a slight delay to give navigation time
+        setTimeout(() => {
+          setIsProcessing(false);
+        }, 200);
       }, 100);
     } catch (error) {
       console.error('Error in handleContinue:', error);

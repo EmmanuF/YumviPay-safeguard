@@ -43,7 +43,11 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
     e.preventDefault(); // Prevent any default form submission
     e.stopPropagation(); // Stop event propagation
     console.log('Continue button clicked in InlineCalculator');
-    handleContinue();
+    
+    // Add a small delay to ensure UI reacts before navigation
+    setTimeout(() => {
+      handleContinue();
+    }, 50);
   };
 
   return (
