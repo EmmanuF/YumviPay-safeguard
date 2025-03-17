@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
 import { providerOptions, getProviderOptions, getRecommendedPaymentMethods, getRecommendedProviders } from './PaymentProviderData';
-import { Loader2, AlertCircle, Clock, Star } from 'lucide-react';
+import { Loader2, Clock, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface PaymentStepProps {
@@ -74,7 +75,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   // Load preferred payment methods
   const preferredMethods = [
     { methodId: 'mobile_money', providerId: 'mtn_momo' },
-    { methodId: 'bank_transfer', providerId: 'afriland' }
+    { methodId: 'mobile_money', providerId: 'orange_money' }
   ];
 
   // Ensure we have a targetCountry set
@@ -96,6 +97,12 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   // Reset provider selection when payment method changes
   useEffect(() => {
     if (transactionData.paymentMethod && countryCode) {
+      // For Cameroon, auto-select MTN if no provider is selected
+      if (countryCode === 'CM' && transactionData.paymentMethod === 'mobile_money' && !transactionData.selectedProvider) {
+        updateTransactionData({ selectedProvider: 'mtn_momo' });
+        return;
+      }
+      
       // Get available providers for this payment method and country
       const providers = getProviderOptions(
         transactionData.paymentMethod, 
@@ -153,9 +160,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     );
   }
 
-  // Show warning if not using Cameroon (MVP)
-  const showMvpWarning = selectedCountry && selectedCountry.code !== 'CM';
-
   return (
     <motion.div
       variants={containerVariants}
@@ -163,25 +167,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       animate="visible"
       className="space-y-6"
     >
-      {showMvpWarning && (
-        <motion.div variants={itemVariants} className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start space-x-2">
-          <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-blue-800 text-sm">
-              <strong>Note:</strong> Cameroon is our primary supported country for the MVP.
-            </p>
-            <p className="text-blue-700 text-xs mt-1">
-              Other countries may have limited payment options or features during this phase.
-            </p>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Preferred Payment Methods Toggle */}
+      {/* Preferred Payment Methods Toggle with better design */}
       {preferredMethods.length > 0 && (
-        <motion.div variants={itemVariants} className="flex items-center justify-between">
+        <motion.div 
+          variants={itemVariants} 
+          className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg border border-secondary-100"
+        >
           <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-yellow-500" />
+            <Star className="h-5 w-5 text-amber-500" />
             <Label htmlFor="show-preferred" className="text-sm font-medium">
               Show preferred payment methods
             </Label>
@@ -203,12 +196,23 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           </div>
           <div className="space-y-2 bg-muted/30 p-3 rounded-lg">
             {preferredMethods.map((method, index) => {
+              // Only show MTN and Orange Money for Cameroon
+              if (countryCode === 'CM' && method.methodId === 'mobile_money') {
+                if (method.providerId !== 'mtn_momo' && method.providerId !== 'orange_money') {
+                  return null;
+                }
+              }
+              
               const methodDetails = selectedCountry?.paymentMethods.find(m => m.id === method.methodId);
               if (!methodDetails) return null;
               
               const providers = getProviderOptions(method.methodId, countryCode);
               const provider = providers.find(p => p.id === method.providerId);
               if (!provider) return null;
+              
+              // Get provider details for the logo
+              const providerData = method.methodId === 'mobile_money' ? 
+                getProviderById('mobile_money', method.providerId) : undefined;
               
               return (
                 <div 
@@ -222,14 +226,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
-                      {method.methodId === 'mobile_money' ? (
-                        <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
+                    <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center overflow-hidden">
+                      {providerData?.logoUrl ? (
+                        <img 
+                          src={providerData.logoUrl} 
+                          alt={provider.name} 
+                          className="h-8 w-8 object-contain" 
+                        />
                       ) : (
-                        <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
                       )}
                     </div>

@@ -40,6 +40,7 @@ export const PHONE_NUMBER_FORMATS: Record<string, { pattern: string, example: st
 
 /**
  * Format mobile phone number based on country code
+ * For Cameroon: +237 6XX XX XX XX
  */
 export const formatPhoneNumber = (digitsOnly: string, countryCode: string): string => {
   // Start with the country code

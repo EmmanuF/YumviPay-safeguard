@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocale } from '@/contexts/LocaleContext';
 import { cn } from '@/lib/utils';
-import { formatPhoneNumber, formatMobileNumber } from '@/utils/formatters/phoneFormatters';
+import { formatPhoneNumber } from '@/utils/formatters/phoneFormatters';
 import { formatBankAccount } from '@/utils/formatters/bankFormatters';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 
@@ -34,7 +34,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const placeholder = isBankAccount 
     ? (t('bank.account_placeholder') || "Enter account number") 
-    : (t('momo.number_placeholder') || "Enter mobile number");
+    : (t('momo.number_placeholder') || "Enter mobile number (e.g. +237 6XX XX XX XX)");
   
   // Get provider details if available
   const methodId = isBankAccount ? 'bank_transfer' : 'mobile_money';
@@ -59,9 +59,37 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
       // Mobile number validation for Cameroon
       if (countryCode === 'CM') {
         const cleanedNumber = accountNumber.replace(/\s/g, '').replace(/^\+237/, '').replace(/^237/, '');
-        if (!/^[6-9][0-9]{8}$/.test(cleanedNumber)) {
+        
+        // Check if it's a valid Cameroon mobile number
+        // Must start with 6, followed by 8 more digits
+        if (!/^6[0-9]{8}$/.test(cleanedNumber)) {
           valid = false;
-          message = 'Cameroon mobile numbers should start with 6, 7, 8, or 9 and have 9 digits';
+          
+          // Provide more specific error messages
+          if (cleanedNumber.length !== 9) {
+            message = 'Cameroon mobile numbers must have 9 digits after the country code';
+          } else if (!/^6/.test(cleanedNumber)) {
+            message = 'Cameroon mobile numbers must start with 6 after the country code';
+          } else {
+            message = 'Invalid Cameroon mobile number format';
+          }
+        } else {
+          // Check if the number is valid for the selected provider
+          if (providerId === 'mtn_momo') {
+            // MTN numbers typically start with 67, 68, 65, 66
+            const prefix = cleanedNumber.substring(0, 2);
+            if (!['67', '68', '65', '66'].includes(prefix)) {
+              valid = false;
+              message = 'This doesn\'t appear to be an MTN number. MTN numbers typically start with 67, 68, 65, or 66.';
+            }
+          } else if (providerId === 'orange_money') {
+            // Orange numbers typically start with 69, 65, 66
+            const prefix = cleanedNumber.substring(0, 2);
+            if (!['69', '65', '66'].includes(prefix)) {
+              valid = false;
+              message = 'This doesn\'t appear to be an Orange number. Orange numbers typically start with 69, 65, or 66.';
+            }
+          }
         }
       } else {
         // Simple validation for other countries
@@ -76,17 +104,20 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
     setIsValid(valid);
     setErrorMessage(message);
     if (onValidation) onValidation(valid);
-  }, [accountNumber, isBankAccount, countryCode, onValidation]);
+  }, [accountNumber, isBankAccount, countryCode, onValidation, providerId]);
   
   // Format the input value
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
-    // Format the number based on type and country
+    // Strip non-numeric characters except for + at the beginning
+    const digitsOnly = value.replace(/[^\d+]/g, '').replace(/^\+?/, '+');
+    
+    // Format based on type and country
     if (isBankAccount) {
-      value = formatBankAccount(value, countryCode);
+      value = formatBankAccount(digitsOnly, countryCode);
     } else {
-      value = formatPhoneNumber(value, countryCode);
+      value = formatPhoneNumber(digitsOnly, countryCode);
     }
     
     onAccountNumberChange(value);
@@ -112,7 +143,9 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
               <p className="text-sm text-gray-600 mb-3">
                 {isBankAccount
                   ? "Bank account numbers are typically 10-20 digits, sometimes with spaces or dashes."
-                  : "Mobile numbers in Cameroon start with +237 followed by a 9-digit number starting with 6, 7, 8, or 9."}
+                  : providerId === 'mtn_momo' 
+                    ? "MTN mobile numbers in Cameroon start with +237 followed by a 9-digit number starting with 6. Common MTN prefixes are 67, 68, 65, or 66."
+                    : "Orange mobile numbers in Cameroon start with +237 followed by a 9-digit number starting with 6. Common Orange prefixes are 69, 65, or 66."}
               </p>
               {providerDetails.instructions && (
                 <div>
@@ -158,7 +191,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
       
       {isValid && accountNumber && (
         <p className="text-xs text-green-600 mt-1">
-          {isBankAccount ? "Valid account format" : "Valid mobile format"}
+          {isBankAccount ? "Valid account format" : "Valid mobile number format"}
         </p>
       )}
     </div>
