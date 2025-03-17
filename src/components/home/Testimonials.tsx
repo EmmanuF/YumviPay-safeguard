@@ -8,21 +8,21 @@ const Testimonials = () => {
     {
       id: 1,
       name: "John D.",
-      location: "USA to Cameroon",
+      location: "USA to Ghana",
       rating: 5,
-      text: "Yumvi-Pay made sending money to my family in Cameroon so simple! The rates are excellent and the transfer was completed within hours."
+      text: "Yumvi-Pay made sending money to my family in Ghana so simple! The rates are excellent and the transfer was completed within hours."
     },
     {
       id: 2,
       name: "Marie L.",
-      location: "Canada to Cameroon",
+      location: "Canada to Kenya",
       rating: 5,
-      text: "I've tried several transfer services, but Yumvi-Pay offers the best rates and fastest delivery to Cameroon. Highly recommended!"
+      text: "I've tried several transfer services, but Yumvi-Pay offers the best rates and fastest delivery to Kenya. Highly recommended!"
     },
     {
       id: 3,
       name: "Samuel K.",
-      location: "UK to Cameroon",
+      location: "UK to Nigeria",
       rating: 4,
       text: "Very easy to use, transparent fees, and excellent customer service. The mobile app makes everything so convenient."
     }
