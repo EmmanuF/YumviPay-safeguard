@@ -1,10 +1,15 @@
 
 import { createRecurringPayment } from '@/services/recurringPayments';
-import { ToastOptions } from '@/components/ui/use-toast';
+import { ToastActionElement } from '@/components/ui/toast';
 
 interface ValidationResult {
   isValid: boolean;
-  errorToast?: ToastOptions;
+  errorToast?: {
+    title: string;
+    description: string;
+    variant?: "default" | "destructive";
+    action?: ToastActionElement;
+  };
 }
 
 export const validatePaymentSelection = (
