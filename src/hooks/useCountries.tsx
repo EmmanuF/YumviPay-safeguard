@@ -1,14 +1,19 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Country, PaymentMethod } from '../types/country';
 import { countries as mockCountries } from '../data/countries';
 import { supabase } from "@/integrations/supabase/client";
 import { useNetwork } from '@/contexts/NetworkContext';
 import { Json } from '@/integrations/supabase/types';
 
+// Cache countries data in memory to avoid repeated fetches
+let countriesCache: Country[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export function useCountries() {
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [countries, setCountries] = useState<Country[]>(countriesCache || []);
+  const [isLoading, setIsLoading] = useState(!countriesCache);
   const [error, setError] = useState<Error | null>(null);
   const { isOffline } = useNetwork();
 
@@ -55,6 +60,14 @@ export function useCountries() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
+        // Return cached data if it exists and is still valid
+        if (countriesCache && (Date.now() - cacheTimestamp) < CACHE_TTL) {
+          console.log('Using cached countries data');
+          setCountries(countriesCache);
+          setIsLoading(false);
+          return;
+        }
+        
         setIsLoading(true);
         
         if (!isOffline) {
@@ -78,6 +91,10 @@ export function useCountries() {
                 paymentMethods: parsePaymentMethods(country.payment_methods)
               }));
               
+              // Update cache
+              countriesCache = formattedCountries;
+              cacheTimestamp = Date.now();
+              
               setCountries(formattedCountries);
               setIsLoading(false);
               return;
@@ -91,6 +108,11 @@ export function useCountries() {
         // Use mock data if offline or API error
         console.log('Using mock country data due to offline status or API error');
         setCountries(mockCountries);
+        
+        // Update cache
+        countriesCache = mockCountries;
+        cacheTimestamp = Date.now();
+        
         setIsLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch countries'));
@@ -101,71 +123,86 @@ export function useCountries() {
     fetchCountries();
   }, [isOffline]);
 
-  const getCountryByCode = (code: string) => {
-    return countries.find(country => country.code === code);
-  };
+  const getCountryByCode = useMemo(() => 
+    (code: string) => countries.find(country => country.code === code),
+    [countries]
+  );
 
-  const getSendingCountries = async () => {
-    if (!isOffline) {
-      try {
-        const { data, error } = await supabase
-          .from('countries')
-          .select('*')
-          .eq('is_sending_enabled', true)
-          .order('name');
-          
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          return data.map(country => ({
-            name: country.name,
-            code: country.code,
-            currency: country.currency,
-            flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
-            isSendingEnabled: country.is_sending_enabled,
-            isReceivingEnabled: country.is_receiving_enabled,
-            paymentMethods: parsePaymentMethods(country.payment_methods)
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching sending countries from Supabase:', error);
-        // Fall back to filtering local data
+  const getSendingCountries = useMemo(() => 
+    async () => {
+      // If we already have countries data, filter it locally
+      if (countries.length > 0) {
+        return countries.filter(country => country.isSendingEnabled);
       }
-    }
-    
-    return countries.filter(country => country.isSendingEnabled);
-  };
+      
+      if (!isOffline) {
+        try {
+          const { data, error } = await supabase
+            .from('countries')
+            .select('*')
+            .eq('is_sending_enabled', true)
+            .order('name');
+            
+          if (error) throw error;
+          
+          if (data && data.length > 0) {
+            return data.map(country => ({
+              name: country.name,
+              code: country.code,
+              currency: country.currency,
+              flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
+              isSendingEnabled: country.is_sending_enabled,
+              isReceivingEnabled: country.is_receiving_enabled,
+              paymentMethods: parsePaymentMethods(country.payment_methods)
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching sending countries from Supabase:', error);
+        }
+      }
+      
+      return mockCountries.filter(country => country.isSendingEnabled);
+    },
+    [countries, isOffline]
+  );
 
-  const getReceivingCountries = async () => {
-    if (!isOffline) {
-      try {
-        const { data, error } = await supabase
-          .from('countries')
-          .select('*')
-          .eq('is_receiving_enabled', true)
-          .order('name');
-          
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          return data.map(country => ({
-            name: country.name,
-            code: country.code,
-            currency: country.currency,
-            flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
-            isSendingEnabled: country.is_sending_enabled,
-            isReceivingEnabled: country.is_receiving_enabled,
-            paymentMethods: parsePaymentMethods(country.payment_methods)
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching receiving countries from Supabase:', error);
-        // Fall back to filtering local data
+  const getReceivingCountries = useMemo(() => 
+    async () => {
+      // If we already have countries data, filter it locally
+      if (countries.length > 0) {
+        return countries.filter(country => country.isReceivingEnabled);
       }
-    }
-    
-    return countries.filter(country => country.isReceivingEnabled);
-  };
+      
+      if (!isOffline) {
+        try {
+          const { data, error } = await supabase
+            .from('countries')
+            .select('*')
+            .eq('is_receiving_enabled', true)
+            .order('name');
+            
+          if (error) throw error;
+          
+          if (data && data.length > 0) {
+            return data.map(country => ({
+              name: country.name,
+              code: country.code,
+              currency: country.currency,
+              flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
+              isSendingEnabled: country.is_sending_enabled,
+              isReceivingEnabled: country.is_receiving_enabled,
+              paymentMethods: parsePaymentMethods(country.payment_methods)
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching receiving countries from Supabase:', error);
+        }
+      }
+      
+      return mockCountries.filter(country => country.isReceivingEnabled);
+    },
+    [countries, isOffline]
+  );
 
   return {
     countries,

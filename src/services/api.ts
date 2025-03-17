@@ -1,12 +1,16 @@
 
 import { createNetworkError, handleNetworkError, NetworkError, showErrorToast } from '@/utils/errorHandling';
 import { Preferences } from '@capacitor/preferences';
+import { retryWithBackoff } from '@/utils/networkUtils';
 
 interface RequestOptions extends RequestInit {
   timeout?: number;
   cacheable?: boolean;
   cacheKey?: string;
   cacheTTL?: number; // in milliseconds
+  retry?: boolean;
+  maxRetries?: number;
+  retryDelay?: number;
 }
 
 interface CachedResponse {
@@ -15,10 +19,13 @@ interface CachedResponse {
 }
 
 const defaultOptions: Partial<RequestOptions> = {
-  timeout: 15000, // 15 seconds default timeout
+  timeout: 10000, // 10 seconds default timeout (reduced from 15s)
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+  retry: true,
+  maxRetries: 2,
+  retryDelay: 500
 };
 
 // Function to check if cache is still valid
@@ -61,9 +68,8 @@ export const clearApiCache = async (): Promise<void> => {
     const { keys } = await Preferences.keys();
     const cacheKeys = keys.filter(key => key.startsWith('api_cache_'));
     
-    for (const key of cacheKeys) {
-      await Preferences.remove({ key });
-    }
+    const promises = cacheKeys.map(key => Preferences.remove({ key }));
+    await Promise.all(promises);
   } catch (error) {
     console.error('Failed to clear API cache:', error);
   }
@@ -94,7 +100,16 @@ export async function apiRequest<T = any>(
   options: RequestOptions = {}
 ): Promise<T> {
   const mergedOptions = { ...defaultOptions, ...options };
-  const { timeout, cacheable, cacheKey, cacheTTL = 5 * 60 * 1000, ...fetchOptions } = mergedOptions;
+  const { 
+    timeout, 
+    cacheable, 
+    cacheKey, 
+    cacheTTL = 5 * 60 * 1000, 
+    retry, 
+    maxRetries, 
+    retryDelay,
+    ...fetchOptions 
+  } = mergedOptions;
   
   const requestKey = cacheKey || `${url}_${JSON.stringify(fetchOptions)}`;
   
@@ -123,30 +138,44 @@ export async function apiRequest<T = any>(
     }
   }
   
+  const fetchWithTimeout = () => timeoutRequest(fetch(url, fetchOptions), timeout || 10000);
+  
   try {
-    // Make the API request with timeout
-    const response = await timeoutRequest(fetch(url, fetchOptions), timeout || 15000);
+    // Make the API request with timeout and retry if needed
+    const fetchFn = async () => {
+      const response = await fetchWithTimeout();
+      
+      // Check if response is ok (status 200-299)
+      if (!response.ok) {
+        throw createNetworkError(
+          `API error: ${response.statusText}`,
+          response.status >= 500 ? 'server-error' : 
+          response.status === 401 || response.status === 403 ? 'authentication-error' : 
+          'unknown-error',
+          response.status
+        );
+      }
+      
+      // Parse the response as JSON
+      const data = await response.json();
+      return data;
+    };
     
-    // Check if response is ok (status 200-299)
-    if (!response.ok) {
-      throw createNetworkError(
-        `API error: ${response.statusText}`,
-        response.status >= 500 ? 'server-error' : 
-        response.status === 401 || response.status === 403 ? 'authentication-error' : 
-        'unknown-error',
-        response.status
-      );
+    let data: T;
+    
+    // Use retry logic if enabled
+    if (retry) {
+      data = await retryWithBackoff(fetchFn, maxRetries, retryDelay);
+    } else {
+      data = await fetchFn();
     }
-    
-    // Parse the response as JSON
-    const data = await response.json();
     
     // Cache the successful response if cacheable
     if (cacheable) {
       await setCachedData(requestKey, data);
     }
     
-    return data as T;
+    return data;
   } catch (error) {
     throw handleNetworkError(error);
   }
@@ -154,7 +183,7 @@ export async function apiRequest<T = any>(
 
 // Helper functions for common HTTP methods
 export const get = <T = any>(url: string, options?: RequestOptions) => 
-  apiRequest<T>(url, { ...options, method: 'GET' });
+  apiRequest<T>(url, { ...options, method: 'GET', cacheable: options?.cacheable ?? true });
 
 export const post = <T = any>(url: string, data: any, options?: RequestOptions) => 
   apiRequest<T>(url, { 

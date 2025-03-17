@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
@@ -8,6 +9,8 @@ import ConfirmationStep from '@/components/send-money/ConfirmationStep';
 import { useToast } from '@/components/ui/use-toast';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { Skeleton } from '@/components/ui/skeleton';
+import LoadingState from '@/components/transaction/LoadingState';
 
 type SendMoneyStep = 'amount' | 'recipient' | 'payment' | 'confirmation';
 
@@ -34,44 +37,51 @@ const SendMoney = () => {
   // Initialize starting step - will be updated if we have pending transaction
   const [currentStep, setCurrentStep] = useState<SendMoneyStep>('amount');
 
-  // Check for pending transaction data
+  // Check for pending transaction data with a small delay to avoid UI jank
   useEffect(() => {
-    const pendingTransaction = localStorage.getItem('pendingTransaction');
-    
-    if (pendingTransaction) {
-      try {
-        const data = JSON.parse(pendingTransaction);
-        console.log('Found pending transaction:', data);
-        
-        // Update transaction data with values from localStorage
-        setTransactionData(prev => ({
-          ...prev,
-          amount: parseFloat(data.sendAmount) || 100,
-          sourceCurrency: data.sourceCurrency || 'USD',
-          targetCurrency: data.targetCurrency || 'XAF',
-          convertedAmount: parseFloat(data.receiveAmount.replace(/,/g, '')) || 61000,
-        }));
-        
-        // Skip to recipient step if we already have transaction details from homepage
-        setCurrentStep('recipient');
-        
-        // Clear pending transaction after loading it
-        localStorage.removeItem('pendingTransaction');
-      } catch (error) {
-        console.error('Error parsing pending transaction:', error);
+    const timer = setTimeout(() => {
+      const pendingTransaction = localStorage.getItem('pendingTransaction');
+      
+      if (pendingTransaction) {
+        try {
+          const data = JSON.parse(pendingTransaction);
+          console.log('Found pending transaction:', data);
+          
+          // Update transaction data with values from localStorage
+          setTransactionData(prev => ({
+            ...prev,
+            amount: parseFloat(data.sendAmount) || 100,
+            sourceCurrency: data.sourceCurrency || 'USD',
+            targetCurrency: data.targetCurrency || 'XAF',
+            convertedAmount: parseFloat(data.receiveAmount.replace(/,/g, '')) || 61000,
+          }));
+          
+          // Skip to recipient step if we already have transaction details from homepage
+          setCurrentStep('recipient');
+          
+          // Clear pending transaction after loading it
+          localStorage.removeItem('pendingTransaction');
+        } catch (error) {
+          console.error('Error parsing pending transaction:', error);
+        }
       }
-    }
+      
+      setInitialDataLoaded(true);
+    }, 50); // Small delay for better performance
     
-    setInitialDataLoaded(true);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Check authentication status separately
+  // Check authentication status separately with a small timeout
   useEffect(() => {
-    // Only check auth status once loading is done
-    if (!loading) {
-      console.log('Auth status check in SendMoney:', { isLoggedIn });
-      setAuthChecked(true);
-    }
+    const timer = setTimeout(() => {
+      if (!loading) {
+        console.log('Auth status check in SendMoney:', { isLoggedIn });
+        setAuthChecked(true);
+      }
+    }, 50);
+    
+    return () => clearTimeout(timer);
   }, [loading, isLoggedIn]);
 
   // Perform redirect if needed once both data and auth are checked
@@ -111,7 +121,7 @@ const SendMoney = () => {
             description: "Your transaction has been initiated successfully.",
           });
           navigate('/transaction/new');
-        }, 1500);
+        }, 1000); // Reduced from 1500 for better performance
         break;
     }
   };
@@ -136,14 +146,9 @@ const SendMoney = () => {
     setTransactionData(prev => ({ ...prev, ...data }));
   };
 
-  // Show loading state until we've checked everything
+  // Show better loading UI until we've checked everything
   if (!initialDataLoaded || loading || !authChecked) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
-        <p className="text-gray-600 ml-3">Preparing transaction...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   // If we've reached this point, the user is authenticated and data is loaded
