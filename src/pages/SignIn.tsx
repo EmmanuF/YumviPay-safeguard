@@ -20,6 +20,7 @@ import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
+import { BiometricService } from '@/services/biometric';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -52,6 +53,20 @@ const SignIn = () => {
     setIsSubmitting(true);
     try {
       await signIn(values.email, values.password);
+      
+      // Store credentials for biometric login if successful
+      try {
+        const isAvailable = await BiometricService.isAvailable();
+        const isEnabled = await BiometricService.isEnabled();
+        
+        if (isAvailable && isEnabled) {
+          await BiometricService.storeCredentials(values.email, values.password);
+        }
+      } catch (error) {
+        console.log("Failed to store credentials for biometric login:", error);
+        // Non-critical error, so we don't need to show it to the user
+      }
+      
       toast({
         title: "Login successful",
         description: "You have successfully logged in.",
@@ -69,13 +84,28 @@ const SignIn = () => {
     }
   };
 
-  const handleBiometricSuccess = () => {
-    toast({
-      title: "Biometric Login Successful",
-      description: "You have successfully logged in using biometrics.",
-    });
-    const redirectTo = location.state?.redirectTo || "/";
-    navigate(redirectTo);
+  const handleBiometricSuccess = (credentials: { username: string; password: string }) => {
+    // Use the retrieved credentials to sign in
+    setIsSubmitting(true);
+    signIn(credentials.username, credentials.password)
+      .then(() => {
+        toast({
+          title: "Biometric Login Successful",
+          description: "You have successfully logged in using biometrics.",
+        });
+        const redirectTo = location.state?.redirectTo || "/";
+        navigate(redirectTo);
+      })
+      .catch((error) => {
+        toast({
+          title: "Authentication Failed",
+          description: error.message || "Invalid credentials. Please try again.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   return (
@@ -130,7 +160,7 @@ const SignIn = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <BiometricLogin />
+              <BiometricLogin onSuccess={handleBiometricSuccess} />
             </motion.div>
           )}
 

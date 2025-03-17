@@ -1,6 +1,7 @@
 
 import { Transaction } from "@/types/transaction";
 import { mockTransactions } from "@/data/mockTransactions";
+import * as api from "../api";
 
 // Fallback to mock data when offline or API fails
 let offlineTransactions: Transaction[] = [...mockTransactions];
@@ -22,13 +23,9 @@ export const setOfflineTransactions = (transactions: Transaction[]): void => {
 
 // Initialize transactions cache
 export const initializeTransactions = async () => {
-  const { apiService } = await import("../apiService");
-  
-  // Try to load from API first
   try {
-    // Fixed: Using apiService.getAll with 'transactions' as the resource parameter
-    // instead of trying to access a non-existent transactions property
-    const apiTransactions = await apiService.getAll('transactions');
+    // Get data from the API using the refactored structure
+    const apiTransactions = await api.getAll('transactions');
     offlineTransactions = apiTransactions;
   } catch (error) {
     console.error('Could not initialize transactions from API, using mock data:', error);
