@@ -58,6 +58,7 @@ const Onboarding = () => {
         if (sourceCountryData) {
           setSourceCountry({
             code: sourceCountryData.code,
+            // Use phonePrefix if available, otherwise default to +1
             phoneCode: sourceCountryData.phonePrefix || '+1',
             name: sourceCountryData.name
           });

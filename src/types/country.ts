@@ -7,6 +7,7 @@ export interface Country {
   isSendingEnabled: boolean;
   isReceivingEnabled: boolean;
   paymentMethods: PaymentMethod[];
+  phonePrefix?: string; // Add the phonePrefix property as optional
 }
 
 export interface PaymentMethod {
