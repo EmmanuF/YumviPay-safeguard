@@ -24,8 +24,8 @@ export const setOfflineTransactions = (transactions: Transaction[]): void => {
 // Initialize transactions cache
 export const initializeTransactions = async () => {
   try {
-    // Get data from the API using the refactored structure
-    const apiTransactions = await api.getAll('transactions');
+    // Get data from the API using the correct method (get instead of getAll)
+    const apiTransactions = await api.get('transactions');
     offlineTransactions = apiTransactions;
   } catch (error) {
     console.error('Could not initialize transactions from API, using mock data:', error);
