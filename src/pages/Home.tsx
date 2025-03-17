@@ -5,7 +5,11 @@ import { motion } from 'framer-motion';
 import Navigation from '@/components/home/Navigation';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';
+import HowItWorks from '@/components/home/HowItWorks';
+import CountryCoverage from '@/components/home/CountryCoverage';
+import Testimonials from '@/components/home/Testimonials';
 import AppDownload from '@/components/home/AppDownload';
+import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 
 const Home = () => {
@@ -40,7 +44,11 @@ const Home = () => {
           >
             <Hero onGetStarted={handleGetStarted} />
             <Features />
+            <HowItWorks />
+            <CountryCoverage />
+            <Testimonials />
             <AppDownload />
+            <CTASection />
           </motion.div>
         </div>
       </div>
