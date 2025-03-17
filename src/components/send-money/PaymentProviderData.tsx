@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Smartphone, CreditCard, CardIcon } from 'lucide-react';
+import { Smartphone, CreditCard, CreditCard as CardIcon } from 'lucide-react';
 import { cameroonPaymentMethods } from '@/data/cameroonPaymentProviders';
 
 export const getIconComponent = (iconName: string) => {
