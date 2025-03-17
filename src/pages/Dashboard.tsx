@@ -1,111 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { getAuthState } from '@/services/auth';
+import React from 'react';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
-import TransactionCard from '@/components/TransactionCard';
-import { Transaction } from '@/types/transaction';
-import QuickTransferPanel from '@/components/quick-transfer/QuickTransferPanel';
 import HeaderRight from '@/components/HeaderRight';
-import { useNotifications } from '@/contexts/NotificationContext';
+import QuickTransferPanel from '@/components/quick-transfer/QuickTransferPanel';
 import { BalanceCard, QuickLinks, RecentTransactions } from '@/components/dashboard';
+import DashboardContainer from '@/components/dashboard/DashboardContainer';
+import LoadingState from '@/components/dashboard/LoadingState';
+import { useDashboard } from '@/hooks/useDashboard';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { addNotification } = useNotifications();
+  const { user, isLoading, transactions } = useDashboard();
   
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const { user, isAuthenticated } = await getAuthState();
-        
-        if (!isAuthenticated) {
-          navigate('/');
-          return;
-        }
-        
-        setUser(user);
-        
-        // Mock transaction data for demo purposes
-        const mockTransactions: Transaction[] = [
-          {
-            id: 'tx_123456',
-            amount: '500',
-            currency: 'USD',
-            recipientName: 'John Doe',
-            recipientCountry: 'Nigeria',
-            recipientCountryCode: 'NG',
-            status: 'completed',
-            date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-            type: 'send',
-            createdAt: new Date(Date.now() - 86400000),
-            country: 'Nigeria',
-            fee: '5.00',
-            totalAmount: '505.00',
-            recipientContact: '+234123456789',
-            recipientId: 'rec_123456',
-            paymentMethod: 'bank_transfer',
-            estimatedDelivery: '1-2 business days'
-          },
-          {
-            id: 'tx_123457',
-            amount: '200',
-            currency: 'USD',
-            recipientName: 'Sarah Johnson',
-            recipientCountry: 'Kenya',
-            recipientCountryCode: 'KE',
-            status: 'pending',
-            date: new Date().toISOString(),
-            type: 'send',
-            createdAt: new Date(),
-            country: 'Kenya',
-            fee: '3.50',
-            totalAmount: '203.50',
-            recipientContact: '+254987654321',
-            recipientId: 'rec_123457',
-            paymentMethod: 'mobile_money',
-            estimatedDelivery: '1-2 business days'
-          },
-        ];
-        
-        setTransactions(mockTransactions);
-        
-        // Simulate receiving a transaction status update
-        setTimeout(() => {
-          addNotification({
-            title: 'Transaction Update',
-            message: 'Your transfer of $200 to Sarah Johnson is processing.',
-            type: 'info',
-            transactionId: 'tx_123457'
-          });
-        }, 3000);
-        
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        setIsLoading(false);
-      }
-    };
-    
-    loadUserData();
-  }, [navigate, addNotification]);
-  
-  // Fade in animation for sections
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-  
+  // Item animation variants for staggered animations
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -119,11 +26,7 @@ const Dashboard = () => {
   };
   
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse-subtle">Loading...</div>
-      </div>
-    );
+    return <LoadingState />;
   }
   
   return (
@@ -134,35 +37,26 @@ const Dashboard = () => {
         rightContent={<HeaderRight showNotification />}
       />
       
-      <div className="px-4 py-2 flex-1">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-md mx-auto"
-        >
-          {/* Balance Card */}
-          <BalanceCard 
-            userName={user?.name} 
-            transactions={transactions} 
-            itemVariants={itemVariants} 
-          />
-          
-          {/* Quick Transfer Panel */}
-          <motion.div variants={itemVariants} className="mb-6">
-            <QuickTransferPanel />
-          </motion.div>
-          
-          {/* Quick Links */}
-          <QuickLinks itemVariants={itemVariants} />
-          
-          {/* Recent Transactions */}
-          <RecentTransactions 
-            transactions={transactions} 
-            itemVariants={itemVariants} 
-          />
-        </motion.div>
-      </div>
+      <DashboardContainer>
+        {/* Balance Card */}
+        <BalanceCard 
+          userName={user?.name} 
+          transactions={transactions} 
+          itemVariants={itemVariants} 
+        />
+        
+        {/* Quick Transfer Panel */}
+        <QuickLinks itemVariants={itemVariants} />
+        
+        {/* Quick Transfer Panel */}
+        <QuickTransferPanel />
+        
+        {/* Recent Transactions */}
+        <RecentTransactions 
+          transactions={transactions} 
+          itemVariants={itemVariants} 
+        />
+      </DashboardContainer>
       
       <BottomNavigation />
     </div>
