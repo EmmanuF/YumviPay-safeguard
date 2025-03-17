@@ -45,10 +45,10 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOffline, offlineModeActive]);
   
-  // Apply the glass effect based on device performance - updated colors from yellow to purple/white
+  // Enhanced glass effects with different intensities
   const glassClass = glassEffectIntensity === 'light' 
-    ? 'bg-gradient-to-b from-primary-100 to-primary-50/80'
-    : 'glass-effect bg-gradient-to-b from-primary-100/90 to-white/70 backdrop-blur-lg';
+    ? 'bg-gradient-to-b from-primary-100/90 to-primary-50/80 border border-white/40'
+    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-primary-100/80 to-white/70 border border-white/30 shadow-[0_8px_32px_rgba(110,54,229,0.15)]';
   
   return (
     <div className={`flex flex-col h-dvh overflow-hidden ${glassClass} ${getOptimizationClasses()}`}>
@@ -56,7 +56,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
       
       {!isHome && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ 
             duration: animSettings.duration,
@@ -70,7 +70,23 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
       )}
       
       <main className="flex-1 overflow-auto overscroll-none">
-        {children}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ 
+              duration: animSettings.duration * 1.2,
+              type: "spring",
+              stiffness: animSettings.stiffness * 0.9,
+              damping: animSettings.damping
+            }}
+            className="w-full h-full"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
       
       {/* Floating offline indicator that appears when scrolling */}
@@ -80,10 +96,10 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: animSettings.duration }}
+            transition={{ duration: animSettings.duration, type: "spring" }}
             className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
-                      ${glassEffectIntensity === 'light' ? 'bg-primary-300' : 'glass-effect bg-primary-300/90 backdrop-blur-sm'} 
-                      text-white rounded-full shadow-lg flex items-center space-x-2 z-40`}
+                      ${glassEffectIntensity === 'light' ? 'bg-primary-300 border border-primary-200' : 'glass-effect bg-primary-300/90 backdrop-blur-md border border-primary-200/30 shadow-lg'} 
+                      text-white rounded-full flex items-center space-x-2 z-40`}
           >
             <WifiOff className="w-4 h-4" />
             <span className="text-sm font-medium">Offline</span>
@@ -96,7 +112,21 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
         )}
       </AnimatePresence>
       
-      {!isHome && <BottomNavigation />}
+      {!isHome && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            delay: 0.2,
+            duration: animSettings.duration,
+            type: "spring",
+            stiffness: animSettings.stiffness,
+            damping: animSettings.damping
+          }}
+        >
+          <BottomNavigation />
+        </motion.div>
+      )}
       
       <Toaster 
         position="top-center"
@@ -106,9 +136,9 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
             background: glassEffectIntensity === 'light' 
               ? 'rgba(236, 224, 255, 0.95)' 
               : 'rgba(236, 224, 255, 0.85)',
-            backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(8px)',
+            backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(12px)',
             border: '1px solid rgba(143, 91, 255, 0.3)',
-            boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 8px 32px -4px rgba(110, 54, 229, 0.15)',
             color: '#333',
           },
           className: 'glass-card',

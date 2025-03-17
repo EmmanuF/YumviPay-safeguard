@@ -15,7 +15,8 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
     },
   },
 };
@@ -26,7 +27,7 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.7,
       ease: [0.22, 1, 0.36, 1],
     },
   },
@@ -65,9 +66,13 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
               <span className="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-[#FFDD33] to-[#FFC107]">Boundaries</span>
             </h1>
             
-            <div className="absolute -top-5 -right-5 text-primary-100 rotate-12 opacity-30">
+            <motion.div 
+              className="absolute -top-5 -right-5 text-primary-100 rotate-12 opacity-30"
+              animate={{ rotate: [12, 5, 12], scale: [1, 1.05, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            >
               <Coins size={64} />
-            </div>
+            </motion.div>
           </motion.div>
           
           <motion.p 
@@ -80,20 +85,32 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
           <motion.div variants={itemVariants} className="flex space-x-4">
             <Button
               onClick={handleGetStarted}
-              className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base"
+              className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30"
               size="lg"
             >
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <motion.span
+                className="flex items-center"
+                whileHover={{ x: 4 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              >
+                Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </motion.span>
             </Button>
             
             <Button
               variant="outline"
-              className="border-primary-200 text-primary-700 hover:bg-primary-50"
+              className="border-primary-200 text-primary-700 hover:bg-primary-50 shadow-sm"
               size="lg"
             >
-              <Download className="mr-2 h-5 w-5" />
-              Download App
+              <motion.span
+                className="flex items-center"
+                whileHover={{ y: -2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              >
+                <Download className="mr-2 h-5 w-5" />
+                Download App
+              </motion.span>
             </Button>
           </motion.div>
           
@@ -102,17 +119,17 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
               <img 
                 src="https://randomuser.me/api/portraits/women/44.jpg" 
                 alt="User" 
-                className="w-10 h-10 rounded-full border-2 border-white"
+                className="w-10 h-10 rounded-full border-2 border-white shadow-md"
               />
               <img 
                 src="https://randomuser.me/api/portraits/men/86.jpg" 
                 alt="User" 
-                className="w-10 h-10 rounded-full border-2 border-white -ml-2"
+                className="w-10 h-10 rounded-full border-2 border-white shadow-md -ml-2"
               />
               <img 
                 src="https://randomuser.me/api/portraits/women/24.jpg" 
                 alt="User" 
-                className="w-10 h-10 rounded-full border-2 border-white -ml-2"
+                className="w-10 h-10 rounded-full border-2 border-white shadow-md -ml-2"
               />
             </div>
             <div className="ml-3">
@@ -122,13 +139,24 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
           </motion.div>
         </motion.div>
         
-        {/* Right column - Calculator */}
+        {/* Right column - Calculator with enhanced glass morphism */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          className="relative"
         >
-          <ExchangeRateCalculator />
+          <motion.div
+            variants={itemVariants}
+            className="absolute inset-0 bg-gradient-to-br from-primary-100/30 to-transparent rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-60 backdrop-blur-sm"
+          />
+          <motion.div
+            variants={itemVariants}
+            className="relative z-10 glass-strong rounded-2xl transform"
+            whileHover={{ scale: 1.02, rotate: [-1, 1, 0], transition: { duration: 0.5 } }}
+          >
+            <ExchangeRateCalculator />
+          </motion.div>
         </motion.div>
       </div>
     </div>
