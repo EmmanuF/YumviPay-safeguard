@@ -154,7 +154,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4"
+        className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-sm"
       >
         {navItems.map((item) => (
           <button
@@ -167,14 +167,19 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               className={cn(
                 "p-2 rounded-full transition-all duration-300",
                 location.pathname === item.path 
-                  ? "text-primary-500" 
-                  : "text-gray-500 hover:text-primary-400",
+                  ? "text-primary-600 bg-primary-100/50" 
+                  : "text-gray-600 hover:text-primary-500 hover:bg-primary-50/50",
                 isNavigating && "opacity-75"
               )}
             >
               {item.icon}
             </div>
-            <span className="text-xs mt-1 font-medium text-gray-500">
+            <span className={cn(
+              "text-xs mt-1 font-medium",
+              location.pathname === item.path
+                ? "text-primary-600"
+                : "text-gray-600"
+            )}>
               {item.name}
             </span>
           </button>
