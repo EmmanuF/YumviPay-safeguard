@@ -1,17 +1,13 @@
 
-import { useEffect, ReactNode } from 'react';
+import { useEffect } from 'react';
 import { PushNotificationService } from '@/services/push/pushNotificationService';
 import { isPlatform } from '@/utils/platformUtils';
-
-interface AppInitializerProps {
-  children?: ReactNode;
-}
 
 /**
  * Component to initialize app-wide services
  * Place this component at the root of your app
  */
-const AppInitializer = ({ children }: AppInitializerProps) => {
+const AppInitializer = () => {
   useEffect(() => {
     const initializeApp = async () => {
       // Initialize native features only if running on a capacitor platform
@@ -50,8 +46,8 @@ const AppInitializer = ({ children }: AppInitializerProps) => {
     };
   }, []);
   
-  // Return children if provided
-  return children ? <>{children}</> : null;
+  // This component doesn't render anything
+  return null;
 };
 
 export default AppInitializer;

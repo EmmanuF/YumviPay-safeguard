@@ -2,13 +2,12 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
-import Footer from './Footer';
 import OfflineBanner from './OfflineBanner';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { WifiOff } from 'lucide-react';
+import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
 interface MobileAppLayoutProps {
@@ -18,7 +17,6 @@ interface MobileAppLayoutProps {
 const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const isAdminPage = location.pathname === '/admin';
   const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
   
@@ -55,7 +53,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
   return (
     <div className={`flex flex-col h-dvh overflow-hidden ${glassClass} ${getOptimizationClasses()}`}>
       {/* Diagonal purple top design - only shown on non-home pages */}
-      {!isHome && !isAdminPage && (
+      {!isHome && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
           <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
           <div className="absolute top-0 left-0 right-0 h-24">
@@ -66,7 +64,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
       
       <OfflineBanner />
       
-      {!isHome && !isAdminPage && (
+      {!isHome && (
         <motion.div
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -125,11 +123,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
         )}
       </AnimatePresence>
       
-      {/* Only show bottom navigation on app pages, not on admin or home */}
-      {!isHome && !isAdminPage && <BottomNavigation />}
-      
-      {/* Add footer to home page and don't show it on admin page */}
-      {(isHome || (!isAdminPage && location.pathname !== '/dashboard')) && <Footer />}
+      {!isHome && <BottomNavigation />}
       
       <Toaster 
         position="top-center"
