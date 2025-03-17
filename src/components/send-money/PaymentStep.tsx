@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
@@ -47,6 +46,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const [isDetailsConfirmed, setIsDetailsConfirmed] = useState(false);
   const [showConfirmationError, setShowConfirmationError] = useState(false);
   
+  const comingSoonProviders = ['yoomee_money', 'afriland', 'ecobank'];
+  const comingSoonMethods = ['bank_transfer'];
+  
   useEffect(() => {
     if (transactionData.recipientCountry) {
       const country = getCountryByCode(transactionData.recipientCountry);
@@ -58,7 +60,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     setIsRecurring(isRecurring);
     setRecurringFrequency(frequency);
     
-    // Update transaction data with recurring info
     updateTransactionData({
       isRecurring,
       recurringFrequency: isRecurring ? frequency : null
@@ -66,6 +67,24 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   };
 
   const handleContinue = async () => {
+    if (transactionData.paymentMethod && comingSoonMethods.includes(transactionData.paymentMethod)) {
+      toast({
+        title: "Coming Soon",
+        description: "This payment method will be available soon. Please select Mobile Money for now.",
+        variant: "default",
+      });
+      return;
+    }
+    
+    if (transactionData.selectedProvider && comingSoonProviders.includes(transactionData.selectedProvider)) {
+      toast({
+        title: "Coming Soon",
+        description: "This payment provider will be available soon. Please select MTN Mobile Money or Orange Money.",
+        variant: "default",
+      });
+      return;
+    }
+
     if (!transactionData.paymentMethod || !transactionData.selectedProvider) {
       toast({
         title: "Payment method required",
@@ -85,7 +104,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       return;
     }
     
-    // Create recurring payment if enabled
     if (isRecurring && transactionData.recipient) {
       try {
         await createRecurringPayment(
@@ -148,13 +166,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       <motion.div variants={itemVariants}>
         <h2 className="text-xl font-bold mb-4">Select Payment Method</h2>
         
-        {/* Favorite Recipients Section */}
         <FavoriteRecipients
           transactionData={transactionData}
           updateTransactionData={updateTransactionData}
         />
         
-        {/* Preferred Payment Methods */}
         <PreferredPaymentMethods
           preferredMethods={preferredMethods}
           countryCode={transactionData.recipientCountry || 'CM'}
@@ -163,7 +179,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           updateTransactionData={updateTransactionData}
         />
         
-        {/* Country Payment Methods */}
         <Card className="overflow-hidden mb-4">
           <CountryPaymentMethods
             countryCode={transactionData.recipientCountry || 'CM'}
@@ -178,7 +193,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           />
         </Card>
         
-        {/* Name Match Confirmation */}
         {transactionData.paymentMethod && transactionData.selectedProvider && transactionData.recipientName && (
           <NameMatchConfirmation 
             isChecked={isDetailsConfirmed}
@@ -187,7 +201,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           />
         )}
         
-        {/* Recurring Payment Option */}
         <RecurringPaymentOption
           transactionData={transactionData}
           onRecurringChange={handleRecurringChange}
