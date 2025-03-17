@@ -68,15 +68,21 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     // Save the transaction data to localStorage
     localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
     
-    // If loading, wait (this prevents incorrect redirects during auth check)
-    if (loading) return;
+    // If loading, show a loading indicator or wait until loading is done
+    if (loading) {
+      console.log('Auth state is loading, waiting before navigation');
+      return;
+    }
+    
+    console.log('Navigation decision based on auth state:', { isLoggedIn });
     
     // If user is already logged in, go straight to the send flow
     if (isLoggedIn) {
+      console.log('User is logged in, navigating directly to /send');
       navigate('/send');
     } else {
-      // If not logged in, go to signin page instead of onboarding
-      // since we have a separate signin/signup flow
+      // If not logged in, go to signin page with redirect parameter
+      console.log('User is not logged in, navigating to signin with redirect');
       navigate('/signin', { state: { redirectTo: '/send' } });
     }
   };
@@ -136,9 +142,10 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
           onClick={handleContinue}
           className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
+          disabled={loading}
         >
-          Continue
-          <ArrowRight className="ml-2 h-5 w-5" />
+          {loading ? 'Loading...' : 'Continue'}
+          {!loading && <ArrowRight className="ml-2 h-5 w-5" />}
         </Button>
       </div>
     </div>

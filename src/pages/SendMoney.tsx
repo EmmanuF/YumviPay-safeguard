@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
@@ -15,9 +14,10 @@ type SendMoneyStep = 'amount' | 'recipient' | 'payment' | 'confirmation';
 const SendMoney = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   
   // Initialize with default values
   const [transactionData, setTransactionData] = useState<any>({
@@ -65,10 +65,28 @@ const SendMoney = () => {
     setInitialDataLoaded(true);
   }, []);
 
+  // Check authentication status separately
+  useEffect(() => {
+    // Only check auth status once loading is done
+    if (!loading) {
+      console.log('Auth status check in SendMoney:', { isLoggedIn });
+      setAuthChecked(true);
+    }
+  }, [loading, isLoggedIn]);
+
+  // Perform redirect if needed once both data and auth are checked
+  useEffect(() => {
+    if (initialDataLoaded && authChecked && !loading && !isLoggedIn) {
+      console.log('User not logged in, redirecting to signin');
+      navigate('/signin', { state: { redirectTo: '/send' } });
+    }
+  }, [initialDataLoaded, authChecked, isLoggedIn, loading, navigate]);
+
   const handleNext = () => {
-    // If not logged in and moving past amount step, redirect to signin
+    // This is no longer needed as we handle redirect in the useEffect
+    // but we'll keep the check as a fallback for safety
     if (!isLoggedIn && currentStep === 'amount') {
-      navigate('/signin', { state: { from: location } });
+      navigate('/signin', { state: { redirectTo: '/send' } });
       return;
     }
 
@@ -118,15 +136,17 @@ const SendMoney = () => {
     setTransactionData(prev => ({ ...prev, ...data }));
   };
 
-  // Show loading until we've checked for pending transaction
-  if (!initialDataLoaded) {
+  // Show loading state until we've checked everything
+  if (!initialDataLoaded || loading || !authChecked) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+        <p className="text-gray-600 ml-3">Preparing transaction...</p>
       </div>
     );
   }
 
+  // If we've reached this point, the user is authenticated and data is loaded
   const renderStep = () => {
     switch (currentStep) {
       case 'amount':
