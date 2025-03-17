@@ -1,9 +1,10 @@
 
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react'; // Changed from Languages to Globe
+import { Globe } from 'lucide-react';
 import { useLocale } from '@/contexts/LocaleContext';
 import { Locale } from '@/types/locale';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
 
 const LocaleSwitcher: React.FC = () => {
   const { locale, setLocale, t } = useLocale();
+  const isMobile = useIsMobile();
   
   const locales: { key: Locale; label: string }[] = [
     { key: 'en', label: 'English' },
@@ -35,8 +37,12 @@ const LocaleSwitcher: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Globe className="h-[1.2rem] w-[1.2rem]" /> {/* Changed from Languages to Globe */}
+        <Button 
+          variant={isMobile ? "secondary" : "ghost"} 
+          size="icon" 
+          className={`relative ${isMobile ? "bg-white/80 backdrop-blur-sm shadow-sm" : ""}`}
+        >
+          <Globe className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">{t('settings.language')}</span>
           <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-primary-500 text-[8px] font-bold flex items-center justify-center text-white">
             {currentLocale === 'en' ? 'EN' : 'FR'}

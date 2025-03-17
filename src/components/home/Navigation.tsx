@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
@@ -6,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NavItem {
   name: string;
@@ -22,6 +24,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
   const { t } = useLocale();
+  const isMobile = useIsMobile();
   const [isNavigating, setIsNavigating] = useState(false);
   
   const navItems: NavItem[] = [
@@ -77,6 +80,11 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       setTimeout(() => setIsNavigating(false), 400);
     }, 50);
   };
+  
+  // Don't render this navigation on mobile as we'll use BottomNavigation
+  if (isMobile) {
+    return null;
+  }
   
   return (
     <header className="px-4 py-4">
