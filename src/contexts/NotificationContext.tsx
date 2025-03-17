@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export interface Notification {
   id: string;
@@ -15,10 +15,11 @@ export interface Notification {
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
+  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => string;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearNotifications: () => void;
+  addTransactionStatusUpdate: (transactionId: string, status: string, amount?: string, recipient?: string) => string;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -105,6 +106,62 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     setNotifications([]);
   };
   
+  // Helper function to generate transaction status notifications
+  const addTransactionStatusUpdate = (transactionId: string, status: string, amount?: string, recipient?: string) => {
+    let notification: Omit<Notification, 'id' | 'timestamp' | 'read'>;
+    
+    // Create notification based on status
+    switch (status) {
+      case 'completed':
+        notification = {
+          title: "Transaction Completed",
+          message: amount && recipient 
+            ? `Your transfer of $${amount} to ${recipient} was successful.` 
+            : "Your transaction was completed successfully.",
+          type: 'success',
+          transactionId
+        };
+        break;
+      
+      case 'processing':
+        notification = {
+          title: "Transaction Processing",
+          message: "Your transaction is being processed. We'll notify you when it's complete.",
+          type: 'info',
+          transactionId
+        };
+        break;
+      
+      case 'failed':
+        notification = {
+          title: "Transaction Failed",
+          message: "Unfortunately, your transaction could not be completed. Please try again.",
+          type: 'error',
+          transactionId
+        };
+        break;
+      
+      case 'offline-pending':
+        notification = {
+          title: "Transaction Queued",
+          message: "Your transaction has been queued and will be processed when you're back online.",
+          type: 'warning',
+          transactionId
+        };
+        break;
+      
+      default:
+        notification = {
+          title: "Transaction Update",
+          message: `Your transaction status is now: ${status}`,
+          type: 'info',
+          transactionId
+        };
+    }
+    
+    return addNotification(notification);
+  };
+  
   return (
     <NotificationContext.Provider
       value={{
@@ -114,6 +171,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         markAsRead,
         markAllAsRead,
         clearNotifications,
+        addTransactionStatusUpdate
       }}
     >
       {children}

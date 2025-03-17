@@ -2,11 +2,12 @@
 import React from 'react';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { motion } from 'framer-motion';
-import { WifiOff, Wifi, RefreshCw, Clock } from 'lucide-react';
+import { WifiOff, Wifi, RefreshCw, Clock, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import { Progress } from '@/components/ui/progress';
 
 interface OfflineStatusProps {
   compact?: boolean;
@@ -46,11 +47,11 @@ export const OfflineStatus: React.FC<OfflineStatusProps> = ({
   if (compact) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        <WifiOff className="h-4 w-4 text-amber-500" />
-        <span className="text-sm text-amber-500 font-medium">
+        <WifiOff className={`h-4 w-4 ${isOffline ? "text-red-500" : "text-amber-500"}`} />
+        <span className={`text-sm font-medium ${isOffline ? "text-red-500" : "text-amber-500"}`}>
           {isOffline ? 'Offline' : 'Offline Mode'}
         </span>
-        {pendingOperationsCount > 0 && !isOffline && (
+        {pendingOperationsCount > 0 && (
           <Badge variant="outline" className="text-xs">
             {pendingOperationsCount} pending
           </Badge>
@@ -65,12 +66,12 @@ export const OfflineStatus: React.FC<OfflineStatusProps> = ({
       animate={{ opacity: 1, y: 0 }}
       className={className}
     >
-      <Card className={isOffline ? "border-amber-500" : "border-blue-500"}>
+      <Card className={isOffline ? "border-red-500" : "border-amber-500"}>
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className={`p-2 rounded-full ${isOffline ? "bg-amber-100" : "bg-blue-100"} mr-3`}>
-                <WifiOff className={`h-5 w-5 ${isOffline ? "text-amber-500" : "text-blue-500"}`} />
+              <div className={`p-2 rounded-full ${isOffline ? "bg-red-100" : "bg-amber-100"} mr-3`}>
+                <WifiOff className={`h-5 w-5 ${isOffline ? "text-red-500" : "text-amber-500"}`} />
               </div>
               <div>
                 <h3 className="font-medium">
@@ -94,12 +95,31 @@ export const OfflineStatus: React.FC<OfflineStatusProps> = ({
             )}
             
             {pendingOperationsCount > 0 && (
-              <div className="flex items-center text-muted-foreground">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                <span>
-                  {pendingOperationsCount} {pendingOperationsCount === 1 ? 'operation' : 'operations'} pending
-                  {!isOffline && lastSyncTime && ` • Last sync ${lastSyncDisplay}`}
-                </span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <div className="flex items-center">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <span>
+                      {pendingOperationsCount} {pendingOperationsCount === 1 ? 'operation' : 'operations'} pending
+                    </span>
+                  </div>
+                  {!isOffline && lastSyncTime && (
+                    <div className="flex items-center text-xs">
+                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                      <span>Last sync {lastSyncDisplay}</span>
+                    </div>
+                  )}
+                </div>
+                
+                {isSyncing && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span>Syncing your data...</span>
+                      <span>60%</span>
+                    </div>
+                    <Progress value={60} className="h-1" />
+                  </div>
+                )}
               </div>
             )}
             
@@ -107,22 +127,27 @@ export const OfflineStatus: React.FC<OfflineStatusProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full mt-2"
+                className={`w-full mt-2 ${isSyncing ? "bg-primary-50" : ""}`}
                 onClick={syncOfflineData}
                 disabled={isSyncing}
               >
                 {isSyncing ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1 }}
-                    className="mr-2"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </motion.div>
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1 }}
+                      className="mr-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </motion.div>
+                    Syncing...
+                  </>
                 ) : (
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Sync Now
+                  </>
                 )}
-                {isSyncing ? 'Syncing...' : 'Sync Now'}
               </Button>
             )}
           </div>

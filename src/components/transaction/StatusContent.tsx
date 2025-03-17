@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import StatusUpdateBar from './StatusUpdateBar';
 import { TransactionStatus } from '@/types/transaction';
+import { Progress } from '@/components/ui/progress';
 
 interface TransactionDetails {
   id: string;
@@ -28,7 +29,7 @@ const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
     switch (transaction.status) {
       case 'completed':
         return (
-          <div className="bg-primary-500 p-6 text-center text-white">
+          <div className="bg-green-500 p-6 text-center text-white">
             <CheckCircle className="h-12 w-12 mx-auto mb-2" />
             <h2 className="text-xl font-semibold">Money Sent Successfully!</h2>
             <p className="opacity-90 text-sm mt-1">
@@ -69,8 +70,23 @@ const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
             </p>
           </div>
         );
-      case 'pending':
       case 'processing':
+        return (
+          <div className="bg-blue-500 p-6 text-center text-white">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="mx-auto mb-2"
+            >
+              <RefreshCw className="h-12 w-12" />
+            </motion.div>
+            <h2 className="text-xl font-semibold">Processing Payment</h2>
+            <p className="opacity-90 text-sm mt-1">
+              Transaction ID: {transaction.id}
+            </p>
+          </div>
+        );
+      case 'pending':
       default:
         return (
           <div className="bg-amber-500 p-6 text-center text-white">
@@ -84,6 +100,19 @@ const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
     }
   };
 
+  // Calculate progress based on transaction status
+  const getProgressValue = (status: TransactionStatus): number => {
+    switch(status) {
+      case 'pending': return 25;
+      case 'processing': return 65;
+      case 'completed': return 100;
+      case 'failed': return 100;
+      case 'cancelled': return 100;
+      case 'offline-pending': return 15;
+      default: return 0;
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -94,9 +123,23 @@ const StatusContent: React.FC<StatusContentProps> = ({ transaction }) => {
         {renderStatusHeader()}
         
         <div className="p-5 space-y-6">
+          {/* Transaction Progress Indicator */}
+          {(transaction.status === 'pending' || transaction.status === 'processing') && (
+            <div className="mb-3">
+              <div className="flex justify-between text-sm mb-1">
+                <span>Transaction Progress</span>
+                <span>{getProgressValue(transaction.status)}%</span>
+              </div>
+              <Progress value={getProgressValue(transaction.status)} className="h-2" />
+            </div>
+          )}
+          
           {/* Status Update Notifications */}
           <div className="mb-4">
-            <StatusUpdateBar transactionId={transaction.id} />
+            <StatusUpdateBar 
+              transactionId={transaction.id} 
+              status={transaction.status}
+            />
           </div>
           
           {transaction.status === 'failed' && transaction.failureReason && (

@@ -42,6 +42,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
           <StatusUpdateBar 
             transactionId={transaction.id}
             variant="default"
+            status={transaction.status}
           />
         </div>
       )}

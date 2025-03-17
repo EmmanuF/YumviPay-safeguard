@@ -1,11 +1,13 @@
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import OfflineBanner from './OfflineBanner';
 import { Toaster } from 'sonner';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
+import { useNetwork } from '@/contexts/NetworkContext';
+import { AlertTriangle, WifiOff } from 'lucide-react';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -14,6 +16,23 @@ interface MobileAppLayoutProps {
 const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
+  const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
+  
+  // Show offline indicator on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      // If offline and scrolled down, show the indicator
+      if ((isOffline || offlineModeActive) && window.scrollY > 100) {
+        setShowOfflineIndicator(true);
+      } else {
+        setShowOfflineIndicator(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isOffline, offlineModeActive]);
   
   return (
     <div className="flex flex-col h-dvh overflow-hidden bg-gradient-to-b from-secondary-100 to-secondary-50/80">
@@ -32,6 +51,26 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
       <main className="flex-1 overflow-auto overscroll-none">
         {children}
       </main>
+      
+      {/* Floating offline indicator that appears when scrolling */}
+      <AnimatePresence>
+        {showOfflineIndicator && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-amber-500 text-white rounded-full shadow-lg flex items-center space-x-2 z-40"
+          >
+            <WifiOff className="w-4 h-4" />
+            <span className="text-sm font-medium">Offline</span>
+            {pendingOperationsCount > 0 && (
+              <span className="bg-white text-amber-500 rounded-full px-1.5 text-xs font-medium">
+                {pendingOperationsCount}
+              </span>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {!isHome && <BottomNavigation />}
       

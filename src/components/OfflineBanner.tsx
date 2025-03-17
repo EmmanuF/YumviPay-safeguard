@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WifiOff, Wifi, RotateCw, Clock } from 'lucide-react';
+import { WifiOff, Wifi, RotateCw, Clock, AlertTriangle } from 'lucide-react';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
+import { Progress } from '@/components/ui/progress';
 
 export const OfflineBanner: React.FC = () => {
   const { 
@@ -67,33 +68,48 @@ export const OfflineBanner: React.FC = () => {
                 </div>
               )}
               
-              {pendingOperationsCount > 0 && !isOffline && (
-                <div className="flex items-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white text-xs py-1 px-2 h-auto hover:bg-amber-600"
-                    onClick={syncOfflineData}
-                    disabled={isSyncing}
-                  >
-                    {isSyncing ? (
-                      <>
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 1 }}
-                          className="mr-1"
-                        >
-                          <RotateCw className="h-3 w-3" />
-                        </motion.div>
-                        Syncing...
-                      </>
-                    ) : (
-                      <>
-                        <RotateCw className="h-3 w-3 mr-1" />
-                        Sync {pendingOperationsCount} {pendingOperationsCount === 1 ? 'operation' : 'operations'}
-                      </>
+              {pendingOperationsCount > 0 && (
+                <div className="flex flex-col w-full mt-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      <span>
+                        {pendingOperationsCount} {pendingOperationsCount === 1 ? 'operation' : 'operations'} pending
+                      </span>
+                    </div>
+                    
+                    {!isOffline && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-white text-xs py-1 px-2 h-auto hover:bg-amber-600"
+                        onClick={syncOfflineData}
+                        disabled={isSyncing}
+                      >
+                        {isSyncing ? (
+                          <>
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ repeat: Infinity, duration: 1 }}
+                              className="mr-1"
+                            >
+                              <RotateCw className="h-3 w-3" />
+                            </motion.div>
+                            Syncing...
+                          </>
+                        ) : (
+                          <>
+                            <RotateCw className="h-3 w-3 mr-1" />
+                            Sync Now
+                          </>
+                        )}
+                      </Button>
                     )}
-                  </Button>
+                  </div>
+                  
+                  {isSyncing && (
+                    <Progress value={45} className="h-1 bg-amber-400" /> // This would be better with actual progress tracking
+                  )}
                 </div>
               )}
             </div>
