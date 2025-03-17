@@ -2,7 +2,7 @@
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Users, Heart, UserPlus, Star } from 'lucide-react';
+import { Briefcase, Users, Heart, UserPlus, Star, Clock } from 'lucide-react';
 
 interface CategoryOption {
   id: string;
@@ -25,7 +25,7 @@ const RecipientCategories: React.FC<RecipientCategoriesProps> = ({
     { id: 'favorites', label: 'Favorites', icon: <Star size={16} />, color: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' },
     { id: 'family', label: 'Family', icon: <Heart size={16} />, color: 'bg-red-100 text-red-800 hover:bg-red-200' },
     { id: 'business', label: 'Business', icon: <Briefcase size={16} />, color: 'bg-blue-100 text-blue-800 hover:bg-blue-200' },
-    { id: 'frequent', label: 'Frequent', icon: <UserPlus size={16} />, color: 'bg-green-100 text-green-800 hover:bg-green-200' },
+    { id: 'frequent', label: 'Frequent', icon: <Clock size={16} />, color: 'bg-green-100 text-green-800 hover:bg-green-200' },
   ];
   
   return (

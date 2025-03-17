@@ -17,6 +17,7 @@ import {
   RecipientDialogs, 
   ContactImporter 
 } from '@/components/recipients';
+import RecipientCategories from '@/components/recipients/RecipientCategories';
 import { sortRecipients, filterRecipients, SortOption } from '@/utils/recipientUtils';
 
 const Recipients = () => {
@@ -39,22 +40,25 @@ const Recipients = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Apply filtering and sorting
   const filteredRecipients = sortRecipients(
-    filterRecipients(recipients, searchQuery, activeTab),
+    filterRecipients(recipients, searchQuery, selectedCategory),
     sortOption
   );
 
-  const handleAddRecipient = async (data: Omit<Recipient, 'id' | 'lastUsed'>) => {
+  const handleAddRecipient = async (data: Omit<Recipient, 'id' | 'lastUsed' | 'usageCount' | 'verified'>) => {
     await addRecipient({
       ...data,
       lastUsed: new Date(),
+      usageCount: 0,
+      verified: false,
     });
     setIsAddDialogOpen(false);
   };
 
-  const handleUpdateRecipient = async (data: Omit<Recipient, 'id' | 'lastUsed'>) => {
+  const handleUpdateRecipient = async (data: Omit<Recipient, 'id' | 'lastUsed' | 'usageCount' | 'verified'>) => {
     if (editingRecipient) {
       await updateRecipient({
         ...editingRecipient,
@@ -74,8 +78,14 @@ const Recipients = () => {
   };
 
   const handleSelectRecipient = async (recipient: Recipient) => {
+    // Update usage count when selecting a recipient
+    const updatedRecipient = {
+      ...recipient,
+      usageCount: (recipient.usageCount || 0) + 1
+    };
+    await updateRecipient(updatedRecipient);
     await updateLastUsed(recipient.id);
-    navigate('/send', { state: { selectedRecipient: recipient } });
+    navigate('/send', { state: { selectedRecipient: updatedRecipient } });
   };
 
   const handleEditRecipient = (recipient: Recipient) => {
@@ -98,8 +108,11 @@ const Recipients = () => {
           await addRecipient({
             name: contact.name,
             contact: contact.phoneNumber || contact.email || '',
-            country: 'Cameroon', // Default country for MVP
+            country: 'CM', // Default country for MVP
             isFavorite: false,
+            category: 'other',
+            usageCount: 0,
+            verified: false,
           });
           importCount++;
         } catch (error) {
@@ -127,6 +140,14 @@ const Recipients = () => {
                 <TabsTrigger value="favorites">Favorites</TabsTrigger>
               </TabsList>
             </Tabs>
+          </div>
+          
+          {/* Add categories filter */}
+          <div className="mb-4">
+            <RecipientCategories
+              selectedCategory={selectedCategory}
+              onChange={setSelectedCategory}
+            />
           </div>
           
           <SearchSortToolbar 

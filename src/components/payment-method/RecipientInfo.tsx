@@ -10,6 +10,8 @@ interface RecipientInfoProps {
   onRecipientNameChange: (value: string) => void;
   onAccountNumberChange: (value: string) => void;
   countryCode?: string;
+  providerId?: string;
+  onValidation?: (isValid: boolean) => void;
 }
 
 const RecipientInfo: React.FC<RecipientInfoProps> = ({
@@ -19,6 +21,8 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
   onRecipientNameChange,
   onAccountNumberChange,
   countryCode = 'CM', // Default to Cameroon if not specified
+  providerId,
+  onValidation
 }) => {
   const isBankAccount = methodName.toLowerCase().includes('bank');
   
@@ -36,6 +40,8 @@ const RecipientInfo: React.FC<RecipientInfoProps> = ({
         isBankAccount={isBankAccount}
         countryCode={countryCode}
         methodName={methodName}
+        providerId={providerId}
+        onValidation={onValidation}
       />
     </>
   );

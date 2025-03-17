@@ -6,11 +6,12 @@ import { Recipient } from '@/types/recipient';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CountrySelector from '@/components/CountrySelector';
 
 interface RecipientFormProps {
   recipient?: Recipient;
-  onSubmit: (data: Omit<Recipient, 'id' | 'lastUsed'>) => void;
+  onSubmit: (data: Omit<Recipient, 'id' | 'lastUsed' | 'usageCount' | 'verified'>) => void;
   onCancel: () => void;
 }
 
@@ -23,6 +24,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
   const [contact, setContact] = useState(recipient?.contact || '');
   const [country, setCountry] = useState(recipient?.country || 'CM');
   const [isFavorite, setIsFavorite] = useState(recipient?.isFavorite || false);
+  const [category, setCategory] = useState(recipient?.category || 'other');
   const [errors, setErrors] = useState({
     name: '',
     contact: '',
@@ -34,6 +36,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
       setContact(recipient.contact);
       setCountry(recipient.country);
       setIsFavorite(recipient.isFavorite);
+      setCategory(recipient.category || 'other');
     }
   }, [recipient]);
 
@@ -64,6 +67,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
         contact,
         country,
         isFavorite,
+        category
       });
     }
   };
@@ -112,6 +116,23 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
         {errors.contact && (
           <p className="text-xs text-red-500 mt-1">{errors.contact}</p>
         )}
+      </div>
+
+      <div>
+        <Label htmlFor="category" className="text-sm font-medium mb-1.5 block">
+          Category
+        </Label>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger id="category">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="family">Family</SelectItem>
+            <SelectItem value="business">Business</SelectItem>
+            <SelectItem value="frequent">Frequent</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
