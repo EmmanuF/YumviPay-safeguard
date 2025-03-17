@@ -8,7 +8,7 @@ import PageTransition from '@/components/PageTransition';
 import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
 import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
 import { useSendMoneyTransaction } from '@/hooks/useSendMoneyTransaction';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
 
 const SendMoney = () => {
@@ -50,12 +50,14 @@ const SendMoney = () => {
   useEffect(() => {
     if (authChecked && !authLoading && !isLoggedIn) {
       console.log('SendMoney: User not logged in, redirecting to signin');
-      toast.info("Authentication Required", {
-        description: "Please sign in to continue with your transaction."
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to continue with your transaction.",
+        variant: "default"
       });
       navigate('/signin', { state: { redirectTo: '/send' } });
     }
-  }, [authChecked, isLoggedIn, authLoading, navigate]);
+  }, [authChecked, isLoggedIn, authLoading, navigate, toast]);
 
   // Set page loading state
   useEffect(() => {
@@ -75,7 +77,7 @@ const SendMoney = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [isInitialized, authChecked, authLoading]);
+  }, [isInitialized, authChecked, authLoading, pageLoading]);
 
   // Show appropriate loading state
   if (authLoading || !authChecked) {

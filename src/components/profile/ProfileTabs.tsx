@@ -1,51 +1,96 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccountInformation, SecuritySettings, NotificationPreferences, ChangePasswordDialog } from '@/components/profile';
+import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 
-import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AccountInformation from './AccountInformation';
-import SecuritySettings from './SecuritySettings';
-import NotificationPreferences from './NotificationPreferences';
-import { NotificationSettings } from '@/hooks/useNotificationSettings';
+// Import the new MobileAppSettings component
+import MobileAppSettings from './MobileAppSettings';
 
-interface ProfileTabsProps {
-  user: any;
-  onEditField: (field: string, value: string) => void;
-  onChangePassword: () => void;
-  notificationSettings: NotificationSettings;
-  notificationsLoading: boolean;
-  onNotificationChange: (key: keyof NotificationSettings, checked: boolean) => void;
-  onResetNotifications: () => void;
-}
-
-const ProfileTabs: React.FC<ProfileTabsProps> = ({
-  user,
-  onEditField,
-  onChangePassword,
-  notificationSettings,
-  notificationsLoading,
-  onNotificationChange,
-  onResetNotifications
-}) => {
+const ProfileTabs: React.FC = () => {
   return (
     <Tabs defaultValue="account" className="w-full">
-      <TabsList className="w-full grid grid-cols-2">
+      <TabsList>
         <TabsTrigger value="account">Account</TabsTrigger>
-        <TabsTrigger value="preferences">Preferences</TabsTrigger>
+        <TabsTrigger value="security">Security</TabsTrigger>
+        <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
-      
       <TabsContent value="account" className="space-y-4">
-        <AccountInformation user={user} onEdit={onEditField} />
-        <SecuritySettings onChangePassword={onChangePassword} />
+        <AccountTabContent />
       </TabsContent>
-      
-      <TabsContent value="preferences" className="space-y-4">
-        <NotificationPreferences 
-          settings={notificationSettings}
-          isLoading={notificationsLoading}
-          onSettingChange={onNotificationChange}
-          onResetDefaults={onResetNotifications}
-        />
+      <TabsContent value="security" className="space-y-4">
+        <SecurityTabContent />
+      </TabsContent>
+      <TabsContent value="settings">
+        <SettingsTabContent />
       </TabsContent>
     </Tabs>
+  );
+};
+
+const AccountTabContent: React.FC = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.2 }}
+    >
+      <AccountInformation />
+    </motion.div>
+  );
+};
+
+const SecurityTabContent: React.FC = () => {
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-6 py-4"
+    >
+      <SecuritySettings onChangePassword={() => setShowChangePasswordDialog(true)} />
+      <ChangePasswordDialog
+        open={showChangePasswordDialog}
+        onOpenChange={setShowChangePasswordDialog}
+      />
+    </motion.div>
+  );
+};
+
+// Add the MobileAppSettings component to the Settings tab content
+const SettingsTabContent = () => {
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const { settings, isLoading, updateSettings, resetToDefaults } = useNotificationSettings();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-6 py-4"
+    >
+      {/* Add MobileAppSettings at the top of the settings tab */}
+      <MobileAppSettings />
+      
+      <SecuritySettings onChangePassword={() => setShowChangePasswordDialog(true)} />
+      
+      <NotificationPreferences
+        settings={settings}
+        isLoading={isLoading}
+        onSettingChange={updateSettings}
+        onResetDefaults={resetToDefaults}
+      />
+      
+      <ChangePasswordDialog
+        open={showChangePasswordDialog}
+        onOpenChange={setShowChangePasswordDialog}
+      />
+    </motion.div>
   );
 };
 

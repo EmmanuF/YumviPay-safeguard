@@ -12,6 +12,8 @@ import { notifyRecipient } from '@/services/notification/notificationService';
 import { toast } from '@/hooks/use-toast';
 import { Transaction } from '@/types/transaction';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { NativeSharingService } from '@/services/sharing/nativeSharingService';
+import { PushNotificationService } from '@/services/push/pushNotificationService';
 
 // Utility function to safely parse a number
 const safeParseNumber = (value: string | number | undefined): number => {
@@ -47,20 +49,31 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
     }
   }, [transaction?.id]);
 
-  const handleShareTransaction = () => {
-    // In a real app, this would trigger native sharing
-    if (navigator.share && transaction) {
-      navigator.share({
-        title: `Yumvi Pay Transfer - ${transaction.id}`,
-        text: `I sent $${transaction.amount} to ${transaction.recipientName} in ${transaction.country}`,
-        url: window.location.href
-      }).catch(error => {
-        console.log('Error sharing:', error);
+  const handleShareTransaction = async () => {
+    if (!transaction) return;
+
+    try {
+      // Use our native sharing service
+      const success = await NativeSharingService.shareTransactionReceipt({
+        id: transaction.id,
+        amount: transaction.amount,
+        recipientName: transaction.recipientName,
+        status: transaction.status
       });
-    } else {
+      
+      if (!success) {
+        // Fallback if native sharing failed
+        toast({
+          title: "Share",
+          description: "Transaction receipt link copied to clipboard!",
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing transaction:', error);
       toast({
-        title: "Share",
-        description: "Transaction receipt link copied to clipboard!",
+        title: "Share failed",
+        description: "Could not share the transaction",
+        variant: "destructive"
       });
     }
   };
@@ -124,6 +137,16 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
       // Send receipt by email
       if (transaction.recipientContact) {
         await sendReceiptByEmail(currentReceipt, transaction.recipientContact);
+        
+        // Also send a push notification if enabled
+        const pushEnabled = await PushNotificationService.isEnabled();
+        if (pushEnabled) {
+          PushNotificationService.simulatePushNotification({
+            title: "Receipt Sent",
+            body: `Email receipt sent to ${transaction.recipientName}`,
+            data: { transactionId: transaction.id }
+          });
+        }
       } else {
         toast({
           title: "Error",
@@ -164,6 +187,16 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
             : 'transaction_created',
         contactMethod: 'sms'
       });
+      
+      // Also send a push notification if enabled
+      const pushEnabled = await PushNotificationService.isEnabled();
+      if (pushEnabled) {
+        PushNotificationService.simulatePushNotification({
+          title: "SMS Notification Sent",
+          body: `SMS notification sent to ${transaction.recipientName}`,
+          data: { transactionId: transaction.id }
+        });
+      }
     } catch (error) {
       console.error('Error sending SMS notification:', error);
       toast({

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Fingerprint } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { BiometricService } from '@/services/biometric';
 
 const BiometricSettings: React.FC = () => {
@@ -37,17 +37,27 @@ const BiometricSettings: React.FC = () => {
       setIsBiometricEnabled(checked);
       
       if (checked) {
-        toast.success('Biometric authentication enabled');
+        toast({
+          title: "Biometric authentication enabled",
+          description: "You can now use fingerprint or face ID to authenticate",
+        });
         // In a real app, we would prompt the user to authenticate first
         // before enabling biometrics
       } else {
         // Clear stored credentials when disabling biometrics
         await BiometricService.clearCredentials();
-        toast.success('Biometric authentication disabled');
+        toast({
+          title: "Biometric authentication disabled",
+          description: "You will no longer use biometric authentication",
+        });
       }
     } catch (error) {
       console.error('Error toggling biometric authentication:', error);
-      toast.error('Failed to update biometric settings');
+      toast({
+        title: "Failed to update settings",
+        description: "Could not change biometric authentication settings",
+        variant: "destructive"
+      });
     }
   };
 
