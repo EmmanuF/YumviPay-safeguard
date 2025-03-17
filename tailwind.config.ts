@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -26,34 +25,34 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Custom Yumvi-Pay colors
+                // Updated Yumvi-Pay colors based on the image
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#f0edfc',
-                    100: '#d9d0f9',
-                    200: '#b8a4f3',
-                    300: '#9678ed',
-                    400: '#794ce6',
-                    500: '#5B3CC4', // Main primary color
-                    600: '#4935a0',
-                    700: '#37267c',
-                    800: '#251a58',
-                    900: '#130d34',
+                    50: '#f5f0ff',
+                    100: '#ece0ff',
+                    200: '#d9c2ff',
+                    300: '#c095ff',
+                    400: '#a566ff',
+                    500: '#6E36E5', // Main primary purple color
+                    600: '#5922d9',
+                    700: '#4a1bb8',
+                    800: '#3d1996',
+                    900: '#321878',
                 },
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#edfcf7',
-                    100: '#d0f9e5',
-                    200: '#a4f3cc',
-                    300: '#78edb3',
-                    400: '#4CD4A9', // Main secondary color
-                    500: '#28ba91',
-                    600: '#1f9478',
-                    700: '#175d4b',
-                    800: '#0f3f33',
-                    900: '#07201a',
+                    50: '#fffde7',
+                    100: '#fff9c4',
+                    200: '#fff59d',
+                    300: '#fff176',
+                    400: '#ffee58',
+                    500: '#FFDD33', // Main secondary yellow color
+                    600: '#fdd835',
+                    700: '#fbc02d',
+                    800: '#f9a825',
+                    900: '#f57f17',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',

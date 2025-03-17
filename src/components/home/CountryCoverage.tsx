@@ -44,7 +44,7 @@ const CountryCoverage = () => {
           {countries.map((country) => (
             <motion.div 
               key={country.name}
-              className={`glass-effect rounded-xl p-4 text-center ${country.featured ? 'ring-2 ring-primary-300 bg-primary-50' : ''}`}
+              className={`glass-effect rounded-xl p-4 text-center ${country.featured ? 'ring-2 ring-primary-300 bg-secondary-50' : ''}`}
               whileHover={{ y: -5, scale: 1.03 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >

@@ -30,7 +30,7 @@ const Testimonials = () => {
 
   return (
     <motion.div 
-      className="py-16 bg-primary-50 rounded-3xl my-20"
+      className="py-16 bg-secondary-50 rounded-3xl my-20"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -49,13 +49,13 @@ const Testimonials = () => {
             <motion.div 
               key={testimonial.id}
               className="glass-effect rounded-xl p-6 relative"
-              whileHover={{ y: -5, boxShadow: "0 15px 30px -10px rgba(91, 60, 196, 0.2)" }}
+              whileHover={{ y: -5, boxShadow: "0 15px 30px -10px rgba(110, 54, 229, 0.2)" }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <Quote className="absolute top-4 right-4 text-primary-200 h-8 w-8 opacity-50" />
               <div className="flex items-center mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                  <Star key={i} className="w-4 h-4 text-secondary-500 fill-current" />
                 ))}
               </div>
               <p className="text-gray-600 mb-4 italic">"{testimonial.text}"</p>
