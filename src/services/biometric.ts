@@ -1,13 +1,12 @@
 
-import { Preferences } from '@capacitor/preferences';
 import { Device } from '@capacitor/device';
+import { Preferences } from '@capacitor/preferences';
 
-// Keys for preferences storage
-const BIOMETRIC_ENABLED_KEY = 'biometric_enabled';
-const BIOMETRIC_CREDENTIALS_KEY = 'biometric_credentials';
+const BIOMETRIC_ENABLED_KEY = 'biometric_auth_enabled';
+const BIOMETRIC_CREDENTIALS_PREFIX = 'bio_cred_';
 
 /**
- * A simpler biometric service that works with core Capacitor capabilities
+ * Service to handle biometric authentication functionality
  */
 export const BiometricService = {
   /**
@@ -15,15 +14,15 @@ export const BiometricService = {
    */
   isAvailable: async (): Promise<boolean> => {
     try {
-      // Check if we're running on a mobile device
       const info = await Device.getInfo();
-      return info.platform !== 'web';
+      // Biometrics generally available on iOS and Android
+      return info.platform === 'ios' || info.platform === 'android';
     } catch (error) {
       console.error('Error checking biometric availability:', error);
       return false;
     }
   },
-
+  
   /**
    * Check if biometric authentication is enabled by the user
    */
@@ -36,7 +35,7 @@ export const BiometricService = {
       return false;
     }
   },
-
+  
   /**
    * Enable or disable biometric authentication
    */
@@ -44,68 +43,106 @@ export const BiometricService = {
     try {
       await Preferences.set({
         key: BIOMETRIC_ENABLED_KEY,
-        value: enabled.toString(),
+        value: enabled ? 'true' : 'false',
       });
-      console.log(`Biometric authentication ${enabled ? 'enabled' : 'disabled'}`);
     } catch (error) {
       console.error('Error setting biometric enabled status:', error);
-      throw new Error('Failed to update biometric settings');
+      throw error;
     }
   },
-
+  
   /**
    * Store credentials for biometric authentication
    */
-  storeCredentials: async (email: string, password: string): Promise<void> => {
+  storeCredentials: async (username: string, password: string): Promise<void> => {
+    if (!username || !password) {
+      console.warn('Cannot store empty credentials');
+      return;
+    }
+    
     try {
-      // Store the credentials in secure storage
-      const credentials = JSON.stringify({ email, password });
+      // Store credentials in secure storage
+      // Note: In a production app, this should be more secure
       await Preferences.set({
-        key: BIOMETRIC_CREDENTIALS_KEY,
-        value: credentials,
+        key: `${BIOMETRIC_CREDENTIALS_PREFIX}username`,
+        value: username,
+      });
+      
+      await Preferences.set({
+        key: `${BIOMETRIC_CREDENTIALS_PREFIX}password`,
+        value: password,
       });
     } catch (error) {
       console.error('Error storing credentials:', error);
-      throw new Error('Failed to store credentials');
+      throw error;
     }
   },
-
+  
   /**
-   * Get stored credentials for biometric authentication
+   * Retrieve stored credentials
    */
-  getCredentials: async (): Promise<{ email: string; password: string } | null> => {
+  getStoredCredentials: async (): Promise<{ username: string; password: string } | null> => {
     try {
-      const { value } = await Preferences.get({ key: BIOMETRIC_CREDENTIALS_KEY });
+      const usernameResult = await Preferences.get({ 
+        key: `${BIOMETRIC_CREDENTIALS_PREFIX}username` 
+      });
       
-      if (!value) {
-        return null;
+      const passwordResult = await Preferences.get({ 
+        key: `${BIOMETRIC_CREDENTIALS_PREFIX}password` 
+      });
+      
+      if (usernameResult.value && passwordResult.value) {
+        return {
+          username: usernameResult.value,
+          password: passwordResult.value,
+        };
       }
       
-      return JSON.parse(value);
+      return null;
     } catch (error) {
-      console.error('Error getting credentials:', error);
+      console.error('Error retrieving stored credentials:', error);
       return null;
     }
   },
-
+  
   /**
-   * Authenticate using biometrics
-   * This is a simplified implementation that simulates biometric auth
+   * Perform the biometric authentication
+   * Note: This is a simplified version for prototype purposes
+   * In a real app, we would use a proper native biometric plugin
    */
   authenticate: async (): Promise<boolean> => {
     try {
-      // For demonstration purposes, simulate successful authentication
-      // In a real implementation, this would use native biometric APIs
-      console.log('Simulating biometric authentication...');
+      const isAvailable = await BiometricService.isAvailable();
+      const isEnabled = await BiometricService.isEnabled();
       
-      // Simulate authentication delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!isAvailable || !isEnabled) {
+        return false;
+      }
       
-      // Always return success for the simulation
+      // Since we can't use the native plugin, we'll simulate success for now
+      // In a real implementation, this would integrate with the native biometric APIs
+      
+      // This is where you would normally call the native biometric API
+      // For now, we'll just return true to simulate successful authentication
+      console.log('Biometric authentication would happen here with a native plugin');
+      
       return true;
     } catch (error) {
       console.error('Error during biometric authentication:', error);
       return false;
+    }
+  },
+  
+  /**
+   * Clear stored credentials
+   */
+  clearCredentials: async (): Promise<void> => {
+    try {
+      await Preferences.remove({ key: `${BIOMETRIC_CREDENTIALS_PREFIX}username` });
+      await Preferences.remove({ key: `${BIOMETRIC_CREDENTIALS_PREFIX}password` });
+    } catch (error) {
+      console.error('Error clearing credentials:', error);
+      throw error;
     }
   }
 };

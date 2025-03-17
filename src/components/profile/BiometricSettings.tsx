@@ -36,12 +36,15 @@ const BiometricSettings: React.FC = () => {
       await BiometricService.setEnabled(checked);
       setIsBiometricEnabled(checked);
       
-      if (!checked) {
+      if (checked) {
+        toast.success('Biometric authentication enabled');
+        // In a real app, we would prompt the user to authenticate first
+        // before enabling biometrics
+      } else {
         // Clear stored credentials when disabling biometrics
-        await BiometricService.storeCredentials('', '');
+        await BiometricService.clearCredentials();
+        toast.success('Biometric authentication disabled');
       }
-      
-      toast.success(`Biometric authentication ${checked ? 'enabled' : 'disabled'}`);
     } catch (error) {
       console.error('Error toggling biometric authentication:', error);
       toast.error('Failed to update biometric settings');

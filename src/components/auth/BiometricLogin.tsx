@@ -1,31 +1,34 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { BiometricService } from '@/services/biometric';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
-const BiometricLogin: React.FC = () => {
-  const [available, setAvailable] = useState(false);
-  const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+interface BiometricLoginProps {
+  onSuccess: (credentials: { username: string; password: string }) => void;
+}
+
+const BiometricLogin: React.FC<BiometricLoginProps> = ({ onSuccess }) => {
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkBiometricStatus = async () => {
       try {
-        const isAvailable = await BiometricService.isAvailable();
-        setAvailable(isAvailable);
+        setIsLoading(true);
+        const available = await BiometricService.isAvailable();
+        setIsAvailable(available);
         
-        if (isAvailable) {
-          const isEnabled = await BiometricService.isEnabled();
-          setEnabled(isEnabled);
+        if (available) {
+          const enabled = await BiometricService.isEnabled();
+          setIsEnabled(enabled);
         }
       } catch (error) {
         console.error('Error checking biometric status:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -34,70 +37,55 @@ const BiometricLogin: React.FC = () => {
 
   const handleBiometricLogin = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       
-      // Simulate biometric authentication
-      const authenticated = await BiometricService.authenticate();
+      const isAuthenticated = await BiometricService.authenticate();
       
-      if (!authenticated) {
+      if (isAuthenticated) {
+        const credentials = await BiometricService.getStoredCredentials();
+        
+        if (credentials) {
+          onSuccess(credentials);
+        } else {
+          toast({
+            title: "No stored credentials",
+            description: "Please login with your username and password first",
+            variant: "destructive",
+          });
+        }
+      } else {
         toast({
           title: "Authentication failed",
-          description: "Biometric authentication was unsuccessful.",
+          description: "Biometric verification was unsuccessful",
           variant: "destructive",
         });
-        return;
       }
-      
-      // Get stored credentials
-      const credentials = await BiometricService.getCredentials();
-      
-      if (!credentials) {
-        toast({
-          title: "No stored credentials",
-          description: "Please sign in with email and password first.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      // Sign in with Supabase
-      const { error } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password,
-      });
-      
-      if (error) throw error;
-      
+    } catch (error) {
+      console.error('Error during biometric login:', error);
       toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in with biometrics.",
-      });
-      
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message || "An error occurred during biometric sign in.",
+        title: "Authentication error",
+        description: "An error occurred during biometric authentication",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (!available || !enabled) {
+  if (!isAvailable || !isEnabled || isLoading) {
     return null;
   }
 
   return (
     <Button
       variant="outline"
-      className="w-full flex items-center justify-center space-x-2 my-4"
+      size="lg"
+      className="w-full mb-4 flex items-center justify-center"
       onClick={handleBiometricLogin}
-      disabled={loading}
+      disabled={isLoading}
     >
-      <Fingerprint className="h-5 w-5" />
-      <span>{loading ? "Authenticating..." : "Sign in with Biometrics"}</span>
+      <Fingerprint className="mr-2" />
+      {isLoading ? "Authenticating..." : "Login with Biometrics"}
     </Button>
   );
 };
