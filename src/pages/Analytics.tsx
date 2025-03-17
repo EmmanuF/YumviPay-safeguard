@@ -5,7 +5,7 @@ import { Loader2, Calendar } from 'lucide-react';
 import Header from '@/components/Header';
 import TransactionAnalytics from '@/components/analytics/TransactionAnalytics';
 import { Card, CardContent } from '@/components/ui/card';
-import { DateRange } from '@/components/history/DateFilter';
+import { DateRange } from 'react-day-picker';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BottomNavigation from '@/components/BottomNavigation';
