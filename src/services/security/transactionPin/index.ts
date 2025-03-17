@@ -6,3 +6,4 @@ export * from './utils';
 export * from './pinStatus';
 export * from './pinVerification';
 export * from './pinManagement';
+export * from './usePinManagement';

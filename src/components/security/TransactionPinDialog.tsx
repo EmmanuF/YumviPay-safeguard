@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useToast } from '@/hooks/use-toast';
-import { verifyPin, getPinStatus, PinStatus } from '@/services/security/transactionPin';
+import { usePinManagement } from '@/services/security/transactionPin';
 import { Lock, AlertCircle } from 'lucide-react';
 
 interface TransactionPinDialogProps {
@@ -23,28 +23,31 @@ const TransactionPinDialog: React.FC<TransactionPinDialogProps> = ({
   description = 'Please enter your 4-digit transaction PIN to authorize this action.'
 }) => {
   const [pin, setPin] = useState('');
-  const [pinStatus, setPinStatus] = useState<PinStatus | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Use our new custom hook
+  const { 
+    pinStatus, 
+    verifyPin, 
+    refreshPinStatus,
+  } = usePinManagement();
   
   useEffect(() => {
     if (isOpen) {
       setPin('');
       setError(null);
-      loadPinStatus();
+      refreshPinStatus();
     }
-  }, [isOpen]);
+  }, [isOpen, refreshPinStatus]);
   
-  const loadPinStatus = async () => {
-    const status = await getPinStatus();
-    setPinStatus(status);
-    
-    if (status.isLocked) {
-      const minutes = Math.ceil(status.lockoutTimeRemaining! / 60000);
+  useEffect(() => {
+    if (pinStatus.isLocked && pinStatus.lockoutTimeRemaining) {
+      const minutes = Math.ceil(pinStatus.lockoutTimeRemaining / 60000);
       setError(`Too many failed attempts. Try again in ${minutes} minute${minutes > 1 ? 's' : ''}.`);
     }
-  };
+  }, [pinStatus]);
   
   const handleVerifyPin = async () => {
     if (pin.length !== 4) {
@@ -65,15 +68,12 @@ const TransactionPinDialog: React.FC<TransactionPinDialogProps> = ({
         onSuccess();
         onClose();
       } else {
-        // Get updated status after verification attempt
-        const status = await getPinStatus();
-        setPinStatus(status);
-        
-        if (status.isLocked) {
-          const minutes = Math.ceil(status.lockoutTimeRemaining! / 60000);
+        // Error message will be set based on the updated pinStatus
+        if (pinStatus.isLocked) {
+          const minutes = Math.ceil(pinStatus.lockoutTimeRemaining! / 60000);
           setError(`Too many failed attempts. Try again in ${minutes} minute${minutes > 1 ? 's' : ''}.`);
         } else {
-          setError(`Incorrect PIN. ${status.remainingAttempts} attempt${status.remainingAttempts !== 1 ? 's' : ''} remaining.`);
+          setError(`Incorrect PIN. ${pinStatus.remainingAttempts} attempt${pinStatus.remainingAttempts !== 1 ? 's' : ''} remaining.`);
         }
         setPin('');
       }
