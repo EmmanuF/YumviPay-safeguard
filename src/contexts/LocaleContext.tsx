@@ -66,4 +66,5 @@ export const useLocale = (): LocaleContextType => {
   return context;
 };
 
-export { Locale };
+// Fix: Use 'export type' instead of just 'export' for the Locale type
+export type { Locale };
