@@ -52,13 +52,15 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
   
   return (
     <div className={`flex flex-col h-dvh overflow-hidden ${glassClass} ${getOptimizationClasses()}`}>
-      {/* Diagonal purple top design */}
-      <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
-        <div className="absolute top-0 left-0 right-0 h-24">
-          <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
+      {/* Diagonal purple top design - only shown on non-home pages */}
+      {!isHome && (
+        <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
+          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
+          <div className="absolute top-0 left-0 right-0 h-24">
+            <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
+          </div>
         </div>
-      </div>
+      )}
       
       <OfflineBanner />
       

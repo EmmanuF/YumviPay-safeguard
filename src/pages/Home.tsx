@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -32,10 +33,21 @@ const Home = () => {
   return (
     <PageTransition>
       <div className="min-h-screen">
-        {/* First section with yellow background (keeping yellow only here) */}
-        <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80">
-          <Navigation onGetStarted={handleGetStarted} />
-          <Hero onGetStarted={handleGetStarted} />
+        {/* First section with diagonal purple header and yellow background */}
+        <div className="relative">
+          {/* Diagonal purple header design */}
+          <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
+            <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
+            <div className="absolute top-0 left-0 right-0 h-24">
+              <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
+            </div>
+          </div>
+          
+          {/* Yellow background section */}
+          <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-16 relative z-10">
+            <Navigation onGetStarted={handleGetStarted} />
+            <Hero onGetStarted={handleGetStarted} />
+          </div>
         </div>
         
         {/* Rest of the sections with neutral/light/purple background */}

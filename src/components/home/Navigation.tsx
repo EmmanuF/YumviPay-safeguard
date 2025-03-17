@@ -87,7 +87,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   }
   
   return (
-    <header className="px-4 py-4">
+    <header className="px-4 py-4 relative z-20">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div 

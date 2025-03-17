@@ -140,3 +140,30 @@
   z-index: -1;
 }
 
+/* Home page diagonal purple header */
+.home-purple-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-purple-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: #6E36E5;
+}
+
+.home-purple-header::after {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: #8250ED;
+  transform: skewY(-4deg);
+  transform-origin: right;
+}
