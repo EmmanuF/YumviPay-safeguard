@@ -2,20 +2,6 @@
 import { toast } from "@/hooks/use-toast";
 import { Country } from "@/hooks/useCountries";
 
-// Helper function for loading state
-export const renderLoadingState = () => {
-  return (
-    <div className="flex flex-col items-center justify-center py-12 space-y-4">
-      <div className="h-12 w-12 text-primary animate-spin">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-        </svg>
-      </div>
-      <p className="text-gray-600">Loading payment options...</p>
-    </div>
-  );
-};
-
 // Helper function to get recommended providers for a payment method
 export const getRecommendedProviders = (methodId: string) => {
   if (methodId === 'mobile_money') {

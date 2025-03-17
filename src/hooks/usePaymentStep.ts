@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useCountries } from '@/hooks/useCountries';
-import { initializePaymentData, initializeProviderSelection } from '@/utils/paymentUtils';
-import { getProviderOptions } from '@/components/send-money/PaymentProviderData';
+import { initializePaymentData, initializeProviderSelection, getProviderOptions } from '@/utils/paymentUtils';
 
 interface UsePaymentStepProps {
   transactionData: {
