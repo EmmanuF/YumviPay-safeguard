@@ -12,13 +12,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const TransactionHistory: React.FC = () => {
   const { transactions, loading, refreshTransactions } = useTransactions();
   const isMobile = useIsMobile();
+  const [showFilters, setShowFilters] = useState(false);
   
   // Use the transaction filters hook
   const {
     searchQuery,
     setSearchQuery,
-    showFilters,
-    setShowFilters,
     statusFilter,
     dateFilter,
     countryFilter,
