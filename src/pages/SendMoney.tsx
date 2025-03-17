@@ -116,7 +116,7 @@ const SendMoney = () => {
   }
 
   // If there's a transaction error, show it
-  if (transactionError !== null) { // Null check added to fix TS18047
+  if (transactionError !== null && transactionError !== undefined) {
     // Ensure the error is always a string
     const errorMessage = typeof transactionError === 'object' 
       ? (transactionError.message || 'Unknown error') 
