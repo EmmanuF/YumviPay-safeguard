@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Preferences } from '@capacitor/preferences';
 
@@ -59,4 +58,15 @@ export const getAuthState = async (): Promise<any> => {
 export const isAuthenticated = async (): Promise<boolean> => {
   const { data } = await supabase.auth.getSession();
   return !!data.session;
+};
+
+// Get current authenticated user
+export const getCurrentUser = async (): Promise<any> => {
+  try {
+    const authState = await getAuthState();
+    return authState.user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
 };
