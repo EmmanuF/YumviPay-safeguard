@@ -13,7 +13,13 @@ import { useAuth } from '@/contexts/AuthContext';
 type SendMoneyStep = 'amount' | 'recipient' | 'payment' | 'confirmation';
 
 const SendMoney = () => {
-  const [currentStep, setCurrentStep] = useState<SendMoneyStep>('amount');
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { isLoggedIn } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  
+  // Initialize with default values
   const [transactionData, setTransactionData] = useState<any>({
     amount: 100,
     sourceCurrency: 'USD',
@@ -24,17 +30,20 @@ const SendMoney = () => {
     paymentMethod: null,
     selectedProvider: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { isLoggedIn } = useAuth();
+  
+  // Initialize starting step - will be updated if we have pending transaction
+  const [currentStep, setCurrentStep] = useState<SendMoneyStep>('amount');
 
   // Check for pending transaction data
   useEffect(() => {
     const pendingTransaction = localStorage.getItem('pendingTransaction');
+    
     if (pendingTransaction) {
       try {
         const data = JSON.parse(pendingTransaction);
+        console.log('Found pending transaction:', data);
+        
+        // Update transaction data with values from localStorage
         setTransactionData(prev => ({
           ...prev,
           amount: parseFloat(data.sendAmount) || 100,
@@ -43,12 +52,17 @@ const SendMoney = () => {
           convertedAmount: parseFloat(data.receiveAmount.replace(/,/g, '')) || 61000,
         }));
         
+        // Skip to recipient step if we already have transaction details from homepage
+        setCurrentStep('recipient');
+        
         // Clear pending transaction after loading it
         localStorage.removeItem('pendingTransaction');
       } catch (error) {
         console.error('Error parsing pending transaction:', error);
       }
     }
+    
+    setInitialDataLoaded(true);
   }, []);
 
   const handleNext = () => {
@@ -103,6 +117,15 @@ const SendMoney = () => {
   const updateTransactionData = (data: Partial<typeof transactionData>) => {
     setTransactionData(prev => ({ ...prev, ...data }));
   };
+
+  // Show loading until we've checked for pending transaction
+  if (!initialDataLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const renderStep = () => {
     switch (currentStep) {

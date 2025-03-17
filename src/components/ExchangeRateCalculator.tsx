@@ -8,6 +8,8 @@ import RateDisplay from '@/components/calculator/RateDisplay';
 import ExchangeSummary from '@/components/calculator/ExchangeSummary';
 import { useCountries } from '@/hooks/useCountries';
 import { getExchangeRate } from '@/data/exchangeRates';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
@@ -18,6 +20,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   className,
   onContinue 
 }) => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { countries } = useCountries();
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
@@ -61,11 +65,19 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
       exchangeRate
     };
     
+    // Save the transaction data to localStorage
     localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
     
-    // Call the onContinue prop if provided
-    if (onContinue) {
-      onContinue();
+    // If user is logged in, go straight to the send flow
+    if (isLoggedIn) {
+      navigate('/send');
+    } else {
+      // If not logged in, go to onboarding first
+      if (onContinue) {
+        onContinue();
+      } else {
+        navigate('/onboarding');
+      }
     }
   };
 
