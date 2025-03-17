@@ -10,6 +10,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingState from '@/components/transaction/LoadingState';
 import PageTransition from '@/components/PageTransition';
+import { useCountries } from '@/hooks/useCountries';
 
 type SendMoneyStep = 'recipient' | 'payment' | 'confirmation';
 
@@ -17,17 +18,23 @@ const SendMoney = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isLoggedIn, loading, user } = useAuth();
+  const { countries } = useCountries();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   
-  // Get user's country code for default target currency if available
-  const defaultTargetCurrency = user?.country_code || 'CM';
+  // Get user's country code for default target country if available
+  const defaultTargetCurrency = user?.country || 'CM';
+  
+  // Make sure we're using a valid country code, not currency code
+  const defaultCountry = countries.find(c => c.code === defaultTargetCurrency) || 
+                         countries.find(c => c.code === 'CM');
   
   const [transactionData, setTransactionData] = useState<any>({
     amount: 100,
     sourceCurrency: 'USD',
-    targetCurrency: defaultTargetCurrency,
+    targetCurrency: defaultCountry?.currency || 'XAF',
+    targetCountry: defaultCountry?.code || 'CM',
     convertedAmount: 61000,
     recipient: null,
     recipientName: '',
@@ -37,6 +44,7 @@ const SendMoney = () => {
   
   console.log('SendMoney - Initial transaction data:', transactionData);
   console.log('SendMoney - User data:', user);
+  console.log('SendMoney - Available countries:', countries.map(c => `${c.name} (${c.code}) - ${c.currency}`));
   
   const [currentStep, setCurrentStep] = useState<SendMoneyStep>('recipient');
 
@@ -53,7 +61,8 @@ const SendMoney = () => {
             ...prev,
             amount: parseFloat(data.sendAmount) || 100,
             sourceCurrency: data.sourceCurrency || 'USD',
-            targetCurrency: data.targetCurrency || defaultTargetCurrency,
+            targetCurrency: data.targetCurrency || defaultCountry?.currency || 'XAF',
+            targetCountry: defaultCountry?.code || 'CM',
             convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 61000,
           }));
           
@@ -67,7 +76,7 @@ const SendMoney = () => {
     }, 50);
     
     return () => clearTimeout(timer);
-  }, [defaultTargetCurrency]);
+  }, [defaultCountry]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

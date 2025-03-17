@@ -57,6 +57,20 @@ const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
     });
   };
 
+  // If we don't have a valid country, show a message
+  if (!selectedCountryData) {
+    return (
+      <motion.div variants={itemVariants} className="mb-4">
+        <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-amber-800 text-sm">
+            Country information not available. Please try selecting Cameroon (CM) as your destination country.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div variants={itemVariants} className="mb-4">
       <h3 className="text-sm font-medium mb-3">Select Payment Method</h3>
