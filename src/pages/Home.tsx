@@ -2,8 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PiCurrencyCircleDollarLight } from "react-icons/pi";
-import { IoIosArrowForward } from "react-icons/io";
+import { DollarSign, ChevronRight } from "lucide-react";
 import Navigation from '@/components/home/Navigation';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
@@ -68,6 +69,15 @@ const SignIn = () => {
     }
   };
 
+  const handleBiometricSuccess = () => {
+    toast({
+      title: "Biometric Login Successful",
+      description: "You have successfully logged in using biometrics.",
+    });
+    const redirectTo = location.state?.redirectTo || "/";
+    navigate(redirectTo);
+  };
+
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
@@ -120,14 +130,7 @@ const SignIn = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <BiometricLogin onSuccess={() => {
-                toast({
-                  title: "Biometric Login Successful",
-                  description: "You have successfully logged in using biometrics.",
-                });
-                const redirectTo = location.state?.redirectTo || "/";
-                navigate(redirectTo);
-              }} />
+              <BiometricLogin />
             </motion.div>
           )}
 

@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getAuthState } from '@/services/auth';
+import { getAuthState, signInUser, registerUser, logoutUser } from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { showErrorToast } from '@/utils/errorHandling';
 
@@ -10,6 +10,9 @@ type AuthContextType = {
   loading: boolean;
   refreshAuthState: () => Promise<void>;
   authError: string | null;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, name: string) => Promise<any>;
+  signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +23,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     user: null,
     loading: true,
     refreshAuthState: async () => {},
-    authError: null
+    authError: null,
+    signIn: async () => ({}),
+    signUp: async () => ({}),
+    signOut: async () => {}
   });
 
   const refreshAuthState = async () => {
@@ -57,6 +63,46 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         loading: false,
         authError: error instanceof Error ? error.message : 'Unknown authentication error'
       }));
+    }
+  };
+
+  // Implement sign-in function
+  const signIn = async (email: string, password: string) => {
+    try {
+      console.log('Signing in user:', email);
+      const user = await signInUser(email, password);
+      await refreshAuthState();
+      return user;
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      throw error;
+    }
+  };
+
+  // Implement sign-up function
+  const signUp = async (email: string, password: string, name: string) => {
+    try {
+      console.log('Registering user:', email);
+      // For now we're not collecting phone or country during registration
+      // These can be added later if needed
+      const user = await registerUser(name, email, '', '', password);
+      await refreshAuthState();
+      return user;
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      throw error;
+    }
+  };
+
+  // Implement sign-out function
+  const signOut = async () => {
+    try {
+      console.log('Signing out user');
+      await logoutUser();
+      await refreshAuthState();
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      throw error;
     }
   };
 
@@ -97,7 +143,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   return (
     <AuthContext.Provider value={{
       ...authState,
-      refreshAuthState
+      refreshAuthState,
+      signIn,
+      signUp,
+      signOut
     }}>
       {children}
     </AuthContext.Provider>
