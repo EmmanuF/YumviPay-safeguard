@@ -2,7 +2,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { DollarSign, ChevronRight } from "lucide-react";
 import Navigation from '@/components/home/Navigation';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';
@@ -21,15 +20,6 @@ const Home = () => {
         staggerChildren: 0.1,
         delayChildren: 0.2
       }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 30 }
     }
   };
   

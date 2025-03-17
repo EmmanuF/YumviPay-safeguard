@@ -4,6 +4,12 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
+import { initializeApp } from './utils/initializeApp';
+
+// Initialize the app (database, auth, etc.)
+initializeApp().catch(error => {
+  console.error('Failed to initialize app:', error);
+});
 
 // Initialize the root element
 const rootElement = document.getElementById('root');

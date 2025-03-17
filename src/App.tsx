@@ -15,9 +15,11 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
 import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { LocaleProvider } from './contexts/LocaleContext';
 import { OfflineBanner } from '@/components/OfflineBanner';
+import NotFound from '@/pages/NotFound';
 
 function AppRoutes() {
   const location = useLocation();
@@ -32,10 +34,14 @@ function AppRoutes() {
         <Route path="/onboarding" element={<Onboarding />} />
         
         {/* Main app routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/send" element={<SendMoney />} />
         <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
         <Route path="/transaction/:id" element={<ProtectedRoute><TransactionDetails /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );

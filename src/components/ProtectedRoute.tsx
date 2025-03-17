@@ -1,9 +1,10 @@
+
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { AlertCircle } from 'lucide-react';
+import LoadingState from '@/components/dashboard/LoadingState';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -19,7 +20,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('Checking auth in ProtectedRoute');
+        console.log('Checking auth in ProtectedRoute for', location.pathname);
         
         // Add a timeout for the authentication check
         const authCheckPromise = supabase.auth.getSession();
@@ -63,25 +64,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
     
     checkAuth();
-  }, [authError, toast]);
+  }, [authError, toast, location.pathname]);
   
-  // Show loading state while checking authentication, but with a more informative UI
+  // Show loading state while checking authentication
   if (loading || isChecking) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
-        <p className="text-gray-600">Verifying authentication...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
   
   if (!isLoggedIn && !isAuthenticated) {
-    console.log('Not authenticated, redirecting to signin');
+    console.log('Not authenticated, redirecting to signin from', location.pathname);
     // Store the current path to redirect back after login
     return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
   }
   
-  console.log('Authenticated, rendering protected content');
+  console.log('Authenticated, rendering protected content for', location.pathname);
   return <>{children}</>;
 };
 
