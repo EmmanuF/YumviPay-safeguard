@@ -3,8 +3,7 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X, SortAsc } from 'lucide-react';
-
-export type SortOption = 'latest' | 'name-asc' | 'name-desc' | 'recent';
+import { SortOption } from '@/utils/recipientUtils';
 
 interface SearchSortToolbarProps {
   searchQuery: string;
@@ -49,6 +48,7 @@ const SearchSortToolbar: React.FC<SearchSortToolbarProps> = ({
           <SelectItem value="latest">Latest Used</SelectItem>
           <SelectItem value="name-asc">Name (A-Z)</SelectItem>
           <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+          <SelectItem value="frequent">Most Frequent</SelectItem>
         </SelectContent>
       </Select>
     </div>

@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocale } from '@/contexts/LocaleContext';
 import { cn } from '@/lib/utils';
-import { formatBankAccount, formatMobileNumber } from '@/utils/formatters/phoneFormatters';
+import { formatPhoneNumber, formatMobileNumber } from '@/utils/formatters/phoneFormatters';
+import { formatBankAccount } from '@/utils/formatters/bankFormatters';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 
 interface AccountNumberInputProps {
@@ -85,7 +86,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
     if (isBankAccount) {
       value = formatBankAccount(value, countryCode);
     } else {
-      value = formatMobileNumber(value, countryCode);
+      value = formatPhoneNumber(value, countryCode);
     }
     
     onAccountNumberChange(value);

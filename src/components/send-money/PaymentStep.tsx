@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -88,8 +87,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       if (countryCode === 'CM' && !isLoading) {
         toast({
           title: "Cameroon Selected",
-          description: "Cameroon is our primary supported country for this MVP.",
-          variant: "default"
+          description: "Cameroon is our primary supported country for this MVP."
         });
       }
     }
@@ -124,15 +122,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       updateTransactionData({ savePaymentPreference: true });
       
       // This would normally save to a database
-      toast("Payment preference saved", {
-        description: "Your preferred payment method has been saved for future transactions",
+      toast({
+        title: "Payment preference saved",
+        description: "Your preferred payment method has been saved for future transactions"
       });
     }
     
     toast({
       title: "Processing payment",
-      description: "Redirecting to payment gateway",
-      duration: 3000,
+      description: "Redirecting to payment gateway"
     });
     onNext();
   };

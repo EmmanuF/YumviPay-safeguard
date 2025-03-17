@@ -98,3 +98,21 @@ export const getRecommendedPaymentMethods = (countryCode: string) => {
   // Default recommendation for other countries
   return ['mobile_money', 'bank_transfer'];
 };
+
+// Function to get recommended providers for a specific payment method
+export const getRecommendedProviders = (methodId: string) => {
+  // Default recommendations for Cameroon as the MVP
+  if (methodId === 'mobile_money') {
+    return [
+      { id: 'mtn_momo', name: 'MTN Mobile Money' },
+      { id: 'orange_money', name: 'Orange Money' }
+    ];
+  } else if (methodId === 'bank_transfer') {
+    return [
+      { id: 'afriland', name: 'Afriland Bank' },
+      { id: 'ecobank', name: 'Ecobank' }
+    ];
+  }
+  
+  return [];
+};

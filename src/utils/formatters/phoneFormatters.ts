@@ -95,3 +95,17 @@ export const formatPhoneNumber = (digitsOnly: string, countryCode: string): stri
   
   return value;
 };
+
+/**
+ * Format mobile number - alias for formatPhoneNumber
+ */
+export const formatMobileNumber = formatPhoneNumber;
+
+/**
+ * Format bank account number based on country code using the bankFormatters
+ */
+export const formatBankAccount = (accountNumber: string, countryCode: string): string => {
+  // Import and use the bankFormatters function
+  const { formatBankAccount: formatBankAccountFromBankFormatters } = require('../formatters/bankFormatters');
+  return formatBankAccountFromBankFormatters(accountNumber, countryCode);
+};
