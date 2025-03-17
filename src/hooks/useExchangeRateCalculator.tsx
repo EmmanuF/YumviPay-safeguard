@@ -55,8 +55,14 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   }, [sendAmount, sourceCurrency, targetCurrency]);
 
   const handleContinue = () => {
+    // Debug the continue action
+    console.log('handleContinue called', { isProcessing, authLoading, onContinue });
+    
     // Prevent multiple clicks
-    if (isProcessing || authLoading) return;
+    if (isProcessing || authLoading) {
+      console.log('Prevented continuation due to processing or loading state');
+      return;
+    }
     
     setIsProcessing(true);
     
@@ -69,6 +75,7 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
         variant: "destructive"
       });
       setIsProcessing(false);
+      console.log('Invalid amount, preventing continuation');
       return;
     }
     
@@ -83,23 +90,34 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     
     console.log('Saving transaction data:', transactionData);
     
-    // Save the transaction data to localStorage
-    localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
-    
-    // Short timeout to ensure UI feedback
-    setTimeout(() => {
-      if (onContinue) {
-        // If we're in inline mode, just call the onContinue callback
-        onContinue();
-      } else if (isLoggedIn) {
-        console.log('User is logged in, navigating directly to /send');
-        navigate('/send');
-      } else {
-        console.log('User is not logged in, navigating to signin with redirect');
-        navigate('/signin', { state: { redirectTo: '/send' } });
-      }
+    try {
+      // Save the transaction data to localStorage
+      localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+      
+      // Short timeout to ensure UI feedback
+      setTimeout(() => {
+        if (onContinue) {
+          console.log('Calling onContinue callback');
+          // If we're in inline mode, just call the onContinue callback
+          onContinue();
+        } else if (isLoggedIn) {
+          console.log('User is logged in, navigating directly to /send');
+          navigate('/send');
+        } else {
+          console.log('User is not logged in, navigating to signin with redirect');
+          navigate('/signin', { state: { redirectTo: '/send' } });
+        }
+        setIsProcessing(false);
+      }, 100);
+    } catch (error) {
+      console.error('Error in handleContinue:', error);
       setIsProcessing(false);
-    }, 100);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing your request. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return {

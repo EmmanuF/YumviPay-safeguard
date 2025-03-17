@@ -39,6 +39,12 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
   handleContinue,
   className
 }) => {
+  const onContinueClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent any default form submission
+    console.log('Continue button clicked in InlineCalculator');
+    handleContinue();
+  };
+
   return (
     <div className={`bg-white rounded-3xl shadow-lg overflow-hidden ${className}`}>
       <div className="p-6">
@@ -84,7 +90,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
         </div>
         
         <Button
-          onClick={handleContinue}
+          onClick={onContinueClick}
           className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
           disabled={authLoading || isProcessing}

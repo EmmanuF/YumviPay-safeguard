@@ -31,7 +31,7 @@ const SendMoney = () => {
   // Get step management
   const { currentStep, isSubmitting, error: stepError, handleNext, handleBack } = useSendMoneySteps();
   
-  // Combined error state
+  // Combined error state - ensure it's never null
   const error = transactionError || stepError;
   
   // Check if we need to collect initial transaction data
@@ -96,6 +96,7 @@ const SendMoney = () => {
 
   // Handler for continuing after selecting amount and currencies
   const handleInitialDataContinue = () => {
+    console.log('Initial data continue handler called');
     setNeedsInitialData(false);
   };
 
@@ -115,19 +116,15 @@ const SendMoney = () => {
   }
 
   // Fix TypeScript errors with proper null checks and type handling
-  if (transactionError) {
-    let errorMessage: string;
-    
-    if (typeof transactionError === 'object' && transactionError !== null) {
-      // Handle object type errors (like Error instances)
-      errorMessage = transactionError.message || 'Unknown error';
-    } else if (typeof transactionError === 'number') {
-      // Handle number type errors by converting to string
-      errorMessage = String(transactionError);
-    } else {
-      // Handle string or any other type
-      errorMessage = String(transactionError);
-    }
+  if (error) {
+    // Safe type conversion to string for any error type
+    const errorMessage = typeof error === 'string' 
+      ? error 
+      : error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null && 'message' in error 
+          ? String(error.message) 
+          : String(error);
     
     return <LoadingState 
       message="Error loading transaction data" 
