@@ -19,6 +19,13 @@ import TransactionHistory from '@/pages/TransactionHistory';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
+// Footer pages
+import AboutUs from '@/pages/company/AboutUs';
+import TermsOfService from '@/pages/legal/TermsOfService';
+import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
+import Contact from '@/pages/support/Contact';
+import FAQ from '@/pages/support/FAQ';
+
 function App() {
   return (
     <AuthProvider>
@@ -47,6 +54,13 @@ function App() {
                     <TransactionHistory />
                   </ProtectedRoute>
                 } />
+                
+                {/* Footer Pages */}
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
               </Routes>
               <Toaster />
             </BrowserRouter>

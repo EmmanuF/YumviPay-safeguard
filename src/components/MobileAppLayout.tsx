@@ -3,6 +3,7 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import OfflineBanner from './OfflineBanner';
+import Footer from './layout/Footer';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
@@ -12,9 +13,10 @@ import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
+  hideFooter?: boolean;
 }
 
-const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
+const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter = false }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
   const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
@@ -124,6 +126,13 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
       </AnimatePresence>
       
       {!isHome && <BottomNavigation />}
+      
+      {/* Footer - only shown on specified pages */}
+      {!hideFooter && (
+        <div className="mt-auto">
+          <Footer />
+        </div>
+      )}
       
       <Toaster 
         position="top-center"
