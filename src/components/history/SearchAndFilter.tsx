@@ -1,81 +1,52 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { SearchBar, FilterBadges, FilterPopover } from '@/components/history';
-import { TransactionStatus } from '@/types/transaction';
-import { useLocale } from '@/contexts/LocaleContext';
+import React, { useState } from 'react';
+import SearchBar from './SearchBar';
+import FilterButton from './FilterButton';
+import FilterPopover from './FilterPopover';
+import FilterBadges from './FilterBadges';
+import { useTransactionFilters } from '@/hooks/useTransactionFilters';
 
-interface SearchAndFilterProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  showFilters: boolean;
-  setShowFilters: (show: boolean) => void;
-  statusFilter: string[];
-  dateFilter: string;
-  countryFilter: string[];
-  uniqueCountries: string[];
-  setStatusFilter: (status: TransactionStatus | 'all') => void;
-  toggleStatusFilter: (status: string) => void;
-  setDateFilter: (date: string) => void;
-  toggleCountryFilter: (country: string) => void;
-  resetFilters: () => void;
-  hasActiveFilters: boolean;
-}
-
-const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
-  searchQuery,
-  setSearchQuery,
-  showFilters,
-  setShowFilters,
-  statusFilter,
-  dateFilter,
-  countryFilter,
-  uniqueCountries,
-  setStatusFilter,
-  toggleStatusFilter,
-  setDateFilter,
-  toggleCountryFilter,
-  resetFilters,
-  hasActiveFilters
-}) => {
-  const { t } = useLocale();
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.4,
-        ease: [0.22, 1, 0.36, 1],
-      },
-    },
-  };
+const SearchAndFilter: React.FC = () => {
+  const [showFilters, setShowFilters] = useState(false);
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    statusFilter, 
+    setStatusFilter,
+    dateFilter, 
+    setDateFilter,
+    countryFilter,
+    toggleCountryFilter,
+    uniqueCountries,
+    hasActiveFilters
+  } = useTransactionFilters();
 
   return (
-    <motion.div variants={itemVariants} className="mb-6">
+    <div className="space-y-2">
       <div className="flex gap-2">
         <SearchBar 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
+          query={searchQuery} 
+          onChange={setSearchQuery} 
         />
-        
-        <FilterPopover
+        <FilterButton 
           showFilters={showFilters}
           setShowFilters={setShowFilters}
-          statusFilter={statusFilter}
-          dateFilter={dateFilter}
-          countryFilter={countryFilter}
-          uniqueCountries={uniqueCountries}
-          setStatusFilter={setStatusFilter}
-          toggleStatusFilter={toggleStatusFilter}
-          setDateFilter={setDateFilter}
-          toggleCountryFilter={toggleCountryFilter}
-          resetFilters={resetFilters}
           hasActiveFilters={hasActiveFilters}
         />
       </div>
       
-      {/* Active filters */}
+      {showFilters && (
+        <FilterPopover
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          countryFilter={countryFilter}
+          toggleCountryFilter={toggleCountryFilter}
+          uniqueCountries={uniqueCountries}
+        />
+      )}
+      
       <FilterBadges
         statusFilter={statusFilter}
         dateFilter={dateFilter}
@@ -84,7 +55,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
         setDateFilter={setDateFilter}
         toggleCountryFilter={toggleCountryFilter}
       />
-    </motion.div>
+    </div>
   );
 };
 

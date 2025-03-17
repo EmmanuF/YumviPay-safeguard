@@ -6,7 +6,7 @@ import { TransactionsList, SearchAndFilter } from '@/components/history';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionHistory: React.FC = () => {
-  const { transactions, isLoading, error } = useTransactions();
+  const { transactions, loading, refreshTransactions } = useTransactions();
 
   return (
     <PageTransition>
@@ -19,8 +19,9 @@ const TransactionHistory: React.FC = () => {
             
             <TransactionsList 
               transactions={transactions} 
-              isLoading={isLoading}
-              error={error}
+              isLoading={loading}
+              error={null} // No error property in useTransactions, so passing null
+              onRefresh={refreshTransactions}
             />
           </div>
         </main>

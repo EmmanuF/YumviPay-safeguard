@@ -8,3 +8,4 @@ export { default as TransactionsList } from './TransactionsList';
 export { default as StatusFilter } from './StatusFilter';
 export { default as DateFilter } from './DateFilter';
 export { default as CountryFilter } from './CountryFilter';
+export { default as SearchAndFilter } from './SearchAndFilter';

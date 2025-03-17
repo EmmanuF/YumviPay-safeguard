@@ -1,12 +1,9 @@
 
 import React from 'react';
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { NotificationSettings } from '@/hooks/useNotificationSettings';
-import { OfflineModeToggle } from '@/components/OfflineModeToggle';
-import { useNetwork } from '@/contexts/NetworkContext';
-import { Badge } from '@/components/ui/badge';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { NotificationSettings } from '@/types/notification';
 
 interface NotificationPreferencesProps {
   settings: NotificationSettings;
@@ -15,82 +12,107 @@ interface NotificationPreferencesProps {
   onResetDefaults: () => void;
 }
 
-export function NotificationPreferences({ 
-  settings, 
-  isLoading, 
-  onSettingChange, 
-  onResetDefaults 
-}: NotificationPreferencesProps) {
-  const { pendingOperationsCount, lastSyncTime } = useNetwork();
-  
-  // Use the properties from the settings object
-  const pushEnabled = settings.push;
-  const emailEnabled = settings.email;
-  const smsEnabled = settings.sms;
-
-  // Create toggle functions that call onSettingChange
-  const togglePush = (checked: boolean) => onSettingChange('push', checked);
-  const toggleEmail = (checked: boolean) => onSettingChange('email', checked);
-  const toggleSms = (checked: boolean) => onSettingChange('sms', checked);
-
+export const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
+  settings,
+  isLoading,
+  onSettingChange,
+  onResetDefaults
+}) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notifications & Preferences</CardTitle>
-        <CardDescription>
-          Manage how you receive notifications and application settings
-        </CardDescription>
+        <CardTitle>Notification Preferences</CardTitle>
+        <CardDescription>Choose what notifications you receive and how</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          <h3 className="text-sm font-medium">Notification Channels</h3>
-          <div className="space-y-3">
+          <h3 className="text-sm font-medium">Notification Categories</h3>
+          <div className="grid gap-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="push" className="flex flex-col">
-                <span>Push Notifications</span>
-                <span className="text-sm text-gray-500">Receive alerts on your device</span>
-              </Label>
-              <Switch id="push" checked={pushEnabled} onCheckedChange={togglePush} disabled={isLoading} />
+              <div className="space-y-0.5">
+                <Label htmlFor="transactions">Transaction Updates</Label>
+                <p className="text-sm text-muted-foreground">Receive updates about your transactions</p>
+              </div>
+              <Switch
+                id="transactions"
+                checked={settings.transactions}
+                disabled={isLoading}
+                onCheckedChange={(checked) => onSettingChange('transactions', checked)}
+              />
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="email" className="flex flex-col">
-                <span>Email Notifications</span>
-                <span className="text-sm text-gray-500">Receive transaction updates via email</span>
-              </Label>
-              <Switch id="email" checked={emailEnabled} onCheckedChange={toggleEmail} disabled={isLoading} />
+              <div className="space-y-0.5">
+                <Label htmlFor="marketing">Marketing</Label>
+                <p className="text-sm text-muted-foreground">Receive marketing and promotional emails</p>
+              </div>
+              <Switch
+                id="marketing"
+                checked={settings.marketing}
+                disabled={isLoading}
+                onCheckedChange={(checked) => onSettingChange('marketing', checked)}
+              />
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="sms" className="flex flex-col">
-                <span>SMS Notifications</span>
-                <span className="text-sm text-gray-500">Receive text messages for critical updates</span>
-              </Label>
-              <Switch id="sms" checked={smsEnabled} onCheckedChange={toggleSms} disabled={isLoading} />
+              <div className="space-y-0.5">
+                <Label htmlFor="updates">System Updates</Label>
+                <p className="text-sm text-muted-foreground">Get notified about system updates and new features</p>
+              </div>
+              <Switch
+                id="updates"
+                checked={settings.updates}
+                disabled={isLoading}
+                onCheckedChange={(checked) => onSettingChange('updates', checked)}
+              />
             </div>
           </div>
         </div>
         
-        <div className="pt-2 border-t">
-          <h3 className="text-sm font-medium mb-4">Application Settings</h3>
-          <div className="space-y-4">
-            <OfflineModeToggle showSync={true} />
-            
-            {lastSyncTime && (
-              <div className="text-xs text-gray-500 mt-1">
-                Last sync: {lastSyncTime.toLocaleString()}
-                {pendingOperationsCount > 0 && (
-                  <Badge variant="outline" className="ml-2">
-                    {pendingOperationsCount} pending
-                  </Badge>
-                )}
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium">Notification Channels</h3>
+          <div className="grid gap-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="email">Email Notifications</Label>
+                <p className="text-sm text-muted-foreground">Receive notifications via email</p>
               </div>
-            )}
+              <Switch
+                id="email"
+                checked={settings.email}
+                disabled={isLoading}
+                onCheckedChange={(checked) => onSettingChange('email', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="push">Push Notifications</Label>
+                <p className="text-sm text-muted-foreground">Receive notifications on your device</p>
+              </div>
+              <Switch
+                id="push"
+                checked={settings.push}
+                disabled={isLoading}
+                onCheckedChange={(checked) => onSettingChange('push', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="sms">SMS Notifications</Label>
+                <p className="text-sm text-muted-foreground">Receive notifications via SMS</p>
+              </div>
+              <Switch
+                id="sms"
+                checked={settings.sms}
+                disabled={isLoading}
+                onCheckedChange={(checked) => onSettingChange('sms', checked)}
+              />
+            </div>
           </div>
         </div>
       </CardContent>
     </Card>
   );
-}
-
-export default NotificationPreferences;
+};
