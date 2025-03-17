@@ -8,12 +8,16 @@ import TransactionGroup from './TransactionGroup';
 interface TransactionsListProps {
   isLoading: boolean;
   filteredTransactions: Transaction[];
+  transactions?: Transaction[]; // Added for backward compatibility
+  error?: any; // Added for backward compatibility
+  onRefresh?: () => Promise<void>; // Added for backward compatibility
   onTransactionClick: (transactionId: string) => void;
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({ 
   isLoading, 
   filteredTransactions, 
+  transactions, // For backward compatibility
   onTransactionClick 
 }) => {
   const itemVariants = {
@@ -27,6 +31,9 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
       },
     },
   };
+
+  // For backward compatibility with existing usage
+  const dataToUse = filteredTransactions || transactions || [];
 
   const groupTransactionsByDate = (transactions: Transaction[]) => {
     const groups: Record<string, Transaction[]> = {};
@@ -48,7 +55,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     }));
   };
   
-  const groupedTransactions = groupTransactionsByDate(filteredTransactions);
+  const groupedTransactions = groupTransactionsByDate(dataToUse);
 
   if (isLoading) {
     return (
@@ -58,7 +65,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     );
   }
   
-  if (filteredTransactions.length === 0) {
+  if (dataToUse.length === 0) {
     return (
       <motion.div variants={itemVariants} className="text-center py-8">
         <Card>

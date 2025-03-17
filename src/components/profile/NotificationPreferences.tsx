@@ -116,3 +116,5 @@ export const NotificationPreferences: React.FC<NotificationPreferencesProps> = (
     </Card>
   );
 };
+
+export default NotificationPreferences;

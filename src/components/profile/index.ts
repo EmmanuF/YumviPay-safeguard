@@ -10,3 +10,4 @@ export { default as ProfileHeader } from './ProfileHeader';
 export { default as ProfileLoading } from './ProfileLoading';
 export { default as ProfileTabs } from './ProfileTabs';
 export { default as SecuritySettings } from './SecuritySettings';
+export { default as NotificationSettings } from './NotificationSettings';

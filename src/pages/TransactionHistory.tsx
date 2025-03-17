@@ -2,11 +2,15 @@
 import React from 'react';
 import Header from '@/components/Header';
 import PageTransition from '@/components/PageTransition';
-import { TransactionsList, SearchAndFilter } from '@/components/history';
+import { TransactionsList } from '@/components/history';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionHistory: React.FC = () => {
   const { transactions, loading, refreshTransactions } = useTransactions();
+
+  const handleTransactionClick = (transactionId: string) => {
+    window.location.href = `/transaction/${transactionId}`;
+  };
 
   return (
     <PageTransition>
@@ -15,13 +19,12 @@ const TransactionHistory: React.FC = () => {
         
         <main className="flex-1 p-4">
           <div className="space-y-4 max-w-4xl mx-auto">
-            <SearchAndFilter />
+            {/* SearchAndFilter would go here if needed */}
             
             <TransactionsList 
-              transactions={transactions} 
+              filteredTransactions={transactions}
               isLoading={loading}
-              error={null} // No error property in useTransactions, so passing null
-              onRefresh={refreshTransactions}
+              onTransactionClick={handleTransactionClick}
             />
           </div>
         </main>
