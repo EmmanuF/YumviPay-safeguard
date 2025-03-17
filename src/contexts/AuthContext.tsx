@@ -1,6 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getAuthState, signInUser, registerUser, logoutUser } from '@/services/auth';
+import { 
+  getAuthState, 
+  signInUser, 
+  registerUser, 
+  logoutUser 
+} from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { showErrorToast } from '@/utils/errorHandling';
 
