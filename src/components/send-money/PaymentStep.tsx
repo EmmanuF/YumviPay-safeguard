@@ -8,9 +8,9 @@ import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
 import SavePreferenceToggle from './payment/SavePreferenceToggle';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import PaymentLoadingState from './payment/PaymentLoadingState';
-import { handlePaymentPreference, isNextButtonDisabled } from '@/utils/paymentUtils';
+import { handlePaymentPreference, isNextButtonDisabled, getProviderOptions } from '@/utils/paymentUtils';
 import { motion } from 'framer-motion';
-import { InfoCircle, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface PaymentStepProps {
   onNext: () => void;
@@ -49,7 +49,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     // Show a toast message when continuing
     if (transactionData.paymentMethod && transactionData.selectedProvider) {
       const methodName = selectedCountry?.paymentMethods.find(m => m.id === transactionData.paymentMethod)?.name || "payment method";
-      const providerOptions = selectedCountry?.paymentMethods.find(m => m.id === transactionData.paymentMethod)?.providers || [];
+      const providerOptions = getProviderOptions(transactionData.paymentMethod, countryCode);
       const providerName = providerOptions.find((p: any) => p.id === transactionData.selectedProvider)?.name || "";
       
       toast({
@@ -84,7 +84,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         >
           <h3 className="text-sm font-medium text-gray-700 flex items-center">
             <span>Your saved payment methods</span>
-            <InfoCircle className="h-4 w-4 ml-1 text-primary-400" />
+            <Info className="h-4 w-4 ml-1 text-primary-400" />
           </h3>
           <PreferredPaymentMethods
             preferredMethods={preferredMethods}
