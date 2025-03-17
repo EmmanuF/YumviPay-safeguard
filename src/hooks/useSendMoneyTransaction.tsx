@@ -17,6 +17,7 @@ export interface TransactionData {
 export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
   const { countries } = useCountries();
   const [isInitialized, setInitialDataLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Find the default country by code
   const defaultCountry = countries.find(c => c.code === defaultCountryCode) || 
@@ -37,32 +38,38 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
   // Load pending transaction from localStorage if available
   useEffect(() => {
     const timer = setTimeout(() => {
-      const pendingTransaction = localStorage.getItem('pendingTransaction');
-      
-      if (pendingTransaction) {
-        try {
-          const data = JSON.parse(pendingTransaction);
-          console.log('Found pending transaction:', data);
-          
-          // Find the country with matching currency code
-          const targetCountry = countries.find(c => c.currency === data.targetCurrency)?.code || 'CM';
-          
-          setTransactionData(prev => ({
-            ...prev,
-            amount: parseFloat(data.sendAmount) || 100,
-            sourceCurrency: data.sourceCurrency || 'USD',
-            targetCurrency: data.targetCurrency || 'XAF',
-            targetCountry,
-            convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 61000,
-          }));
-          
-          localStorage.removeItem('pendingTransaction');
-        } catch (error) {
-          console.error('Error parsing pending transaction:', error);
+      try {
+        const pendingTransaction = localStorage.getItem('pendingTransaction');
+        
+        if (pendingTransaction) {
+          try {
+            const data = JSON.parse(pendingTransaction);
+            console.log('Found pending transaction:', data);
+            
+            // Find the country with matching currency code
+            const targetCountry = countries.find(c => c.currency === data.targetCurrency)?.code || 'CM';
+            
+            setTransactionData(prev => ({
+              ...prev,
+              amount: parseFloat(data.sendAmount) || 100,
+              sourceCurrency: data.sourceCurrency || 'USD',
+              targetCurrency: data.targetCurrency || 'XAF',
+              targetCountry,
+              convertedAmount: parseFloat(data.receiveAmount?.replace(/,/g, '')) || 61000,
+            }));
+            
+            localStorage.removeItem('pendingTransaction');
+          } catch (error) {
+            console.error('Error parsing pending transaction:', error);
+            setError('Failed to load transaction data. Please try again.');
+          }
         }
+      } catch (err) {
+        console.error('Error in transaction initialization:', err);
+        setError('An error occurred while loading transaction data. Please refresh the page.');
+      } finally {
+        setInitialDataLoaded(true);
       }
-      
-      setInitialDataLoaded(true);
     }, 100);
     
     return () => clearTimeout(timer);
@@ -77,5 +84,6 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
     transactionData,
     updateTransactionData,
     isInitialized,
+    error,
   };
 };

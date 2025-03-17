@@ -92,6 +92,14 @@ const SendMoney = () => {
     />;
   }
 
+  // If there's a transaction error, show it
+  if (transactionError) {
+    return <LoadingState 
+      message="Error loading transaction data" 
+      submessage={transactionError}
+    />;
+  }
+
   // Render even if there might be an error, let the error component handle display
   return (
     <PageTransition>
