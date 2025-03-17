@@ -52,10 +52,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
     ? 'bg-gradient-to-b from-primary-100/90 to-primary-50/80 border border-white/40'
     : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-primary-100/80 to-white/70 border border-white/30 shadow-[0_8px_32px_rgba(110,54,229,0.15)]';
   
-  console.log("MobileAppLayout render, hideFooter:", hideFooter, "Current path:", location.pathname);
-  
   return (
-    <div className={`flex flex-col min-h-dvh overflow-hidden ${glassClass} ${getOptimizationClasses()}`}>
+    <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
       {/* Diagonal purple top design - only shown on non-home pages */}
       {!isHome && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
@@ -84,7 +82,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         </motion.div>
       )}
       
-      <main className="flex-1 overflow-auto overscroll-none relative z-10">
+      <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -129,12 +127,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       {!isHome && <BottomNavigation />}
       
-      {/* Footer - remove the conditional rendering */}
-      {!hideFooter && (
-        <div className="mt-auto">
-          <Footer />
-        </div>
-      )}
+      {/* Footer */}
+      {!hideFooter && <Footer />}
       
       <Toaster 
         position="top-center"
