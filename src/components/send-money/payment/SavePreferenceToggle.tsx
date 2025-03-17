@@ -5,13 +5,13 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
 interface SavePreferenceToggleProps {
-  savePreference: boolean;
-  handleToggleSavePreference: (checked: boolean) => void;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
 }
 
 const SavePreferenceToggle: React.FC<SavePreferenceToggleProps> = ({
-  savePreference,
-  handleToggleSavePreference
+  checked,
+  onChange
 }) => {
   const itemVariants = {
     hidden: { opacity: 0 },
@@ -30,8 +30,8 @@ const SavePreferenceToggle: React.FC<SavePreferenceToggleProps> = ({
       </div>
       <Switch 
         id="save-preference" 
-        checked={savePreference} 
-        onCheckedChange={handleToggleSavePreference}
+        checked={checked} 
+        onCheckedChange={onChange}
       />
     </motion.div>
   );

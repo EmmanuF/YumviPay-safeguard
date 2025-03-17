@@ -86,6 +86,7 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
               updateTransactionData={updateTransactionData}
               onNext={onNext}
               onBack={onBack}
+              isSubmitting={isSubmitting}
             />
           );
         case 'confirmation':
