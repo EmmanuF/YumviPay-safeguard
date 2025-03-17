@@ -24,3 +24,37 @@
 .floating-input input:not(:placeholder-shown) + label {
   @apply transform -translate-y-3 scale-75 text-primary-500;
 }
+
+/* Form validation styles */
+.input-valid {
+  @apply border-green-500 focus:border-green-500 focus:ring-green-500/50;
+}
+
+.input-invalid {
+  @apply border-red-500 focus:border-red-500 focus:ring-red-500/50;
+}
+
+.validation-message {
+  @apply mt-1 text-xs;
+}
+
+.validation-message.valid {
+  @apply text-green-600 flex items-center;
+}
+
+.validation-message.invalid {
+  @apply text-red-600 flex items-center;
+}
+
+.validation-icon {
+  @apply mr-1 h-3.5 w-3.5;
+}
+
+/* Requirements list */
+.requirements-list {
+  @apply text-xs text-gray-500 mt-2;
+}
+
+.requirements-list ul {
+  @apply list-disc pl-4 mt-1;
+}

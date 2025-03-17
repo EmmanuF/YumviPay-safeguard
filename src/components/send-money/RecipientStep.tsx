@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, Info } from 'lucide-react';
+import { ArrowRight, Star, Info, AlertCircle, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useRecipients } from '@/hooks/useRecipients';
 import { Avatar } from '@/components/ui/avatar';
 import CountrySelector from '@/components/CountrySelector';
-import { formatPhoneNumber } from '@/utils/formatters/phoneFormatters';
+import { formatPhoneNumber, isValidPhoneNumber } from '@/utils/formatters/phoneFormatters';
 
 export interface RecipientStepProps {
   transactionData: {
@@ -38,21 +37,26 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   const { recipients, loading, toggleFavorite, updateLastUsed } = useRecipients();
   const [phoneInput, setPhoneInput] = useState(transactionData.recipient || '');
   const [recipientCountry, setRecipientCountry] = useState(transactionData.recipientCountry || 'CM');
+  const [isValidNumber, setIsValidNumber] = useState(false);
+  const [isTouched, setIsTouched] = useState(false);
   
-  // Update transactionData when phone or country changes
   useEffect(() => {
     if (phoneInput) {
-      const formattedNumber = formatPhoneNumber(phoneInput.replace(/\s/g, ''), recipientCountry);
+      const formattedNumber = formatPhoneNumber(phoneInput, recipientCountry);
       updateTransactionData({ recipient: formattedNumber });
+      const isValid = isValidPhoneNumber(formattedNumber, recipientCountry);
+      setIsValidNumber(isValid);
+    } else {
+      setIsValidNumber(false);
+      updateTransactionData({ recipient: null });
     }
   }, [phoneInput, recipientCountry, updateTransactionData]);
   
-  // Update the phone input when recipient country changes to reformat
   useEffect(() => {
     if (transactionData.recipient) {
-      const unformattedNumber = transactionData.recipient.replace(/\s/g, '');
-      const reformattedNumber = formatPhoneNumber(unformattedNumber, recipientCountry);
-      updateTransactionData({ recipient: reformattedNumber, recipientCountry });
+      const formattedNumber = formatPhoneNumber(transactionData.recipient, recipientCountry);
+      updateTransactionData({ recipient: formattedNumber, recipientCountry });
+      setIsValidNumber(isValidPhoneNumber(formattedNumber, recipientCountry));
     }
   }, [recipientCountry, updateTransactionData]);
   
@@ -73,7 +77,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
-  // Filter favorites and recent recipients
   const favoriteRecipients = recipients
     .filter(r => r.isFavorite)
     .sort((a, b) => {
@@ -92,17 +95,19 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     .slice(0, 5);
 
   const handleSelectRecipient = async (contact: string, name: string, recipientId: string, country: string = 'CM') => {
-    // Update the last used timestamp
     await updateLastUsed(recipientId);
-    
-    // Update recipient country
     setRecipientCountry(country);
+    setPhoneInput(contact);
+    setIsTouched(true);
     
     updateTransactionData({ 
       recipient: contact,
       recipientName: name,
       recipientCountry: country
     });
+    
+    const isValid = isValidPhoneNumber(contact, country);
+    setIsValidNumber(isValid);
   };
 
   const handleToggleFavorite = async (e: React.MouseEvent, id: string) => {
@@ -113,6 +118,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   const handlePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPhoneInput(value);
+    setIsTouched(true);
   };
 
   const handleCountryChange = (countryCode: string) => {
@@ -130,7 +136,48 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       return;
     }
     
+    if (!isValidNumber) {
+      toast({
+        title: "Invalid phone number",
+        description: `Please enter a valid phone number for ${recipientCountry}`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     onNext();
+  };
+
+  const getPhoneInputValidationClass = () => {
+    if (!isTouched) return '';
+    
+    if (phoneInput && isValidNumber) {
+      return 'border-green-500 focus:border-green-500 focus:ring-green-500/50';
+    } else if (phoneInput) {
+      return 'border-red-500 focus:border-red-500 focus:ring-red-500/50';
+    }
+    
+    return '';
+  };
+
+  const renderPhoneValidationMessage = () => {
+    if (!isTouched || !phoneInput) return null;
+    
+    if (isValidNumber) {
+      return (
+        <p className="text-xs text-green-600 mt-1 flex items-center">
+          <Check size={14} className="mr-1" />
+          Valid phone number format
+        </p>
+      );
+    } else {
+      return (
+        <p className="text-xs text-red-600 mt-1 flex items-center">
+          <AlertCircle size={14} className="mr-1" />
+          Please enter a valid phone number for this country
+        </p>
+      );
+    }
   };
 
   return (
@@ -273,12 +320,47 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
               value={phoneInput}
               onChange={handlePhoneInputChange}
               type="tel"
+              className={getPhoneInputValidationClass()}
             />
+            
             {transactionData.recipient && (
-              <p className="text-xs text-gray-500 mt-1">
-                Formatted: {transactionData.recipient}
-              </p>
+              <div className="mt-1">
+                <p className="text-xs text-gray-500">
+                  Formatted: {transactionData.recipient}
+                </p>
+                {renderPhoneValidationMessage()}
+              </div>
             )}
+            
+            <div className="mt-2 text-xs text-gray-500">
+              <p>Requirements:</p>
+              <ul className="list-disc pl-4 mt-1">
+                {recipientCountry === 'CM' && (
+                  <>
+                    <li>Must start with +237</li>
+                    <li>Followed by 9 digits (usually starting with 6 or 2)</li>
+                  </>
+                )}
+                {recipientCountry === 'NG' && (
+                  <>
+                    <li>Must start with +234</li>
+                    <li>Followed by 10 digits (usually starting with 7, 8, or 9)</li>
+                  </>
+                )}
+                {recipientCountry === 'GH' && (
+                  <>
+                    <li>Must start with +233</li>
+                    <li>Followed by 9 digits</li>
+                  </>
+                )}
+                {!['CM', 'NG', 'GH'].includes(recipientCountry) && (
+                  <>
+                    <li>Must start with correct country code</li>
+                    <li>Followed by required number of digits</li>
+                  </>
+                )}
+              </ul>
+            </div>
           </motion.div>
         </TabsContent>
       </Tabs>
@@ -296,7 +378,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           onClick={onNext} 
           className="w-1/2" 
           size="lg"
-          disabled={!transactionData.recipient}
+          disabled={!transactionData.recipient || !isValidNumber || !transactionData.recipientName}
         >
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
