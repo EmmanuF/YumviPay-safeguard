@@ -16,6 +16,7 @@ import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
 import SendMoney from '@/pages/SendMoney';
 import TransactionHistory from '@/pages/TransactionHistory';
+import Recipients from '@/pages/Recipients';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
@@ -52,6 +53,11 @@ function App() {
                 <Route path="/transactions" element={
                   <ProtectedRoute>
                     <TransactionHistory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/recipients" element={
+                  <ProtectedRoute>
+                    <Recipients />
                   </ProtectedRoute>
                 } />
                 
