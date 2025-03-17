@@ -41,19 +41,20 @@ export default {
                     800: '#3d1996',
                     900: '#321878',
                 },
+                // Secondary colors changed from yellow to neutral gray
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#fff8e1', // Darker yellow tint
-                    100: '#ffecb3', // Thicker yellow tint
-                    200: '#ffe082',
-                    300: '#ffd54f',
-                    400: '#ffca28',
-                    500: '#FFC107', // Thicker main yellow
-                    600: '#ffb300',
-                    700: '#ffa000',
-                    800: '#ff8f00',
-                    900: '#ff6f00',
+                    50: '#f9f9fa', // Light gray tint
+                    100: '#f1f1f2', // Lighter gray tint
+                    200: '#e4e4e6',
+                    300: '#d2d2d6',
+                    400: '#a9a9b0',
+                    500: '#8E9196', // Main gray
+                    600: '#71747a',
+                    700: '#585b61',
+                    800: '#45484e',
+                    900: '#393b40',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',

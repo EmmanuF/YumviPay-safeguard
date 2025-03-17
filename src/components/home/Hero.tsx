@@ -62,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
                   <path d="M0,5 Q25,0 50,5 Q75,10 100,5 L100,15 L0,15 Z" fill="#4CD4A9" />
                 </svg>
               </span>
-              <span className="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-secondary-400 to-secondary-500">Boundaries</span>
+              <span className="block mt-1 bg-clip-text text-transparent bg-gradient-to-r from-[#FFDD33] to-[#FFC107]">Boundaries</span>
             </h1>
             
             <div className="absolute -top-5 -right-5 text-primary-100 rotate-12 opacity-30">

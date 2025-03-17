@@ -45,10 +45,10 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOffline, offlineModeActive]);
   
-  // Apply the glass effect based on device performance
+  // Apply the glass effect based on device performance - updated colors from yellow to purple/white
   const glassClass = glassEffectIntensity === 'light' 
-    ? 'bg-gradient-to-b from-secondary-100 to-secondary-50/80'
-    : 'glass-effect bg-gradient-to-b from-secondary-100/90 to-secondary-50/70 backdrop-blur-lg';
+    ? 'bg-gradient-to-b from-primary-100 to-primary-50/80'
+    : 'glass-effect bg-gradient-to-b from-primary-100/90 to-white/70 backdrop-blur-lg';
   
   return (
     <div className={`flex flex-col h-dvh overflow-hidden ${glassClass} ${getOptimizationClasses()}`}>
@@ -82,13 +82,13 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: animSettings.duration }}
             className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
-                      ${glassEffectIntensity === 'light' ? 'bg-amber-500' : 'glass-effect bg-amber-500/90 backdrop-blur-sm'} 
+                      ${glassEffectIntensity === 'light' ? 'bg-primary-300' : 'glass-effect bg-primary-300/90 backdrop-blur-sm'} 
                       text-white rounded-full shadow-lg flex items-center space-x-2 z-40`}
           >
             <WifiOff className="w-4 h-4" />
             <span className="text-sm font-medium">Offline</span>
             {pendingOperationsCount > 0 && (
-              <span className="bg-white text-amber-500 rounded-full px-1.5 text-xs font-medium">
+              <span className="bg-white text-primary-500 rounded-full px-1.5 text-xs font-medium">
                 {pendingOperationsCount}
               </span>
             )}
@@ -104,10 +104,10 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children }) => {
           style: {
             borderRadius: '0.75rem',
             background: glassEffectIntensity === 'light' 
-              ? 'rgba(255, 236, 179, 0.95)' 
-              : 'rgba(255, 236, 179, 0.85)',
+              ? 'rgba(236, 224, 255, 0.95)' 
+              : 'rgba(236, 224, 255, 0.85)',
             backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(8px)',
-            border: '1px solid rgba(255, 183, 77, 0.3)',
+            border: '1px solid rgba(143, 91, 255, 0.3)',
             boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.1)',
             color: '#333',
           },

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -32,24 +31,30 @@ const Home = () => {
   
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-b from-secondary-100 to-secondary-50/80">
-        <Navigation onGetStarted={handleGetStarted} />
+      <div className="min-h-screen">
+        {/* First section with yellow background (keeping yellow only here) */}
+        <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80">
+          <Navigation onGetStarted={handleGetStarted} />
+          <Hero onGetStarted={handleGetStarted} />
+        </div>
         
-        <div className="container mx-auto px-4 pb-24">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="mt-2 md:mt-6"
-          >
-            <Hero onGetStarted={handleGetStarted} />
-            <Features />
-            <HowItWorks />
-            <CountryCoverage />
-            <Testimonials />
-            <AppDownload />
-            <CTASection />
-          </motion.div>
+        {/* Rest of the sections with neutral/light/purple background */}
+        <div className="bg-gradient-to-b from-primary-50 to-white">
+          <div className="container mx-auto px-4 pb-24">
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="mt-2 md:mt-6"
+            >
+              <Features />
+              <HowItWorks />
+              <CountryCoverage />
+              <Testimonials />
+              <AppDownload />
+              <CTASection />
+            </motion.div>
+          </div>
         </div>
       </div>
     </PageTransition>

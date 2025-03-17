@@ -101,7 +101,7 @@ export const OfflineModeToggle: React.FC<OfflineModeToggleProps> = ({
               </div>
             )}
             {offlineSince && (
-              <div className="flex items-center text-amber-500">
+              <div className="flex items-center text-primary-400">
                 <AlertCircle className="h-3 w-3 mr-1" />
                 <span>Offline {offlineTimeDisplay}</span>
               </div>
@@ -173,7 +173,7 @@ export const OfflineModeToggle: React.FC<OfflineModeToggleProps> = ({
             </div>
           )}
           {offlineSince && (
-            <div className="flex items-center text-amber-500">
+            <div className="flex items-center text-primary-400">
               <AlertCircle className="h-3 w-3 mr-1" />
               <span>Offline {offlineTimeDisplay}</span>
             </div>

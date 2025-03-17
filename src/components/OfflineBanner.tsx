@@ -33,7 +33,7 @@ export const OfflineBanner: React.FC = () => {
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
-          className="fixed top-0 left-0 w-full bg-amber-500 text-white py-2 px-4 z-50 flex flex-col"
+          className="fixed top-0 left-0 w-full bg-primary-400 text-white py-2 px-4 z-50 flex flex-col"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -49,7 +49,7 @@ export const OfflineBanner: React.FC = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-white hover:bg-amber-600"
+                className="text-white hover:bg-primary-500"
                 onClick={toggleOfflineMode}
               >
                 <Wifi className="h-4 w-4 mr-1" />
@@ -82,7 +82,7 @@ export const OfflineBanner: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-white text-xs py-1 px-2 h-auto hover:bg-amber-600"
+                        className="text-white text-xs py-1 px-2 h-auto hover:bg-primary-500"
                         onClick={syncOfflineData}
                         disabled={isSyncing}
                       >
@@ -108,7 +108,7 @@ export const OfflineBanner: React.FC = () => {
                   </div>
                   
                   {isSyncing && (
-                    <Progress value={45} className="h-1 bg-amber-400" /> // This would be better with actual progress tracking
+                    <Progress value={45} className="h-1 bg-primary-300" />
                   )}
                 </div>
               )}
