@@ -1,18 +1,14 @@
 
 import React from 'react';
-import { Smartphone, Building, CreditCard, Landmark, CreditCard as CardIcon } from 'lucide-react';
+import { Smartphone, CreditCard, CardIcon } from 'lucide-react';
 import { cameroonPaymentMethods } from '@/data/cameroonPaymentProviders';
 
 export const getIconComponent = (iconName: string) => {
   switch (iconName) {
     case 'smartphone':
       return <Smartphone className="h-5 w-5 text-primary-500" />;
-    case 'bank':
-      return <Building className="h-5 w-5 text-primary-500" />;
     case 'credit-card':
       return <CreditCard className="h-5 w-5 text-primary-500" />;
-    case 'financial':
-      return <Landmark className="h-5 w-5 text-primary-500" />;
     case 'card':
       return <CardIcon className="h-5 w-5 text-primary-500" />;
     default:
@@ -26,12 +22,6 @@ export const providerOptions = {
     CM: [
       { id: 'mtn_momo', name: 'MTN Mobile Money' },
       { id: 'orange_money', name: 'Orange Money' }
-    ],
-    default: []
-  },
-  bank_transfer: {
-    CM: [
-      { id: 'afriland', name: 'Afriland First Bank' }
     ],
     default: []
   }
@@ -81,10 +71,6 @@ export const getRecommendedProviders = (methodId: string) => {
     return [
       { id: 'mtn_momo', name: 'MTN Mobile Money' },
       { id: 'orange_money', name: 'Orange Money' }
-    ];
-  } else if (methodId === 'bank_transfer') {
-    return [
-      { id: 'afriland', name: 'Afriland First Bank' }
     ];
   }
   

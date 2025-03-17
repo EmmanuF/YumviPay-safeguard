@@ -41,7 +41,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const { user } = useAuth();
   const [isInitialized, setIsInitialized] = useState(false);
   const [savePreference, setSavePreference] = useState(transactionData.savePaymentPreference || false);
-  const [showPreferredMethods, setShowPreferredMethods] = useState(true);
   
   const countryCode = transactionData.targetCountry || 
                      (countries.find(country => country.currency === transactionData.targetCurrency)?.code || 'CM');
@@ -124,10 +123,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     updateTransactionData({ savePaymentPreference: checked });
   };
 
-  const handleTogglePreferredMethods = (checked: boolean) => {
-    setShowPreferredMethods(checked);
-  };
-
   if (isLoading) {
     return renderLoadingState();
   }
@@ -147,8 +142,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     >
       <PreferredPaymentMethods 
         preferredMethods={preferredMethods}
-        showPreferredMethods={showPreferredMethods}
-        handleTogglePreferredMethods={handleTogglePreferredMethods}
         countryCode={countryCode}
         selectedCountry={selectedCountry}
         transactionData={transactionData}
@@ -212,10 +205,6 @@ export const getRecommendedProviders = (methodId: string) => {
     return [
       { id: 'mtn_momo', name: 'MTN Mobile Money' },
       { id: 'orange_money', name: 'Orange Money' }
-    ];
-  } else if (methodId === 'bank_transfer') {
-    return [
-      { id: 'afriland', name: 'Afriland First Bank' }
     ];
   }
   

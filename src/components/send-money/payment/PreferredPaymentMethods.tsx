@@ -1,15 +1,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 
 interface PreferredPaymentMethodsProps {
   preferredMethods: Array<{ methodId: string; providerId: string }>;
-  showPreferredMethods: boolean;
-  handleTogglePreferredMethods: (checked: boolean) => void;
   countryCode: string;
   selectedCountry: any;
   transactionData: any;
@@ -18,8 +13,6 @@ interface PreferredPaymentMethodsProps {
 
 const PreferredPaymentMethods: React.FC<PreferredPaymentMethodsProps> = ({
   preferredMethods,
-  showPreferredMethods,
-  handleTogglePreferredMethods,
   countryCode,
   selectedCountry,
   transactionData,
@@ -39,86 +32,61 @@ const PreferredPaymentMethods: React.FC<PreferredPaymentMethodsProps> = ({
   }
 
   return (
-    <>
-      <motion.div 
-        variants={itemVariants} 
-        className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg border border-secondary-100"
-      >
-        <div className="flex items-center gap-2">
-          <Star className="h-5 w-5 text-amber-500" />
-          <Label htmlFor="show-preferred" className="text-sm font-medium">
-            Show preferred payment methods
-          </Label>
-        </div>
-        <Switch 
-          id="show-preferred" 
-          checked={showPreferredMethods} 
-          onCheckedChange={handleTogglePreferredMethods}
-        />
-      </motion.div>
-
-      {showPreferredMethods && preferredMethods.length > 0 && (
-        <motion.div variants={itemVariants} className="mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Clock className="h-4 w-4 text-primary-500" />
-            <h4 className="text-sm font-medium">Recent & Preferred Methods</h4>
-          </div>
-          <div className="space-y-2 bg-muted/30 p-3 rounded-lg">
-            {preferredMethods.map((method, index) => {
-              if (countryCode === 'CM' && method.methodId === 'mobile_money') {
-                if (method.providerId !== 'mtn_momo' && method.providerId !== 'orange_money') {
-                  return null;
-                }
-              }
-              
-              const methodDetails = selectedCountry?.paymentMethods.find(m => m.id === method.methodId);
-              if (!methodDetails) return null;
-              
-              const providers = getProviderOptions(method.methodId, countryCode);
-              const provider = providers.find(p => p.id === method.providerId);
-              if (!provider) return null;
-              
-              const providerData = method.methodId === 'mobile_money' ? 
-                getProviderById(method.methodId, method.providerId) : undefined;
-              
-              return (
-                <div 
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-background rounded-md border border-border cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => {
-                    updateTransactionData({
-                      paymentMethod: method.methodId,
-                      selectedProvider: method.providerId
-                    });
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center overflow-hidden">
-                      {providerData?.logoUrl ? (
-                        <img 
-                          src={providerData.logoUrl} 
-                          alt={provider.name} 
-                          className="h-8 w-8 object-contain" 
-                        />
-                      ) : (
-                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{methodDetails.name}</p>
-                      <p className="text-xs text-muted-foreground">{provider.name}</p>
-                    </div>
-                  </div>
-                  <div className={`w-3 h-3 rounded-full ${transactionData.paymentMethod === method.methodId && transactionData.selectedProvider === method.providerId ? 'bg-primary' : 'bg-muted'}`} />
+    <motion.div variants={itemVariants} className="mb-4">
+      <div className="space-y-2">
+        {preferredMethods.map((method, index) => {
+          if (countryCode === 'CM' && method.methodId === 'mobile_money') {
+            if (method.providerId !== 'mtn_momo' && method.providerId !== 'orange_money') {
+              return null;
+            }
+          }
+          
+          const methodDetails = selectedCountry?.paymentMethods.find(m => m.id === method.methodId);
+          if (!methodDetails) return null;
+          
+          const providers = getProviderOptions(method.methodId, countryCode);
+          const provider = providers.find(p => p.id === method.providerId);
+          if (!provider) return null;
+          
+          const providerData = method.methodId === 'mobile_money' ? 
+            getProviderById(method.methodId, method.providerId) : undefined;
+          
+          return (
+            <div 
+              key={index}
+              className="flex items-center justify-between p-3 bg-background rounded-md border border-border cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => {
+                updateTransactionData({
+                  paymentMethod: method.methodId,
+                  selectedProvider: method.providerId
+                });
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center overflow-hidden">
+                  {providerData?.logoUrl ? (
+                    <img 
+                      src={providerData.logoUrl} 
+                      alt={provider.name} 
+                      className="h-8 w-8 object-contain" 
+                    />
+                  ) : (
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
-    </>
+                <div>
+                  <p className="font-medium text-sm">{methodDetails.name}</p>
+                  <p className="text-xs text-muted-foreground">{provider.name}</p>
+                </div>
+              </div>
+              <div className={`w-3 h-3 rounded-full ${transactionData.paymentMethod === method.methodId && transactionData.selectedProvider === method.providerId ? 'bg-primary' : 'bg-muted'}`} />
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
   );
 };
 
@@ -129,12 +97,6 @@ const getProviderOptions = (methodId: string, countryCode: string) => {
       CM: [
         { id: 'mtn_momo', name: 'MTN Mobile Money' },
         { id: 'orange_money', name: 'Orange Money' }
-      ],
-      default: []
-    },
-    bank_transfer: {
-      CM: [
-        { id: 'afriland', name: 'Afriland First Bank' }
       ],
       default: []
     }

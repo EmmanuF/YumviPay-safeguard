@@ -40,7 +40,7 @@ export const cameroonPaymentMethods: PaymentMethodDetails[] = [
       {
         id: 'mtn_momo',
         name: 'MTN Mobile Money',
-        logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/New-mtn-logo.svg/2048px-New-mtn-logo.svg.png',
+        logoUrl: '/lovable-uploads/e46e0ffc-bb69-4357-975a-9143d4045639.png',
         description: 'Pay with your MTN Mobile Money account - the most widely used mobile money service in Cameroon',
         instructions: [
           'Enter your MTN number in the format +237 6XX XX XX XX',
@@ -85,39 +85,6 @@ export const cameroonPaymentMethods: PaymentMethodDetails[] = [
           currency: 'XAF'
         },
         processingTime: 'Instant',
-        popularityScore: 4,
-      }
-    ]
-  },
-  {
-    id: 'bank_transfer',
-    name: 'Bank Transfer',
-    icon: 'bank',
-    description: 'Send money directly to bank accounts across Cameroon',
-    providers: [
-      {
-        id: 'afriland',
-        name: 'Afriland First Bank',
-        logoUrl: 'https://www.afrilandfirstbank.com/sites/default/files/logo.png',
-        description: 'Transfer to an Afriland First Bank account - one of Cameroon\'s largest banks',
-        instructions: [
-          'Enter the account number in the format XXXXX XXXXX XXXXX XXXXXX',
-          'Verify the recipient name matches exactly',
-          'Confirm the amount and details',
-          'You will receive an email confirmation'
-        ],
-        supportPhone: '+237 233 42 42 42',
-        fees: {
-          percentage: 0.5,
-          fixed: 200,
-          currency: 'XAF'
-        },
-        limits: {
-          min: 5000,
-          max: 2000000,
-          currency: 'XAF'
-        },
-        processingTime: '1-2 business days',
         popularityScore: 4,
       }
     ]
