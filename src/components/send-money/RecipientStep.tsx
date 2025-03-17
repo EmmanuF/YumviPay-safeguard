@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, Info, AlertCircle, Check } from 'lucide-react';
+import { ArrowRight, Star, Info, AlertCircle, Check, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -11,6 +12,11 @@ import { useRecipients } from '@/hooks/useRecipients';
 import { Avatar } from '@/components/ui/avatar';
 import CountrySelector from '@/components/CountrySelector';
 import { formatPhoneNumber, isValidPhoneNumber } from '@/utils/formatters/phoneFormatters';
+import { importContacts, Contact } from '@/services/contacts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2 } from 'lucide-react';
 
 export interface RecipientStepProps {
   transactionData: {
@@ -34,11 +40,15 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   onBack
 }) => {
   const { toast } = useToast();
-  const { recipients, loading, toggleFavorite, updateLastUsed } = useRecipients();
+  const { recipients, loading, toggleFavorite, updateLastUsed, addRecipient } = useRecipients();
   const [phoneInput, setPhoneInput] = useState(transactionData.recipient || '');
   const [recipientCountry, setRecipientCountry] = useState(transactionData.recipientCountry || 'CM');
   const [isValidNumber, setIsValidNumber] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [loadingContacts, setLoadingContacts] = useState(false);
   
   useEffect(() => {
     if (phoneInput) {
@@ -179,7 +189,79 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       );
     }
   };
-
+  
+  const handleImportFromContacts = async () => {
+    setImportDialogOpen(true);
+    setLoadingContacts(true);
+    try {
+      const importedContacts = await importContacts();
+      setContacts(importedContacts);
+    } catch (error) {
+      console.error('Failed to import contacts:', error);
+      toast({
+        title: "Import failed",
+        description: "Could not access your contacts. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingContacts(false);
+    }
+  };
+  
+  const handleSelectContact = (contact: Contact) => {
+    setSelectedContact(contact === selectedContact ? null : contact);
+  };
+  
+  const handleImportContact = async () => {
+    if (!selectedContact) {
+      toast({
+        title: "No contact selected",
+        description: "Please select a contact to import",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Update the transaction data with the selected contact
+    const contactPhone = selectedContact.phoneNumber || '';
+    const formattedPhone = formatPhoneNumber(contactPhone, recipientCountry);
+    updateTransactionData({
+      recipient: formattedPhone,
+      recipientName: selectedContact.name
+    });
+    
+    // Update local state
+    setPhoneInput(formattedPhone);
+    setIsTouched(true);
+    setIsValidNumber(isValidPhoneNumber(formattedPhone, recipientCountry));
+    
+    // Also add this contact as a recipient for future use
+    try {
+      if (selectedContact.name && selectedContact.phoneNumber) {
+        await addRecipient({
+          name: selectedContact.name,
+          contact: formattedPhone,
+          country: recipientCountry,
+          isFavorite: false,
+          category: 'other',
+          lastUsed: new Date(),
+          usageCount: 1,
+          verified: false,
+        });
+        
+        toast({
+          title: "Contact imported",
+          description: `Successfully added ${selectedContact.name} as a recipient`,
+        });
+      }
+    } catch (error) {
+      console.error('Error adding recipient:', error);
+    }
+    
+    setImportDialogOpen(false);
+    setSelectedContact(null);
+  };
+  
   return (
     <motion.div
       variants={containerVariants}
@@ -278,6 +360,17 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
         
         <TabsContent value="new" className="space-y-4">
           <motion.div variants={itemVariants}>
+            <div className="mb-4">
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2"
+                onClick={handleImportFromContacts}
+              >
+                <Users className="h-4 w-4" />
+                Import from Phone Contacts
+              </Button>
+            </div>
+            
             <Label htmlFor="recipientName" className="text-sm font-medium mb-1.5 block">
               Recipient Name
             </Label>
@@ -383,6 +476,87 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </motion.div>
+      
+      {/* Contacts import dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import from Contacts</DialogTitle>
+          </DialogHeader>
+          
+          {loadingContacts ? (
+            <div className="flex flex-col justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+              <span className="text-muted-foreground">Loading contacts...</span>
+            </div>
+          ) : (
+            <>
+              <ScrollArea className="h-[50vh] pr-4">
+                {contacts.length > 0 ? (
+                  <div className="space-y-4">
+                    {contacts.map((contact) => (
+                      <div 
+                        key={contact.id} 
+                        className={`flex items-start space-x-3 p-3 rounded-md cursor-pointer ${
+                          selectedContact?.id === contact.id ? 'bg-primary/10 border border-primary/30' : 'hover:bg-muted'
+                        }`}
+                        onClick={() => handleSelectContact(contact)}
+                      >
+                        <Checkbox 
+                          id={`contact-${contact.id}`}
+                          checked={selectedContact?.id === contact.id}
+                          onCheckedChange={() => handleSelectContact(contact)}
+                          className="mt-1"
+                        />
+                        <div className="grid gap-1 text-left">
+                          <label 
+                            htmlFor={`contact-${contact.id}`}
+                            className="font-medium cursor-pointer"
+                          >
+                            {contact.name}
+                          </label>
+                          {contact.phoneNumber && (
+                            <p className="text-sm text-muted-foreground">
+                              {contact.phoneNumber}
+                            </p>
+                          )}
+                          {contact.email && (
+                            <p className="text-sm text-muted-foreground">
+                              {contact.email}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                      <Users className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <p className="text-lg font-medium mb-1">No contacts found</p>
+                    <p className="text-sm text-muted-foreground">
+                      Please add contacts to your device or grant permission to access them
+                    </p>
+                  </div>
+                )}
+              </ScrollArea>
+              
+              <div className="flex justify-between mt-4">
+                <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleImportContact}
+                  disabled={!selectedContact}
+                >
+                  Import Selected Contact
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
