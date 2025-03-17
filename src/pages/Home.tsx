@@ -35,16 +35,16 @@ const Home = () => {
       <div className="min-h-screen">
         {/* First section with diagonal purple header and yellow background */}
         <div className="relative">
-          {/* Diagonal purple header design */}
-          <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-            <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
-            <div className="absolute top-0 left-0 right-0 h-24">
-              <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
+          {/* Diagonal purple header design - with increased z-index and height */}
+          <div className="absolute top-0 left-0 right-0 h-32 overflow-hidden z-10">
+            <div className="absolute top-0 left-0 right-0 h-20 bg-primary-600"></div>
+            <div className="absolute top-0 left-0 right-0 h-32">
+              <div className="absolute bottom-0 left-0 right-0 h-20 bg-primary-500 transform skew-y-6 origin-right"></div>
             </div>
           </div>
           
-          {/* Yellow background section */}
-          <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-16 relative z-10">
+          {/* Yellow background section - with higher z-index and padding to account for header */}
+          <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-20">
             <Navigation onGetStarted={handleGetStarted} />
             <Hero onGetStarted={handleGetStarted} />
           </div>
