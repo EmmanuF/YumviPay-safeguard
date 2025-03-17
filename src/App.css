@@ -89,6 +89,64 @@
   transition: opacity 300ms, transform 300ms;
 }
 
+/* Top diagonal header - simplified */
+.diagonal-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.diagonal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-color: #6E36E5;
+  z-index: -1;
+}
+
+/* Home page header - simplified */
+.home-purple-header {
+  position: relative;
+  overflow: visible;
+  z-index: 25;
+}
+
+.home-purple-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #6E36E5;
+}
+
+/* Enhanced specific styles for homepage header - simplified */
+.homepage-header-purple {
+  background-color: #6E36E5;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5rem;
+  z-index: 25;
+  pointer-events: none;
+}
+
+/* Additional style for header transitions */
+.header-wave-bottom {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 15px;
+  background-color: #9B6DF3;
+  z-index: 24;
+  pointer-events: none;
+}
+
 /* Diagonal shapes for navigation - improved with smoother angles */
 .diagonal-shape {
   position: relative;
@@ -114,25 +172,6 @@
   left: 0;
   right: 0;
   height: 50%;
-  background-color: #6E36E5;
-  transform: skewY(3deg);
-  transform-origin: right;
-  z-index: -1;
-}
-
-/* Top diagonal header - improved for smoother angles */
-.diagonal-header {
-  position: relative;
-  overflow: hidden;
-}
-
-.diagonal-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
   background-color: #6E36E5;
   transform: skewY(3deg);
   transform-origin: right;

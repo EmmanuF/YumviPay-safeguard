@@ -32,18 +32,15 @@ const Home = () => {
   return (
     <PageTransition>
       <div className="min-h-screen">
-        {/* Purple diagonal header with improved styling */}
+        {/* Purple header with cleaner styling */}
         <div className="relative overflow-hidden">
           {/* Purple header base layer */}
           <div className="absolute top-0 left-0 right-0 z-20">
             {/* Top solid section */}
             <div className="h-20 bg-primary-600"></div>
             
-            {/* Bottom diagonal section */}
-            <div className="h-16 bg-primary-500 transform -skew-y-3 origin-top-right"></div>
-            
-            {/* Additional bottom diagonal for smoother transition */}
-            <div className="h-4 bg-primary-400 transform -skew-y-2 origin-top-right"></div>
+            {/* Additional bottom layer for smoother transition */}
+            <div className="h-4 bg-primary-400 transform origin-top-right"></div>
           </div>
           
           {/* Yellow background section */}
