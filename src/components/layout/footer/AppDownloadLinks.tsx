@@ -8,7 +8,7 @@ const AppDownloadLinks: React.FC = () => {
   return (
     <div className="space-y-3">
       <p className="text-base font-semibold text-primary-800 mb-3">{t('footer.app.download')}</p>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-row gap-3">
         <a 
           href="https://apps.apple.com" 
           target="_blank" 
