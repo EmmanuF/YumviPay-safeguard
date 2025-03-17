@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Country } from '@/hooks/useCountries';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 import { getProviderOptions, getIconComponent, getRecommendedPaymentMethods } from './PaymentProviderData';

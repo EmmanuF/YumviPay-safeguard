@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -139,6 +140,7 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
+// Base toast function
 function toast({ ...props }: Toast) {
   const id = genId()
 
@@ -167,6 +169,19 @@ function toast({ ...props }: Toast) {
     update,
   }
 }
+
+// Add variant convenience methods
+toast.info = (title: string, props?: Omit<Toast, "title">) => 
+  toast({ title, ...props, variant: "default" });
+
+toast.success = (title: string, props?: Omit<Toast, "title">) => 
+  toast({ title, ...props, variant: "default" });
+
+toast.warning = (title: string, props?: Omit<Toast, "title">) => 
+  toast({ title, ...props, variant: "default" });
+
+toast.error = (title: string, props?: Omit<Toast, "title">) => 
+  toast({ title, ...props, variant: "destructive" });
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)

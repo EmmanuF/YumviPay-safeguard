@@ -2,13 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useCountries } from '@/hooks/useCountries';
 import PaymentMethodList from './PaymentMethodList';
 import TransactionSummary from './TransactionSummary';
 import { providerOptions, getProviderOptions } from './PaymentProviderData';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 export interface PaymentStepProps {
   transactionData: {
@@ -74,12 +73,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       
       // If countryCode is CM, show a toast highlighting it's the MVP
       if (countryCode === 'CM' && !isLoading) {
-        toast.info("Cameroon Selected", {
-          description: "Cameroon is our primary supported country for this MVP."
+        toast({
+          title: "Cameroon Selected",
+          description: "Cameroon is our primary supported country for this MVP.",
+          variant: "default"
         });
       }
     }
-  }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized, isLoading]);
+  }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized, isLoading, toast]);
 
   // Reset provider selection when payment method changes
   useEffect(() => {
