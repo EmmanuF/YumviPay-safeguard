@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertCircle, Mail, Lock } from 'lucide-react';
+import { AlertCircle, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { signInUser } from '@/services/auth';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const SignIn: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Get redirect destination from location state
   const redirectTo = location.state?.redirectTo || '/dashboard';
@@ -45,6 +47,10 @@ const SignIn: React.FC = () => {
     if (error) setError(null);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -56,12 +62,7 @@ const SignIn: React.FC = () => {
         throw new Error('Please enter both email and password');
       }
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (error) throw error;
+      await signInUser(formData.email, formData.password);
 
       toast({
         title: "Welcome back!",
@@ -135,12 +136,19 @@ const SignIn: React.FC = () => {
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
                   className="pl-10"
                 />
+                <button 
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
             
