@@ -278,7 +278,7 @@ export function useCachedData<TData = unknown>(
     [key], // Pass the key as an array for the queryKey
     fetcher,
     {
-      queryKey: [key], // Explicitly specify the queryKey
+      queryKey: [key], // Explicitly specify the queryKey here as well
       offlineData: initialData,
       staleTime: isNative ? 5 * 60 * 1000 : 30 * 1000, // 5 minutes on native, 30 seconds on web
       gcTime: 24 * 60 * 60 * 1000, // 24 hours

@@ -16,7 +16,7 @@ const History = () => {
   const [showFilters, setShowFilters] = useState(false);
   const { isOffline, offlineModeActive } = useNetwork();
   
-  // Use offline-ready query for transactions
+  // Use offline-ready query for transactions with queryKey in both places
   const { 
     data: transactions = [], 
     isLoading, 
@@ -26,6 +26,7 @@ const History = () => {
     ['transactions', 'history'],
     getAllTransactions, // Now this returns a Promise correctly
     {
+      queryKey: ['transactions', 'history'], // Added the queryKey here to match the type requirements
       offlineData: [],
       showOfflineToast: isOffline || offlineModeActive,
       offlineToastMessage: isOffline 
