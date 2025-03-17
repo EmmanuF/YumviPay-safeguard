@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 import { useLocale } from '@/contexts/LocaleContext';
 
 const CompanyInfo: React.FC = () => {
@@ -19,26 +19,17 @@ const CompanyInfo: React.FC = () => {
         <div className="flex items-start gap-3">
           <MapPin className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-gray-600">
-            123 Finance Street, Tech Valley<br />
-            Yaoundé, Cameroon
+            2470 S DAIRY ASHFORD RD<br />
+            HOUSTON TX 77077
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Mail className="h-5 w-5 text-primary-600 flex-shrink-0" />
           <a 
-            href="mailto:support@yumvi-pay.com" 
+            href="mailto:support@yumvipay.com" 
             className="text-sm text-gray-600 hover:text-primary-600"
           >
-            support@yumvi-pay.com
-          </a>
-        </div>
-        <div className="flex items-center gap-3">
-          <Phone className="h-5 w-5 text-primary-600 flex-shrink-0" />
-          <a 
-            href="tel:+237123456789" 
-            className="text-sm text-gray-600 hover:text-primary-600"
-          >
-            +237 123 456 789
+            support@yumvipay.com
           </a>
         </div>
       </div>

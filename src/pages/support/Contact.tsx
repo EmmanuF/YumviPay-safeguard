@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Send, Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
+import { Send, Mail, MapPin, MessageSquare } from 'lucide-react';
 import MobileAppLayout from '@/components/MobileAppLayout';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -176,18 +176,8 @@ const Contact: React.FC = () => {
                   icon={<Mail className="h-4 w-4 text-primary-600" />}
                   title="Email Us"
                   content={
-                    <a href="mailto:support@yumvi-pay.com" className="hover:text-primary-600 transition-colors">
-                      support@yumvi-pay.com
-                    </a>
-                  }
-                />
-                
-                <ContactInfo
-                  icon={<Phone className="h-4 w-4 text-primary-600" />}
-                  title="Call Us"
-                  content={
-                    <a href="tel:+237123456789" className="hover:text-primary-600 transition-colors">
-                      +237 123 456 789
+                    <a href="mailto:support@yumvipay.com" className="hover:text-primary-600 transition-colors">
+                      support@yumvipay.com
                     </a>
                   }
                 />
@@ -197,9 +187,8 @@ const Contact: React.FC = () => {
                   title="Our Office"
                   content={
                     <address className="not-italic">
-                      123 Finance Street<br />
-                      Tech Valley<br />
-                      Yaoundé, Cameroon
+                      2470 S DAIRY ASHFORD RD<br />
+                      HOUSTON TX 77077
                     </address>
                   }
                 />
