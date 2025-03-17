@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,6 +10,7 @@ import Testimonials from '@/components/home/Testimonials';
 import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
+import MobileAppLayout from '@/components/MobileAppLayout';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -31,48 +31,50 @@ const Home = () => {
   };
   
   return (
-    <PageTransition>
-      <div className="min-h-screen">
-        {/* Purple header with cleaner styling */}
-        <div className="relative overflow-hidden">
-          {/* Purple header base layer */}
-          <div className="absolute top-0 left-0 right-0 z-20">
-            {/* Top solid section */}
-            <div className="h-20 bg-primary-600"></div>
+    <MobileAppLayout>
+      <PageTransition>
+        <div className="min-h-screen">
+          {/* Purple header with cleaner styling */}
+          <div className="relative overflow-hidden">
+            {/* Purple header base layer */}
+            <div className="absolute top-0 left-0 right-0 z-20">
+              {/* Top solid section */}
+              <div className="h-20 bg-primary-600"></div>
+              
+              {/* Additional bottom layer for smoother transition */}
+              <div className="h-4 bg-primary-400 transform origin-top-right"></div>
+            </div>
             
-            {/* Additional bottom layer for smoother transition */}
-            <div className="h-4 bg-primary-400 transform origin-top-right"></div>
+            {/* Yellow background section */}
+            <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-10">
+              <div className="pt-8">
+                <Navigation onGetStarted={handleGetStarted} />
+                <Hero onGetStarted={handleGetStarted} />
+              </div>
+            </div>
           </div>
           
-          {/* Yellow background section */}
-          <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-10">
-            <div className="pt-8">
-              <Navigation onGetStarted={handleGetStarted} />
-              <Hero onGetStarted={handleGetStarted} />
+          {/* Rest of the sections with neutral/light/purple background */}
+          <div className="bg-gradient-to-b from-primary-50 to-white">
+            <div className="container mx-auto px-4 pb-24">
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="mt-2 md:mt-6"
+              >
+                <Features />
+                <HowItWorks />
+                <CountryCoverage />
+                <Testimonials />
+                <AppDownload />
+                <CTASection />
+              </motion.div>
             </div>
           </div>
         </div>
-        
-        {/* Rest of the sections with neutral/light/purple background */}
-        <div className="bg-gradient-to-b from-primary-50 to-white">
-          <div className="container mx-auto px-4 pb-24">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="mt-2 md:mt-6"
-            >
-              <Features />
-              <HowItWorks />
-              <CountryCoverage />
-              <Testimonials />
-              <AppDownload />
-              <CTASection />
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    </PageTransition>
+      </PageTransition>
+    </MobileAppLayout>
   );
 };
 
