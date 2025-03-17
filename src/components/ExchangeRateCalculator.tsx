@@ -15,11 +15,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface ExchangeRateCalculatorProps {
   className?: string;
   onContinue?: () => void;
+  inlineMode?: boolean;
 }
 
 const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ 
   className,
-  onContinue 
+  onContinue,
+  inlineMode = false
 }) => {
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuth();
@@ -79,7 +81,10 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     
     // Short timeout to ensure UI feedback
     setTimeout(() => {
-      if (isLoggedIn) {
+      if (inlineMode && onContinue) {
+        // If we're in inline mode, just call the onContinue callback
+        onContinue();
+      } else if (isLoggedIn) {
         console.log('User is logged in, navigating directly to /send');
         navigate('/send');
       } else {
@@ -115,6 +120,67 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     );
   }
 
+  // In inline mode, we use a simpler layout without the header and descriptions
+  if (inlineMode) {
+    return (
+      <div className={`bg-white rounded-3xl shadow-lg overflow-hidden ${className}`}>
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-center mb-4">Set Transfer Details</h3>
+          
+          <div className="flex items-center space-x-4 mb-4">
+            <AmountInput
+              label="You send"
+              value={sendAmount}
+              onChange={setSendAmount}
+              className="flex-1"
+            />
+            <CurrencySelector
+              value={sourceCurrency}
+              onChange={setSourceCurrency}
+              options={sourceCurrencies}
+              label="Source Currency"
+            />
+          </div>
+          
+          <div className="flex items-center space-x-4 mb-6">
+            <AmountInput
+              label="They receive"
+              value={receiveAmount}
+              readOnly={true}
+              className="flex-1"
+            />
+            <CurrencySelector
+              value={targetCurrency}
+              onChange={setTargetCurrency}
+              options={targetCurrencies}
+              label="Target Currency"
+            />
+          </div>
+          
+          <div className="mb-2">
+            <RateDisplay 
+              sourceCurrency={sourceCurrency} 
+              targetCurrency={targetCurrency} 
+              rate={exchangeRate} 
+              inline={true}
+            />
+          </div>
+          
+          <Button
+            onClick={handleContinue}
+            className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
+            size="lg"
+            disabled={authLoading || isProcessing}
+          >
+            {authLoading || isProcessing ? 'Processing...' : 'Continue'}
+            {!authLoading && !isProcessing && <ArrowRight className="ml-2 h-5 w-5" />}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Default full mode layout
   return (
     <div className={`bg-white rounded-3xl shadow-xl overflow-hidden ${className}`}>
       <RateDisplay 

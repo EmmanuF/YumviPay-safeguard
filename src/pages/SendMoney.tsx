@@ -10,12 +10,14 @@ import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
 import { useSendMoneyTransaction } from '@/hooks/useSendMoneyTransaction';
 import { toast } from '@/hooks/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
+import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 
 const SendMoney = () => {
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading, user } = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [needsInitialData, setNeedsInitialData] = useState(false);
   
   console.log('SendMoney: Auth status:', { isLoggedIn, authLoading, user });
   
@@ -31,6 +33,20 @@ const SendMoney = () => {
   
   // Combined error state
   const error = transactionError || stepError;
+  
+  // Check if we need to collect initial transaction data
+  useEffect(() => {
+    if (isInitialized) {
+      // Check if we have the necessary data to proceed
+      const hasRequiredData = transactionData && 
+                             transactionData.sourceCurrency && 
+                             transactionData.targetCurrency && 
+                             transactionData.sendAmount;
+                             
+      setNeedsInitialData(!hasRequiredData);
+      console.log('SendMoney: Needs initial data?', !hasRequiredData);
+    }
+  }, [isInitialized, transactionData]);
   
   // Check authentication status
   useEffect(() => {
@@ -57,7 +73,7 @@ const SendMoney = () => {
       });
       navigate('/signin', { state: { redirectTo: '/send' } });
     }
-  }, [authChecked, isLoggedIn, authLoading, navigate, toast]);
+  }, [authChecked, isLoggedIn, authLoading, navigate]);
 
   // Set page loading state
   useEffect(() => {
@@ -78,6 +94,11 @@ const SendMoney = () => {
       return () => clearTimeout(timer);
     }
   }, [isInitialized, authChecked, authLoading, pageLoading]);
+
+  // Handler for continuing after selecting amount and currencies
+  const handleInitialDataContinue = () => {
+    setNeedsInitialData(false);
+  };
 
   // Show appropriate loading state
   if (authLoading || !authChecked) {
@@ -102,7 +123,31 @@ const SendMoney = () => {
     />;
   }
 
-  // Render even if there might be an error, let the error component handle display
+  // If we need to collect initial data, show the exchange rate calculator
+  if (needsInitialData) {
+    return (
+      <PageTransition>
+        <div className="flex flex-col min-h-screen bg-gray-50">
+          <SendMoneyLayout 
+            currentStep={0} 
+            stepCount={4}
+            title="Set Transfer Details"
+          >
+            <div className="p-4">
+              <ExchangeRateCalculator 
+                onContinue={handleInitialDataContinue}
+                inlineMode={true}
+              />
+            </div>
+          </SendMoneyLayout>
+          <div className="pb-16"></div>
+          <BottomNavigation />
+        </div>
+      </PageTransition>
+    );
+  }
+
+  // Render normal send money flow once we have the initial data
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-gray-50">
