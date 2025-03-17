@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Star, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { useRecipients } from '@/hooks/useRecipients';
 import { Avatar } from '@/components/ui/avatar';
+import CountrySelector from '@/components/CountrySelector';
+import { formatPhoneNumber } from '@/utils/formatters/phoneFormatters';
 
 export interface RecipientStepProps {
   transactionData: {
@@ -19,6 +21,7 @@ export interface RecipientStepProps {
     convertedAmount: number;
     recipient: string | null;
     recipientName?: string;
+    recipientCountry?: string;
   };
   updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
@@ -33,6 +36,25 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
 }) => {
   const { toast } = useToast();
   const { recipients, loading, toggleFavorite, updateLastUsed } = useRecipients();
+  const [phoneInput, setPhoneInput] = useState(transactionData.recipient || '');
+  const [recipientCountry, setRecipientCountry] = useState(transactionData.recipientCountry || 'CM');
+  
+  // Update transactionData when phone or country changes
+  useEffect(() => {
+    if (phoneInput) {
+      const formattedNumber = formatPhoneNumber(phoneInput.replace(/\s/g, ''), recipientCountry);
+      updateTransactionData({ recipient: formattedNumber });
+    }
+  }, [phoneInput, recipientCountry, updateTransactionData]);
+  
+  // Update the phone input when recipient country changes to reformat
+  useEffect(() => {
+    if (transactionData.recipient) {
+      const unformattedNumber = transactionData.recipient.replace(/\s/g, '');
+      const reformattedNumber = formatPhoneNumber(unformattedNumber, recipientCountry);
+      updateTransactionData({ recipient: reformattedNumber, recipientCountry });
+    }
+  }, [recipientCountry, updateTransactionData]);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -69,19 +91,33 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     })
     .slice(0, 5);
 
-  const handleSelectRecipient = async (contact: string, name: string, recipientId: string) => {
+  const handleSelectRecipient = async (contact: string, name: string, recipientId: string, country: string = 'CM') => {
     // Update the last used timestamp
     await updateLastUsed(recipientId);
     
+    // Update recipient country
+    setRecipientCountry(country);
+    
     updateTransactionData({ 
       recipient: contact,
-      recipientName: name
+      recipientName: name,
+      recipientCountry: country
     });
   };
 
   const handleToggleFavorite = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     await toggleFavorite(id);
+  };
+
+  const handlePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPhoneInput(value);
+  };
+
+  const handleCountryChange = (countryCode: string) => {
+    setRecipientCountry(countryCode);
+    updateTransactionData({ recipientCountry: countryCode });
   };
 
   const handleNewRecipient = () => {
@@ -124,7 +160,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                       transactionData.recipient === recipient.contact ? 
                       'border-primary bg-primary/5' : 'hover:border-gray-300'
                     }`}
-                    onClick={() => handleSelectRecipient(recipient.contact, recipient.name, recipient.id)}
+                    onClick={() => handleSelectRecipient(recipient.contact, recipient.name, recipient.id, recipient.country)}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
@@ -207,15 +243,42 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           </motion.div>
           
           <motion.div variants={itemVariants}>
+            <Label htmlFor="recipientCountry" className="text-sm font-medium mb-1.5 block">
+              Recipient Country
+            </Label>
+            <CountrySelector
+              label="Select recipient country"
+              value={recipientCountry}
+              onChange={handleCountryChange}
+              type="receive"
+            />
+            <div className="mt-1 flex items-start text-xs text-blue-600">
+              <Info size={14} className="mr-1 mt-0.5 flex-shrink-0" />
+              <span>The phone number format will adjust based on the selected country</span>
+            </div>
+          </motion.div>
+          
+          <motion.div variants={itemVariants}>
             <Label htmlFor="recipient" className="text-sm font-medium mb-1.5 block">
               Mobile Number
             </Label>
             <Input
               id="recipient"
-              placeholder="Enter recipient's mobile number"
-              value={transactionData.recipient || ''}
-              onChange={(e) => updateTransactionData({ recipient: e.target.value })}
+              placeholder={`Enter number (e.g., ${
+                recipientCountry === 'CM' ? '+237 6XX XX XX XX' : 
+                recipientCountry === 'NG' ? '+234 8XX XXX XXXX' :
+                recipientCountry === 'GH' ? '+233 5X XXX XXXX' :
+                '+XXX XX XXX XXXX'
+              })`}
+              value={phoneInput}
+              onChange={handlePhoneInputChange}
+              type="tel"
             />
+            {transactionData.recipient && (
+              <p className="text-xs text-gray-500 mt-1">
+                Formatted: {transactionData.recipient}
+              </p>
+            )}
           </motion.div>
         </TabsContent>
       </Tabs>
