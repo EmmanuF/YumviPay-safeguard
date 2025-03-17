@@ -7,7 +7,6 @@ import {
   FooterLink,
   AppDownloadLinks,
   NewsletterSubscription,
-  SocialIcons,
   CompanyInfo,
   FooterBottom
 } from './footer';
@@ -77,11 +76,6 @@ const Footer = () => {
         </div>
         
         <FooterBottom />
-        
-        {/* Social Icons moved to bottom right */}
-        <div className="flex justify-end -mt-14 md:-mt-12 relative z-10">
-          <SocialIcons />
-        </div>
       </div>
     </footer>
   );
