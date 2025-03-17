@@ -41,7 +41,7 @@ const SendMoney = () => {
       const hasRequiredData = transactionData && 
                              transactionData.sourceCurrency && 
                              transactionData.targetCurrency && 
-                             transactionData.sendAmount;
+                             transactionData.amount; // Fixed: changed from sendAmount to amount
                              
       setNeedsInitialData(!hasRequiredData);
       console.log('SendMoney: Needs initial data?', !hasRequiredData);

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useCountries } from './useCountries';
 
 export interface TransactionData {
-  amount: number;
+  amount: number; // This should be a number
   sourceCurrency: string;
   targetCurrency: string;
   targetCountry: string;
@@ -51,7 +51,7 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
             
             setTransactionData(prev => ({
               ...prev,
-              amount: parseFloat(data.sendAmount) || 100,
+              amount: parseFloat(data.amount) || 100, // Make sure this is a number
               sourceCurrency: data.sourceCurrency || 'USD',
               targetCurrency: data.targetCurrency || 'XAF',
               targetCountry,

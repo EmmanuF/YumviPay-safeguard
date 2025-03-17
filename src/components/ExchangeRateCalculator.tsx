@@ -71,7 +71,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     const transactionData = {
       sourceCurrency,
       targetCurrency,
-      sendAmount,
+      amount: parseFloat(sendAmount), // Fixed: Changed to 'amount' and ensuring it's a number
       receiveAmount: receiveAmount.replace(/,/g, ''),
       exchangeRate
     };
