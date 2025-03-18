@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import './index.css'
+import './styles/layout.css'
 import './styles/print.css'
 
 const queryClient = new QueryClient()

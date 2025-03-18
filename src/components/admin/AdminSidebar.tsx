@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   BarChart3, 
@@ -16,9 +16,15 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-const AdminSidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  
+interface AdminSidebarProps {
+  collapsed: boolean;
+  onToggleCollapse: (collapsed: boolean) => void;
+}
+
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
+  collapsed, 
+  onToggleCollapse 
+}) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Home },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
@@ -32,7 +38,7 @@ const AdminSidebar = () => {
 
   return (
     <div className={cn(
-      "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 border-r border-primary-700 transition-all duration-300 ease-in-out shadow-lg",
+      "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 border-r border-primary-700 transition-all duration-300 ease-in-out shadow-lg z-30",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className="flex items-center justify-between p-4 border-b border-primary-700">
@@ -42,8 +48,8 @@ const AdminSidebar = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="text-white hover:bg-primary-800/50 rounded-full"
-          onClick={() => setCollapsed(!collapsed)}
+          className="text-white hover:bg-primary-800/50 rounded-full ml-auto"
+          onClick={() => onToggleCollapse(!collapsed)}
         >
           {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </Button>

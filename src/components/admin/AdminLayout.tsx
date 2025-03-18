@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from './AdminSidebar';
@@ -12,6 +12,7 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, isLoggedIn, loading } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Check if the user is an admin
   const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
@@ -45,8 +46,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
+      <div 
+        className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
+      >
         <AdminHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="mx-auto max-w-7xl">
