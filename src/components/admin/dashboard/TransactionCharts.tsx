@@ -28,86 +28,115 @@ interface TransactionChartsProps {
 
 const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }) => {
   return (
-    <Tabs defaultValue="transactions" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="transactions">Transactions</TabsTrigger>
-        <TabsTrigger value="volume">Volume</TabsTrigger>
-        <TabsTrigger value="trends">Trends</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="transactions" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Transaction Overview</CardTitle>
-            <CardDescription>
+    <Card className="p-6">
+      <Tabs defaultValue="transactions" className="space-y-6">
+        <TabsList variant="pills" className="w-full justify-start mb-4">
+          <TabsTrigger variant="pills" value="transactions">Transactions</TabsTrigger>
+          <TabsTrigger variant="pills" value="volume">Volume</TabsTrigger>
+          <TabsTrigger variant="pills" value="trends">Trends</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="transactions" className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold">Transaction Overview</h3>
+            <p className="text-sm text-muted-foreground">
               Monthly transaction count over the past 6 months
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
+            </p>
+          </div>
+          <div className="pt-4">
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={transactionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="transactions" name="Number of Transactions" fill="#7c3aed" />
+              <BarChart data={transactionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} />
+                <YAxis tick={{ fill: '#888', fontSize: 12 }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                    borderRadius: '8px', 
+                    border: '1px solid #f0f0f0',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+                  }} 
+                />
+                <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                <Bar 
+                  dataKey="transactions" 
+                  name="Number of Transactions" 
+                  fill="#7c3aed" 
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="volume" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Transaction Volume</CardTitle>
-            <CardDescription>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="volume" className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold">Transaction Volume</h3>
+            <p className="text-sm text-muted-foreground">
               Monthly transaction volume in USD
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
+            </p>
+          </div>
+          <div className="pt-4">
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={transactionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip formatter={(value) => {
-                  // Check if value is a number before calling toFixed
-                  return typeof value === 'number' ? `$${value.toFixed(2)}` : `$${value}`;
-                }} />
-                <Legend />
-                <Bar dataKey="amount" name="Volume (USD)" fill="#10b981" />
+              <BarChart data={transactionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} />
+                <YAxis tick={{ fill: '#888', fontSize: 12 }} />
+                <Tooltip 
+                  formatter={(value) => {
+                    return typeof value === 'number' ? `$${value.toFixed(2)}` : `$${value}`;
+                  }}
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                    borderRadius: '8px', 
+                    border: '1px solid #f0f0f0',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+                  }}  
+                />
+                <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                <Bar 
+                  dataKey="amount" 
+                  name="Volume (USD)" 
+                  fill="#10b981" 
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="trends" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Growth Trends</CardTitle>
-            <CardDescription>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="trends" className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold">Growth Trends</h3>
+            <p className="text-sm text-muted-foreground">
               Combined view of transactions and volume
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
+            </p>
+          </div>
+          <div className="pt-4">
             <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={transactionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis yAxisId="left" orientation="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Legend />
+              <LineChart data={transactionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} />
+                <YAxis yAxisId="left" orientation="left" tick={{ fill: '#888', fontSize: 12 }} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fill: '#888', fontSize: 12 }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                    borderRadius: '8px', 
+                    border: '1px solid #f0f0f0',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+                  }}  
+                />
+                <Legend wrapperStyle={{ paddingTop: '10px' }} />
                 <Line 
                   yAxisId="left"
                   type="monotone" 
                   dataKey="transactions" 
                   name="Transactions"
                   stroke="#7c3aed" 
-                  activeDot={{ r: 8 }} 
+                  strokeWidth={2}
+                  dot={{ r: 4, fill: "#7c3aed" }}
+                  activeDot={{ r: 6, fill: "#7c3aed", stroke: "white", strokeWidth: 2 }} 
                 />
                 <Line 
                   yAxisId="right"
@@ -115,13 +144,16 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
                   dataKey="amount" 
                   name="Volume (USD)"
                   stroke="#10b981" 
+                  strokeWidth={2}
+                  dot={{ r: 4, fill: "#10b981" }}
+                  activeDot={{ r: 6, fill: "#10b981", stroke: "white", strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </Card>
   );
 };
 

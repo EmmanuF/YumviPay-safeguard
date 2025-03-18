@@ -16,53 +16,53 @@ interface StatCardsProps {
 const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+      <Card gradient="purple" hoverEffect>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-          <Users className="w-4 h-4 text-muted-foreground" />
+          <Users className="w-5 h-5 text-primary-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats?.users || 0}</div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Total registered users
           </p>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card gradient="blue" hoverEffect>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-          <CreditCard className="w-4 h-4 text-muted-foreground" />
+          <CreditCard className="w-5 h-5 text-blue-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats?.transactions || 0}</div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             {stats?.transactionVolume || '$0.00'} total volume
           </p>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card gradient="green" hoverEffect>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
-          <TrendingUp className="w-4 h-4 text-muted-foreground" />
+          <TrendingUp className="w-5 h-5 text-green-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats?.growth || 0}%</div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Month-over-month increase
           </p>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card gradient="orange" hoverEffect>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">Alerts</CardTitle>
-          <AlertTriangle className="w-4 h-4 text-muted-foreground" />
+          <AlertTriangle className="w-5 h-5 text-orange-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats?.alerts || 0}</div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Items requiring attention
           </p>
         </CardContent>

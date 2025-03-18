@@ -40,7 +40,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({ recentTransactions = [], systemSt
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card>
+      <Card hoverEffect className="border-t-4 border-t-primary-500">
         <CardHeader>
           <CardTitle>Recent Transactions</CardTitle>
           <CardDescription>
@@ -51,31 +51,33 @@ const InfoCards: React.FC<InfoCardsProps> = ({ recentTransactions = [], systemSt
           {recentTransactions.length === 0 ? (
             <p className="text-muted-foreground text-sm">No recent transactions found</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentTransactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell className="font-medium">{tx.user}</TableCell>
-                    <TableCell>{tx.amount}</TableCell>
-                    <TableCell>{tx.date}</TableCell>
-                    <TableCell>{getStatusBadge(tx.status)}</TableCell>
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {recentTransactions.map((tx) => (
+                    <TableRow key={tx.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-medium">{tx.user}</TableCell>
+                      <TableCell>{tx.amount}</TableCell>
+                      <TableCell>{tx.date}</TableCell>
+                      <TableCell>{getStatusBadge(tx.status)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
       
-      <Card>
+      <Card hoverEffect className="border-t-4 border-t-blue-500">
         <CardHeader>
           <CardTitle>System Status</CardTitle>
           <CardDescription>
@@ -86,15 +88,15 @@ const InfoCards: React.FC<InfoCardsProps> = ({ recentTransactions = [], systemSt
           {!systemStatus ? (
             <p className="text-muted-foreground text-sm">System status data unavailable</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">CPU Usage</p>
+                  <p className="text-sm font-medium">CPU Usage</p>
                   <p className="text-sm font-medium">{systemStatus.cpu}%</p>
                 </div>
-                <div className="h-2 bg-gray-200 rounded">
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-2 bg-blue-500 rounded" 
+                    className="h-2 bg-blue-500 rounded-full transition-all duration-500" 
                     style={{ width: `${systemStatus.cpu}%` }}
                   ></div>
                 </div>
@@ -102,12 +104,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({ recentTransactions = [], systemSt
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">Memory Usage</p>
+                  <p className="text-sm font-medium">Memory Usage</p>
                   <p className="text-sm font-medium">{systemStatus.memory}%</p>
                 </div>
-                <div className="h-2 bg-gray-200 rounded">
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-2 bg-purple-500 rounded" 
+                    className="h-2 bg-purple-500 rounded-full transition-all duration-500" 
                     style={{ width: `${systemStatus.memory}%` }}
                   ></div>
                 </div>
@@ -115,20 +117,20 @@ const InfoCards: React.FC<InfoCardsProps> = ({ recentTransactions = [], systemSt
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">Storage Usage</p>
+                  <p className="text-sm font-medium">Storage Usage</p>
                   <p className="text-sm font-medium">{systemStatus.storage}%</p>
                 </div>
-                <div className="h-2 bg-gray-200 rounded">
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-2 bg-green-500 rounded" 
+                    className="h-2 bg-green-500 rounded-full transition-all duration-500" 
                     style={{ width: `${systemStatus.storage}%` }}
                   ></div>
                 </div>
               </div>
               
-              <div className="flex justify-between text-sm">
-                <p>System Uptime: <span className="font-medium">{systemStatus.uptime}</span></p>
-                <p>Last Updated: <span className="font-medium">{formatDate(new Date(systemStatus.lastUpdated))}</span></p>
+              <div className="flex flex-col sm:flex-row justify-between gap-2 text-sm pt-2 border-t">
+                <p className="text-muted-foreground">System Uptime: <span className="font-medium text-foreground">{systemStatus.uptime}</span></p>
+                <p className="text-muted-foreground">Last Updated: <span className="font-medium text-foreground">{formatDate(new Date(systemStatus.lastUpdated))}</span></p>
               </div>
             </div>
           )}
