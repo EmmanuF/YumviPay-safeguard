@@ -1,8 +1,10 @@
+
 import { Transaction } from "@/types/transaction";
 import { isOffline, addPausedRequest } from "@/utils/networkUtils";
 import { toast } from "@/hooks/use-toast";
 import { isPlatform } from "@/utils/platformUtils";
 import { formatCurrency } from "@/utils/formatUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 // Store receipts in localStorage
 const RECEIPT_STORAGE_KEY = 'yumvi_receipts';
@@ -336,13 +338,33 @@ export const sendReceiptByEmail = async (
   }
   
   try {
-    // In a real app, this would call a backend API endpoint
-    // For now, we'll simulate success
-    console.log(`Receipt would be sent to ${recipientEmail}`);
-    console.log('Receipt HTML:', receipt.htmlContent?.substring(0, 100) + '...');
+    const transaction = receipt.transactionId.startsWith('receipt_') 
+      ? receipt.transactionId.substring(8) 
+      : receipt.transactionId;
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    // Call the Supabase Edge Function to send the email
+    const { data, error } = await supabase.functions.invoke('send-receipt', {
+      body: {
+        recipientEmail,
+        recipientName: receipt.recipientName,
+        transactionId: transaction,
+        amount: receipt.amount,
+        fee: receipt.fee,
+        totalAmount: receipt.totalAmount,
+        currency: 'USD', // In a real app, this would come from the transaction
+        date: formatDate(receipt.generatedAt),
+        status: receipt.status,
+        paymentMethod: receipt.paymentMethod,
+        country: 'Cameroon', // In a real app, this would come from the transaction
+        htmlContent: receipt.htmlContent
+      },
+    });
+
+    if (error) {
+      throw new Error(`Error sending email: ${error.message}`);
+    }
+    
+    console.log('Email sent successfully:', data);
     
     toast({
       title: "Receipt Sent",

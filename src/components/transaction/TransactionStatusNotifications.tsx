@@ -34,7 +34,7 @@ const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsPro
             disabled={sendingNotification || isOffline}
           >
             <Mail className="h-4 w-4 mr-2" />
-            Send Email
+            {sendingNotification ? 'Sending...' : 'Send Email'}
           </Button>
           
           <Button 
@@ -56,7 +56,7 @@ const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsPro
             disabled={generatingReceipt}
           >
             <Download className="h-4 w-4 mr-2" />
-            Download
+            {generatingReceipt ? 'Generating...' : 'Download'}
           </Button>
         </div>
         

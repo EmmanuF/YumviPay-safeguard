@@ -15,6 +15,7 @@ interface AdminReceiptGeneratorProps {
 const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transaction }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const handleGenerateReceipt = async () => {
     setIsLoading(true);
@@ -62,7 +63,7 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
       return;
     }
 
-    setIsLoading(true);
+    setSendingEmail(true);
     try {
       const receipt = await generateReceipt(transaction);
       await sendReceiptByEmail(receipt, transaction.recipientContact);
@@ -78,7 +79,7 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setSendingEmail(false);
     }
   };
 
@@ -119,9 +120,13 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
                 <Printer className="mr-2 h-4 w-4" />
                 Print
               </Button>
-              <Button onClick={handleSendEmail} className="flex-1">
+              <Button 
+                onClick={handleSendEmail} 
+                className="flex-1"
+                disabled={sendingEmail}
+              >
                 <Send className="mr-2 h-4 w-4" />
-                Email Receipt
+                {sendingEmail ? 'Sending...' : 'Email Receipt'}
               </Button>
             </div>
           </div>
