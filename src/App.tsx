@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
@@ -20,7 +21,6 @@ import Recipients from '@/pages/Recipients';
 import NotFound from '@/pages/NotFound';
 import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
 // Admin pages
