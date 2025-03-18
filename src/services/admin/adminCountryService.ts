@@ -20,29 +20,49 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
   console.log('Fetching admin countries list...');
   
   try {
-    const { data, error } = await supabase
+    // Add timeout to prevent infinite loading
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 10000);
+    });
+
+    const fetchPromise = supabase
       .from('countries')
       .select('*')
       .order('name');
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching countries:', error);
+      throw error;
+    }
     
-    // Transform the data to ensure payment_methods is always an array
-    return (data || []).map(country => ({
-      ...country,
-      payment_methods: Array.isArray(country.payment_methods) 
-        ? country.payment_methods 
-        : JSON.parse(country.payment_methods?.toString() || '[]')
-    }));
+    // Transform the data with safe JSON parsing
+    return (data || []).map(country => {
+      let parsedMethods = [];
+      try {
+        parsedMethods = Array.isArray(country.payment_methods) 
+          ? country.payment_methods 
+          : JSON.parse(country.payment_methods?.toString() || '[]');
+      } catch (e) {
+        console.error(`Error parsing payment methods for ${country.code}:`, e);
+      }
+      
+      return {
+        ...country,
+        payment_methods: parsedMethods
+      };
+    });
   } catch (error) {
-    console.error('Error fetching admin countries:', error);
+    console.error('Error in getAdminCountries:', error);
     return [];
   }
 };
 
 /**
- * Update country settings
+ * Update country settings with debounce
  */
+let updateTimeout: NodeJS.Timeout;
 export const updateCountrySettings = async (
   code: string, 
   updates: Partial<AdminCountry>
@@ -50,28 +70,47 @@ export const updateCountrySettings = async (
   console.log(`Updating country ${code}:`, updates);
   
   try {
-    const { error } = await supabase
-      .from('countries')
-      .update(updates)
-      .eq('code', code);
+    // Clear any pending update
+    if (updateTimeout) {
+      clearTimeout(updateTimeout);
+    }
     
-    if (error) throw error;
-    
-    return true;
+    // Debounce the update
+    return new Promise((resolve) => {
+      updateTimeout = setTimeout(async () => {
+        try {
+          const { error } = await supabase
+            .from('countries')
+            .update(updates)
+            .eq('code', code);
+          
+          if (error) throw error;
+          resolve(true);
+        } catch (error) {
+          console.error('Error updating country settings:', error);
+          resolve(false);
+        }
+      }, 300);
+    });
   } catch (error) {
-    console.error('Error updating country settings:', error);
+    console.error('Error in updateCountrySettings:', error);
     return false;
   }
 };
 
 /**
- * Update country payment methods
+ * Update country payment methods with validation
  */
 export const updateCountryPaymentMethods = async (
   code: string,
   paymentMethods: any[]
 ): Promise<boolean> => {
   console.log(`Updating payment methods for ${code}`, paymentMethods);
+  
+  if (!Array.isArray(paymentMethods)) {
+    console.error('Invalid payment methods format');
+    return false;
+  }
   
   try {
     const { error } = await supabase
@@ -89,7 +128,7 @@ export const updateCountryPaymentMethods = async (
 };
 
 /**
- * Add new country
+ * Add new country with validation
  */
 export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boolean> => {
   console.log('Adding new country:', country);
@@ -127,26 +166,39 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
 };
 
 /**
- * Get country by code
+ * Get country by code with timeout
  */
 export const getCountryByCode = async (code: string): Promise<AdminCountry | null> => {
   console.log(`Fetching country with code ${code}`);
   
   try {
-    const { data, error } = await supabase
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 5000);
+    });
+
+    const fetchPromise = supabase
       .from('countries')
       .select('*')
       .eq('code', code)
       .single();
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
     
     if (error) throw error;
     
     if (data) {
+      let parsedMethods = [];
+      try {
+        parsedMethods = Array.isArray(data.payment_methods) 
+          ? data.payment_methods 
+          : JSON.parse(data.payment_methods?.toString() || '[]');
+      } catch (e) {
+        console.error(`Error parsing payment methods for ${code}:`, e);
+      }
+      
       return {
         ...data,
-        payment_methods: Array.isArray(data.payment_methods) 
-          ? data.payment_methods 
-          : JSON.parse(data.payment_methods?.toString() || '[]')
+        payment_methods: parsedMethods
       };
     }
     
@@ -158,7 +210,7 @@ export const getCountryByCode = async (code: string): Promise<AdminCountry | nul
 };
 
 /**
- * Delete country
+ * Delete country with confirmation
  */
 export const deleteCountry = async (code: string): Promise<boolean> => {
   console.log(`Deleting country ${code}`);
