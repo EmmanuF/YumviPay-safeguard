@@ -5,9 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NetworkProvider } from '@/contexts/NetworkContext';
 import { LocaleProvider } from '@/contexts/LocaleContext';
-import { NotificationProvider } from '@/contexts/NotificationContext';
 import { HelmetProvider } from 'react-helmet-async';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppInitializer from '@/components/AppInitializer';
 import './App.css';
 
@@ -45,122 +43,107 @@ import FAQ from '@/pages/support/FAQ';
 import CountryPage from '@/pages/countries/CountryPage';
 import { AdminProtectedRoute } from '@/components/admin';
 
-// Create a new QueryClient instance
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
-
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <NetworkProvider>
       <AuthProvider>
-        <NetworkProvider>
-          <LocaleProvider>
-            <NotificationProvider>
-              <HelmetProvider>
-                <BrowserRouter>
-                  <AppInitializer />
-                  <SessionTimeout />
-                  <Routes>
-                    {/* Client Routes */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/signin" element={<SignIn />} />
-                    <Route path="/signup" element={<SignUp />} />
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/profile" element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/send" element={
-                      <ProtectedRoute>
-                        <SendMoney />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/transactions" element={
-                      <ProtectedRoute>
-                        <TransactionHistory />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/recipients" element={
-                      <ProtectedRoute>
-                        <Recipients />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Admin Routes */}
-                    <Route path="/admin" element={
-                      <AdminProtectedRoute>
-                        <AdminDashboard />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/analytics" element={
-                      <AdminProtectedRoute>
-                        <AdminAnalytics />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/users" element={
-                      <AdminProtectedRoute>
-                        <AdminUsers />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/transactions" element={
-                      <AdminProtectedRoute>
-                        <AdminTransactions />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/countries" element={
-                      <AdminProtectedRoute>
-                        <AdminCountries />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/reports" element={
-                      <AdminProtectedRoute>
-                        <AdminReports />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/security" element={
-                      <AdminProtectedRoute>
-                        <AdminSecurity />
-                      </AdminProtectedRoute>
-                    } />
-                    <Route path="/admin/settings" element={
-                      <AdminProtectedRoute>
-                        <AdminSettings />
-                      </AdminProtectedRoute>
-                    } />
-                    
-                    {/* Footer Pages */}
-                    <Route path="/about" element={<AboutUs />} />
-                    <Route path="/terms" element={<TermsOfService />} />
-                    <Route path="/privacy" element={<PrivacyPolicy />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/faq" element={<FAQ />} />
-                    
-                    {/* Country Pages */}
-                    <Route path="/country/:countryId" element={<CountryPage />} />
-                    
-                    {/* 404 Not Found */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  <Toaster />
-                </BrowserRouter>
-              </HelmetProvider>
-            </NotificationProvider>
-          </LocaleProvider>
-        </NetworkProvider>
+        <LocaleProvider>
+          <HelmetProvider>
+            <BrowserRouter>
+              <AppInitializer />
+              <SessionTimeout />
+              <Routes>
+                {/* Client Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/send" element={
+                  <ProtectedRoute>
+                    <SendMoney />
+                  </ProtectedRoute>
+                } />
+                <Route path="/transactions" element={
+                  <ProtectedRoute>
+                    <TransactionHistory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/recipients" element={
+                  <ProtectedRoute>
+                    <Recipients />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={
+                  <AdminProtectedRoute>
+                    <AdminDashboard />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/analytics" element={
+                  <AdminProtectedRoute>
+                    <AdminAnalytics />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <AdminProtectedRoute>
+                    <AdminUsers />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/transactions" element={
+                  <AdminProtectedRoute>
+                    <AdminTransactions />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/countries" element={
+                  <AdminProtectedRoute>
+                    <AdminCountries />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/reports" element={
+                  <AdminProtectedRoute>
+                    <AdminReports />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/security" element={
+                  <AdminProtectedRoute>
+                    <AdminSecurity />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/settings" element={
+                  <AdminProtectedRoute>
+                    <AdminSettings />
+                  </AdminProtectedRoute>
+                } />
+                
+                {/* Footer Pages */}
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
+                
+                {/* Country Pages */}
+                <Route path="/country/:countryId" element={<CountryPage />} />
+                
+                {/* 404 Not Found */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+            </BrowserRouter>
+          </HelmetProvider>
+        </LocaleProvider>
       </AuthProvider>
-    </QueryClientProvider>
+    </NetworkProvider>
   );
 }
 
