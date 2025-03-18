@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
@@ -38,6 +37,7 @@ import FAQ from '@/pages/support/FAQ';
 
 // Country pages
 import CountryPage from '@/pages/countries/CountryPage';
+import { AdminProtectedRoute } from '@/components/admin';
 
 function App() {
   return (

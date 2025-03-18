@@ -3,6 +3,7 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AdminProtectedRouteProps {
   children: ReactNode;
@@ -12,31 +13,56 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   const { user, isLoggedIn, loading: authLoading } = useAuth();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
+  const { toast } = useToast();
   
-  // Check if the user is an admin
-  // This is a placeholder - in a real application, you would check against roles in your database
+  // Check if the user is an admin - improved logging
   const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
   
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        // Here you would implement proper role checking
-        // For example, query a roles table in your database
-        // For now, we'll just use the email check above
+        console.log('Checking admin status:', {
+          isLoggedIn,
+          userEmail: user?.email,
+          isAdmin,
+          location: location.pathname
+        });
+        
+        // For security, we should eventually implement proper role-based checks here
+        // For now, we're just using the email domain check
+        
+        if (!isLoggedIn) {
+          console.log('User is not logged in, redirecting to signin');
+          toast({
+            title: "Authentication Required",
+            description: "Please sign in to access the admin area",
+            variant: "destructive",
+          });
+        } else if (!isAdmin) {
+          console.log('User is logged in but not an admin:', user?.email);
+          toast({
+            title: "Access Denied",
+            description: "You do not have admin privileges",
+            variant: "destructive",
+          });
+        } else {
+          console.log('Admin access granted for:', user?.email);
+        }
         
         setIsChecking(false);
       } catch (error) {
         console.error('Error checking admin status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to verify admin privileges",
+          variant: "destructive",
+        });
         setIsChecking(false);
       }
     };
     
-    if (!authLoading && isLoggedIn) {
-      checkAdminStatus();
-    } else if (!authLoading) {
-      setIsChecking(false);
-    }
-  }, [authLoading, isLoggedIn, user]);
+    checkAdminStatus();
+  }, [authLoading, isLoggedIn, user, isAdmin, location.pathname, toast]);
   
   // Show loading state while checking authentication
   if (authLoading || isChecking) {
@@ -48,8 +74,9 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     );
   }
   
-  // Redirect non-admins to home page
+  // Redirect non-admins to signin page
   if (!isAdmin) {
+    console.log('Not an admin, redirecting from:', location.pathname);
     return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
   }
   

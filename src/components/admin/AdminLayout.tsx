@@ -1,5 +1,5 @@
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from './AdminSidebar';
@@ -13,9 +13,18 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, isLoggedIn, loading } = useAuth();
   
-  // Check if the user is an admin (we'll implement proper role checking later)
-  // For now, this is a placeholder
+  // Check if the user is an admin
   const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
+  
+  // Add detailed logging to help diagnose issues
+  useEffect(() => {
+    console.log('AdminLayout auth state:', {
+      isLoggedIn,
+      userEmail: user?.email,
+      isAdmin,
+      loading
+    });
+  }, [isLoggedIn, user, isAdmin, loading]);
   
   if (loading) {
     return (
@@ -28,6 +37,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   // Redirect non-admin users to the home page
   if (!isAdmin) {
+    console.log('Not an admin in AdminLayout, redirecting to home');
     return <Navigate to="/" replace />;
   }
   
