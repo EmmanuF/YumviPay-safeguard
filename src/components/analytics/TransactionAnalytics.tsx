@@ -103,7 +103,7 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
   
   if (transactions.length === 0) {
     return (
-      <Card className={`${className} h-[300px] flex items-center justify-center`}>
+      <Card className={`${className} h-[300px] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200`}>
         <CardContent>
           <p className="text-center text-muted-foreground">
             No transaction data available yet. Start sending money to see your analytics.
@@ -114,74 +114,107 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
   }
   
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>Transaction Analytics</CardTitle>
+    <Card className={`${className} shadow-md`}>
+      <CardHeader className="bg-gradient-to-br from-primary-50 to-white border-b border-primary-100">
+        <CardTitle className="text-primary-800">Transaction Analytics</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="overview">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            <TabsTrigger value="status">Status</TabsTrigger>
+      <CardContent className="p-0">
+        <Tabs defaultValue="overview" className="analytics-tabs">
+          <TabsList className="grid w-full grid-cols-3 p-1 rounded-lg bg-secondary-50/80 mb-4">
+            <TabsTrigger value="overview" className="py-2 data-[state=active]:bg-primary-500 data-[state=active]:text-white">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="monthly" className="py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+              Monthly
+            </TabsTrigger>
+            <TabsTrigger value="status" className="py-2 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+              Status
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview" className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-muted rounded-lg p-4">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Transactions</p>
-                <p className="text-2xl font-bold">{transactions.length}</p>
+          <TabsContent value="overview" className="space-y-4 pt-4 px-4 analytics-tab-content">
+            <div className="analytics-stat-grid">
+              <div className="stats-card purple">
+                <p className="text-sm font-medium text-primary-600 mb-1">Total Transactions</p>
+                <p className="text-2xl font-bold text-primary-700">{transactions.length}</p>
               </div>
-              <div className="bg-muted rounded-lg p-4">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Amount Sent</p>
-                <p className="text-2xl font-bold">${totalAmountSent.toFixed(2)}</p>
+              <div className="stats-card green">
+                <p className="text-sm font-medium text-green-600 mb-1">Total Amount Sent</p>
+                <p className="text-2xl font-bold text-green-700">${totalAmountSent.toFixed(2)}</p>
               </div>
-              <div className="bg-muted rounded-lg p-4">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Completed Transactions</p>
-                <p className="text-2xl font-bold">
+              <div className="stats-card blue">
+                <p className="text-sm font-medium text-blue-600 mb-1">Completed Transactions</p>
+                <p className="text-2xl font-bold text-blue-700">
                   {transactions.filter(tx => tx.status === 'completed').length}
                 </p>
               </div>
-              <div className="bg-muted rounded-lg p-4">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Most Frequent Recipient</p>
-                <p className="text-lg font-bold truncate">{mostFrequentRecipient.name}</p>
-                <p className="text-sm text-muted-foreground">{mostFrequentRecipient.count} transactions</p>
+              <div className="stats-card orange">
+                <p className="text-sm font-medium text-orange-600 mb-1">Most Frequent Recipient</p>
+                <p className="text-lg font-bold text-orange-700 truncate">{mostFrequentRecipient.name}</p>
+                <p className="text-xs text-orange-500">{mostFrequentRecipient.count} transactions</p>
               </div>
             </div>
           </TabsContent>
           
-          <TabsContent value="monthly" className="pt-4">
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={monthlyData}>
-                <XAxis dataKey="month" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#8884d8" name="Transactions" />
-              </BarChart>
-            </ResponsiveContainer>
+          <TabsContent value="monthly" className="pt-4 px-4 analytics-tab-content">
+            <Card className="analytics-card info-border">
+              <CardContent className="pt-6">
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={monthlyData}>
+                    <XAxis dataKey="month" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        border: '1px solid #f0f0f0'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="count" 
+                      name="Transactions" 
+                      fill="#3b82f6" 
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </TabsContent>
           
-          <TabsContent value="status" className="pt-4">
-            <div className="flex justify-center">
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    dataKey="count"
-                    nameKey="status"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+          <TabsContent value="status" className="pt-4 px-4 analytics-tab-content">
+            <Card className="analytics-card success-border">
+              <CardContent className="pt-6">
+                <div className="flex justify-center">
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie
+                        data={statusData}
+                        dataKey="count"
+                        nameKey="status"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {statusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          border: '1px solid #f0f0f0'
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </CardContent>
