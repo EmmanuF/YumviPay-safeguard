@@ -18,7 +18,7 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
   
   try {
     // Get auth users (for email)
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+    const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) throw authError;
     
@@ -29,18 +29,26 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
     
     if (profilesError) throw profilesError;
     
+    // Make sure authUsers is an array
+    const authUsers = authData?.users || [];
+    
     // Combine the data
     const combinedUsers = profiles.map(profile => {
       // Find matching auth user
-      const authUser = authUsers?.users?.find(user => user.id === profile.id);
+      const authUser = authUsers.find(user => user.id === profile.id);
+      
+      // Determine status based on last sign in (defaulting to inactive if not found)
+      let status: 'active' | 'inactive' | 'suspended' = 'inactive';
+      if (authUser?.last_sign_in_at) {
+        status = 'active';
+      }
       
       return {
         id: profile.id,
         name: profile.full_name || 'Unknown',
         email: authUser?.email || 'No email',
         country: profile.country_code || 'Unknown',
-        // Mock status based on last activity
-        status: authUser?.last_sign_in_at ? 'active' : 'inactive',
+        status,
         registered: profile.created_at
       };
     });
@@ -63,7 +71,7 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
         name: profile.full_name || 'Unknown',
         email: 'Protected',
         country: profile.country_code || 'Unknown',
-        status: 'active',
+        status: 'active' as const,
         registered: profile.created_at
       }));
     } catch (fallbackError) {

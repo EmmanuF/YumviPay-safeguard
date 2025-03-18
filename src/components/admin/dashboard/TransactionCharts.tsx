@@ -72,7 +72,10 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                <Tooltip formatter={(value) => {
+                  // Check if value is a number before calling toFixed
+                  return typeof value === 'number' ? `$${value.toFixed(2)}` : `$${value}`;
+                }} />
                 <Legend />
                 <Bar dataKey="amount" name="Volume (USD)" fill="#10b981" />
               </BarChart>

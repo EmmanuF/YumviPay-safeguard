@@ -25,7 +25,13 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
     
     if (error) throw error;
     
-    return data || [];
+    // Transform the data to ensure payment_methods is always an array
+    return (data || []).map(country => ({
+      ...country,
+      payment_methods: Array.isArray(country.payment_methods) 
+        ? country.payment_methods 
+        : JSON.parse(country.payment_methods?.toString() || '[]')
+    }));
   } catch (error) {
     console.error('Error fetching admin countries:', error);
     return [];
