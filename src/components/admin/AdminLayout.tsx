@@ -29,8 +29,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-lg font-medium">Loading admin panel...</p>
+        <div className="text-center space-y-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-lg font-medium">Loading admin panel...</p>
+        </div>
       </div>
     );
   }
@@ -47,7 +49,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <AdminHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children}
+          <div className="mx-auto max-w-7xl">
+            {children}
+          </div>
         </main>
       </div>
     </div>
