@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   getAuthState, 
@@ -38,20 +37,24 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     try {
       console.log('Refreshing auth state...');
       
-      // Add timeout protection for auth state refresh
+      // Add timeout protection for auth state refresh with increased timeout
       const authPromise = getAuthState();
       
-      // Create a timeout promise
+      // Create a timeout promise with longer timeout (20 seconds)
       const timeoutPromise = new Promise<any>((_, reject) => {
         setTimeout(() => {
           reject(new Error('Auth state refresh timed out'));
-        }, 10000); // 10 seconds timeout
+        }, 20000); // 20 seconds timeout (increased from 10)
       });
       
       // Race the auth state refresh against the timeout
       const state = await Promise.race([authPromise, timeoutPromise]);
       
       console.log('Auth state refreshed:', state);
+      
+      // Store last auth state check timestamp
+      localStorage.setItem('lastAuthCheck', Date.now().toString());
+      
       setAuthState(prev => ({
         ...prev,
         isLoggedIn: state.isAuthenticated,
@@ -61,13 +64,28 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       }));
     } catch (error: any) {
       console.error('Error refreshing auth state:', error);
-      setAuthState(prev => ({
-        ...prev,
-        isLoggedIn: false,
-        user: null,
-        loading: false,
-        authError: error instanceof Error ? error.message : 'Unknown authentication error'
-      }));
+      
+      // Check if there's a stored auth state that's not too old (less than 5 minutes)
+      const lastCheck = parseInt(localStorage.getItem('lastAuthCheck') || '0');
+      const isRecent = Date.now() - lastCheck < 5 * 60 * 1000; // 5 minutes
+      
+      if (isRecent) {
+        console.log('Using cached auth state due to refresh error');
+        // Keep existing state if the error is just a timeout and we have a recent check
+        setAuthState(prev => ({
+          ...prev,
+          loading: false,
+          authError: 'Temporary authentication service disruption. Using cached state.'
+        }));
+      } else {
+        setAuthState(prev => ({
+          ...prev,
+          isLoggedIn: false,
+          user: null,
+          loading: false,
+          authError: error instanceof Error ? error.message : 'Unknown authentication error'
+        }));
+      }
     }
   };
 
@@ -135,15 +153,37 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         console.log('Password recovery initiated');
       } else if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed, updating state');
+        
+        // Store session duration information
+        if (session) {
+          const expiresAt = session.expires_at;
+          if (expiresAt) {
+            const expiresAtDate = new Date(expiresAt * 1000);
+            console.log('Token expires at:', expiresAtDate.toISOString());
+            
+            // Store expiration in localStorage for more visibility
+            localStorage.setItem('sessionExpiresAt', expiresAtDate.toISOString());
+          }
+        }
+        
         await refreshAuthState();
       }
     });
     
-    // Clean up the subscription
+    // Add a periodic refresh to ensure the token stays valid
+    const refreshInterval = setInterval(() => {
+      if (authState.isLoggedIn) {
+        console.log('Periodic token refresh check');
+        supabase.auth.refreshSession();
+      }
+    }, 10 * 60 * 1000); // Check every 10 minutes
+    
+    // Clean up the subscription and interval
     return () => {
       data.subscription.unsubscribe();
+      clearInterval(refreshInterval);
     };
-  }, []);
+  }, [authState.isLoggedIn]);
 
   return (
     <AuthContext.Provider value={{

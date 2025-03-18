@@ -15,13 +15,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface SessionTimeoutProps {
-  timeout?: number; // in milliseconds, default 15 minutes
-  warningTime?: number; // in milliseconds, default 1 minute
+  timeout?: number; // in milliseconds, default 60 minutes
+  warningTime?: number; // in milliseconds, default 2 minutes
 }
 
 const SessionTimeout: React.FC<SessionTimeoutProps> = ({ 
-  timeout = 15 * 60 * 1000, // 15 minutes
-  warningTime = 60 * 1000 // 1 minute
+  timeout = 60 * 60 * 1000, // 60 minutes (increased from 15)
+  warningTime = 2 * 60 * 1000 // 2 minutes (increased from 1)
 }) => {
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
   const [showWarning, setShowWarning] = useState<boolean>(false);
@@ -58,16 +58,34 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
   useEffect(() => {
     if (!isLoggedIn) return;
     
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    // Expanded list of events to detect user activity more accurately
+    const events = [
+      'mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart',
+      'click', 'keydown', 'touchmove', 'focus', 'input', 'change',
+      'wheel', 'drag', 'drop', 'submit'
+    ];
     
     events.forEach(event => {
       window.addEventListener(event, updateActivity);
     });
     
+    // Additionally update activity when user navigates between pages
+    const handleRouteChange = () => {
+      console.log('Route changed, updating activity timestamp');
+      updateActivity();
+    };
+    
+    // Listen for popstate event (browser back/forward navigation)
+    window.addEventListener('popstate', handleRouteChange);
+    
+    // Update activity on component mount
+    updateActivity();
+    
     return () => {
       events.forEach(event => {
         window.removeEventListener(event, updateActivity);
       });
+      window.removeEventListener('popstate', handleRouteChange);
     };
   }, [isLoggedIn, updateActivity]);
   
@@ -75,24 +93,47 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
   useEffect(() => {
     if (!isLoggedIn) return;
     
-    const interval = setInterval(() => {
+    let intervalId: number;
+    
+    const checkActivity = () => {
       const now = Date.now();
       const elapsed = now - lastActivity;
       
+      // Log activity checks with less frequency to avoid console spam
+      if (elapsed > timeout - warningTime * 2) {
+        console.log(`Session check: ${Math.round(elapsed / 1000)}s since last activity`, 
+          { warning: showWarning, timeout: Math.round(timeout / 1000), lastActivity: new Date(lastActivity).toISOString() });
+      }
+      
       if (elapsed >= timeout) {
         // Session timed out
+        console.log('Session timeout reached, logging out');
         handleTimeout();
       } else if (elapsed >= timeout - warningTime && !showWarning) {
         // Show warning
+        console.log('Showing session timeout warning');
         setShowWarning(true);
         setTimeLeft(Math.ceil((timeout - elapsed) / 1000));
       } else if (showWarning) {
         // Update time left
         setTimeLeft(Math.ceil((timeout - elapsed) / 1000));
       }
-    }, 1000);
+    };
     
-    return () => clearInterval(interval);
+    // Only check every 10 seconds when far from timeout, more frequently when close
+    intervalId = window.setInterval(() => {
+      const elapsed = Date.now() - lastActivity;
+      
+      if (elapsed > timeout - warningTime - 30000 || showWarning) {
+        // Check every second when close to warning or when warning is shown
+        clearInterval(intervalId);
+        intervalId = window.setInterval(checkActivity, 1000);
+      } else {
+        checkActivity();
+      }
+    }, 10000);
+    
+    return () => clearInterval(intervalId);
   }, [isLoggedIn, lastActivity, timeout, warningTime, showWarning, handleTimeout]);
   
   if (!isLoggedIn || !showWarning) {
@@ -105,7 +146,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Session Timeout Warning</AlertDialogTitle>
           <AlertDialogDescription>
-            Your session will expire in {timeLeft} seconds due to inactivity. Do you want to continue using the application?
+            Your session will expire in {timeLeft} seconds due to inactivity. Would you like to continue using the application?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
