@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from '@/contexts/LocaleContext';
@@ -33,48 +34,31 @@ const Footer = () => {
           {/* Navigation Links Columns */}
           <div className="md:col-span-8 lg:col-span-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
-              {/* Company Links - Only keeping "About" which has a valid route */}
+              {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>
-                {/* Disabling links without routes */}
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.careers')} (Coming Soon)
-                </span>
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.press')} (Coming Soon)
-                </span>
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.blog')} (Coming Soon)
-                </span>
+                <FooterLink to="/careers">{t('footer.careers')}</FooterLink>
+                <FooterLink to="/press">{t('footer.press')}</FooterLink>
+                <FooterLink to="/blog">{t('footer.blog')}</FooterLink>
               </FooterSection>
               
-              {/* Legal Links - Only keeping "Terms" and "Privacy" which have valid routes */}
+              {/* Legal Links */}
               <FooterSection title={t('footer.legal')}>
                 <FooterLink to="/terms">{t('footer.terms')}</FooterLink>
                 <FooterLink to="/privacy">{t('footer.privacy')}</FooterLink>
-                {/* Disabling links without routes */}
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.security')} (Coming Soon)
-                </span>
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.compliance')} (Coming Soon)
-                </span>
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.cookies')} (Coming Soon)
-                </span>
+                <FooterLink to="/security">{t('footer.security')}</FooterLink>
+                <FooterLink to="/compliance">{t('footer.compliance')}</FooterLink>
+                <FooterLink to="/cookies">{t('footer.cookies')}</FooterLink>
               </FooterSection>
               
-              {/* Help & Support Links - Only keeping "FAQ" and "Contact" which have valid routes */}
+              {/* Help & Support Links */}
               <FooterSection title={t('footer.help')}>
                 <FooterLink to="/faq">{t('footer.faq')}</FooterLink>
                 <FooterLink to="/contact">{t('footer.contact')}</FooterLink>
-                {/* Disabling link without route */}
-                <span className="text-sm text-gray-400 py-1.5 block cursor-not-allowed">
-                  {t('footer.support')} (Coming Soon)
-                </span>
+                <FooterLink to="/support">{t('footer.support')}</FooterLink>
               </FooterSection>
               
-              {/* Countries section - These all have valid routes */}
+              {/* Countries section */}
               <FooterSection title={t('footer.countries')}>
                 <FooterLink to="/country/cameroon">Cameroon</FooterLink>
                 <FooterLink to="/country/senegal">Senegal</FooterLink>

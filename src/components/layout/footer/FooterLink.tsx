@@ -14,7 +14,6 @@ const FooterLink: React.FC<FooterLinkProps> = ({
   external = false, 
   children 
 }) => {
-  // For external links, use regular anchor tags
   if (external) {
     return (
       <a 
@@ -29,7 +28,6 @@ const FooterLink: React.FC<FooterLinkProps> = ({
     );
   }
   
-  // For internal links, use React Router's Link component
   return (
     <Link 
       to={to} 
