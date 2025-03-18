@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 export interface AdminCountry {
   code: string;
@@ -94,17 +95,27 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
   console.log('Adding new country:', country);
   
   try {
+    // Validate required fields before submitting to database
+    if (!country.code || !country.name || !country.currency || !country.currency_symbol) {
+      console.error('Missing required fields for adding country');
+      return false;
+    }
+    
     // Make sure payment_methods is initialized as an empty array if not provided
     const countryData = {
-      ...country,
-      is_sending_enabled: false,
-      is_receiving_enabled: false,
-      payment_methods: []
+      code: country.code,
+      name: country.name,
+      currency: country.currency,
+      currency_symbol: country.currency_symbol,
+      flag_emoji: country.flag_emoji || null,
+      is_sending_enabled: country.is_sending_enabled !== undefined ? country.is_sending_enabled : false,
+      is_receiving_enabled: country.is_receiving_enabled !== undefined ? country.is_receiving_enabled : false,
+      payment_methods: country.payment_methods || []
     };
     
     const { error } = await supabase
       .from('countries')
-      .insert([countryData]);
+      .insert(countryData);
     
     if (error) throw error;
     
