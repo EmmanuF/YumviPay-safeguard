@@ -104,7 +104,7 @@ const AdminSecurity = () => {
           <Button variant="outline" onClick={() => toast({
             title: "Security Audit",
             description: "No security issues detected in your admin account.",
-            variant: "success",
+            variant: "default",
           })}>
             <ShieldAlert className="mr-2 h-4 w-4" />
             Run Security Audit

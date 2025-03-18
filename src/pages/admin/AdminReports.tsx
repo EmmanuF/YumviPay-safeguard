@@ -50,21 +50,34 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 
+// Define the form values type to ensure type safety
+type ReportFormValues = {
+  reportType: string;
+  dateRange: string;
+  startDate?: Date;
+  endDate?: Date;
+  format: string;
+  transactionStatus?: string;
+  userStatus?: string;
+}
+
 const AdminReports = () => {
   const { toast } = useToast();
   const [reportType, setReportType] = useState('transactions');
   
-  const form = useForm({
+  const form = useForm<ReportFormValues>({
     defaultValues: {
       reportType: 'transactions',
       dateRange: 'last30',
       startDate: undefined,
       endDate: undefined,
-      format: 'csv'
+      format: 'csv',
+      transactionStatus: 'all',
+      userStatus: 'all'
     }
   });
   
-  const handleGenerateReport = (values: any) => {
+  const handleGenerateReport = (values: ReportFormValues) => {
     toast({
       title: "Generating Report",
       description: `Your ${values.reportType} report is being generated.`,
@@ -293,7 +306,7 @@ const AdminReports = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Transaction Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue="all">
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
@@ -322,7 +335,7 @@ const AdminReports = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>User Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue="all">
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
