@@ -1,5 +1,5 @@
 
-/* Import all CSS files */
+/* Import base styles */
 @import './layout.css';
 @import './animations.css';
 @import './components.css';
@@ -9,3 +9,8 @@
 @import './responsive.css';
 @import './effects.css';
 
+/* Import new component-specific styles */
+@import './components/cards.css';
+@import './components/tabs.css';
+@import './animations/transitions.css';
+@import './admin/dashboard.css';

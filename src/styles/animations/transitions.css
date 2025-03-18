@@ -1,0 +1,25 @@
+
+/* Animation and transition styles */
+.animate-slide-up {
+  animation: slideUp 0.3s ease forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced toggle animations */
+.toggle-transition {
+  @apply transform transition-all duration-300 ease-in-out;
+}
+
+.toggle-transition:hover {
+  @apply scale-105;
+}
