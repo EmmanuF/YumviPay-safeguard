@@ -27,6 +27,7 @@ const TransactionStatus = () => {
   
   const {
     sendingNotification,
+    notificationType,
     generatingReceipt,
     refreshInterval,
     setRefreshInterval,
@@ -125,6 +126,7 @@ const TransactionStatus = () => {
         onSendEmail={handleSendEmailReceipt}
         onSendSms={handleSendSmsNotification}
         sendingNotification={sendingNotification}
+        notificationType={notificationType}
         generatingReceipt={generatingReceipt}
       />
       

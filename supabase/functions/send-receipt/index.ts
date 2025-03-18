@@ -1,9 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { Resend } from "npm:resend@1.0.0"
 
-const resendApiKey = Deno.env.get('RESEND_API_KEY')
-const resend = new Resend(resendApiKey)
+const sendgridApiKey = Deno.env.get('SENDGRID_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -221,18 +219,42 @@ serve(async (req) => {
       `;
     }
 
+    // Prepare SendGrid API request
     console.log(`Sending receipt email to ${recipientEmail}`);
-    const data = await resend.emails.send({
-      from: 'Yumvi Pay <receipt@yumvipay.com>',
-      to: [recipientEmail],
-      subject: `Receipt for Transaction ${transactionId}`,
-      html: emailHtml,
+    
+    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sendgridApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        personalizations: [
+          {
+            to: [{ email: recipientEmail }],
+            subject: `Receipt for Transaction ${transactionId}`
+          }
+        ],
+        from: { email: 'receipt@yumvipay.com', name: 'Yumvi Pay' },
+        content: [
+          {
+            type: 'text/html',
+            value: emailHtml
+          }
+        ]
+      })
     });
 
-    console.log('Email sent successfully:', data);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('SendGrid API error:', errorData);
+      throw new Error(`SendGrid API error: ${response.status} ${response.statusText}`);
+    }
+
+    console.log('Email sent successfully via SendGrid');
     
     return new Response(
-      JSON.stringify({ success: true, messageId: data.id }),
+      JSON.stringify({ success: true }),
       { 
         status: 200, 
         headers: { 

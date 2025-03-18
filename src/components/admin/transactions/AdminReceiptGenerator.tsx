@@ -16,6 +16,7 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const handleGenerateReceipt = async () => {
     setIsLoading(true);
@@ -40,9 +41,14 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
   };
 
   const handleDownload = async () => {
+    setGenerating(true);
     try {
       const receipt = await generateReceipt(transaction);
       downloadReceiptAsHtml(receipt);
+      toast({
+        title: "Receipt Downloaded",
+        description: "Transaction receipt has been downloaded",
+      });
     } catch (error) {
       console.error('Error downloading receipt:', error);
       toast({
@@ -50,6 +56,8 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
         description: "Failed to download receipt",
         variant: "destructive",
       });
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -95,7 +103,7 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
         disabled={isLoading}
         className="flex items-center gap-2"
       >
-        <Receipt className="h-4 w-4" />
+        <Receipt className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         {isLoading ? 'Generating...' : 'Generate Receipt'}
       </Button>
 
@@ -112,9 +120,9 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
             />
             
             <div className="mt-6 flex flex-wrap gap-2 print:hidden">
-              <Button onClick={handleDownload} variant="outline" className="flex-1">
-                <Download className="mr-2 h-4 w-4" />
-                Download
+              <Button onClick={handleDownload} variant="outline" className="flex-1" disabled={generating}>
+                <Download className={`mr-2 h-4 w-4 ${generating ? 'animate-spin' : ''}`} />
+                {generating ? 'Generating...' : 'Download'}
               </Button>
               <Button onClick={handlePrint} variant="outline" className="flex-1">
                 <Printer className="mr-2 h-4 w-4" />
@@ -125,7 +133,7 @@ const AdminReceiptGenerator: React.FC<AdminReceiptGeneratorProps> = ({ transacti
                 className="flex-1"
                 disabled={sendingEmail}
               >
-                <Send className="mr-2 h-4 w-4" />
+                <Send className={`mr-2 h-4 w-4 ${sendingEmail ? 'animate-spin' : ''}`} />
                 {sendingEmail ? 'Sending...' : 'Email Receipt'}
               </Button>
             </div>
