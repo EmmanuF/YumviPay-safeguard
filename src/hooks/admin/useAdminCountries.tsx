@@ -46,11 +46,11 @@ export const useAdminCountries = () => {
       });
       
       if (success) {
+        await refetch(); // Immediately refetch to update the UI
         toast({
           title: "Setting Updated",
           description: `Sending ${newValue ? 'enabled' : 'disabled'} for ${code}`,
         });
-        refetch();
       } else {
         toast({
           title: "Update Failed",
@@ -77,11 +77,11 @@ export const useAdminCountries = () => {
       });
       
       if (success) {
+        await refetch(); // Immediately refetch to update the UI
         toast({
           title: "Setting Updated",
           description: `Receiving ${newValue ? 'enabled' : 'disabled'} for ${code}`,
         });
-        refetch();
       } else {
         toast({
           title: "Update Failed",

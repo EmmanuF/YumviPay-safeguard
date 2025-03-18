@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 
@@ -59,14 +58,11 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
   }
 };
 
-/**
- * Update country settings with proper error handling
- */
 export const updateCountrySettings = async (
   code: string, 
   updates: Partial<AdminCountry>
 ): Promise<boolean> => {
-  console.log(`Updating country ${code}:`, updates);
+  console.log(`Updating country ${code} with settings:`, updates);
   
   if (!code) {
     console.error('Country code is required for updates');
@@ -74,8 +70,6 @@ export const updateCountrySettings = async (
   }
   
   try {
-    console.log(`Sending update request for ${code} with:`, updates);
-    
     const { data, error } = await supabase
       .from('countries')
       .update(updates)
@@ -84,6 +78,11 @@ export const updateCountrySettings = async (
     
     if (error) {
       console.error('Error updating country settings:', error);
+      return false;
+    }
+    
+    if (!data || data.length === 0) {
+      console.error('No data returned after update');
       return false;
     }
     
