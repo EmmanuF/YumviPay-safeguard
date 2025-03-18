@@ -99,8 +99,23 @@ export const updateUserStatus = async (userId: string, status: string): Promise<
   console.log(`Updating user ${userId} status to ${status}...`);
   
   try {
-    // In a real implementation, this would update the user's status
-    // For now we'll just return success
+    // In a real implementation, we would update the user's status in the database
+    // For demo purposes, we'll simulate a successful update with a slight delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Add data validation to prevent freezing on invalid status
+    if (!['active', 'inactive', 'suspended'].includes(status)) {
+      console.error('Invalid status provided:', status);
+      return false;
+    }
+    
+    // In the future, we would do something like:
+    // const { error } = await supabase
+    //   .from('profiles')
+    //   .update({ status })
+    //   .eq('id', userId);
+    
+    // Return true to indicate success
     return true;
   } catch (error) {
     console.error('Error updating user status:', error);

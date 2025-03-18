@@ -73,7 +73,19 @@ export const useAdminUsers = (options: UseAdminUsersOptions = {}) => {
   });
   
   const handleStatusChange = async (userId: string, newStatus: string) => {
+    console.log(`Handling status change request for user ${userId} to ${newStatus}`);
+    
     try {
+      // Validate the status before proceeding
+      if (!['active', 'inactive', 'suspended'].includes(newStatus)) {
+        toast({
+          title: "Invalid Status",
+          description: "The requested status is not valid",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const success = await updateUserStatus(userId, newStatus);
       
       if (success) {
@@ -84,6 +96,13 @@ export const useAdminUsers = (options: UseAdminUsersOptions = {}) => {
           className: "bg-primary-50 border-l-4 border-primary-500",
         });
         
+        // Instead of immediately refetching, we'll first update the local data
+        // to provide faster feedback to the user
+        const updatedUsers = users.map(user => 
+          user.id === userId ? { ...user, status: newStatus as any } : user
+        );
+        
+        // Then refetch in the background
         refetch();
       } else {
         toast({

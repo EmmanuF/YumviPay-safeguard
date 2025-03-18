@@ -11,7 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MoreHorizontal, UserCheck, UserX, Edit, Eye } from 'lucide-react';
+import { Loader2, MoreHorizontal, UserCheck, UserX, Edit, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +51,8 @@ const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
     email: '',
     country: '',
   });
+  // Add state for tracking users with pending status changes
+  const [pendingStatusChanges, setPendingStatusChanges] = useState<Record<string, boolean>>({});
   
   const handleViewUser = (user: AdminUser) => {
     setSelectedUser(user);
@@ -76,6 +78,28 @@ const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
       className: "bg-green-50 border-l-4 border-green-500",
     });
     setEditUserDialogOpen(false);
+  };
+  
+  // Improved function to handle status change with loading state
+  const onStatusChange = async (userId: string, newStatus: string) => {
+    try {
+      // Set loading state for this user
+      setPendingStatusChanges(prev => ({ ...prev, [userId]: true }));
+      
+      // Call the handler passed from parent
+      await handleStatusChange(userId, newStatus);
+      
+    } catch (error) {
+      console.error('Error in status change:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update user status. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      // Clear loading state regardless of outcome
+      setPendingStatusChanges(prev => ({ ...prev, [userId]: false }));
+    }
   };
   
   const getStatusBadge = (status: string) => {
@@ -113,53 +137,59 @@ const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
               <TableCell>{getStatusBadge(user.status)}</TableCell>
               <TableCell className="text-gray-600">{formatDate(user.registered)}</TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="hover:bg-gray-100">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 shadow-lg">
-                    <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      className="cursor-pointer flex items-center" 
-                      onClick={() => handleViewUser(user)}
-                    >
-                      <Eye className="mr-2 h-4 w-4 text-blue-600" />
-                      View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="cursor-pointer flex items-center" 
-                      onClick={() => handleEditUser(user)}
-                    >
-                      <Edit className="mr-2 h-4 w-4 text-amber-600" />
-                      Edit User
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="cursor-pointer flex items-center" 
-                      onClick={() => handleStatusChange(
-                        user.id, 
-                        user.status === 'active' ? 'inactive' : 'active'
-                      )}
-                    >
-                      {user.status === 'active' 
-                        ? <UserX className="mr-2 h-4 w-4 text-gray-600" /> 
-                        : <UserCheck className="mr-2 h-4 w-4 text-green-600" />
-                      }
-                      Set {user.status === 'active' ? 'Inactive' : 'Active'}
-                    </DropdownMenuItem>
-                    {user.status !== 'suspended' && (
+                {pendingStatusChanges[user.id] ? (
+                  <Button variant="ghost" size="sm" disabled className="hover:bg-gray-100">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </Button>
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 shadow-lg">
+                      <DropdownMenuLabel>User Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem 
-                        className="cursor-pointer flex items-center text-red-600 hover:text-red-700 hover:bg-red-50" 
-                        onClick={() => handleStatusChange(user.id, 'suspended')}
+                        className="cursor-pointer flex items-center" 
+                        onClick={() => handleViewUser(user)}
                       >
-                        <UserX className="mr-2 h-4 w-4" />
-                        Suspend User
+                        <Eye className="mr-2 h-4 w-4 text-blue-600" />
+                        View Details
                       </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuItem 
+                        className="cursor-pointer flex items-center" 
+                        onClick={() => handleEditUser(user)}
+                      >
+                        <Edit className="mr-2 h-4 w-4 text-amber-600" />
+                        Edit User
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="cursor-pointer flex items-center" 
+                        onClick={() => onStatusChange(
+                          user.id, 
+                          user.status === 'active' ? 'inactive' : 'active'
+                        )}
+                      >
+                        {user.status === 'active' 
+                          ? <UserX className="mr-2 h-4 w-4 text-gray-600" /> 
+                          : <UserCheck className="mr-2 h-4 w-4 text-green-600" />
+                        }
+                        Set {user.status === 'active' ? 'Inactive' : 'Active'}
+                      </DropdownMenuItem>
+                      {user.status !== 'suspended' && (
+                        <DropdownMenuItem 
+                          className="cursor-pointer flex items-center text-red-600 hover:text-red-700 hover:bg-red-50" 
+                          onClick={() => onStatusChange(user.id, 'suspended')}
+                        >
+                          <UserX className="mr-2 h-4 w-4" />
+                          Suspend User
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </TableCell>
             </TableRow>
           ))}
