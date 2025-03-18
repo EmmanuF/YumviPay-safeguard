@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
@@ -30,7 +29,7 @@ const FAQ: React.FC = () => {
     }
   };
   
-  // FAQ data
+  // FAQ data remains the same
   const faqs: FAQItem[] = [
     {
       question: "How does Yumvi-Pay work?",

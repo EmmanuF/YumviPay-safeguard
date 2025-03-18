@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { NetworkProvider } from '@/contexts/NetworkContext';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { HelmetProvider } from 'react-helmet-async';
 import AppInitializer from '@/components/AppInitializer';
 import './App.css';
 
@@ -38,54 +39,56 @@ function App() {
       <NetworkProvider>
         <LocaleProvider>
           <NotificationProvider>
-            <BrowserRouter>
-              <AppInitializer />
-              <SessionTimeout />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/send" element={
-                  <ProtectedRoute>
-                    <SendMoney />
-                  </ProtectedRoute>
-                } />
-                <Route path="/transactions" element={
-                  <ProtectedRoute>
-                    <TransactionHistory />
-                  </ProtectedRoute>
-                } />
-                <Route path="/recipients" element={
-                  <ProtectedRoute>
-                    <Recipients />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Footer Pages */}
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/faq" element={<FAQ />} />
-                
-                {/* Country Pages */}
-                <Route path="/country/:countryId" element={<CountryPage />} />
-                
-                {/* 404 Not Found */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </BrowserRouter>
+            <HelmetProvider>
+              <BrowserRouter>
+                <AppInitializer />
+                <SessionTimeout />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/signin" element={<SignIn />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/send" element={
+                    <ProtectedRoute>
+                      <SendMoney />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/transactions" element={
+                    <ProtectedRoute>
+                      <TransactionHistory />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/recipients" element={
+                    <ProtectedRoute>
+                      <Recipients />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Footer Pages */}
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  
+                  {/* Country Pages */}
+                  <Route path="/country/:countryId" element={<CountryPage />} />
+                  
+                  {/* 404 Not Found */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+              </BrowserRouter>
+            </HelmetProvider>
           </NotificationProvider>
         </LocaleProvider>
       </NetworkProvider>
