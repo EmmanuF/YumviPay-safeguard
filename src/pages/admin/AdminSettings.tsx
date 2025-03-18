@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { 
-  Settings as SettingsIcon, 
+  Settings,
   Mail, 
   Bell, 
   Palette, 
@@ -131,7 +131,7 @@ const AdminSettings = () => {
               value="general" 
               className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
             >
-              <SettingsIcon className="h-4 w-4 mr-2" />
+              <Settings className="h-4 w-4 mr-2" />
               General
             </TabsTrigger>
             <TabsTrigger 
@@ -616,7 +616,7 @@ const AdminSettings = () => {
                   title: "Settings Saved",
                   description: "Advanced settings have been updated successfully.",
                 })}>
-                  <SettingsIcon className="mr-2 h-4 w-4" />
+                  <Settings className="mr-2 h-4 w-4" />
                   Save Advanced Settings
                 </Button>
               </CardFooter>
