@@ -29,6 +29,9 @@ import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
 import Contact from '@/pages/support/Contact';
 import FAQ from '@/pages/support/FAQ';
 
+// Country pages
+import CountryPage from '@/pages/countries/CountryPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -74,6 +77,9 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
+                
+                {/* Country Pages */}
+                <Route path="/country/:countryId" element={<CountryPage />} />
                 
                 {/* 404 Not Found */}
                 <Route path="*" element={<NotFound />} />
