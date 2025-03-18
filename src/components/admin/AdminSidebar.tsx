@@ -32,7 +32,7 @@ const AdminSidebar = () => {
 
   return (
     <div className={cn(
-      "h-screen flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 border-r border-primary-700 transition-all duration-300 ease-in-out shadow-lg",
+      "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 border-r border-primary-700 transition-all duration-300 ease-in-out shadow-lg",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className="flex items-center justify-between p-4 border-b border-primary-700">
