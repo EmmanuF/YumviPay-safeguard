@@ -74,3 +74,17 @@
 .tabs-enhanced .tab-trigger:not([data-state="active"]):hover {
   background: rgba(110, 54, 229, 0.08);
 }
+
+/* Admin dashboard charts */
+.transaction-chart-tabs {
+  overflow: visible !important;
+}
+
+.transaction-chart-tabs .transaction-tab {
+  overflow: visible !important;
+  height: auto;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
