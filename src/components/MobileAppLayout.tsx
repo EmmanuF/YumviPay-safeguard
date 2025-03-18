@@ -11,7 +11,6 @@ import { useNetwork } from '@/contexts/NetworkContext';
 import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useAuth } from '@/contexts/AuthContext';
-import { SignOutButton } from '@/components/authentication';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -104,17 +103,6 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           </motion.div>
         </AnimatePresence>
       </main>
-      
-      {/* Floating sign out button for all pages when logged in */}
-      {isLoggedIn && location.pathname !== '/profile' && (
-        <div className="fixed bottom-24 right-4 z-50">
-          <SignOutButton 
-            iconOnly 
-            size="sm"
-            className="rounded-full p-2 bg-primary-500 hover:bg-primary-600 text-white border-none shadow-lg"
-          />
-        </div>
-      )}
       
       {/* Floating offline indicator that appears when scrolling */}
       <AnimatePresence>
