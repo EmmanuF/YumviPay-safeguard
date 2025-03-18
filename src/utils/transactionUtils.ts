@@ -20,11 +20,11 @@ export const calculateTotal = (amount: string, fee: string): string => {
 // Get estimated delivery based on destination country and payment method
 export const getEstimatedDelivery = (country: string, paymentMethod: string): string => {
   if (paymentMethod.includes('mobile_money')) {
-    return 'Within 15 minutes';
+    return 'Instant to 5 minutes';
   } else if (paymentMethod.includes('bank_transfer')) {
-    return '1-2 business days';
+    return 'Instant to 15 minutes';
   } else {
-    return '1-3 business days';
+    return 'Instant to 30 minutes';
   }
 };
 

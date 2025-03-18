@@ -38,13 +38,13 @@ const StatusUpdateBar: React.FC<StatusUpdateBarProps> = ({
   // Get estimated delivery text based on status
   const getEstimatedText = (status: TransactionStatus): string => {
     switch(status) {
-      case 'pending': return 'Processing your transaction...';
-      case 'processing': return 'Verifying with payment provider...';
+      case 'pending': return 'Processing your transaction (typically instant to 5 minutes)...';
+      case 'processing': return 'Verifying with payment provider (usually completed within minutes)...';
       case 'completed': return 'Transaction completed successfully';
       case 'failed': return 'Transaction failed';
       case 'cancelled': return 'Transaction cancelled';
       case 'offline-pending': return 'Will process when back online';
-      default: return 'Estimating delivery time...';
+      default: return 'Transaction typically completes within minutes...';
     }
   };
   

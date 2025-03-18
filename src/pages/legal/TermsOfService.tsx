@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import MobileAppLayout from '@/components/MobileAppLayout';
@@ -72,13 +73,29 @@ const TermsOfService: React.FC = () => {
               subject to Kado's terms and conditions.
             </p>
             
-            <h2>6. Transaction Limits</h2>
+            <h2>6. Transaction Processing and Timing</h2>
+            <p>
+              Yumvi-Pay processes transactions instantly to within a few minutes after payment confirmation. While most transactions 
+              are completed immediately, some factors may affect processing time, including:
+            </p>
+            <ul>
+              <li>The payment method selected (Mobile Money is typically faster than bank transfers)</li>
+              <li>Recipient's mobile money provider or bank processing times</li>
+              <li>Network connectivity issues</li>
+              <li>Additional verification requirements in certain cases</li>
+            </ul>
+            <p>
+              We strive to provide the fastest transaction processing possible, and most transfers are completed within minutes
+              of payment confirmation.
+            </p>
+            
+            <h2>7. Transaction Limits</h2>
             <p>
               Yumvi-Pay may impose limits on the amount of money you can send or receive through the Service. These limits 
               may be based on factors such as your transaction history, verification status, and applicable regulations.
             </p>
             
-            <h2>7. Prohibited Activities</h2>
+            <h2>8. Prohibited Activities</h2>
             <p>
               You agree not to use the Service for any illegal or unauthorized purpose, including but not limited to:
             </p>
@@ -90,54 +107,54 @@ const TermsOfService: React.FC = () => {
               <li>Attempting to gain unauthorized access to the Service or other users' accounts</li>
             </ul>
             
-            <h2>8. Intellectual Property</h2>
+            <h2>9. Intellectual Property</h2>
             <p>
               All content and materials available on the Service, including but not limited to text, graphics, logos, icons, 
               images, audio clips, and software, are the property of Yumvi-Pay or its licensors and are protected by copyright, 
               trademark, and other intellectual property laws.
             </p>
             
-            <h2>9. Privacy</h2>
+            <h2>10. Privacy</h2>
             <p>
               Your privacy is important to us. Our Privacy Policy describes how we collect, use, and disclose information 
               about you. By using the Service, you consent to the collection, use, and disclosure of your information as 
               described in our Privacy Policy.
             </p>
             
-            <h2>10. Termination</h2>
+            <h2>11. Termination</h2>
             <p>
               We may terminate or suspend your account and access to the Service at any time, without prior notice or liability, 
               for any reason, including if you breach these Terms.
             </p>
             
-            <h2>11. Disclaimer of Warranties</h2>
+            <h2>12. Disclaimer of Warranties</h2>
             <p>
               THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, 
               INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND 
               NON-INFRINGEMENT.
             </p>
             
-            <h2>12. Limitation of Liability</h2>
+            <h2>13. Limitation of Liability</h2>
             <p>
               IN NO EVENT SHALL YUMVI-PAY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, 
               INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM 
               YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICE.
             </p>
             
-            <h2>13. Governing Law</h2>
+            <h2>14. Governing Law</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of [Jurisdiction], without regard to 
               its conflict of law provisions.
             </p>
             
-            <h2>14. Changes to Terms</h2>
+            <h2>15. Changes to Terms</h2>
             <p>
               We reserve the right to modify these Terms at any time. If we make changes, we will provide notice by posting 
               the updated Terms on the Service and updating the "Last updated" date. Your continued use of the Service after 
               any changes indicates your acceptance of the modified Terms.
             </p>
             
-            <h2>15. Contact Us</h2>
+            <h2>16. Contact Us</h2>
             <p>
               If you have any questions about these Terms, please contact us at:
             </p>
