@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { 
@@ -50,7 +49,6 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 
-// Define the form values type to ensure type safety
 type ReportFormValues = {
   reportType: string;
   dateRange: string;
@@ -83,7 +81,6 @@ const AdminReports = () => {
       description: `Your ${values.reportType} report is being generated.`,
     });
     
-    // In a real implementation, this would trigger report generation
     setTimeout(() => {
       toast({
         title: "Report Ready",
@@ -108,15 +105,33 @@ const AdminReports = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="generate" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="generate">Generate Report</TabsTrigger>
-            <TabsTrigger value="saved">Saved Reports</TabsTrigger>
-            <TabsTrigger value="scheduled">Scheduled Reports</TabsTrigger>
+        <Tabs defaultValue="generate" className="w-full space-y-6">
+          <TabsList className="w-full grid grid-cols-3 gap-2 bg-gradient-to-r from-primary-50/80 to-secondary-50/80 p-2 rounded-lg">
+            <TabsTrigger 
+              value="generate" 
+              className="w-full text-base font-medium transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-white/50"
+            >
+              Generate Report
+            </TabsTrigger>
+            <TabsTrigger 
+              value="saved"
+              className="w-full text-base font-medium transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-white/50"
+            >
+              Saved Reports
+            </TabsTrigger>
+            <TabsTrigger 
+              value="scheduled"
+              className="w-full text-base font-medium transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-white/50"
+            >
+              Scheduled Reports
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="generate" className="space-y-4">
-            <Card>
+          <TabsContent 
+            value="generate" 
+            className="space-y-4 animate-fade-in"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg border-l-4 border-primary-500 bg-gradient-to-br from-white to-primary-50/10">
               <CardHeader>
                 <CardTitle>Generate New Report</CardTitle>
                 <CardDescription>
@@ -369,8 +384,11 @@ const AdminReports = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="saved" className="space-y-4">
-            <Card>
+          <TabsContent 
+            value="saved" 
+            className="space-y-4 animate-fade-in"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg border-l-4 border-secondary-500 bg-gradient-to-br from-white to-secondary-50/10">
               <CardHeader>
                 <CardTitle>Saved Reports</CardTitle>
                 <CardDescription>
@@ -400,8 +418,11 @@ const AdminReports = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="scheduled" className="space-y-4">
-            <Card>
+          <TabsContent 
+            value="scheduled" 
+            className="space-y-4 animate-fade-in"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg border-l-4 border-blue-500 bg-gradient-to-br from-white to-blue-50/10">
               <CardHeader>
                 <CardTitle>Scheduled Reports</CardTitle>
                 <CardDescription>
