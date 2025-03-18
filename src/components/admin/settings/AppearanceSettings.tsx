@@ -1,44 +1,14 @@
-
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription
-} from '@/components/ui/form';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useAppearanceSettings } from '@/hooks/admin/settings/useAppearanceSettings';
 
 const AppearanceSettings = () => {
-  const { toast } = useToast();
-  const form = useForm({
-    defaultValues: {
-      theme: 'light',
-      accentColor: 'purple',
-      enableAnimations: true,
-      sidebarCollapsed: false
-    }
-  });
-
-  const handleSubmit = (data: any) => {
-    toast({
-      title: "Appearance Updated",
-      description: "Your appearance settings have been saved.",
-    });
-  };
+  const { form, handleSubmit } = useAppearanceSettings();
 
   return (
     <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
@@ -50,7 +20,7 @@ const AppearanceSettings = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <FormField
               control={form.control}
               name="theme"

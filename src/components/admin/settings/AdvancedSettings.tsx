@@ -1,13 +1,12 @@
-
 import React from 'react';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useAdvancedSettings } from '@/hooks/admin/settings/useAdvancedSettings';
 
 const AdvancedSettings = () => {
-  const { toast } = useToast();
+  const { settings, handleSettingChange } = useAdvancedSettings();
 
   return (
     <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
@@ -27,12 +26,8 @@ const AdvancedSettings = () => {
               </p>
             </div>
             <Switch 
-              onCheckedChange={(checked) => toast({
-                title: checked ? "Debug Mode Enabled" : "Debug Mode Disabled",
-                description: checked 
-                  ? "Detailed error messages will now be displayed." 
-                  : "Detailed error messages will be hidden."
-              })} 
+              checked={settings.debugMode}
+              onCheckedChange={(checked) => handleSettingChange('debugMode', checked)} 
             />
           </div>
           
@@ -44,12 +39,7 @@ const AdvancedSettings = () => {
               </p>
             </div>
             <Switch 
-              onCheckedChange={(checked) => toast({
-                title: checked ? "Maintenance Mode Activated" : "Maintenance Mode Deactivated",
-                description: checked 
-                  ? "The application is now in maintenance mode." 
-                  : "The application is now accessible to all users."
-              })} 
+              onCheckedChange={(checked) => handleSettingChange('maintenanceMode', checked)} 
             />
           </div>
           
@@ -75,10 +65,7 @@ const AdvancedSettings = () => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={() => toast({
-          title: "Settings Saved",
-          description: "Advanced settings have been updated successfully.",
-        })}>
+        <Button className="w-full">
           <Settings className="mr-2 h-4 w-4" />
           Save Advanced Settings
         </Button>

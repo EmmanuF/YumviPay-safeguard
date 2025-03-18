@@ -1,44 +1,14 @@
-
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription
-} from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useGeneralSettings } from '@/hooks/admin/settings/useGeneralSettings';
 
 const GeneralSettings = () => {
-  const { toast } = useToast();
-  const form = useForm({
-    defaultValues: {
-      siteName: 'Yumvi-Pay Admin',
-      contactEmail: 'admin@yumvipay.com',
-      supportPhone: '+1 (555) 123-4567',
-      timezone: 'UTC'
-    }
-  });
-
-  const handleSubmit = (data: any) => {
-    toast({
-      title: "Settings Saved",
-      description: "General settings have been updated successfully.",
-    });
-  };
+  const { form, handleSubmit } = useGeneralSettings();
 
   return (
     <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
@@ -50,7 +20,7 @@ const GeneralSettings = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <FormField
               control={form.control}
               name="siteName"
