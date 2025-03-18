@@ -60,40 +60,38 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
 };
 
 /**
- * Update country settings with debounce
+ * Update country settings with proper error handling
  */
-let updateTimeout: NodeJS.Timeout;
 export const updateCountrySettings = async (
   code: string, 
   updates: Partial<AdminCountry>
 ): Promise<boolean> => {
   console.log(`Updating country ${code}:`, updates);
   
+  if (!code) {
+    console.error('Country code is required for updates');
+    return false;
+  }
+  
   try {
-    // Clear any pending update
-    if (updateTimeout) {
-      clearTimeout(updateTimeout);
+    console.log(`Sending update request for ${code} with:`, updates);
+    
+    const { data, error } = await supabase
+      .from('countries')
+      .update(updates)
+      .eq('code', code)
+      .select();
+    
+    if (error) {
+      console.error('Error updating country settings:', error);
+      return false;
     }
     
-    // Debounce the update
-    return new Promise((resolve) => {
-      updateTimeout = setTimeout(async () => {
-        try {
-          const { error } = await supabase
-            .from('countries')
-            .update(updates)
-            .eq('code', code);
-          
-          if (error) throw error;
-          resolve(true);
-        } catch (error) {
-          console.error('Error updating country settings:', error);
-          resolve(false);
-        }
-      }, 300);
-    });
+    console.log(`Update successful for ${code}:`, data);
+    return true;
+    
   } catch (error) {
-    console.error('Error in updateCountrySettings:', error);
+    console.error('Exception in updateCountrySettings:', error);
     return false;
   }
 };

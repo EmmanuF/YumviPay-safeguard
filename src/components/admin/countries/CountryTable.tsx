@@ -39,18 +39,48 @@ const CountryTable: React.FC<CountryTableProps> = ({
   onViewDetails,
   onEditPaymentMethods
 }) => {
-  const [processingCodes, setProcessingCodes] = useState<string[]>([]);
+  const [processingCodes, setProcessingCodes] = useState<{[key: string]: {sending?: boolean, receiving?: boolean}}>({});
   
   const handleToggleSending = async (code: string, currentValue: boolean) => {
-    setProcessingCodes(prev => [...prev, code]);
-    await onToggleSending(code, currentValue);
-    setProcessingCodes(prev => prev.filter(c => c !== code));
+    // Set the specific toggle type to processing
+    setProcessingCodes(prev => ({
+      ...prev,
+      [code]: { ...prev[code], sending: true }
+    }));
+
+    try {
+      await onToggleSending(code, currentValue);
+      console.log(`Toggle sending completed for ${code}`);
+    } catch (error) {
+      console.error(`Error toggling sending for ${code}:`, error);
+    } finally {
+      // Clear the processing state for this specific toggle
+      setProcessingCodes(prev => ({
+        ...prev,
+        [code]: { ...prev[code], sending: false }
+      }));
+    }
   };
   
   const handleToggleReceiving = async (code: string, currentValue: boolean) => {
-    setProcessingCodes(prev => [...prev, code]);
-    await onToggleReceiving(code, currentValue);
-    setProcessingCodes(prev => prev.filter(c => c !== code));
+    // Set the specific toggle type to processing
+    setProcessingCodes(prev => ({
+      ...prev,
+      [code]: { ...prev[code], receiving: true }
+    }));
+
+    try {
+      await onToggleReceiving(code, currentValue);
+      console.log(`Toggle receiving completed for ${code}`);
+    } catch (error) {
+      console.error(`Error toggling receiving for ${code}:`, error);
+    } finally {
+      // Clear the processing state for this specific toggle
+      setProcessingCodes(prev => ({
+        ...prev,
+        [code]: { ...prev[code], receiving: false }
+      }));
+    }
   };
   
   if (isLoading) {
@@ -83,7 +113,8 @@ const CountryTable: React.FC<CountryTableProps> = ({
       </TableHeader>
       <TableBody>
         {countries.map((country) => {
-          const isProcessing = processingCodes.includes(country.code);
+          const isSendingProcessing = processingCodes[country.code]?.sending;
+          const isReceivingProcessing = processingCodes[country.code]?.receiving;
           
           return (
             <TableRow key={country.code}>
@@ -100,24 +131,24 @@ const CountryTable: React.FC<CountryTableProps> = ({
                 {country.currency_symbol} {country.currency}
               </TableCell>
               <TableCell>
-                {isProcessing ? (
+                {isSendingProcessing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Switch 
                     checked={country.is_sending_enabled} 
                     onCheckedChange={() => handleToggleSending(country.code, country.is_sending_enabled)}
-                    disabled={isProcessing}
+                    disabled={isSendingProcessing || isReceivingProcessing}
                   />
                 )}
               </TableCell>
               <TableCell>
-                {isProcessing ? (
+                {isReceivingProcessing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Switch 
                     checked={country.is_receiving_enabled} 
                     onCheckedChange={() => handleToggleReceiving(country.code, country.is_receiving_enabled)}
-                    disabled={isProcessing}
+                    disabled={isSendingProcessing || isReceivingProcessing}
                   />
                 )}
               </TableCell>

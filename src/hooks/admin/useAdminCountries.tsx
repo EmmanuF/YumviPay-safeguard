@@ -22,10 +22,13 @@ export const useAdminCountries = () => {
   const { 
     data: countries = [], 
     isLoading,
-    refetch 
+    refetch,
+    isRefetching,
   } = useQuery({
     queryKey: ['adminCountries'],
     queryFn: getAdminCountries,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const filteredCountries = countries.filter(country => 
@@ -35,15 +38,17 @@ export const useAdminCountries = () => {
   );
 
   const handleToggleSending = async (code: string, currentValue: boolean) => {
+    console.log(`Toggling sending for ${code} from ${currentValue} to ${!currentValue}`);
     try {
+      const newValue = !currentValue;
       const success = await updateCountrySettings(code, {
-        is_sending_enabled: !currentValue
+        is_sending_enabled: newValue
       });
       
       if (success) {
         toast({
           title: "Setting Updated",
-          description: `Sending ${!currentValue ? 'enabled' : 'disabled'} for ${code}`,
+          description: `Sending ${newValue ? 'enabled' : 'disabled'} for ${code}`,
         });
         refetch();
       } else {
@@ -54,6 +59,7 @@ export const useAdminCountries = () => {
         });
       }
     } catch (error) {
+      console.error(`Error in handleToggleSending for ${code}:`, error);
       toast({
         title: "Error",
         description: "An error occurred while updating country settings",
@@ -63,15 +69,17 @@ export const useAdminCountries = () => {
   };
 
   const handleToggleReceiving = async (code: string, currentValue: boolean) => {
+    console.log(`Toggling receiving for ${code} from ${currentValue} to ${!currentValue}`);
     try {
+      const newValue = !currentValue;
       const success = await updateCountrySettings(code, {
-        is_receiving_enabled: !currentValue
+        is_receiving_enabled: newValue
       });
       
       if (success) {
         toast({
           title: "Setting Updated",
-          description: `Receiving ${!currentValue ? 'enabled' : 'disabled'} for ${code}`,
+          description: `Receiving ${newValue ? 'enabled' : 'disabled'} for ${code}`,
         });
         refetch();
       } else {
@@ -82,6 +90,7 @@ export const useAdminCountries = () => {
         });
       }
     } catch (error) {
+      console.error(`Error in handleToggleReceiving for ${code}:`, error);
       toast({
         title: "Error",
         description: "An error occurred while updating country settings",
@@ -173,7 +182,7 @@ export const useAdminCountries = () => {
     setIsPaymentMethodsDialogOpen,
     selectedCountry,
     setSelectedCountry,
-    isRefreshing,
+    isRefreshing: isRefreshing || isRefetching,
     isLoading,
     filteredCountries,
     handleToggleSending,
