@@ -21,7 +21,13 @@ import Recipients from '@/pages/Recipients';
 import NotFound from '@/pages/NotFound';
 import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
+
+// Admin pages
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AdminUsers from '@/pages/admin/AdminUsers';
+import AdminTransactions from '@/pages/admin/AdminTransactions';
 
 // Footer pages
 import AboutUs from '@/pages/company/AboutUs';
@@ -44,6 +50,7 @@ function App() {
                 <AppInitializer />
                 <SessionTimeout />
                 <Routes>
+                  {/* Client Routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
@@ -71,6 +78,23 @@ function App() {
                     <ProtectedRoute>
                       <Recipients />
                     </ProtectedRoute>
+                  } />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={
+                    <AdminProtectedRoute>
+                      <AdminDashboard />
+                    </AdminProtectedRoute>
+                  } />
+                  <Route path="/admin/users" element={
+                    <AdminProtectedRoute>
+                      <AdminUsers />
+                    </AdminProtectedRoute>
+                  } />
+                  <Route path="/admin/transactions" element={
+                    <AdminProtectedRoute>
+                      <AdminTransactions />
+                    </AdminProtectedRoute>
                   } />
                   
                   {/* Footer Pages */}

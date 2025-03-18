@@ -21,10 +21,12 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const { t } = useLocale();
   const isMobile = useIsMobile();
   const [isNavigating, setIsNavigating] = useState(false);
+  
+  const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvi-pay.com');
   
   const navItems: NavItem[] = [
     {
@@ -80,7 +82,6 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     }, 50);
   };
   
-  // Don't render this navigation on mobile as we'll use BottomNavigation
   if (isMobile) {
     return null;
   }
@@ -127,13 +128,24 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               {t('auth.signin')}
             </button>
           ) : (
-            <button
-              onClick={() => handleNavigation('/profile')}
-              className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
-              disabled={isNavigating}
-            >
-              {t('nav.profile')}
-            </button>
+            <>
+              {isAdmin && (
+                <button
+                  onClick={() => handleNavigation('/admin')}
+                  className="text-sm font-medium bg-primary-800 text-white px-3 py-1 rounded-md hover:bg-primary-900 transition-colors"
+                  disabled={isNavigating}
+                >
+                  Admin Panel
+                </button>
+              )}
+              <button
+                onClick={() => handleNavigation('/profile')}
+                className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+                disabled={isNavigating}
+              >
+                {t('nav.profile')}
+              </button>
+            </>
           )}
           
           <button
