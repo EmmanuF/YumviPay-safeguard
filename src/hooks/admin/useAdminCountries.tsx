@@ -1,14 +1,13 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { 
+  AdminCountry,
   getAdminCountries, 
   updateCountrySettings,
   updateCountryPaymentMethods,
-  addNewCountry,
-  AdminCountry 
-} from '@/services/admin/adminCountryService';
+  addNewCountry
+} from '@/services/admin/countries';
 
 export const useAdminCountries = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -192,3 +191,4 @@ export const useAdminCountries = () => {
     handleRefresh
   };
 };
+
