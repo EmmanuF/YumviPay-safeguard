@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { 
@@ -126,16 +125,40 @@ const AdminSettings = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="general" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="advanced">Advanced</TabsTrigger>
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 p-1 rounded-lg bg-gradient-to-r from-primary-50/90 to-secondary-50/90 shadow-md backdrop-blur-sm">
+            <TabsTrigger 
+              value="general" 
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
+            >
+              <SettingsIcon className="h-4 w-4 mr-2" />
+              General
+            </TabsTrigger>
+            <TabsTrigger 
+              value="appearance" 
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
+            >
+              <Palette className="h-4 w-4 mr-2" />
+              Appearance
+            </TabsTrigger>
+            <TabsTrigger 
+              value="notifications" 
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger 
+              value="advanced" 
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Advanced
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="general" className="space-y-4">
-            <Card>
+          <TabsContent value="general" className="space-y-4 animate-slide-up">
+            <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader>
                 <CardTitle>General Settings</CardTitle>
                 <CardDescription>
@@ -232,8 +255,8 @@ const AdminSettings = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="appearance" className="space-y-4">
-            <Card>
+          <TabsContent value="appearance" className="space-y-4 animate-slide-up">
+            <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader>
                 <CardTitle>Appearance Settings</CardTitle>
                 <CardDescription>
@@ -349,8 +372,8 @@ const AdminSettings = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="notifications" className="space-y-4">
-            <Card>
+          <TabsContent value="notifications" className="space-y-4 animate-slide-up">
+            <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader>
                 <CardTitle>Notification Settings</CardTitle>
                 <CardDescription>
@@ -523,8 +546,8 @@ const AdminSettings = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="advanced" className="space-y-4">
-            <Card>
+          <TabsContent value="advanced" className="space-y-4 animate-slide-up">
+            <Card className="border-primary-100/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader>
                 <CardTitle>Advanced Settings</CardTitle>
                 <CardDescription>
