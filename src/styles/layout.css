@@ -1,4 +1,3 @@
-
 /* Base layout styles */
 #root {
   max-width: 100%;
@@ -232,4 +231,35 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Enhanced settings panel styling */
+.settings-panel {
+  @apply bg-gradient-to-br from-primary-50/50 to-secondary-50/50 
+         backdrop-blur-sm shadow-lg rounded-lg p-6 
+         transition-all duration-300 hover:shadow-xl;
+}
+
+.settings-title {
+  @apply bg-gradient-to-r from-primary-600 to-primary-400 
+         bg-clip-text text-transparent font-bold text-2xl;
+}
+
+/* Enhanced form group styling */
+.form-group {
+  @apply space-y-2 relative overflow-hidden 
+         rounded-lg transition-all duration-300;
+}
+
+.form-group:hover {
+  @apply shadow-md;
+}
+
+/* Enhanced toggle animations */
+.toggle-transition {
+  @apply transform transition-all duration-300 ease-in-out;
+}
+
+.toggle-transition:hover {
+  @apply scale-105;
 }
