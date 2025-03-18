@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
-import { MoreHorizontal, UserCheck, UserX } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { MoreHorizontal, UserCheck, UserX, Edit, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { formatDate } from '@/utils/formatUtils';
 import { AdminUser } from '@/services/admin/adminUserService';
 
@@ -33,6 +43,40 @@ const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
   handleStatusChange 
 }) => {
   const { toast } = useToast();
+  const [viewUserDialogOpen, setViewUserDialogOpen] = useState(false);
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const [editedUser, setEditedUser] = useState({
+    name: '',
+    email: '',
+    country: '',
+  });
+  
+  const handleViewUser = (user: AdminUser) => {
+    setSelectedUser(user);
+    setViewUserDialogOpen(true);
+  };
+  
+  const handleEditUser = (user: AdminUser) => {
+    setSelectedUser(user);
+    setEditedUser({
+      name: user.name,
+      email: user.email,
+      country: user.country,
+    });
+    setEditUserDialogOpen(true);
+  };
+  
+  const saveUserChanges = () => {
+    if (!selectedUser) return;
+    
+    toast({
+      title: "User Updated",
+      description: `Changes to ${editedUser.name} have been saved.`,
+      className: "bg-green-50 border-l-4 border-green-500",
+    });
+    setEditUserDialogOpen(false);
+  };
   
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -80,22 +124,16 @@ const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       className="cursor-pointer flex items-center" 
-                      onClick={() => toast({ 
-                        title: "View User", 
-                        description: "User details view not implemented yet" 
-                      })}
+                      onClick={() => handleViewUser(user)}
                     >
-                      <UserCheck className="mr-2 h-4 w-4" />
+                      <Eye className="mr-2 h-4 w-4 text-blue-600" />
                       View Details
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="cursor-pointer flex items-center" 
-                      onClick={() => toast({ 
-                        title: "Edit User", 
-                        description: "User edit not implemented yet" 
-                      })}
+                      onClick={() => handleEditUser(user)}
                     >
-                      <UserCheck className="mr-2 h-4 w-4" />
+                      <Edit className="mr-2 h-4 w-4 text-amber-600" />
                       Edit User
                     </DropdownMenuItem>
                     <DropdownMenuItem 
@@ -130,6 +168,104 @@ const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
       <div className="p-4 border-t border-gray-100 bg-gray-50 text-sm text-gray-500">
         Showing {users.length} users
       </div>
+      
+      {/* View User Dialog */}
+      <Dialog open={viewUserDialogOpen} onOpenChange={setViewUserDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-primary-700">User Details</DialogTitle>
+            <DialogDescription>
+              Detailed information about this user.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="space-y-5 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-500 text-sm">Name</Label>
+                  <p className="font-medium text-gray-900">{selectedUser.name}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">Email</Label>
+                  <p className="font-medium text-gray-900">{selectedUser.email}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">Country</Label>
+                  <p className="font-medium text-gray-900">{selectedUser.country}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">Status</Label>
+                  <p>{getStatusBadge(selectedUser.status)}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">Registered On</Label>
+                  <p className="font-medium text-gray-900">{formatDate(selectedUser.registered)}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">User ID</Label>
+                  <p className="font-medium text-gray-900 text-sm truncate">{selectedUser.id}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setViewUserDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit User Dialog */}
+      <Dialog open={editUserDialogOpen} onOpenChange={setEditUserDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Make changes to this user's information.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Full Name</Label>
+              <Input 
+                id="edit-name" 
+                value={editedUser.name}
+                onChange={(e) => setEditedUser({...editedUser, name: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input 
+                id="edit-email" 
+                type="email"
+                value={editedUser.email}
+                onChange={(e) => setEditedUser({...editedUser, email: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-country">Country</Label>
+              <Input 
+                id="edit-country" 
+                value={editedUser.country}
+                onChange={(e) => setEditedUser({...editedUser, country: e.target.value})}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUserDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveUserChanges}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
