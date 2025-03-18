@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   getAuthState, 
   signInUser, 
@@ -33,24 +33,51 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     signOut: async () => {}
   });
 
-  const refreshAuthState = async () => {
+  const refreshAuthState = useCallback(async () => {
     try {
       console.log('Refreshing auth state...');
+      
+      // Check if we have a cached state first for faster UI response
+      const cachedState = localStorage.getItem('cachedAuthState');
+      const lastAuthCheck = localStorage.getItem('lastAuthCheck');
+      
+      if (cachedState && lastAuthCheck) {
+        const parsedState = JSON.parse(cachedState);
+        const lastCheck = parseInt(lastAuthCheck);
+        const isRecent = Date.now() - lastCheck < 5 * 60 * 1000; // 5 minutes
+        
+        if (isRecent && parsedState.isAuthenticated) {
+          console.log('Using cached auth state (quick response)');
+          setAuthState(prev => ({
+            ...prev,
+            isLoggedIn: parsedState.isAuthenticated,
+            user: parsedState.user,
+            loading: false,
+            authError: null
+          }));
+        }
+      }
       
       // Add timeout protection for auth state refresh with increased timeout
       const authPromise = getAuthState();
       
-      // Create a timeout promise with longer timeout (20 seconds)
+      // Create a timeout promise with longer timeout (30 seconds)
       const timeoutPromise = new Promise<any>((_, reject) => {
         setTimeout(() => {
           reject(new Error('Auth state refresh timed out'));
-        }, 20000); // 20 seconds timeout (increased from 10)
+        }, 30000); // 30 seconds timeout (increased from 20)
       });
       
       // Race the auth state refresh against the timeout
       const state = await Promise.race([authPromise, timeoutPromise]);
       
       console.log('Auth state refreshed:', state);
+      
+      // Cache the auth state
+      localStorage.setItem('cachedAuthState', JSON.stringify({
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
+      }));
       
       // Store last auth state check timestamp
       localStorage.setItem('lastAuthCheck', Date.now().toString());
@@ -65,15 +92,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     } catch (error: any) {
       console.error('Error refreshing auth state:', error);
       
-      // Check if there's a stored auth state that's not too old (less than 5 minutes)
+      // Check if there's a stored auth state that's not too old (less than 15 minutes)
       const lastCheck = parseInt(localStorage.getItem('lastAuthCheck') || '0');
-      const isRecent = Date.now() - lastCheck < 5 * 60 * 1000; // 5 minutes
+      const isRecent = Date.now() - lastCheck < 15 * 60 * 1000; // 15 minutes (increased from 5)
+      const cachedState = localStorage.getItem('cachedAuthState');
       
-      if (isRecent) {
+      if (isRecent && cachedState) {
         console.log('Using cached auth state due to refresh error');
         // Keep existing state if the error is just a timeout and we have a recent check
+        const parsedState = JSON.parse(cachedState);
+        
         setAuthState(prev => ({
           ...prev,
+          isLoggedIn: parsedState.isAuthenticated,
+          user: parsedState.user,
           loading: false,
           authError: 'Temporary authentication service disruption. Using cached state.'
         }));
@@ -87,7 +119,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         }));
       }
     }
-  };
+  }, []);
 
   // Implement sign-in function
   const signIn = async (email: string, password: string) => {
@@ -106,8 +138,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const signUp = async (email: string, password: string, name: string) => {
     try {
       console.log('Registering user:', email);
-      // For now we're not collecting phone or country during registration
-      // These can be added later if needed
       const user = await registerUser(name, email, '', '', password);
       await refreshAuthState();
       return user;
@@ -122,6 +152,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     try {
       console.log('Signing out user');
       await logoutUser();
+      // Clear cached auth state
+      localStorage.setItem('cachedAuthState', JSON.stringify({
+        isAuthenticated: false,
+        user: null
+      }));
       await refreshAuthState();
     } catch (error: any) {
       console.error('Sign out error:', error);
@@ -170,20 +205,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       }
     });
     
-    // Add a periodic refresh to ensure the token stays valid
+    // Add a more frequent periodic refresh to ensure the token stays valid
     const refreshInterval = setInterval(() => {
       if (authState.isLoggedIn) {
         console.log('Periodic token refresh check');
         supabase.auth.refreshSession();
       }
-    }, 10 * 60 * 1000); // Check every 10 minutes
+    }, 5 * 60 * 1000); // Check every 5 minutes (reduced from 10)
     
     // Clean up the subscription and interval
     return () => {
       data.subscription.unsubscribe();
       clearInterval(refreshInterval);
     };
-  }, [authState.isLoggedIn]);
+  }, [authState.isLoggedIn, refreshAuthState]);
 
   return (
     <AuthContext.Provider value={{

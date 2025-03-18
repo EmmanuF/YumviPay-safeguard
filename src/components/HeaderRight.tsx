@@ -29,6 +29,7 @@ const HeaderRight: React.FC<HeaderRightProps> = ({ showNotification = false }) =
         </button>
       )}
       
+      {/* Always show sign out button when user is logged in, regardless of showNotification */}
       {isLoggedIn && (
         <SignOutButton size="sm" className="!bg-white/10 !text-white hover:!bg-white/20 border-none" />
       )}

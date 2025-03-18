@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,20 +30,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           return;
         }
         
-        // Check if we have cached authentication that's recent (within last 5 minutes)
+        // Check if we have cached authentication that's recent (within last 15 minutes)
         const lastAuthCheck = localStorage.getItem('lastAuthCheck');
         if (lastAuthCheck) {
           const lastChecked = parseInt(lastAuthCheck);
-          const isRecent = Date.now() - lastChecked < 5 * 60 * 1000; // 5 minutes
+          const isRecent = Date.now() - lastChecked < 15 * 60 * 1000; // 15 minutes (increased from 5)
           
           if (isRecent) {
             // Get cached session state
             const cachedAuthState = localStorage.getItem('cachedAuthState');
-            if (cachedAuthState === 'authenticated') {
-              console.log('Using cached authentication state (authenticated)');
-              setIsAuthenticated(true);
-              setIsChecking(false);
-              return;
+            if (cachedAuthState) {
+              const parsedState = JSON.parse(cachedAuthState);
+              if (parsedState.isAuthenticated) {
+                console.log('Using cached authentication state (authenticated)');
+                setIsAuthenticated(true);
+                setIsChecking(false);
+                return;
+              }
             }
           }
         }
@@ -54,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => {
             reject(new Error('Authentication check timed out'));
-          }, 15000); // 15 seconds timeout (increased from 10)
+          }, 30000); // 30 seconds timeout (increased from 15)
         });
         
         // Race the auth check against the timeout
@@ -68,7 +72,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         // Cache the result
         localStorage.setItem('lastAuthCheck', Date.now().toString());
-        localStorage.setItem('cachedAuthState', isAuthValid ? 'authenticated' : 'unauthenticated');
+        localStorage.setItem('cachedAuthState', JSON.stringify({
+          isAuthenticated: isAuthValid,
+          user: data.session?.user || null
+        }));
         
         setIsAuthenticated(isAuthValid);
         
@@ -91,20 +98,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           // give the benefit of the doubt and let the user continue
           const cachedAuthState = localStorage.getItem('cachedAuthState');
           const isRecentCache = !!localStorage.getItem('lastAuthCheck') && 
-            (Date.now() - parseInt(localStorage.getItem('lastAuthCheck') || '0')) < 30 * 60 * 1000; // 30 minutes
+            (Date.now() - parseInt(localStorage.getItem('lastAuthCheck') || '0')) < 60 * 60 * 1000; // 60 minutes (increased from 30)
           
-          if (cachedAuthState === 'authenticated' && isRecentCache) {
-            console.log('Using cached auth state due to timeout');
-            setIsAuthenticated(true);
-            
-            toast({
-              title: "Authentication Check Delayed",
-              description: "Using cached login state. You may need to refresh if you encounter any issues.",
-              variant: "default",
-            });
-          } else {
-            setIsAuthenticated(false);
+          if (cachedAuthState) {
+            const parsedState = JSON.parse(cachedAuthState);
+            if (parsedState.isAuthenticated && isRecentCache) {
+              console.log('Using cached auth state due to timeout');
+              setIsAuthenticated(true);
+              
+              toast({
+                title: "Authentication Check Delayed",
+                description: "Using cached login state. You may need to refresh if you encounter any issues.",
+                variant: "default",
+              });
+              return;
+            }
           }
+          
+          setIsAuthenticated(false);
         } else {
           setIsAuthenticated(false);
           
