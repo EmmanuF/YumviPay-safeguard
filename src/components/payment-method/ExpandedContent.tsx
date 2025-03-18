@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
+import { Shield, AlertTriangle, Clock, PiggyBank, Phone } from 'lucide-react';
 import ProviderOptions from './ProviderOptions';
 import RecipientInfo from './RecipientInfo';
-import VerificationStatus from './VerificationStatus';
-import ProviderDetails from './ProviderDetails';
-import ProviderInstructions from './ProviderInstructions';
 import { useLocale } from '@/contexts/LocaleContext';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 import { verifyRecipient } from '@/utils/recipientUtils';
@@ -95,7 +93,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
       setIsValid(false);
       setHasVerified(false);
     }
-  }, [recipientName, accountNumber, selectedOption, countryCode, hasVerified]);
+  }, [recipientName, accountNumber, selectedOption, countryCode, hasVerified, toast]);
 
   return (
     <motion.div
@@ -133,20 +131,89 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
         onValidation={(valid) => setIsValid(valid)}
       />
 
-      {/* Verification Status Component */}
-      <VerificationStatus 
-        isValid={isValid}
-        hasVerified={hasVerified}
-        verificationMessage={verificationMessage}
-        recipientName={recipientName}
-        accountNumber={accountNumber}
-      />
+      {/* Verification status */}
+      {hasVerified && isValid && recipientName && accountNumber && (
+        <div className="mt-4 p-3 bg-green-50 rounded-lg flex items-start gap-2">
+          <Shield className="h-5 w-5 text-green-600 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-green-800">Verification Passed</h4>
+            <p className="text-sm text-green-700">
+              The recipient information format has been verified.
+            </p>
+          </div>
+        </div>
+      )}
 
-      {/* Provider Details Component */}
-      <ProviderDetails providerDetails={providerDetails} />
+      {verificationMessage && !isValid && (
+        <div className="mt-4 p-3 bg-amber-50 rounded-lg flex items-start gap-2">
+          <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-amber-800">Verification Issue</h4>
+            <p className="text-sm text-amber-700">{verificationMessage}</p>
+          </div>
+        </div>
+      )}
 
-      {/* Provider Instructions Component */}
-      <ProviderInstructions instructions={providerDetails?.instructions} />
+      {/* Provider-specific details and fees */}
+      {providerDetails && (
+        <div className="mt-4 space-y-3">
+          {/* Processing time */}
+          {providerDetails.processingTime && (
+            <div className="p-3 bg-blue-50 rounded-lg flex items-start gap-2">
+              <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-blue-800">Processing Time</h4>
+                <p className="text-sm text-blue-700">
+                  {providerDetails.processingTime}
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {/* Fees information */}
+          {providerDetails.fees && (
+            <div className="p-3 bg-purple-50 rounded-lg flex items-start gap-2">
+              <PiggyBank className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-purple-800">Transaction Fees</h4>
+                <p className="text-sm text-purple-700">
+                  {providerDetails.fees.percentage}% + {providerDetails.fees.fixed} {providerDetails.fees.currency}
+                </p>
+                {providerDetails.limits && (
+                  <p className="text-xs text-purple-600 mt-1">
+                    Transaction limits: {providerDetails.limits.min} - {providerDetails.limits.max} {providerDetails.limits.currency}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Support information */}
+          {providerDetails.supportPhone && (
+            <div className="p-3 bg-green-50 rounded-lg flex items-start gap-2">
+              <Phone className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-green-800">Customer Support</h4>
+                <p className="text-sm text-green-700">
+                  {providerDetails.supportPhone}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Provider-specific instructions */}
+      {providerDetails?.instructions && (
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <h4 className="font-medium text-blue-800 mb-2">Instructions:</h4>
+          <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
+            {providerDetails.instructions.map((instruction, idx) => (
+              <li key={idx}>{instruction}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </motion.div>
   );
 };

@@ -37,25 +37,25 @@ const Footer = () => {
               {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.careers')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.press')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.blog')}</FooterLink>
+                <FooterLink to="/careers">{t('footer.careers')}</FooterLink>
+                <FooterLink to="/press">{t('footer.press')}</FooterLink>
+                <FooterLink to="/blog">{t('footer.blog')}</FooterLink>
               </FooterSection>
               
               {/* Legal Links */}
               <FooterSection title={t('footer.legal')}>
                 <FooterLink to="/terms">{t('footer.terms')}</FooterLink>
                 <FooterLink to="/privacy">{t('footer.privacy')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.security')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.compliance')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.cookies')}</FooterLink>
+                <FooterLink to="/security">{t('footer.security')}</FooterLink>
+                <FooterLink to="/compliance">{t('footer.compliance')}</FooterLink>
+                <FooterLink to="/cookies">{t('footer.cookies')}</FooterLink>
               </FooterSection>
               
               {/* Help & Support Links */}
               <FooterSection title={t('footer.help')}>
                 <FooterLink to="/faq">{t('footer.faq')}</FooterLink>
                 <FooterLink to="/contact">{t('footer.contact')}</FooterLink>
-                <FooterLink to="/" disabled>{t('footer.support')}</FooterLink>
+                <FooterLink to="/support">{t('footer.support')}</FooterLink>
               </FooterSection>
               
               {/* Countries section */}

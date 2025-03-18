@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import MobileAppLayout from '@/components/MobileAppLayout';
@@ -142,7 +143,7 @@ const TermsOfService: React.FC = () => {
               If you have any questions about these Terms, please contact us at:
             </p>
             <p>Email: legal@yumvi-pay.com</p>
-            <p>Address: 2470 S DAIRY ASHFORD RD, HOUSTON TX 77077</p>
+            <p>Address: 123 Finance Street, Tech Valley, Yaoundé, Cameroon</p>
           </div>
         </div>
       </div>
