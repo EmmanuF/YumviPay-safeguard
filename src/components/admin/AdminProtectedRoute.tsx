@@ -15,7 +15,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   
   // Check if the user is an admin
   // This is a placeholder - in a real application, you would check against roles in your database
-  const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvi-pay.com');
+  const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
   
   useEffect(() => {
     const checkAdminStatus = async () => {

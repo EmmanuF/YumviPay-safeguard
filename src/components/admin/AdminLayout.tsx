@@ -15,7 +15,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   // Check if the user is an admin (we'll implement proper role checking later)
   // For now, this is a placeholder
-  const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvi-pay.com');
+  const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
   
   if (loading) {
     return (
