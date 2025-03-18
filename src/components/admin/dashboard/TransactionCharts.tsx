@@ -28,15 +28,36 @@ interface TransactionChartsProps {
 
 const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }) => {
   return (
-    <Card className="p-6">
+    <Card className="p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
       <Tabs defaultValue="transactions" className="space-y-6">
-        <TabsList variant="pills" className="w-full justify-start mb-4">
-          <TabsTrigger variant="pills" value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger variant="pills" value="volume">Volume</TabsTrigger>
-          <TabsTrigger variant="pills" value="trends">Trends</TabsTrigger>
+        <TabsList 
+          variant="pills" 
+          className="w-full grid grid-cols-3 gap-1 mb-6 bg-transparent p-1 rounded-lg overflow-hidden shadow-sm"
+        >
+          <TabsTrigger 
+            variant="pills" 
+            value="transactions" 
+            className="py-3 font-medium text-sm transition-all duration-200 hover:bg-primary-100/50"
+          >
+            Transactions
+          </TabsTrigger>
+          <TabsTrigger 
+            variant="pills" 
+            value="volume" 
+            className="py-3 font-medium text-sm transition-all duration-200 hover:bg-primary-100/50"
+          >
+            Volume
+          </TabsTrigger>
+          <TabsTrigger 
+            variant="pills" 
+            value="trends" 
+            className="py-3 font-medium text-sm transition-all duration-200 hover:bg-primary-100/50"
+          >
+            Trends
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="transactions" className="space-y-4">
+        <TabsContent value="transactions" className="space-y-4 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold">Transaction Overview</h3>
             <p className="text-sm text-muted-foreground">
@@ -69,7 +90,7 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
           </div>
         </TabsContent>
         
-        <TabsContent value="volume" className="space-y-4">
+        <TabsContent value="volume" className="space-y-4 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold">Transaction Volume</h3>
             <p className="text-sm text-muted-foreground">
@@ -105,7 +126,7 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
           </div>
         </TabsContent>
         
-        <TabsContent value="trends" className="space-y-4">
+        <TabsContent value="trends" className="space-y-4 animate-fade-in">
           <div>
             <h3 className="text-lg font-semibold">Growth Trends</h3>
             <p className="text-sm text-muted-foreground">
