@@ -23,87 +23,53 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter, Download } from 'lucide-react';
+import { 
+  Loader2, 
+  Search, 
+  Filter, 
+  Download, 
+  MoreHorizontal, 
+  Eye 
+} from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
-
-// Mock transaction data
-const mockTransactions = [
-  { 
-    id: 'txn-001', 
-    user: 'John Doe', 
-    amount: '250.00', 
-    currency: 'USD', 
-    recipient: 'Maria Garcia', 
-    country: 'CM', 
-    status: 'completed', 
-    date: '2023-06-15' 
-  },
-  { 
-    id: 'txn-002', 
-    user: 'Jane Smith', 
-    amount: '150.00', 
-    currency: 'EUR', 
-    recipient: 'Pierre Dubois', 
-    country: 'CM', 
-    status: 'processing', 
-    date: '2023-06-16' 
-  },
-  { 
-    id: 'txn-003', 
-    user: 'Robert Johnson', 
-    amount: '320.00', 
-    currency: 'USD', 
-    recipient: 'John Smith', 
-    country: 'NG', 
-    status: 'completed', 
-    date: '2023-06-17' 
-  },
-  { 
-    id: 'txn-004', 
-    user: 'Maria Garcia', 
-    amount: '75.50', 
-    currency: 'USD', 
-    recipient: 'Samuel Osei', 
-    country: 'GH', 
-    status: 'failed', 
-    date: '2023-06-18' 
-  },
-  { 
-    id: 'txn-005', 
-    user: 'David Brown', 
-    amount: '420.00', 
-    currency: 'USD', 
-    recipient: 'Jean Kamga', 
-    country: 'CM', 
-    status: 'completed', 
-    date: '2023-06-18' 
-  },
-  { 
-    id: 'txn-006', 
-    user: 'Lisa Wilson', 
-    amount: '95.00', 
-    currency: 'EUR', 
-    recipient: 'Aminata Diallo', 
-    country: 'SN', 
-    status: 'pending', 
-    date: '2023-06-19' 
-  },
-];
+import { formatDate } from '@/utils/formatUtils';
+import { useToast } from '@/components/ui/use-toast';
+import { 
+  getAdminTransactions, 
+  adminUpdateTransactionStatus 
+} from '@/services/admin/adminTransactionService';
 
 const AdminTransactions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const { toast } = useToast();
   
-  // This will be replaced with actual API call
-  const { data: transactions = mockTransactions, isLoading } = useQuery({
+  const { 
+    data: transactions = [], 
+    isLoading,
+    refetch 
+  } = useQuery({
     queryKey: ['adminTransactions'],
-    queryFn: async () => {
-      // Placeholder for actual API call
-      return mockTransactions;
-    },
+    queryFn: getAdminTransactions,
   });
   
   // Filter transactions based on search term and status
@@ -117,6 +83,42 @@ const AdminTransactions = () => {
     
     return matchesSearch && matchesStatus;
   });
+  
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      const success = await adminUpdateTransactionStatus(id, newStatus);
+      
+      if (success) {
+        toast({
+          title: "Status Updated",
+          description: `Transaction status has been changed to ${newStatus}`,
+        });
+        
+        refetch();
+      } else {
+        toast({
+          title: "Update Failed",
+          description: "Failed to update transaction status",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while updating the transaction status",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleExport = () => {
+    toast({
+      title: "Export Started",
+      description: "Your export will be ready for download shortly.",
+    });
+    
+    // In a real implementation, this would trigger a CSV/Excel export
+  };
   
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -160,7 +162,7 @@ const AdminTransactions = () => {
                 <SelectItem value="failed">Failed</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
@@ -179,6 +181,10 @@ const AdminTransactions = () => {
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
+            ) : filteredTransactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No transactions found matching your search criteria
+              </div>
             ) : (
               <Table>
                 <TableHeader>
@@ -196,17 +202,113 @@ const AdminTransactions = () => {
                 <TableBody>
                   {filteredTransactions.map((transaction) => (
                     <TableRow key={transaction.id}>
-                      <TableCell className="font-medium">{transaction.id}</TableCell>
+                      <TableCell className="font-medium">{transaction.id.slice(0, 8)}...</TableCell>
                       <TableCell>{transaction.user}</TableCell>
                       <TableCell>{transaction.amount} {transaction.currency}</TableCell>
                       <TableCell>{transaction.recipient}</TableCell>
                       <TableCell>{transaction.country}</TableCell>
                       <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                      <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{formatDate(transaction.date)}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          View
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => setSelectedTransaction(transaction.rawTransaction)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Transaction Details</DialogTitle>
+                              <DialogDescription>
+                                Complete information about this transaction
+                              </DialogDescription>
+                            </DialogHeader>
+                            {selectedTransaction && (
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="text-sm text-muted-foreground">ID</div>
+                                  <div className="text-sm font-medium">{selectedTransaction.id}</div>
+                                  
+                                  <div className="text-sm text-muted-foreground">Amount</div>
+                                  <div className="text-sm font-medium">{selectedTransaction.amount} {selectedTransaction.currency || 'USD'}</div>
+                                  
+                                  <div className="text-sm text-muted-foreground">Status</div>
+                                  <div className="text-sm font-medium">{getStatusBadge(selectedTransaction.status)}</div>
+                                  
+                                  <div className="text-sm text-muted-foreground">Recipient</div>
+                                  <div className="text-sm font-medium">{selectedTransaction.recipientName}</div>
+                                  
+                                  <div className="text-sm text-muted-foreground">Contact</div>
+                                  <div className="text-sm font-medium">{selectedTransaction.recipientContact || 'N/A'}</div>
+                                  
+                                  <div className="text-sm text-muted-foreground">Country</div>
+                                  <div className="text-sm font-medium">{selectedTransaction.country}</div>
+                                  
+                                  <div className="text-sm text-muted-foreground">Created</div>
+                                  <div className="text-sm font-medium">{formatDate(selectedTransaction.createdAt)}</div>
+                                  
+                                  {selectedTransaction.completedAt && (
+                                    <>
+                                      <div className="text-sm text-muted-foreground">Completed</div>
+                                      <div className="text-sm font-medium">{formatDate(selectedTransaction.completedAt)}</div>
+                                    </>
+                                  )}
+                                  
+                                  {selectedTransaction.failureReason && (
+                                    <>
+                                      <div className="text-sm text-muted-foreground">Failure Reason</div>
+                                      <div className="text-sm font-medium text-red-500">{selectedTransaction.failureReason}</div>
+                                    </>
+                                  )}
+                                </div>
+                                
+                                <div className="flex justify-between pt-4">
+                                  <Button 
+                                    variant="outline"
+                                    onClick={() => toast({ 
+                                      title: "Not Implemented", 
+                                      description: "Receipt generation not implemented yet"
+                                    })}
+                                  >
+                                    Generate Receipt
+                                  </Button>
+                                  
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button>Update Status</Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                      <DropdownMenuLabel>Select Status</DropdownMenuLabel>
+                                      <DropdownMenuItem onClick={() => {
+                                        handleStatusChange(selectedTransaction.id, 'completed');
+                                        setSelectedTransaction(null);
+                                      }}>
+                                        Mark as Completed
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => {
+                                        handleStatusChange(selectedTransaction.id, 'processing');
+                                        setSelectedTransaction(null);
+                                      }}>
+                                        Mark as Processing
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => {
+                                        handleStatusChange(selectedTransaction.id, 'failed');
+                                        setSelectedTransaction(null);
+                                      }}>
+                                        Mark as Failed
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
                       </TableCell>
                     </TableRow>
                   ))}

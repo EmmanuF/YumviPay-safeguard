@@ -7,6 +7,7 @@ interface StatCardsProps {
   stats: {
     users: number;
     transactions: number;
+    transactionVolume: string;
     growth: number;
     alerts: number;
   };
@@ -23,7 +24,7 @@ const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
         <CardContent>
           <div className="text-2xl font-bold">{stats?.users || 0}</div>
           <p className="text-xs text-muted-foreground">
-            +18% from last month
+            Total registered users
           </p>
         </CardContent>
       </Card>
@@ -36,7 +37,7 @@ const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
         <CardContent>
           <div className="text-2xl font-bold">{stats?.transactions || 0}</div>
           <p className="text-xs text-muted-foreground">
-            +12% from last week
+            {stats?.transactionVolume || '$0.00'} total volume
           </p>
         </CardContent>
       </Card>
@@ -49,7 +50,7 @@ const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
         <CardContent>
           <div className="text-2xl font-bold">{stats?.growth || 0}%</div>
           <p className="text-xs text-muted-foreground">
-            +2.5% from yesterday
+            Month-over-month increase
           </p>
         </CardContent>
       </Card>
@@ -62,7 +63,7 @@ const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
         <CardContent>
           <div className="text-2xl font-bold">{stats?.alerts || 0}</div>
           <p className="text-xs text-muted-foreground">
-            -2 since yesterday
+            Items requiring attention
           </p>
         </CardContent>
       </Card>

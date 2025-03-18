@@ -19,31 +19,36 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter, UserPlus } from 'lucide-react';
+import { 
+  Loader2, 
+  Search, 
+  Filter, 
+  UserPlus, 
+  MoreHorizontal 
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import AdminLayout from '@/components/admin/AdminLayout';
-
-// Mock user data
-const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', country: 'US', status: 'active', registered: '2023-01-15' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', country: 'CM', status: 'active', registered: '2023-02-20' },
-  { id: 3, name: 'Robert Johnson', email: 'robert@example.com', country: 'NG', status: 'inactive', registered: '2023-03-05' },
-  { id: 4, name: 'Maria Garcia', email: 'maria@example.com', country: 'CM', status: 'active', registered: '2023-03-12' },
-  { id: 5, name: 'David Brown', email: 'david@example.com', country: 'GH', status: 'suspended', registered: '2023-04-08' },
-  { id: 6, name: 'Lisa Wilson', email: 'lisa@example.com', country: 'CM', status: 'active', registered: '2023-04-18' },
-  { id: 7, name: 'Michael Taylor', email: 'michael@example.com', country: 'US', status: 'active', registered: '2023-05-01' },
-  { id: 8, name: 'Sarah Martinez', email: 'sarah@example.com', country: 'CM', status: 'inactive', registered: '2023-05-15' },
-];
+import { getAdminUsers, updateUserStatus } from '@/services/admin/adminUserService';
+import { formatDate } from '@/utils/formatUtils';
+import { useToast } from '@/components/ui/use-toast';
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
   
-  // This will be replaced with actual API call
-  const { data: users = mockUsers, isLoading } = useQuery({
+  const { 
+    data: users = [], 
+    isLoading,
+    refetch 
+  } = useQuery({
     queryKey: ['adminUsers'],
-    queryFn: async () => {
-      // Placeholder for actual API call
-      return mockUsers;
-    },
+    queryFn: getAdminUsers,
   });
   
   // Filter users based on search term
@@ -51,6 +56,33 @@ const AdminUsers = () => {
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  const handleStatusChange = async (userId: string, newStatus: string) => {
+    try {
+      const success = await updateUserStatus(userId, newStatus);
+      
+      if (success) {
+        toast({
+          title: "Status Updated",
+          description: `User status has been changed to ${newStatus}`,
+        });
+        
+        refetch();
+      } else {
+        toast({
+          title: "Update Failed",
+          description: "Failed to update user status",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while updating the user status",
+        variant: "destructive",
+      });
+    }
+  };
   
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -102,6 +134,10 @@ const AdminUsers = () => {
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No users found matching your search criteria
+              </div>
             ) : (
               <Table>
                 <TableHeader>
@@ -121,11 +157,35 @@ const AdminUsers = () => {
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.country}</TableCell>
                       <TableCell>{getStatusBadge(user.status)}</TableCell>
-                      <TableCell>{new Date(user.registered).toLocaleDateString()}</TableCell>
+                      <TableCell>{formatDate(user.registered)}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          Edit
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => toast({ title: "View User", description: "User details view not implemented yet" })}>
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toast({ title: "Edit User", description: "User edit not implemented yet" })}>
+                              Edit User
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'inactive' : 'active')}>
+                              Set {user.status === 'active' ? 'Inactive' : 'Active'}
+                            </DropdownMenuItem>
+                            {user.status !== 'suspended' && (
+                              <DropdownMenuItem 
+                                className="text-red-600" 
+                                onClick={() => handleStatusChange(user.id, 'suspended')}
+                              >
+                                Suspend User
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}

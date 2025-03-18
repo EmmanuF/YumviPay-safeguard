@@ -2,6 +2,7 @@
 import React from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AnalyticsDashboard from '@/components/admin/analytics/AnalyticsDashboard';
 
 const AdminAnalytics = () => {
   return (
@@ -17,7 +18,7 @@ const AdminAnalytics = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>Analytics content will be displayed here.</p>
+            <AnalyticsDashboard />
           </CardContent>
         </Card>
       </div>
