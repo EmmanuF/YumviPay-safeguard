@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -124,7 +123,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [authError, toast, location.pathname, isLoggedIn, authLoading]);
   
   // Show loading state while checking authentication
-  if (loading || isChecking) {
+  if (authLoading || isChecking) {
     return <LoadingState 
       message="Verifying authentication..." 
       submessage="Please wait while we check your login status" 
