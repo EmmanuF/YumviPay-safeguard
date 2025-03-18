@@ -76,8 +76,10 @@ const AdminDashboard = () => {
   });
 
   return (
-    <AdminLayout pageTitle="Admin Dashboard">
+    <AdminLayout>
       <div className="flex flex-col space-y-6">
+        <DashboardHeader />
+        
         {isLoading ? (
           <LoadingState />
         ) : error ? (
