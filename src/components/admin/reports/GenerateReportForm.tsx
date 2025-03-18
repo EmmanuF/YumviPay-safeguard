@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
 import { DateRangeSelector } from './DateRangeSelector';
+import { CustomDateFields } from './CustomDateFields';
+import { ReportFormatSelector, TransactionStatusSelector, UserStatusSelector } from './ReportSelectors';
 import { useToast } from '@/components/ui/use-toast';
 
 export type ReportFormValues = {
@@ -114,3 +116,4 @@ export const GenerateReportForm = () => {
     </Form>
   );
 };
+
