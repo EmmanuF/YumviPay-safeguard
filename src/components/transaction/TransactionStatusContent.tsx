@@ -14,6 +14,7 @@ interface TransactionStatusContentProps {
   onSendEmail: () => void;
   onSendSms: () => void;
   sendingNotification: boolean;
+  notificationType?: 'email' | 'sms' | null;
   generatingReceipt: boolean;
 }
 
@@ -25,6 +26,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
   onSendEmail,
   onSendSms,
   sendingNotification,
+  notificationType,
   generatingReceipt
 }) => {
   const isPending = transaction.status === 'pending' || transaction.status === 'processing';
@@ -52,6 +54,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
         onSendSms={onSendSms}
         onDownload={onDownload}
         sendingNotification={sendingNotification}
+        notificationType={notificationType}
         generatingReceipt={generatingReceipt}
       />
       
