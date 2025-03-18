@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { WifiOff, Wifi, RefreshCw, Clock, AlertCircle } from 'lucide-react';
-import { useNetwork } from '@/contexts/NetworkContext';
+import { useNetwork } from '@/contexts/network';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';

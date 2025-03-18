@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Country, PaymentMethod } from '../../types/country';
 import { countries as mockCountries } from '../../data/countries';
-import { useNetwork } from '@/contexts/NetworkContext';
+import { useNetwork } from '@/contexts/network';
 import { getCachedCountries, updateCountriesCache } from './countriesCache';
 import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCountriesFromApi } from './countriesApi';
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNetwork } from '@/contexts/NetworkContext';
+import { useNetwork } from '@/contexts/network';
 import { motion } from 'framer-motion';
 import { WifiOff, Wifi, RefreshCw, Clock, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
