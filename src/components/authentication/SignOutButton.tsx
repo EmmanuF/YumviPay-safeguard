@@ -43,7 +43,8 @@ const SignOutButton: React.FC<SignOutButtonProps> = ({
     <Button 
       variant="outline" 
       onClick={handleSignOut}
-      className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+      size={props.size || "sm"}
+      className={`text-white border-white/30 hover:bg-white/10 hover:text-white ${props.className || ""}`}
       {...props}
     >
       {children || (

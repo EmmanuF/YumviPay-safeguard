@@ -1,16 +1,20 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { SignOutButton } from '@/components/authentication';
 
 interface HeaderRightProps {
   showNotification?: boolean;
+  transparent?: boolean;
 }
 
-const HeaderRight: React.FC<HeaderRightProps> = ({ showNotification = false }) => {
+const HeaderRight: React.FC<HeaderRightProps> = ({ 
+  showNotification = false, 
+  transparent = false
+}) => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   
@@ -29,12 +33,12 @@ const HeaderRight: React.FC<HeaderRightProps> = ({ showNotification = false }) =
         </button>
       )}
       
-      {/* Always show sign out button when user is logged in */}
+      {/* Always show sign out button when user is logged in, with higher contrast */}
       {isLoggedIn && (
         <SignOutButton 
           size="sm" 
           iconOnly 
-          className="!bg-white/10 !text-white hover:!bg-white/20 border-none" 
+          className={`${transparent ? '!bg-primary-500/80' : '!bg-white/20'} !text-white hover:!bg-white/30 border-none`} 
         />
       )}
     </div>

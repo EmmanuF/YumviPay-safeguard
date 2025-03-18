@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
         
         <div className="flex items-center space-x-2">
           <LocaleSwitcher />
-          {rightComponent || <HeaderRight showNotification={showNotification} />}
+          {rightComponent || <HeaderRight showNotification={showNotification} transparent={transparent} />}
         </div>
       </div>
     </header>

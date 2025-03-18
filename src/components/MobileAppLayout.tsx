@@ -68,21 +68,20 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       <OfflineBanner />
       
-      {!isHome && (
-        <motion.div
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            duration: animSettings.duration,
-            type: "spring",
-            stiffness: animSettings.stiffness,
-            damping: animSettings.damping
-          }}
-          className="z-10"
-        >
-          <Header />
-        </motion.div>
-      )}
+      {/* Show header on all pages - modified to always display even on home page */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ 
+          duration: animSettings.duration,
+          type: "spring",
+          stiffness: animSettings.stiffness,
+          damping: animSettings.damping
+        }}
+        className="z-10"
+      >
+        <Header transparent={isHome} showBackButton={!isHome} showNotification={isLoggedIn} />
+      </motion.div>
       
       <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
