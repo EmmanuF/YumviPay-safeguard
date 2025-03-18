@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AdminCountry } from "./types";
 
@@ -14,23 +13,17 @@ export const updateCountrySettings = async (
   }
   
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('countries')
       .update(updates)
-      .eq('code', code)
-      .select();
+      .eq('code', code);
     
     if (error) {
       console.error('Error updating country settings:', error);
       return false;
     }
     
-    if (!data || data.length === 0) {
-      console.error('No data returned after update');
-      return false;
-    }
-    
-    console.log(`Update successful for ${code}:`, data);
+    console.log(`Update successful for ${code}`);
     return true;
     
   } catch (error) {
