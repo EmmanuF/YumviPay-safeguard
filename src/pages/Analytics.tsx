@@ -80,7 +80,10 @@ const Analytics = () => {
             </div>
             
             {timeframe === 'custom' && (
-              <Card className="analytics-card primary-border">
+              <Card 
+                className="shadow-sm" 
+                gradient="purple"
+              >
                 <CardContent className="p-3">
                   <div className="flex gap-2 items-center">
                     <Calendar className="h-5 w-5 text-primary-500" />
@@ -123,7 +126,7 @@ const Analytics = () => {
           ) : (
             <TransactionAnalytics 
               transactions={filteredTransactions} 
-              className="analytics-card"
+              className="shadow-md hover:shadow-lg transition-all duration-300"
             />
           )}
         </div>

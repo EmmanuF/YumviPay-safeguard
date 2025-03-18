@@ -103,7 +103,10 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
   
   if (transactions.length === 0) {
     return (
-      <Card className={`${className} h-[300px] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200`}>
+      <Card 
+        className={`${className} h-[300px] flex items-center justify-center`}
+        gradient="blue"
+      >
         <CardContent>
           <p className="text-center text-muted-foreground">
             No transaction data available yet. Start sending money to see your analytics.
@@ -114,20 +117,33 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
   }
   
   return (
-    <Card className={`${className} shadow-md`}>
+    <Card 
+      className={`${className} analytics-card`}
+      gradient="purple"
+      hoverEffect={true}
+    >
       <CardHeader className="bg-gradient-to-br from-primary-50 to-white border-b border-primary-100">
         <CardTitle className="text-primary-800">Transaction Analytics</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="overview" className="analytics-tabs">
           <TabsList className="grid w-full grid-cols-3 p-1 rounded-lg bg-secondary-50/80 mb-4">
-            <TabsTrigger value="overview" className="py-2 data-[state=active]:bg-primary-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="overview" 
+              className="py-2 data-[state=active]:bg-primary-500 data-[state=active]:text-white"
+            >
               Overview
             </TabsTrigger>
-            <TabsTrigger value="monthly" className="py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="monthly"
+              className="py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+            >
               Monthly
             </TabsTrigger>
-            <TabsTrigger value="status" className="py-2 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="status" 
+              className="py-2 data-[state=active]:bg-green-500 data-[state=active]:text-white"
+            >
               Status
             </TabsTrigger>
           </TabsList>

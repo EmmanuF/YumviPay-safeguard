@@ -90,7 +90,7 @@ const AnalyticsDashboard = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card gradient="purple" hoverEffect={true}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Total Users</CardTitle>
             <CardDescription>All registered users</CardDescription>
@@ -103,7 +103,7 @@ const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card gradient="blue" hoverEffect={true}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Total Transactions</CardTitle>
             <CardDescription>All processed transactions</CardDescription>
@@ -116,7 +116,7 @@ const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card gradient="green" hoverEffect={true}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Transaction Volume</CardTitle>
             <CardDescription>Total amount processed</CardDescription>
@@ -129,7 +129,7 @@ const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card gradient="orange" hoverEffect={true}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Active Countries</CardTitle>
             <CardDescription>Countries with transactions</CardDescription>
@@ -144,15 +144,15 @@ const AnalyticsDashboard = () => {
       </div>
       
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="countries">Countries</TabsTrigger>
+        <TabsList variant="pills" className="bg-secondary-50/80 p-2 rounded-lg">
+          <TabsTrigger value="overview" variant="pills">Overview</TabsTrigger>
+          <TabsTrigger value="transactions" variant="pills">Transactions</TabsTrigger>
+          <TabsTrigger value="users" variant="pills">Users</TabsTrigger>
+          <TabsTrigger value="countries" variant="pills">Countries</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-4">
-          <Card>
+          <Card coloredBorder="primary" hoverEffect={true}>
             <CardHeader>
               <CardTitle>User Growth</CardTitle>
               <CardDescription>Monthly user registrations</CardDescription>
@@ -174,7 +174,7 @@ const AnalyticsDashboard = () => {
           </Card>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
+            <Card coloredBorder="success" hoverEffect={true}>
               <CardHeader>
                 <CardTitle>Transaction Status</CardTitle>
                 <CardDescription>Distribution by status</CardDescription>
@@ -204,7 +204,7 @@ const AnalyticsDashboard = () => {
               </CardContent>
             </Card>
             
-            <Card>
+            <Card coloredBorder="info" hoverEffect={true}>
               <CardHeader>
                 <CardTitle>Top Countries</CardTitle>
                 <CardDescription>Transaction distribution</CardDescription>
@@ -227,7 +227,7 @@ const AnalyticsDashboard = () => {
         </TabsContent>
         
         <TabsContent value="transactions" className="space-y-4">
-          <Card>
+          <Card coloredBorder="success" hoverEffect={true}>
             <CardHeader>
               <CardTitle>Transaction Volume Over Time</CardTitle>
               <CardDescription>Monthly transaction amounts</CardDescription>
@@ -257,7 +257,7 @@ const AnalyticsDashboard = () => {
         </TabsContent>
         
         <TabsContent value="users" className="space-y-4">
-          <Card>
+          <Card coloredBorder="primary" hoverEffect={true}>
             <CardHeader>
               <CardTitle>User Acquisition</CardTitle>
               <CardDescription>New user registrations over time</CardDescription>
@@ -288,7 +288,7 @@ const AnalyticsDashboard = () => {
         </TabsContent>
         
         <TabsContent value="countries" className="space-y-4">
-          <Card>
+          <Card coloredBorder="info" hoverEffect={true}>
             <CardHeader>
               <CardTitle>Top Transaction Countries</CardTitle>
               <CardDescription>Distribution by country</CardDescription>
