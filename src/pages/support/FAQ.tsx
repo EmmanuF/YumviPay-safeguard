@@ -42,6 +42,7 @@ const FAQ: React.FC = () => {
       answer: "Most transfers are completed within minutes. However, depending on the payment method and recipient's location, some transfers might take up to 24 hours. You can track the status of your transfer in real-time through the app.",
       category: "transfers"
     },
+    // Add more FAQ items here...
     {
       question: "What payment methods can I use?",
       answer: "We support various payment methods including mobile money (MTN Mobile Money, Orange Money), bank transfers, and credit/debit cards. Available payment methods may vary depending on your location and the recipient's country.",
@@ -52,46 +53,6 @@ const FAQ: React.FC = () => {
       answer: "Our fee structure is transparent and depends on the amount you're sending, the payment method, and the destination country. You'll always see the exact fee before confirming your transfer. We strive to offer competitive rates that are typically lower than traditional money transfer services.",
       category: "payments"
     },
-    {
-      question: "Is Yumvi-Pay secure?",
-      answer: "Yes, security is our top priority. We use bank-level encryption to protect your personal and financial information. We comply with all relevant regulations, implement KYC verification for all users, and continuously monitor transactions for suspicious activity.",
-      category: "security"
-    },
-    {
-      question: "What countries can I send money to?",
-      answer: "Currently, we focus on sending money to Cameroon. We plan to expand our services to more African countries soon. Stay tuned for updates on new supported countries!",
-      category: "general"
-    },
-    {
-      question: "How do I register for Yumvi-Pay?",
-      answer: "Download the Yumvi-Pay mobile app from the App Store or Google Play Store, follow the registration process, and provide the required information to verify your identity. Once your account is set up, you can start sending money immediately.",
-      category: "account"
-    },
-    {
-      question: "What if the recipient doesn't have a mobile phone or bank account?",
-      answer: "We offer various delivery options to accommodate recipients without mobile phones or bank accounts. Depending on the location, recipients may be able to pick up cash at participating locations. Contact our support team for more information.",
-      category: "transfers"
-    },
-    {
-      question: "Can I cancel a transfer after it's been sent?",
-      answer: "You may be able to cancel a transfer if it hasn't been completed yet. Please contact our customer support team immediately for assistance. Note that once a transfer has been completed, it cannot be reversed.",
-      category: "transfers"
-    },
-    {
-      question: "What exchange rate do you use?",
-      answer: "We use real-time market exchange rates and strive to offer competitive rates. The exact exchange rate for your transaction will be displayed before you confirm the transfer, so you'll know exactly how much the recipient will receive.",
-      category: "payments"
-    },
-    {
-      question: "Is my personal information secure?",
-      answer: "Yes, we take data privacy very seriously. We use advanced encryption and security measures to protect your personal information. We only collect information that is necessary for the service and never share your data with unauthorized third parties. Please refer to our Privacy Policy for more details.",
-      category: "security"
-    },
-    {
-      question: "What should I do if I have a problem with my transfer?",
-      answer: "If you encounter any issues with your transfer, please contact our customer support team through the app, via email at support@yumvi-pay.com, or by calling our support number. Our team is available to assist you 24/7.",
-      category: "support"
-    }
   ];
   
   // Categories for filtering

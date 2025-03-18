@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import MobileAppLayout from '@/components/MobileAppLayout';
@@ -118,7 +117,7 @@ const PrivacyPolicy: React.FC = () => {
               If you have any questions about this Privacy Policy, please contact us at:
             </p>
             <p>Email: privacy@yumvi-pay.com</p>
-            <p>Address: 123 Finance Street, Tech Valley, Yaoundé, Cameroon</p>
+            <p>Address: 2470 S DAIRY ASHFORD RD, HOUSTON TX 77077</p>
           </div>
         </div>
       </div>
