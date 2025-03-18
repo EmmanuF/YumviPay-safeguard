@@ -11,6 +11,7 @@ import { useNetwork } from '@/contexts/NetworkContext';
 import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useAuth } from '@/contexts/AuthContext';
+import { SignOutButton } from '@/components/authentication';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -68,20 +69,21 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       <OfflineBanner />
       
-      {/* Show header on all pages - modified to always display even on home page */}
-      <motion.div
-        initial={{ opacity: 0, y: -15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          duration: animSettings.duration,
-          type: "spring",
-          stiffness: animSettings.stiffness,
-          damping: animSettings.damping
-        }}
-        className="z-10"
-      >
-        <Header transparent={isHome} showBackButton={!isHome} showNotification={isLoggedIn} />
-      </motion.div>
+      {!isHome && (
+        <motion.div
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            duration: animSettings.duration,
+            type: "spring",
+            stiffness: animSettings.stiffness,
+            damping: animSettings.damping
+          }}
+          className="z-10"
+        >
+          <Header />
+        </motion.div>
+      )}
       
       <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
@@ -102,6 +104,17 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           </motion.div>
         </AnimatePresence>
       </main>
+      
+      {/* Floating sign out button for all pages when logged in */}
+      {isLoggedIn && location.pathname !== '/profile' && (
+        <div className="fixed bottom-24 right-4 z-50">
+          <SignOutButton 
+            iconOnly 
+            size="sm"
+            className="rounded-full p-2 bg-primary-500 hover:bg-primary-600 text-white border-none shadow-lg"
+          />
+        </div>
+      )}
       
       {/* Floating offline indicator that appears when scrolling */}
       <AnimatePresence>
