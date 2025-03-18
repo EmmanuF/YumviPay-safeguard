@@ -28,6 +28,11 @@ import SessionTimeout from '@/components/security/SessionTimeout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminTransactions from '@/pages/admin/AdminTransactions';
+import AdminAnalytics from '@/pages/admin/AdminAnalytics';
+import AdminCountries from '@/pages/admin/AdminCountries';
+import AdminReports from '@/pages/admin/AdminReports';
+import AdminSecurity from '@/pages/admin/AdminSecurity';
+import AdminSettings from '@/pages/admin/AdminSettings';
 
 // Footer pages
 import AboutUs from '@/pages/company/AboutUs';
@@ -99,6 +104,11 @@ function App() {
                         <AdminDashboard />
                       </AdminProtectedRoute>
                     } />
+                    <Route path="/admin/analytics" element={
+                      <AdminProtectedRoute>
+                        <AdminAnalytics />
+                      </AdminProtectedRoute>
+                    } />
                     <Route path="/admin/users" element={
                       <AdminProtectedRoute>
                         <AdminUsers />
@@ -107,6 +117,26 @@ function App() {
                     <Route path="/admin/transactions" element={
                       <AdminProtectedRoute>
                         <AdminTransactions />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/countries" element={
+                      <AdminProtectedRoute>
+                        <AdminCountries />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/reports" element={
+                      <AdminProtectedRoute>
+                        <AdminReports />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/security" element={
+                      <AdminProtectedRoute>
+                        <AdminSecurity />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/settings" element={
+                      <AdminProtectedRoute>
+                        <AdminSettings />
                       </AdminProtectedRoute>
                     } />
                     
