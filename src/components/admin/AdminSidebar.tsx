@@ -32,34 +32,34 @@ const AdminSidebar = () => {
 
   return (
     <div className={cn(
-      "h-screen flex flex-col border-r bg-primary-900 transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
+      "h-screen flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 transition-all duration-300 shadow-lg",
+      collapsed ? "w-20" : "w-64"
     )}>
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between p-5 border-b border-primary-700">
         {!collapsed && (
-          <span className="text-white text-xl font-bold">Yumvi-Pay Admin</span>
+          <span className="text-white text-xl font-bold bg-gradient-to-r from-white to-primary-100 bg-clip-text text-transparent">Yumvi-Pay Admin</span>
         )}
         <Button 
           variant="ghost" 
           size="icon" 
-          className="text-white hover:bg-primary-800"
+          className="text-white hover:bg-primary-700/50"
           onClick={() => setCollapsed(!collapsed)}
         >
-          {collapsed ? <ChevronRight /> : <ChevronLeft />}
+          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </Button>
       </div>
       
-      <div className="flex-1 overflow-y-auto py-4">
-        <nav className="px-2 space-y-1">
+      <div className="flex-1 overflow-y-auto py-6 px-2">
+        <nav className="space-y-1.5">
           {navigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               className={({ isActive }) => cn(
                 isActive
-                  ? 'bg-primary-800 text-white'
-                  : 'text-primary-100 hover:bg-primary-700',
-                'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-primary-100 hover:bg-primary-700/50 hover:text-white',
+                'group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors',
                 collapsed ? 'justify-center' : 'justify-start'
               )}
             >
@@ -75,7 +75,9 @@ const AdminSidebar = () => {
                     )}
                     aria-hidden="true"
                   />
-                  {!collapsed && <span>{item.name}</span>}
+                  {!collapsed && (
+                    <span className="transition-opacity duration-200">{item.name}</span>
+                  )}
                 </>
               )}
             </NavLink>
@@ -83,13 +85,13 @@ const AdminSidebar = () => {
         </nav>
       </div>
       
-      <div className="p-4 border-t border-primary-800">
+      <div className="p-4 border-t border-primary-700">
         <div className={cn(
           "flex items-center", 
           collapsed ? "justify-center" : "space-x-3"
         )}>
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 rounded-full bg-primary-300 flex items-center justify-center text-primary-900 font-semibold">
+            <div className="h-9 w-9 rounded-full bg-white/90 flex items-center justify-center text-primary-800 font-semibold shadow-sm">
               A
             </div>
           </div>
