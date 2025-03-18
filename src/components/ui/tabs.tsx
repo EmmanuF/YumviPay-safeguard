@@ -16,7 +16,7 @@ const TabsList = React.forwardRef<
     default: "bg-muted p-1",
     pills: "bg-secondary-50/80 p-1 backdrop-blur-sm border border-secondary-100",
     underline: "bg-transparent p-0 border-b border-border",
-    gradient: "bg-gradient-to-r from-primary-50/80 to-secondary-50/80 p-1 backdrop-blur-sm border border-secondary-100"
+    gradient: "bg-gradient-to-r from-primary-50/90 to-secondary-50/90 p-1 backdrop-blur-sm border border-white/20 shadow-md"
   };
 
   return (

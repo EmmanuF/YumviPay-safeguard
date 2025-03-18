@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -144,14 +143,44 @@ const AnalyticsDashboard = () => {
       </div>
       
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList variant="pills" className="bg-secondary-50/80 p-2 rounded-lg">
-          <TabsTrigger value="overview" variant="pills">Overview</TabsTrigger>
-          <TabsTrigger value="transactions" variant="pills">Transactions</TabsTrigger>
-          <TabsTrigger value="users" variant="pills">Users</TabsTrigger>
-          <TabsTrigger value="countries" variant="pills">Countries</TabsTrigger>
+        <TabsList 
+          variant="gradient" 
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 w-full gap-1 p-1 rounded-lg bg-gradient-to-r from-primary-50/90 to-secondary-50/90 shadow-md backdrop-blur-sm"
+        >
+          <TabsTrigger 
+            value="overview" 
+            variant="pills"
+            className="transition-all duration-300 hover:bg-white/20 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="transactions" 
+            variant="pills"
+            className="transition-all duration-300 hover:bg-white/20 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md"
+          >
+            Transactions
+          </TabsTrigger>
+          <TabsTrigger 
+            value="users" 
+            variant="pills"
+            className="transition-all duration-300 hover:bg-white/20 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md"
+          >
+            Users
+          </TabsTrigger>
+          <TabsTrigger 
+            value="countries" 
+            variant="pills"
+            className="transition-all duration-300 hover:bg-white/20 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md"
+          >
+            Countries
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent 
+          value="overview" 
+          className="space-y-4 animate-slide-up"
+        >
           <Card coloredBorder="primary" hoverEffect={true}>
             <CardHeader>
               <CardTitle>User Growth</CardTitle>
@@ -226,7 +255,10 @@ const AnalyticsDashboard = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="transactions" className="space-y-4">
+        <TabsContent 
+          value="transactions" 
+          className="space-y-4 animate-slide-up"
+        >
           <Card coloredBorder="success" hoverEffect={true}>
             <CardHeader>
               <CardTitle>Transaction Volume Over Time</CardTitle>
@@ -256,7 +288,10 @@ const AnalyticsDashboard = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="users" className="space-y-4">
+        <TabsContent 
+          value="users" 
+          className="space-y-4 animate-slide-up"
+        >
           <Card coloredBorder="primary" hoverEffect={true}>
             <CardHeader>
               <CardTitle>User Acquisition</CardTitle>
@@ -287,7 +322,10 @@ const AnalyticsDashboard = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="countries" className="space-y-4">
+        <TabsContent 
+          value="countries" 
+          className="space-y-4 animate-slide-up"
+        >
           <Card coloredBorder="info" hoverEffect={true}>
             <CardHeader>
               <CardTitle>Top Transaction Countries</CardTitle>
