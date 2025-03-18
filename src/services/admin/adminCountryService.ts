@@ -21,7 +21,8 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
   try {
     const { data, error } = await supabase
       .from('countries')
-      .select('*');
+      .select('*')
+      .order('name');
     
     if (error) throw error;
     
@@ -63,21 +64,105 @@ export const updateCountrySettings = async (
 };
 
 /**
- * Add new country
+ * Update country payment methods
  */
-export const addNewCountry = async (country: AdminCountry): Promise<boolean> => {
-  console.log('Adding new country:', country);
+export const updateCountryPaymentMethods = async (
+  code: string,
+  paymentMethods: any[]
+): Promise<boolean> => {
+  console.log(`Updating payment methods for ${code}`, paymentMethods);
   
   try {
     const { error } = await supabase
       .from('countries')
-      .insert([country]);
+      .update({ payment_methods: paymentMethods })
+      .eq('code', code);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating country payment methods:', error);
+    return false;
+  }
+};
+
+/**
+ * Add new country
+ */
+export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boolean> => {
+  console.log('Adding new country:', country);
+  
+  try {
+    // Make sure payment_methods is initialized as an empty array if not provided
+    const countryData = {
+      ...country,
+      is_sending_enabled: false,
+      is_receiving_enabled: false,
+      payment_methods: []
+    };
+    
+    const { error } = await supabase
+      .from('countries')
+      .insert([countryData]);
     
     if (error) throw error;
     
     return true;
   } catch (error) {
     console.error('Error adding country:', error);
+    return false;
+  }
+};
+
+/**
+ * Get country by code
+ */
+export const getCountryByCode = async (code: string): Promise<AdminCountry | null> => {
+  console.log(`Fetching country with code ${code}`);
+  
+  try {
+    const { data, error } = await supabase
+      .from('countries')
+      .select('*')
+      .eq('code', code)
+      .single();
+    
+    if (error) throw error;
+    
+    if (data) {
+      return {
+        ...data,
+        payment_methods: Array.isArray(data.payment_methods) 
+          ? data.payment_methods 
+          : JSON.parse(data.payment_methods?.toString() || '[]')
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error fetching country ${code}:`, error);
+    return null;
+  }
+};
+
+/**
+ * Delete country
+ */
+export const deleteCountry = async (code: string): Promise<boolean> => {
+  console.log(`Deleting country ${code}`);
+  
+  try {
+    const { error } = await supabase
+      .from('countries')
+      .delete()
+      .eq('code', code);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error(`Error deleting country ${code}:`, error);
     return false;
   }
 };

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -11,8 +11,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { Loader2, ChevronDown, Eye, Edit } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { AdminCountry } from '@/services/admin/adminCountryService';
 
 interface CountryTableProps {
@@ -20,15 +27,31 @@ interface CountryTableProps {
   isLoading: boolean;
   onToggleSending: (code: string, currentValue: boolean) => Promise<void>;
   onToggleReceiving: (code: string, currentValue: boolean) => Promise<void>;
+  onViewDetails: (country: AdminCountry) => void;
+  onEditPaymentMethods: (country: AdminCountry) => void;
 }
 
 const CountryTable: React.FC<CountryTableProps> = ({
   countries,
   isLoading,
   onToggleSending,
-  onToggleReceiving
+  onToggleReceiving,
+  onViewDetails,
+  onEditPaymentMethods
 }) => {
-  const { toast } = useToast();
+  const [processingCodes, setProcessingCodes] = useState<string[]>([]);
+  
+  const handleToggleSending = async (code: string, currentValue: boolean) => {
+    setProcessingCodes(prev => [...prev, code]);
+    await onToggleSending(code, currentValue);
+    setProcessingCodes(prev => prev.filter(c => c !== code));
+  };
+  
+  const handleToggleReceiving = async (code: string, currentValue: boolean) => {
+    setProcessingCodes(prev => [...prev, code]);
+    await onToggleReceiving(code, currentValue);
+    setProcessingCodes(prev => prev.filter(c => c !== code));
+  };
   
   if (isLoading) {
     return (
@@ -50,9 +73,7 @@ const CountryTable: React.FC<CountryTableProps> = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Code</TableHead>
-          <TableHead>Flag</TableHead>
-          <TableHead>Name</TableHead>
+          <TableHead>Country</TableHead>
           <TableHead>Currency</TableHead>
           <TableHead>Sending</TableHead>
           <TableHead>Receiving</TableHead>
@@ -61,44 +82,74 @@ const CountryTable: React.FC<CountryTableProps> = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {countries.map((country) => (
-          <TableRow key={country.code}>
-            <TableCell className="font-medium">{country.code}</TableCell>
-            <TableCell>{country.flag_emoji || '🌐'}</TableCell>
-            <TableCell>{country.name}</TableCell>
-            <TableCell>
-              {country.currency_symbol} {country.currency}
-            </TableCell>
-            <TableCell>
-              <Switch 
-                checked={country.is_sending_enabled} 
-                onCheckedChange={() => onToggleSending(country.code, country.is_sending_enabled)}
-              />
-            </TableCell>
-            <TableCell>
-              <Switch 
-                checked={country.is_receiving_enabled} 
-                onCheckedChange={() => onToggleReceiving(country.code, country.is_receiving_enabled)}
-              />
-            </TableCell>
-            <TableCell>
-              <Badge>
-                {country.payment_methods?.length || 0} methods
-              </Badge>
-            </TableCell>
-            <TableCell className="text-right">
-              <Button 
-                variant="ghost" 
-                onClick={() => toast({
-                  title: "Not Implemented",
-                  description: "Country details editing not implemented yet"
-                })}
-              >
-                Edit
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
+        {countries.map((country) => {
+          const isProcessing = processingCodes.includes(country.code);
+          
+          return (
+            <TableRow key={country.code}>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{country.flag_emoji || '🌐'}</span>
+                  <div>
+                    <p className="font-medium">{country.name}</p>
+                    <p className="text-xs text-muted-foreground">{country.code}</p>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                {country.currency_symbol} {country.currency}
+              </TableCell>
+              <TableCell>
+                {isProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Switch 
+                    checked={country.is_sending_enabled} 
+                    onCheckedChange={() => handleToggleSending(country.code, country.is_sending_enabled)}
+                    disabled={isProcessing}
+                  />
+                )}
+              </TableCell>
+              <TableCell>
+                {isProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Switch 
+                    checked={country.is_receiving_enabled} 
+                    onCheckedChange={() => handleToggleReceiving(country.code, country.is_receiving_enabled)}
+                    disabled={isProcessing}
+                  />
+                )}
+              </TableCell>
+              <TableCell>
+                <Badge className="bg-primary-50 text-primary-700 hover:bg-primary-100 border-primary-200">
+                  {country.payment_methods?.length || 0} methods
+                </Badge>
+              </TableCell>
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => onViewDetails(country)}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEditPaymentMethods(country)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Payment Methods
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

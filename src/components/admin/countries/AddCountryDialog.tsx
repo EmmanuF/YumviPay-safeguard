@@ -1,5 +1,8 @@
 
 import React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import { 
   Dialog,
   DialogContent,
@@ -19,8 +22,17 @@ import {
 } from "@/components/ui/form";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
 import { AdminCountry } from '@/services/admin/adminCountryService';
+
+const formSchema = z.object({
+  code: z.string().length(2, { message: "Country code must be exactly 2 characters" }).toUpperCase(),
+  name: z.string().min(1, { message: "Country name is required" }),
+  currency: z.string().min(1, { message: "Currency code is required" }),
+  currency_symbol: z.string().min(1, { message: "Currency symbol is required" }),
+  flag_emoji: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface AddCountryDialogProps {
   open: boolean;
@@ -33,7 +45,8 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
   onOpenChange,
   onSubmit
 }) => {
-  const form = useForm({
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       code: '',
       name: '',
@@ -43,7 +56,7 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
     }
   });
   
-  const handleSubmit = async (data: Partial<AdminCountry>) => {
+  const handleSubmit = async (data: FormValues) => {
     await onSubmit(data);
     form.reset();
   };
@@ -66,10 +79,15 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                 <FormItem>
                   <FormLabel>Country Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="US" {...field} />
+                    <Input 
+                      placeholder="US" 
+                      {...field} 
+                      onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      maxLength={2}
+                    />
                   </FormControl>
                   <FormDescription>
-                    2-letter ISO country code
+                    2-letter ISO country code (e.g., US, GB, FR)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -95,8 +113,16 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                 <FormItem>
                   <FormLabel>Currency Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="USD" {...field} />
+                    <Input 
+                      placeholder="USD" 
+                      {...field} 
+                      onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      maxLength={3}
+                    />
                   </FormControl>
+                  <FormDescription>
+                    3-letter ISO currency code (e.g., USD, EUR, GBP)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -123,6 +149,9 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                   <FormControl>
                     <Input placeholder="🇺🇸" {...field} />
                   </FormControl>
+                  <FormDescription>
+                    Country flag emoji (optional)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
