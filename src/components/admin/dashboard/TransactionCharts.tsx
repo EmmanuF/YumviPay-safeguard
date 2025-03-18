@@ -38,6 +38,7 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
             variant="pills" 
             value="transactions" 
             className="py-3 px-4 font-medium text-sm transition-all duration-200 hover:bg-primary-100/50 rounded-md overflow-hidden"
+            style={{ background: 'var(--active-tab-bg, transparent)' }}
           >
             Transactions
           </TabsTrigger>
@@ -58,7 +59,7 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
         </TabsList>
         
         <TabsContent value="transactions" className="space-y-4 animate-fade-in">
-          <div>
+          <div className="text-center">
             <h3 className="text-lg font-semibold">Transaction Overview</h3>
             <p className="text-sm text-muted-foreground">
               Monthly transaction count over the past 6 months
@@ -91,7 +92,7 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
         </TabsContent>
         
         <TabsContent value="volume" className="space-y-4 animate-fade-in">
-          <div>
+          <div className="text-center">
             <h3 className="text-lg font-semibold">Transaction Volume</h3>
             <p className="text-sm text-muted-foreground">
               Monthly transaction volume in USD
@@ -127,7 +128,7 @@ const TransactionCharts: React.FC<TransactionChartsProps> = ({ transactionData }
         </TabsContent>
         
         <TabsContent value="trends" className="space-y-4 animate-fade-in">
-          <div>
+          <div className="text-center">
             <h3 className="text-lg font-semibold">Growth Trends</h3>
             <p className="text-sm text-muted-foreground">
               Combined view of transactions and volume

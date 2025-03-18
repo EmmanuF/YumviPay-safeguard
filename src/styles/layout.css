@@ -88,3 +88,84 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Admin card styles */
+.admin-stat-card {
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.admin-stat-purple {
+  background: linear-gradient(135deg, #f0e6ff 0%, #e6d9ff 100%);
+  border: 1px solid #e2d4ff;
+}
+
+.admin-stat-blue {
+  background: linear-gradient(135deg, #e6f1ff 0%, #d9ecff 100%);
+  border: 1px solid #d1e7ff;
+}
+
+.admin-stat-green {
+  background: linear-gradient(135deg, #e6fff0 0%, #d9ffe6 100%);
+  border: 1px solid #d1ffde;
+}
+
+.admin-stat-orange {
+  background: linear-gradient(135deg, #fff0e6 0%, #ffe6d9 100%);
+  border: 1px solid #ffddc4;
+}
+
+/* Admin page headers */
+.admin-page-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.admin-page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1A1F2C;
+  margin-bottom: 0.5rem;
+}
+
+/* Admin page tabs */
+.admin-page-tabs {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.admin-page-tabs .tab-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.admin-page-tabs .tab-button[data-state="active"] {
+  background: #7c3aed;
+  color: white;
+}
+
+.admin-page-tabs .tab-button:not([data-state="active"]):hover {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+/* Admin content containers */
+.admin-content-container {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}

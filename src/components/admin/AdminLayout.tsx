@@ -8,9 +8,10 @@ import { Loader2 } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: ReactNode;
+  pageTitle?: string;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, pageTitle }) => {
   const { user, isLoggedIn, loading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
@@ -53,6 +54,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <AdminHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="mx-auto max-w-7xl">
+            {pageTitle && (
+              <div className="admin-page-header">
+                <h1>{pageTitle}</h1>
+              </div>
+            )}
             {children}
           </div>
         </main>
