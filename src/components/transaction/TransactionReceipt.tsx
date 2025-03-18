@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCountries } from '@/hooks/useCountries';
-import { formatDate } from '@/utils/formatUtils';
+import { formatDate, formatCurrency } from '@/utils/formatUtils';
 
 interface TransactionReceiptProps {
   transaction: Transaction;
@@ -66,11 +66,20 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
     }
   };
 
+  // Function to format fee as currency or 'Free'
+  const displayFee = () => {
+    const fee = transaction.fee;
+    if (!fee || parseFloat(fee.toString()) === 0) {
+      return 'Free';
+    }
+    return formatCurrency(fee);
+  };
+
   return (
-    <Card className="border-none shadow-lg">
+    <Card className="border-none shadow-lg print:shadow-none">
       <CardContent className="p-0">
         {/* Header */}
-        <div className={`p-6 ${getStatusColor()}`}>
+        <div className={`p-6 ${getStatusColor()} print:bg-white print:border-b`}>
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               {getStatusIcon()}
@@ -87,25 +96,25 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
         </div>
         
         {/* Amount */}
-        <div className="p-6 bg-primary-50">
+        <div className="p-6 bg-primary-50 print:bg-white print:border-b">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-sm text-primary-700">Amount Sent</p>
-              <p className="text-2xl font-bold text-primary-900">
+              <p className="text-sm text-primary-700 print:text-gray-700">Amount Sent</p>
+              <p className="text-2xl font-bold text-primary-900 print:text-black">
                 ${formatAmount(transaction.amount)}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-primary-700">Fee</p>
+              <p className="text-sm text-primary-700 print:text-gray-700">Fee</p>
               <p className="text-lg font-semibold text-green-600">
-                Free
+                {displayFee()}
               </p>
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
-            <p className="text-sm font-medium text-primary-700">Total</p>
-            <p className="text-lg font-bold text-primary-900">
-              ${formatAmount(transaction.amount)}
+            <p className="text-sm font-medium text-primary-700 print:text-gray-700">Total</p>
+            <p className="text-lg font-bold text-primary-900 print:text-black">
+              ${formatAmount(transaction.totalAmount || transaction.amount)}
             </p>
           </div>
         </div>
@@ -177,24 +186,30 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
           </div>
         </div>
         
-        {/* Actions */}
-        <div className="p-6 bg-gray-50 flex justify-between gap-3">
-          <Button 
-            variant="outline" 
-            className="flex-1"
-            onClick={onDownload}
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
-          <Button 
-            className="flex-1"
-            onClick={onShare}
-          >
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
-        </div>
+        {/* Actions - Only show if both functions are provided */}
+        {(onDownload || onShare) && (
+          <div className="p-6 bg-gray-50 flex justify-between gap-3 print:hidden">
+            {onDownload && (
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={onDownload}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            )}
+            {onShare && (
+              <Button 
+                className="flex-1"
+                onClick={onShare}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

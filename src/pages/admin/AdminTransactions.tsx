@@ -47,7 +47,8 @@ import {
   Filter, 
   Download, 
   MoreHorizontal, 
-  Eye 
+  Eye,
+  Receipt
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { formatDate } from '@/utils/formatUtils';
@@ -56,6 +57,7 @@ import {
   getAdminTransactions, 
   adminUpdateTransactionStatus 
 } from '@/services/admin/adminTransactionService';
+import { AdminReceiptGenerator } from '@/components/admin/transactions';
 
 const AdminTransactions = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -268,15 +270,9 @@ const AdminTransactions = () => {
                                 </div>
                                 
                                 <div className="flex justify-between pt-4">
-                                  <Button 
-                                    variant="outline"
-                                    onClick={() => toast({ 
-                                      title: "Not Implemented", 
-                                      description: "Receipt generation not implemented yet"
-                                    })}
-                                  >
-                                    Generate Receipt
-                                  </Button>
+                                  {selectedTransaction && (
+                                    <AdminReceiptGenerator transaction={selectedTransaction} />
+                                  )}
                                   
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
