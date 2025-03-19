@@ -12,9 +12,9 @@ const Card = React.forwardRef<
   }
 >(({ className, gradient = "none", hoverEffect = false, coloredBorder = "none", ...props }, ref) => {
   const gradientStyles = {
-    neon: "bg-gradient-to-br from-accent/10 to-background border-l-4 border-accent",
-    electric: "bg-gradient-to-br from-secondary/10 to-background border-l-4 border-secondary",
-    dark: "bg-gradient-to-br from-primary-400/10 to-background border-l-4 border-primary-400",
+    neon: "bg-gradient-to-br from-accent-500/10 to-background border-l-4 border-accent-500",
+    electric: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
+    dark: "bg-gradient-to-br from-primary-500/10 to-background border-l-4 border-primary-500",
     purple: "bg-gradient-to-br from-purple-500/10 to-background border-l-4 border-purple-500",
     blue: "bg-gradient-to-br from-blue-500/10 to-background border-l-4 border-blue-500",
     green: "bg-gradient-to-br from-green-500/10 to-background border-l-4 border-green-500",
@@ -23,17 +23,17 @@ const Card = React.forwardRef<
   };
 
   const borderStyles = {
-    accent: "border-l-4 border-accent",
-    secondary: "border-l-4 border-secondary",
+    accent: "border-l-4 border-accent-500",
+    secondary: "border-l-4 border-secondary-500",
     destructive: "border-l-4 border-destructive",
-    primary: "border-l-4 border-primary",
+    primary: "border-l-4 border-primary-500",
     success: "border-l-4 border-green-500",
     info: "border-l-4 border-blue-500",
     none: ""
   };
 
   const hoverStyles = hoverEffect ? 
-    "transition-all duration-300 hover:shadow-lg hover:shadow-accent/20 hover:translate-y-[-3px]" : "";
+    "transition-all duration-300 hover:shadow-lg hover:shadow-accent-500/20 hover:translate-y-[-3px]" : "";
 
   return (
     <div

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ const AppearanceSettings = () => {
                   <FormLabel>Theme</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-primary-200">
                         <SelectValue placeholder="Select a theme" />
                       </SelectTrigger>
                     </FormControl>
@@ -54,7 +55,7 @@ const AppearanceSettings = () => {
                   <FormLabel>Accent Color</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-primary-200">
                         <SelectValue placeholder="Select accent color" />
                       </SelectTrigger>
                     </FormControl>
@@ -77,7 +78,7 @@ const AppearanceSettings = () => {
               control={form.control}
               name="enableAnimations"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary-100 p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Enable Animations</FormLabel>
                     <FormDescription>
@@ -98,7 +99,7 @@ const AppearanceSettings = () => {
               control={form.control}
               name="sidebarCollapsed"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary-100 p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Default Sidebar State</FormLabel>
                     <FormDescription>
@@ -116,7 +117,7 @@ const AppearanceSettings = () => {
             />
             
             <div className="pt-4 flex justify-end">
-              <Button type="submit">
+              <Button type="submit" className="bg-primary-500 hover:bg-primary-600 text-white">
                 <Palette className="mr-2 h-4 w-4" />
                 Save Appearance
               </Button>

@@ -26,7 +26,7 @@ const RateDisplay: React.FC<RateDisplayProps> = ({
   }
 
   return (
-    <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 flex items-center justify-center">
+    <div className="bg-primary-500 text-white p-4 flex items-center justify-center">
       <div className="flex items-center">
         <span className="text-lg font-semibold">1 {sourceCurrency}</span>
         <ArrowRight className="mx-3 h-5 w-5" />

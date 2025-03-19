@@ -42,11 +42,13 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
 }) => {
   return (
     <div className={`bg-white rounded-3xl shadow-xl overflow-hidden ${className}`}>
-      <RateDisplay 
-        sourceCurrency={sourceCurrency} 
-        targetCurrency={targetCurrency} 
-        rate={exchangeRate} 
-      />
+      <div className="bg-primary-500 text-white p-4 flex items-center justify-center">
+        <div className="flex items-center">
+          <span className="text-lg font-semibold">1 {sourceCurrency}</span>
+          <ArrowRight className="mx-3 h-5 w-5" />
+          <span className="text-lg font-semibold">{exchangeRate.toFixed(2)} {targetCurrency}</span>
+        </div>
+      </div>
       
       <div className="p-6">
         <h3 className="text-xl font-bold text-center mb-4">Send money to your loved ones</h3>
@@ -93,7 +95,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
         
         <Button
           onClick={handleContinue}
-          className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
+          className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl"
           size="lg"
           disabled={authLoading || isProcessing}
         >
