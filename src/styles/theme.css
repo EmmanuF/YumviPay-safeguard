@@ -5,89 +5,86 @@
 
 @layer base {
   :root {
-    /* Updated color palette */
+    /* Updated color palette with better contrast */
     --background: 39 77% 83%;
-    --foreground: 0 0% 13%;
+    --foreground: 0 0% 0%;  /* Pure black for better contrast */
 
-    /* Soft Cream for cards and popovers */
-    --card: 60 33% 94%;
-    --card-foreground: 0 0% 13%;
-    --popover: 60 33% 94%;
-    --popover-foreground: 0 0% 13%;
+    /* Warm Sand for cards and popovers (replacing Soft Cream) */
+    --card: 36 72% 85%;
+    --card-foreground: 0 0% 0%;
+    --popover: 36 72% 85%;
+    --popover-foreground: 0 0% 0%;
 
-    /* Bright Teal Green as primary color */
-    --primary: 161 100% 33%;
-    --primary-foreground: 60 33% 94%;
+    /* Deep Emerald Green as primary color (replacing Bright Teal) */
+    --primary: 161 100% 22%;
+    --primary-foreground: 36 72% 85%;
 
-    /* Dark Mocha Brown as secondary color */
-    --secondary: 15 21% 29%;
-    --secondary-foreground: 60 33% 94%;
+    /* Rich Espresso Brown as secondary color (replacing Dark Mocha) */
+    --secondary: 20 37% 18%;
+    --secondary-foreground: 36 72% 85%;
 
-    /* Muted colors */
-    --muted: 60 15% 90%;
-    --muted-foreground: 15 10% 40%;
+    /* Muted colors with stronger contrast */
+    --muted: 36 40% 90%;
+    --muted-foreground: 20 30% 30%;
 
-    /* Burnt Orange as accent color */
+    /* Burnt Orange as accent color (keeping same) */
     --accent: 21 100% 45%;
-    --accent-foreground: 60 33% 94%;
+    --accent-foreground: 36 72% 85%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 33% 94%;
+    --destructive-foreground: 36 72% 85%;
 
-    /* Additional colors for gradients */
-    --purple: 270 50% 60%;
+    /* Additional colors for gradients with updated values */
+    --purple: 270 50% 55%;  /* Slightly darkened */
     --orange: 21 100% 45%;
-    --teal: 161 100% 33%;
-    --cream: 60 33% 94%;
-    --mocha: 15 21% 29%;
+    --teal: 161 100% 22%;   /* Using Deep Emerald Green */
+    --cream: 36 72% 85%;    /* Using Warm Sand */
+    --mocha: 20 37% 18%;    /* Using Rich Espresso Brown */
+    --charcoal: 0 0% 0%;    /* Pure Black for text */
 
-    --border: 15 15% 85%;
-    --input: 15 15% 85%;
-    --ring: 161 100% 33%;
+    --border: 20 20% 80%;
+    --input: 20 20% 80%;
+    --ring: 161 100% 22%;
 
     --radius: 1rem;
   }
 
   .dark {
-    /* Updated color palette - dark mode */
-    --background: 39 77% 83%;
-    --foreground: 0 0% 13%;
+    /* Dark mode colors also updated for consistency */
+    --background: 36 72% 85%;
+    --foreground: 0 0% 0%;
 
-    /* Soft Cream for cards and popovers */
-    --card: 60 33% 94%;
-    --card-foreground: 0 0% 13%;
-    --popover: 60 33% 94%;
-    --popover-foreground: 0 0% 13%;
+    --card: 36 72% 85%;
+    --card-foreground: 0 0% 0%;
+    --popover: 36 72% 85%;
+    --popover-foreground: 0 0% 0%;
 
-    /* Bright Teal Green as primary color */
-    --primary: 161 100% 33%;
-    --primary-foreground: 60 33% 94%;
+    --primary: 161 100% 22%;
+    --primary-foreground: 36 72% 85%;
 
-    /* Dark Mocha Brown as secondary color */
-    --secondary: 15 21% 29%;
-    --secondary-foreground: 60 33% 94%;
+    --secondary: 20 37% 18%;
+    --secondary-foreground: 36 72% 85%;
 
     /* Muted colors */
-    --muted: 60 15% 90%;
-    --muted-foreground: 15 10% 40%;
+    --muted: 36 40% 90%;
+    --muted-foreground: 20 30% 30%;
 
-    /* Burnt Orange as accent color */
     --accent: 21 100% 45%;
-    --accent-foreground: 60 33% 94%;
+    --accent-foreground: 36 72% 85%;
 
     /* Additional colors for gradients */
-    --purple: 270 50% 60%;
+    --purple: 270 50% 55%;
     --orange: 21 100% 45%;
-    --teal: 161 100% 33%;
-    --cream: 60 33% 94%;
-    --mocha: 15 21% 29%;
+    --teal: 161 100% 22%;
+    --cream: 36 72% 85%;
+    --mocha: 20 37% 18%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 33% 94%;
+    --destructive-foreground: 36 72% 85%;
 
-    --border: 15 15% 85%;
-    --input: 15 15% 85%;
-    --ring: 161 100% 33%;
+    --border: 20 20% 80%;
+    --input: 20 20% 80%;
+    --ring: 161 100% 22%;
   }
 }
 
@@ -102,42 +99,42 @@
   }
 
   body {
-    @apply bg-[#F5F5DC] text-[#212121];
+    @apply bg-[#F4E1C1] text-[#000000];
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Glass effects classes */
+/* Glass effects classes with improved opacity and contrast */
 .glass-effect {
-  @apply bg-white/80 backdrop-blur-sm border border-secondary-200/20 shadow-sm;
+  @apply bg-white/90 backdrop-blur-sm border border-secondary-200/40 shadow-md;
 }
 
 .glass-strong {
-  @apply bg-white/90 backdrop-blur-md border border-secondary-300/30 shadow-md;
+  @apply bg-white/95 backdrop-blur-md border border-secondary-300/50 shadow-lg;
 }
 
-/* Gradient backgrounds using our color scheme */
+/* Gradient backgrounds using our updated color scheme */
 .gradient-primary {
-  @apply bg-gradient-to-br from-primary-500 to-primary-600;
+  @apply bg-gradient-to-br from-primary-600 to-primary-700;
 }
 
 .gradient-accent {
-  @apply bg-gradient-to-r from-accent-400 to-accent-500;
+  @apply bg-gradient-to-r from-accent-500 to-accent-600;
 }
 
 .gradient-primary-accent {
-  @apply bg-gradient-to-br from-primary-500 to-accent-500;
+  @apply bg-gradient-to-br from-primary-600 to-accent-500;
 }
 
 .gradient-card {
-  @apply bg-gradient-to-br from-cream-100 to-background;
+  @apply bg-gradient-to-br from-cream-200 to-background;
 }
 
 /* Specific combinations for our new theme */
 .gradient-teal-orange {
-  @apply bg-gradient-to-br from-teal-500 to-orange-500;
+  @apply bg-gradient-to-br from-teal-600 to-orange-500;
 }
 
 .gradient-mocha-cream {
-  @apply bg-gradient-to-br from-mocha-500 to-cream-300;
+  @apply bg-gradient-to-br from-mocha-600 to-cream-300;
 }

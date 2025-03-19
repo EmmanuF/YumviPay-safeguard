@@ -52,17 +52,17 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   
   // Enhanced glass effects with different intensities
   const glassClass = glassEffectIntensity === 'light' 
-    ? 'bg-gradient-to-b from-mocha-500/90 to-cream-500/80 border border-mocha-500/40'
-    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-mocha-500/80 to-cream-500/70 border border-mocha-500/30 shadow-[0_8px_32px_rgba(0,166,118,0.15)]';
+    ? 'bg-gradient-to-b from-secondary-500/95 to-cream-500/90 border border-secondary-500/50 shadow-lg'
+    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-secondary-500/90 to-cream-500/80 border border-secondary-500/40 shadow-[0_8px_32px_rgba(0,112,74,0.2)]';
   
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
       {/* Diagonal top design - only shown on non-home pages */}
       {!isHome && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-accent-500"></div>
+          <div className="absolute top-0 left-0 right-0 h-16 bg-accent-500 shadow-md"></div>
           <div className="absolute top-0 left-0 right-0 h-24">
-            <div className="absolute bottom-0 left-0 right-0 h-14 bg-accent-400 transform skew-y-6 origin-right"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-14 bg-accent-400 transform skew-y-6 origin-right shadow-sm"></div>
           </div>
         </div>
       )}
@@ -111,7 +111,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           <SignOutButton 
             iconOnly 
             size="sm"
-            className="rounded-full p-2 bg-primary-500 hover:bg-primary-600 text-cream-500 border-none shadow-lg"
+            className="rounded-full p-2 bg-primary-600 hover:bg-primary-700 text-cream-500 border-none shadow-lg"
           />
         </div>
       )}
@@ -125,13 +125,13 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: animSettings.duration, type: "spring" }}
             className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
-                      ${glassEffectIntensity === 'light' ? 'bg-primary-300 border border-primary-200' : 'glass-effect bg-primary-300/90 backdrop-blur-md border border-primary-200/30 shadow-lg'} 
+                      ${glassEffectIntensity === 'light' ? 'bg-primary-400 border border-primary-300 shadow-md' : 'glass-effect bg-primary-400/95 backdrop-blur-md border border-primary-300/40 shadow-lg'} 
                       text-cream-500 rounded-full flex items-center space-x-2 z-40`}
           >
             <WifiOff className="w-4 h-4" />
             <span className="text-sm font-medium">Offline</span>
             {pendingOperationsCount > 0 && (
-              <span className="bg-cream-500 text-primary-500 rounded-full px-1.5 text-xs font-medium">
+              <span className="bg-cream-500 text-primary-600 rounded-full px-1.5 text-xs font-semibold">
                 {pendingOperationsCount}
               </span>
             )}
@@ -150,12 +150,13 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           style: {
             borderRadius: '0.75rem',
             background: glassEffectIntensity === 'light' 
-              ? 'rgba(245, 245, 220, 0.95)' 
-              : 'rgba(245, 245, 220, 0.85)',
+              ? 'rgba(244, 225, 193, 0.97)' 
+              : 'rgba(244, 225, 193, 0.9)',
             backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(12px)',
-            border: '1px solid rgba(0, 166, 118, 0.3)',
-            boxShadow: '0 8px 32px -4px rgba(0, 166, 118, 0.15)',
-            color: '#212121',
+            border: '1px solid rgba(0, 112, 74, 0.4)',
+            boxShadow: '0 8px 32px -4px rgba(0, 112, 74, 0.2)',
+            color: '#000000',
+            fontWeight: '500'
           },
           className: 'glass-card',
         }}

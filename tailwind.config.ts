@@ -26,37 +26,37 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Bright Teal Green
+                // Deep Emerald Green (replacing Bright Teal Green)
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#e0f7f1',
-                    100: '#c1efe3',
-                    200: '#83e0c7',
-                    300: '#45d1aa',
-                    400: '#06c28e',
-                    500: '#00A676', // Bright Teal Green
-                    600: '#00845e',
-                    700: '#006346',
-                    800: '#00422f',
-                    900: '#002117',
+                    50: '#e0f2ee',
+                    100: '#b3e0d6',
+                    200: '#80cabb',
+                    300: '#4db49f',
+                    400: '#269f84',
+                    500: '#00704A', // Deep Emerald Green
+                    600: '#005f3f',
+                    700: '#004d33',
+                    800: '#003c28',
+                    900: '#002a1c',
                 },
-                // Dark Mocha Brown
+                // Rich Espresso Brown (replacing Dark Mocha)
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#eee8e6',
-                    100: '#ddd1cd',
-                    200: '#bba39b',
-                    300: '#997569',
-                    400: '#775c52',
-                    500: '#5D4037', // Dark Mocha Brown
-                    600: '#4a332c',
-                    700: '#382721',
-                    800: '#251a16',
-                    900: '#130d0b',
+                    50: '#ece9e7',
+                    100: '#d9d3cf',
+                    200: '#b3a89f',
+                    300: '#8c7c6f',
+                    400: '#66503f',
+                    500: '#3C2A1E', // Rich Espresso Brown
+                    600: '#30221a',
+                    700: '#251a13',
+                    800: '#1a120d',
+                    900: '#0d0906',
                 },
-                // Burnt Orange
+                // Burnt Orange (kept the same)
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
@@ -71,57 +71,57 @@ export default {
                     800: '#5c2000',
                     900: '#2e1000',
                 },
-                // Soft Cream
+                // Warm Sand (replacing Soft Cream)
                 cream: {
-                    50: '#fefefe',
-                    100: '#fcfcf3',
-                    200: '#faf9e7',
-                    300: '#f7f6db',
-                    400: '#f6f4d0',
-                    500: '#F5F5DC', // Soft Cream
-                    600: '#c4c4b0',
-                    700: '#939384',
-                    800: '#626258',
-                    900: '#31312c',
+                    50: '#fefcf8',
+                    100: '#fcf9f1',
+                    200: '#f9f3e4',
+                    300: '#f7edd6',
+                    400: '#f5e7c9',
+                    500: '#F4E1C1', // Warm Sand
+                    600: '#c3b49a',
+                    700: '#928774',
+                    800: '#615a4d',
+                    900: '#302d27',
                 },
-                // Deep Charcoal Black
+                // Pure Black (replacing Deep Charcoal)
                 charcoal: {
-                    50: '#e5e5e5',
+                    50: '#e6e6e6',
                     100: '#cccccc',
                     200: '#999999',
                     300: '#666666',
                     400: '#333333',
-                    500: '#212121', // Deep Charcoal Black
-                    600: '#1a1a1a',
-                    700: '#141414',
-                    800: '#0d0d0d',
-                    900: '#070707',
+                    500: '#000000', // Pure Black
+                    600: '#000000',
+                    700: '#000000',
+                    800: '#000000',
+                    900: '#000000',
                 },
-                // Mocha colors
+                // Rich Espresso Brown (replacing Mocha Brown)
                 mocha: {
-                    50: '#eee8e6',
-                    100: '#ddd1cd',
-                    200: '#bba39b',
-                    300: '#997569',
-                    400: '#775c52',
-                    500: '#5D4037', // Dark Mocha Brown
-                    600: '#4a332c',
-                    700: '#382721',
-                    800: '#251a16',
-                    900: '#130d0b',
+                    50: '#ece9e7',
+                    100: '#d9d3cf',
+                    200: '#b3a89f',
+                    300: '#8c7c6f',
+                    400: '#66503f',
+                    500: '#3C2A1E', // Rich Espresso Brown
+                    600: '#30221a',
+                    700: '#251a13',
+                    800: '#1a120d',
+                    900: '#0d0906',
                 },
-                // Teal colors
+                // Deep Emerald (replacing Teal)
                 teal: {
-                    50: '#e0f7f1',
-                    100: '#c1efe3',
-                    200: '#83e0c7',
-                    300: '#45d1aa',
-                    400: '#06c28e',
-                    500: '#00A676', // Bright Teal Green
-                    600: '#00845e',
-                    700: '#006346',
-                    800: '#00422f',
-                    900: '#002117',
+                    50: '#e0f2ee',
+                    100: '#b3e0d6',
+                    200: '#80cabb',
+                    300: '#4db49f',
+                    400: '#269f84',
+                    500: '#00704A', // Deep Emerald Green
+                    600: '#005f3f',
+                    700: '#004d33',
+                    800: '#003c28',
+                    900: '#002a1c',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
