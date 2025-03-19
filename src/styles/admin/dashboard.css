@@ -33,7 +33,7 @@
 
 .analytics-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px -5px rgba(91, 60, 196, 0.25);
+  box-shadow: 0 12px 20px -5px rgba(64, 224, 208, 0.25);
 }
 
 .analytics-stat-grid {

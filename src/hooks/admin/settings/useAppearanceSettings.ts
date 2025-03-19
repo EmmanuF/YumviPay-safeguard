@@ -14,7 +14,7 @@ export const useAppearanceSettings = () => {
   const form = useForm<AppearanceSettingsFormData>({
     defaultValues: {
       theme: 'light',
-      accentColor: 'purple',
+      accentColor: 'turquoise',
       enableAnimations: true,
       sidebarCollapsed: false
     }
@@ -24,6 +24,7 @@ export const useAppearanceSettings = () => {
     toast({
       title: "Appearance Updated",
       description: "Your appearance settings have been saved.",
+      variant: "default"
     });
     console.log('Appearance settings updated:', data);
   };

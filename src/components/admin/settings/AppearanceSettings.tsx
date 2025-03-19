@@ -60,9 +60,9 @@ const AppearanceSettings = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="orange">Orange</SelectItem>
-                      <SelectItem value="teal">Teal</SelectItem>
-                      <SelectItem value="yellow">Yellow</SelectItem>
+                      <SelectItem value="turquoise">Turquoise</SelectItem>
+                      <SelectItem value="coral">Coral</SelectItem>
+                      <SelectItem value="mint">Mint</SelectItem>
                       <SelectItem value="blue">Blue</SelectItem>
                       <SelectItem value="red">Red</SelectItem>
                     </SelectContent>
@@ -117,7 +117,7 @@ const AppearanceSettings = () => {
             />
             
             <div className="pt-4 flex justify-end">
-              <Button type="submit" className="bg-primary-500 hover:bg-primary-600 text-white">
+              <Button type="submit" className="bg-primary-400 hover:bg-primary-500 text-white">
                 <Palette className="mr-2 h-4 w-4" />
                 Save Appearance
               </Button>

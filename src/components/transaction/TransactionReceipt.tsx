@@ -99,21 +99,21 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
         <div className="p-6 bg-primary-50 print:bg-white print:border-b">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-sm text-primary-700 print:text-gray-700">Amount Sent</p>
-              <p className="text-2xl font-bold text-primary-900 print:text-black">
+              <p className="text-sm text-primary-600 print:text-charcoal">Amount Sent</p>
+              <p className="text-2xl font-bold text-primary-700 print:text-charcoal">
                 ${formatAmount(transaction.amount)}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-primary-700 print:text-gray-700">Fee</p>
+              <p className="text-sm text-primary-600 print:text-charcoal">Fee</p>
               <p className="text-lg font-semibold text-green-600">
                 {displayFee()}
               </p>
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
-            <p className="text-sm font-medium text-primary-700 print:text-gray-700">Total</p>
-            <p className="text-lg font-bold text-primary-900 print:text-black">
+            <p className="text-sm font-medium text-primary-600 print:text-charcoal">Total</p>
+            <p className="text-lg font-bold text-primary-700 print:text-charcoal">
               ${formatAmount(transaction.totalAmount || transaction.amount)}
             </p>
           </div>
@@ -123,21 +123,21 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
         <div className="p-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">RECIPIENT</h3>
+              <h3 className="text-sm font-medium text-charcoal/60 mb-2">RECIPIENT</h3>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Name</span>
-                  <span className="font-medium">{transaction.recipientName}</span>
+                  <span className="text-charcoal/70">Name</span>
+                  <span className="font-medium text-charcoal">{transaction.recipientName}</span>
                 </div>
                 {transaction.recipientContact && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Contact</span>
-                    <span className="font-medium">{transaction.recipientContact}</span>
+                    <span className="text-charcoal/70">Contact</span>
+                    <span className="font-medium text-charcoal">{transaction.recipientContact}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Country</span>
-                  <span className="font-medium">{transaction.recipientCountry || country?.name || transaction.country}</span>
+                  <span className="text-charcoal/70">Country</span>
+                  <span className="font-medium text-charcoal">{transaction.recipientCountry || country?.name || transaction.country}</span>
                 </div>
               </div>
             </div>
@@ -145,39 +145,39 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
             <Separator />
             
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">PAYMENT DETAILS</h3>
+              <h3 className="text-sm font-medium text-charcoal/60 mb-2">PAYMENT DETAILS</h3>
               <div className="space-y-2">
                 {transaction.paymentMethod && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Method</span>
-                    <span className="font-medium">{transaction.paymentMethod.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                    <span className="text-charcoal/70">Method</span>
+                    <span className="font-medium text-charcoal">{transaction.paymentMethod.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
                   </div>
                 )}
                 {transaction.provider && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Provider</span>
-                    <span className="font-medium">{transaction.provider}</span>
+                    <span className="text-charcoal/70">Provider</span>
+                    <span className="font-medium text-charcoal">{transaction.provider}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Date</span>
-                  <span className="font-medium">{formatDate(transaction.createdAt)}</span>
+                  <span className="text-charcoal/70">Date</span>
+                  <span className="font-medium text-charcoal">{formatDate(transaction.createdAt)}</span>
                 </div>
                 {transaction.estimatedDelivery && transaction.status !== 'completed' && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Estimated Delivery</span>
-                    <span className="font-medium">{transaction.estimatedDelivery}</span>
+                    <span className="text-charcoal/70">Estimated Delivery</span>
+                    <span className="font-medium text-charcoal">{transaction.estimatedDelivery}</span>
                   </div>
                 )}
                 {transaction.completedAt && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Completed</span>
-                    <span className="font-medium">{formatDate(transaction.completedAt)}</span>
+                    <span className="text-charcoal/70">Completed</span>
+                    <span className="font-medium text-charcoal">{formatDate(transaction.completedAt)}</span>
                   </div>
                 )}
                 {transaction.failureReason && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Failure Reason</span>
+                    <span className="text-charcoal/70">Failure Reason</span>
                     <span className="font-medium text-red-600">{transaction.failureReason}</span>
                   </div>
                 )}

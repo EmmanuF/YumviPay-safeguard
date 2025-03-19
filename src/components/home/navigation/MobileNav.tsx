@@ -19,7 +19,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNav
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-500 to-primary-400 backdrop-blur-md border border-primary-400/30 shadow-sm"
+      className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-400 to-primary-300 backdrop-blur-md border border-primary-300/30 shadow-sm"
     >
       {navItems.map((item) => (
         <button
@@ -32,8 +32,8 @@ const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNav
             className={cn(
               "p-2 rounded-full transition-all duration-300",
               location.pathname === item.path 
-                ? "text-accent-500 bg-primary-600/50" 
-                : "text-white/80 hover:text-white hover:bg-primary-600/30",
+                ? "text-accent-400 bg-primary-500/50" 
+                : "text-white/80 hover:text-white hover:bg-primary-500/30",
               isNavigating && "opacity-75"
             )}
           >
@@ -42,7 +42,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNav
           <span className={cn(
             "text-xs mt-1 font-medium",
             location.pathname === item.path
-              ? "text-accent-500"
+              ? "text-accent-400"
               : "text-white/80"
           )}>
             {item.name}

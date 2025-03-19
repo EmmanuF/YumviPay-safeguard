@@ -8,7 +8,7 @@ const HeroDescription: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="text-lg text-charcoal-500/80 mb-8 max-w-lg"
+      className="text-lg text-charcoal/80 mb-8 max-w-lg"
     >
       Send money to Africa with zero fees, better exchange rates, and lightning-fast transfers. Your loved ones receive funds directly to their mobile wallets or bank accounts.
     </motion.p>

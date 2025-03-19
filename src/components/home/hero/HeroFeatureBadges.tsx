@@ -11,12 +11,12 @@ const HeroFeatureBadges: React.FC = () => {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="flex items-center gap-2 mb-3"
     >
-      <span className="bg-primary-100/80 text-primary-700 px-3 py-1 rounded-full text-sm font-medium flex items-center border border-primary-200/50">
-        <Zap size={16} className="mr-1 text-primary-600" />
+      <span className="bg-primary-100 text-primary-600 px-3 py-1 rounded-full text-sm font-medium flex items-center border border-primary-200/50">
+        <Zap size={16} className="mr-1 text-primary-500" />
         Fast & Secure
       </span>
-      <span className="bg-secondary-100/80 text-slate-500 px-3 py-1 rounded-full text-sm font-medium flex items-center border border-secondary-200/50">
-        <Shield size={16} className="mr-1 text-accent-600" />
+      <span className="bg-accent-100 text-accent-600 px-3 py-1 rounded-full text-sm font-medium flex items-center border border-accent-200/50">
+        <Shield size={16} className="mr-1 text-accent-500" />
         Free Transfers
       </span>
     </motion.div>

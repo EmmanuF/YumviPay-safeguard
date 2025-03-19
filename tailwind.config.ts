@@ -30,46 +30,46 @@ export default {
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#e6f5f5',
-                    100: '#ccecec',
-                    200: '#99d9d9',
-                    300: '#66c6c6',
-                    400: '#33b3b3',
-                    500: '#008080', // Deep Teal
-                    600: '#006666',
-                    700: '#004d4d',
-                    800: '#003333',
-                    900: '#001a1a',
+                    50: '#ecfbfa',
+                    100: '#d0f5f2',
+                    200: '#a0ebe5',
+                    300: '#70e5dc',
+                    400: '#40E0D0', // Bright Turquoise
+                    500: '#30b3a6',
+                    600: '#238f85',
+                    700: '#1a6c65',
+                    800: '#154a45',
+                    900: '#0d2522',
                 },
-                // Soft Yellow
+                // Pastel Mint
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#fffbeb',
-                    100: '#fff8d6',
-                    200: '#fff1ad',
-                    300: '#ffea85',
-                    400: '#ffe35c',
-                    500: '#FFDD57', // Soft Yellow
-                    600: '#ccb146',
-                    700: '#998534',
-                    800: '#665a23',
-                    900: '#332d11',
+                    50: '#f2fff2',
+                    100: '#defede',
+                    200: '#c6fec6',
+                    300: '#aefcae',
+                    400: '#98FB98', // Pastel Mint
+                    500: '#60d760',
+                    600: '#30b230',
+                    700: '#268d26',
+                    800: '#216b21',
+                    900: '#1d591d',
                 },
-                // Vibrant Orange
+                // Soft Coral
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#fff4e6',
-                    100: '#ffe9cc',
-                    200: '#ffd399',
-                    300: '#ffbd66',
-                    400: '#ffa733',
-                    500: '#FFA500', // Vibrant Orange
-                    600: '#cc8400',
-                    700: '#996300',
-                    800: '#664200',
-                    900: '#332100',
+                    50: '#fff1f0',
+                    100: '#ffe0dd',
+                    200: '#ffc2bc',
+                    300: '#ff9e93',
+                    400: '#FF6F61', // Soft Coral
+                    500: '#fa4032',
+                    600: '#e5231a',
+                    700: '#bf1815',
+                    800: '#9c1717',
+                    900: '#7f1816',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -87,13 +87,14 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
                 },
-                // Adding explicit colors for additional gradients and borders
-                slate: {
-                    500: '#2C3E50', // Dark Slate Gray
+                // Adding explicit colors for text
+                charcoal: {
+                    DEFAULT: '#2D2D2D', // Deep Charcoal
+                    500: '#2D2D2D',
+                    600: '#1D1D1D',
+                    700: '#0D0D0D',
                 },
-                gray: {
-                    500: '#F2F2F2', // Light Gray
-                }
+                white: '#FFFFFF' // Pure White
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -8,8 +8,8 @@ const FooterBottom: React.FC = () => {
   
   return (
     <div className="mt-12 pt-6 border-t border-gray-200">
-      <div className="flex flex-row justify-between items-center bg-primary-500 rounded-lg p-4 text-white">
-        <div className="text-sm text-primary-50">
+      <div className="flex flex-row justify-between items-center bg-primary-400 rounded-lg p-4 text-white">
+        <div className="text-sm text-white">
           © {new Date().getFullYear()} Yumvi-Pay. All rights reserved.
         </div>
         

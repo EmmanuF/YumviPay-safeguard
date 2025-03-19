@@ -1,9 +1,9 @@
 
 /* Form control enhancements with improved visuals */
 .form-control-modern {
-  @apply bg-secondary-50/70 backdrop-blur-sm border border-secondary-100/80 
-         rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-300/50 
-         focus:border-primary-300/50 focus:outline-none transition-all duration-200;
+  @apply bg-white border border-primary-100 
+         rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-200 
+         focus:border-primary-300 focus:outline-none transition-all duration-200;
 }
 
 /* Input with floating label - enhanced for better UX */
@@ -16,13 +16,13 @@
 }
 
 .floating-input label {
-  @apply absolute left-4 top-4 text-gray-500 transition-all duration-200 pointer-events-none;
+  @apply absolute left-4 top-4 text-charcoal/70 transition-all duration-200 pointer-events-none;
   transform-origin: left top;
 }
 
 .floating-input input:focus + label,
 .floating-input input:not(:placeholder-shown) + label {
-  @apply transform -translate-y-3 scale-75 text-primary-500;
+  @apply transform -translate-y-3 scale-75 text-primary-400;
 }
 
 /* Form validation styles */
@@ -52,7 +52,7 @@
 
 /* Requirements list */
 .requirements-list {
-  @apply text-xs text-gray-500 mt-2;
+  @apply text-xs text-charcoal/70 mt-2;
 }
 
 .requirements-list ul {
