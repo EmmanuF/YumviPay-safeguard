@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green";
+    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange";
     hoverEffect?: boolean;
     coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info";
   }
@@ -20,6 +20,8 @@ const Card = React.forwardRef<
     brown: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
     blue: "bg-gradient-to-br from-blue-500/10 to-background border-l-4 border-blue-500",
     green: "bg-gradient-to-br from-green-500/10 to-background border-l-4 border-green-500",
+    purple: "bg-gradient-to-br from-purple-500/10 to-background border-l-4 border-purple-500",
+    orange: "bg-gradient-to-br from-orange-500/10 to-background border-l-4 border-orange-500",
     none: ""
   };
 

@@ -32,6 +32,10 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 100% 97%;
 
+    /* Adding purple and orange colors for gradients */
+    --purple: 270 50% 60%;
+    --orange: 30 100% 50%;
+
     --border: 60 30% 85%;
     --input: 60 30% 85%;
     --ring: 348 83% 47%;
@@ -63,6 +67,10 @@
     /* Updated accent color to Rich Gold */
     --accent: 43 74% 49%;
     --accent-foreground: 0 0% 29%;
+
+    /* Adding purple and orange colors for gradients */
+    --purple: 270 50% 60%;
+    --orange: 30 100% 50%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 100% 97%;
