@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -30,46 +29,46 @@ export default {
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#e6e8e9',
-                    100: '#cdd0d2',
-                    200: '#9a9fa4',
-                    300: '#666d77',
-                    400: '#333c49',
-                    500: '#101820', // Jet Black
-                    600: '#0d141a',
-                    700: '#0a1015',
-                    800: '#080c10',
-                    900: '#06080a',
+                    50: '#edf7f3',
+                    100: '#d5ece0',
+                    200: '#abdbc2',
+                    300: '#82caa4',
+                    400: '#58b985',
+                    500: '#2E8B57', // Emerald Green
+                    600: '#25704a',
+                    700: '#1c553c',
+                    800: '#133a2f',
+                    900: '#0a1f21',
                 },
-                // Electric Blue
+                // Gold
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#e6ffff',
-                    100: '#ccffff',
-                    200: '#99ffff',
-                    300: '#66ffff',
-                    400: '#33ffff',
-                    500: '#00FFFF', // Electric Blue
-                    600: '#00cccc',
-                    700: '#009999',
-                    800: '#006666',
-                    900: '#003333',
+                    50: '#fffaeb',
+                    100: '#fff5d6',
+                    200: '#ffeaad',
+                    300: '#ffe085',
+                    400: '#ffd54d',
+                    500: '#FFD700', // Gold
+                    600: '#ccac00',
+                    700: '#998100',
+                    800: '#665700',
+                    900: '#332c00',
                 },
-                // Neon Green
+                // Gold (Accent is same as secondary for this theme)
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#ecffe7',
-                    100: '#d9fecf',
-                    200: '#b3fe9e',
-                    300: '#8dfd6d',
-                    400: '#66fc3c',
-                    500: '#39FF14', // Neon Green
-                    600: '#2ecc10',
-                    700: '#22990c',
-                    800: '#176608',
-                    900: '#0b3304',
+                    50: '#fffaeb',
+                    100: '#fff5d6',
+                    200: '#ffeaad',
+                    300: '#ffe085',
+                    400: '#ffd54d',
+                    500: '#FFD700', // Gold
+                    600: '#ccac00',
+                    700: '#998100',
+                    800: '#665700',
+                    900: '#332c00',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -88,17 +87,14 @@ export default {
                     foreground: 'hsl(var(--card-foreground))'
                 },
                 // Adding explicit colors for additional gradients and borders
-                purple: {
-                    500: '#6E36E5',
+                charcoal: {
+                    500: '#333333',
                 },
-                blue: {
-                    500: '#3b82f6',
+                beige: {
+                    500: '#E8D5B7',
                 },
-                green: {
-                    500: '#10b981',
-                },
-                orange: {
-                    500: '#f97316',
+                offwhite: {
+                    500: '#F8F9FA',
                 }
 			},
 			borderRadius: {

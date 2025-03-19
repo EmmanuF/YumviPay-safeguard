@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -34,29 +33,20 @@ const Home = () => {
   return (
     <MobileAppLayout>
       <PageTransition>
-        <div className="min-h-screen bg-background">
-          {/* Updated dark header with neon accents */}
+        <div className="min-h-screen bg-offwhite-500">
           <div className="relative overflow-hidden">
-            {/* Dark header base layer */}
             <div className="absolute top-0 left-0 right-0 z-20">
-              {/* Top solid section - Jet Black */}
               <div className="h-20 bg-primary-500"></div>
-              
-              {/* Additional bottom layer for smoother transition */}
               <div className="h-4 bg-primary-400 transform origin-top-right"></div>
             </div>
-            
-            {/* Updated hero background section to dark gray */}
-            <div className="bg-[#1C1C1C] pt-24 relative z-10">
+            <div className="bg-offwhite-500 pt-24 relative z-10">
               <div className="pt-8">
                 <Navigation onGetStarted={handleGetStarted} />
                 <Hero onGetStarted={handleGetStarted} />
               </div>
             </div>
           </div>
-          
-          {/* Rest of the sections with dark theme background */}
-          <div className="bg-gradient-to-b from-[#1C1C1C] to-background">
+          <div className="bg-gradient-to-b from-offwhite-500 to-background">
             <div className="container mx-auto px-4 pb-24">
               <motion.div
                 variants={containerVariants}

@@ -47,7 +47,7 @@ const CTASection = () => {
       viewport={{ once: true }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="bg-primary-gradient text-white rounded-3xl overflow-hidden relative">
+        <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-3xl overflow-hidden relative">
           {/* Background decorative elements */}
           <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-xl"></div>
           <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-white/5 blur-xl"></div>
@@ -55,7 +55,7 @@ const CTASection = () => {
           <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative z-10">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
-              <p className="text-primary-100 mb-8 text-lg">
+              <p className="text-white/80 mb-8 text-lg">
                 Join thousands of customers who trust Yumvi-Pay for their money transfers to Africa
               </p>
               
@@ -67,7 +67,7 @@ const CTASection = () => {
               >
                 <Button 
                   onClick={() => navigate('/signup')}
-                  className="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-xl text-base"
+                  className="bg-secondary-500 text-charcoal-500 hover:bg-secondary-400 font-medium px-6 py-3 rounded-xl text-base"
                   size="lg"
                 >
                   Create Account
@@ -126,7 +126,7 @@ const CTASection = () => {
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-white text-primary-600 hover:bg-white/90" 
+                  className="w-full bg-secondary-500 text-charcoal-500 hover:bg-secondary-400" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
