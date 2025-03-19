@@ -31,23 +31,29 @@ const AnalyticsDashboard = () => {
   const isLoading = transactionsLoading || usersLoading;
   
   // Create transaction status counts
-  const statusCounts = transactions.reduce((acc: any, transaction: any) => {
+  const statusCounts = transactions.reduce((acc: Record<string, number>, transaction: any) => {
     acc[transaction.status] = (acc[transaction.status] || 0) + 1;
     return acc;
   }, {});
   
-  const statusData = Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
+  const statusData = Object.entries(statusCounts).map(([name, value]) => ({ 
+    name, 
+    value: Number(value) // Ensure value is a number
+  }));
   
   // Create transaction by country data
-  const countryData = transactions.reduce((acc: any, transaction: any) => {
+  const countryData = transactions.reduce((acc: Record<string, number>, transaction: any) => {
     const country = transaction.country;
     acc[country] = (acc[country] || 0) + 1;
     return acc;
   }, {});
   
   const countryChartData = Object.entries(countryData)
-    .map(([name, value]) => ({ name, count: value }))
-    .sort((a, b) => (b.count as number) - (a.count as number))
+    .map(([name, value]) => ({ 
+      name, 
+      count: Number(value) // Ensure count is a number
+    }))
+    .sort((a, b) => b.count - a.count)
     .slice(0, 5); // Top 5 countries
   
   // Generate some mock user growth data by month
