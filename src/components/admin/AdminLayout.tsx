@@ -46,7 +46,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} className="admin-sidebar" />
+      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
       <div 
         className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
       >

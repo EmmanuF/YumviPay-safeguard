@@ -35,31 +35,31 @@ const AdminSettings = () => {
         </div>
         
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 p-1 rounded-lg bg-gradient-to-r from-primary-50/90 to-secondary-50/90 shadow-md backdrop-blur-sm admin-tabs">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 p-1 rounded-lg bg-gradient-to-r from-primary-50/90 to-secondary-50/90 shadow-md backdrop-blur-sm">
             <TabsTrigger 
               value="general" 
-              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20 admin-tab"
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
             >
               <Settings className="h-4 w-4 mr-2" />
               General
             </TabsTrigger>
             <TabsTrigger 
               value="appearance" 
-              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20 admin-tab"
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
             >
               <Palette className="h-4 w-4 mr-2" />
               Appearance
             </TabsTrigger>
             <TabsTrigger 
               value="notifications" 
-              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20 admin-tab"
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
             >
               <Bell className="h-4 w-4 mr-2" />
               Notifications
             </TabsTrigger>
             <TabsTrigger 
               value="advanced" 
-              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20 admin-tab"
+              className="transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500 data-[state=active]:to-primary-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/20"
             >
               <Settings className="h-4 w-4 mr-2" />
               Advanced

@@ -5,86 +5,65 @@
 
 @layer base {
   :root {
-    /* Updated color palette with better contrast */
-    --background: 39 77% 83%;
-    --foreground: 0 0% 0%;  /* Pure black for better contrast */
+    --background: 0 0% 95%;
+    --foreground: 210 29% 24%;
 
-    /* Warm Sand for cards and popovers (replacing Soft Cream) */
-    --card: 36 72% 85%;
-    --card-foreground: 0 0% 0%;
-    --popover: 36 72% 85%;
-    --popover-foreground: 0 0% 0%;
+    --card: 0 0% 95%;
+    --card-foreground: 210 29% 24%;
 
-    /* Deep Emerald Green as primary color (replacing Bright Teal) */
-    --primary: 161 100% 22%;
-    --primary-foreground: 36 72% 85%;
+    --popover: 0 0% 95%;
+    --popover-foreground: 210 29% 24%;
 
-    /* Rich Espresso Brown as secondary color (replacing Dark Mocha) */
-    --secondary: 20 37% 18%;
-    --secondary-foreground: 36 72% 85%;
+    --primary: 180 100% 25%;
+    --primary-foreground: 0 0% 95%;
 
-    /* Muted colors with stronger contrast */
-    --muted: 36 40% 90%;
-    --muted-foreground: 20 30% 30%;
+    --secondary: 45 100% 67%;
+    --secondary-foreground: 210 29% 24%;
 
-    /* Burnt Orange as accent color (keeping same) */
-    --accent: 21 100% 45%;
-    --accent-foreground: 36 72% 85%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 210 29% 45%;
+
+    --accent: 39 100% 50%;
+    --accent-foreground: 210 29% 24%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 36 72% 85%;
+    --destructive-foreground: 0 0% 95%;
 
-    /* Additional colors for gradients with updated values */
-    --purple: 270 50% 55%;  /* Slightly darkened */
-    --orange: 21 100% 45%;
-    --teal: 161 100% 22%;   /* Using Deep Emerald Green */
-    --cream: 36 72% 85%;    /* Using Warm Sand */
-    --mocha: 20 37% 18%;    /* Using Rich Espresso Brown */
-    --charcoal: 0 0% 0%;    /* Pure Black for text */
-
-    --border: 20 20% 80%;
-    --input: 20 20% 80%;
-    --ring: 161 100% 22%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 180 100% 25%;
 
     --radius: 1rem;
   }
 
   .dark {
-    /* Dark mode colors also updated for consistency */
-    --background: 36 72% 85%;
-    --foreground: 0 0% 0%;
+    --background: 0 0% 95%;
+    --foreground: 210 29% 24%;
 
-    --card: 36 72% 85%;
-    --card-foreground: 0 0% 0%;
-    --popover: 36 72% 85%;
-    --popover-foreground: 0 0% 0%;
+    --card: 0 0% 95%;
+    --card-foreground: 210 29% 24%;
 
-    --primary: 161 100% 22%;
-    --primary-foreground: 36 72% 85%;
+    --popover: 0 0% 95%;
+    --popover-foreground: 210 29% 24%;
 
-    --secondary: 20 37% 18%;
-    --secondary-foreground: 36 72% 85%;
+    --primary: 180 100% 25%;
+    --primary-foreground: 0 0% 95%;
 
-    /* Muted colors */
-    --muted: 36 40% 90%;
-    --muted-foreground: 20 30% 30%;
+    --secondary: 45 100% 67%;
+    --secondary-foreground: 210 29% 24%;
 
-    --accent: 21 100% 45%;
-    --accent-foreground: 36 72% 85%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 210 29% 45%;
 
-    /* Additional colors for gradients */
-    --purple: 270 50% 55%;
-    --orange: 21 100% 45%;
-    --teal: 161 100% 22%;
-    --cream: 36 72% 85%;
-    --mocha: 20 37% 18%;
+    --accent: 39 100% 50%;
+    --accent-foreground: 210 29% 24%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 36 72% 85%;
+    --destructive-foreground: 0 0% 95%;
 
-    --border: 20 20% 80%;
-    --input: 20 20% 80%;
-    --ring: 161 100% 22%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 180 100% 25%;
   }
 }
 
@@ -99,42 +78,33 @@
   }
 
   body {
-    @apply bg-[#F4E1C1] text-[#000000];
+    @apply bg-[#F2F2F2] text-[#2C3E50];
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Glass effects classes with improved opacity and contrast */
+/* Glass effects classes */
 .glass-effect {
-  @apply bg-white/90 backdrop-blur-sm border border-secondary-200/40 shadow-md;
+  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm;
 }
 
 .glass-strong {
-  @apply bg-white/95 backdrop-blur-md border border-secondary-300/50 shadow-lg;
+  @apply bg-white/90 backdrop-blur-md border border-white/30 shadow-md;
 }
 
-/* Gradient backgrounds using our updated color scheme */
+/* Gradient backgrounds using our color scheme */
 .gradient-primary {
-  @apply bg-gradient-to-br from-primary-600 to-primary-700;
+  @apply bg-gradient-to-br from-primary-500 to-primary-600;
 }
 
 .gradient-accent {
-  @apply bg-gradient-to-r from-accent-500 to-accent-600;
+  @apply bg-gradient-to-r from-accent-400 to-accent-500;
 }
 
 .gradient-primary-accent {
-  @apply bg-gradient-to-br from-primary-600 to-accent-500;
+  @apply bg-gradient-to-br from-primary-500 to-accent-500;
 }
 
 .gradient-card {
-  @apply bg-gradient-to-br from-cream-200 to-background;
-}
-
-/* Specific combinations for our new theme */
-.gradient-teal-orange {
-  @apply bg-gradient-to-br from-teal-600 to-orange-500;
-}
-
-.gradient-mocha-cream {
-  @apply bg-gradient-to-br from-mocha-600 to-cream-300;
+  @apply bg-gradient-to-br from-white to-background;
 }

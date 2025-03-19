@@ -14,7 +14,7 @@ export const useAppearanceSettings = () => {
   const form = useForm<AppearanceSettingsFormData>({
     defaultValues: {
       theme: 'light',
-      accentColor: 'teal', // Using teal to match our Deep Emerald theme
+      accentColor: 'purple',
       enableAnimations: true,
       sidebarCollapsed: false
     }
