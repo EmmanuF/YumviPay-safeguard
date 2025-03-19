@@ -26,50 +26,102 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Updated color system with crimson shades
+                // Deep Emerald Green (replacing Bright Teal Green)
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#fbe4e8',
-                    100: '#f7c9d1',
-                    200: '#ef93a3',
-                    300: '#e75d75',
-                    400: '#e02647',
-                    500: '#DC143C', // Crimson Red
-                    600: '#b01030',
-                    700: '#840c24',
-                    800: '#580818',
-                    900: '#2c040c',
+                    50: '#e0f2ee',
+                    100: '#b3e0d6',
+                    200: '#80cabb',
+                    300: '#4db49f',
+                    400: '#269f84',
+                    500: '#00704A', // Deep Emerald Green
+                    600: '#005f3f',
+                    700: '#004d33',
+                    800: '#003c28',
+                    900: '#002a1c',
                 },
-                // Warm Brown
+                // Rich Espresso Brown (replacing Dark Mocha)
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#f3ede7',
-                    100: '#e7dbcf',
-                    200: '#cfb79f',
-                    300: '#b7936f',
-                    400: '#9f6f3f',
-                    500: '#8B4513', // Warm Brown
-                    600: '#6f370f',
-                    700: '#53290b',
-                    800: '#371c08',
-                    900: '#1c0e04',
+                    50: '#ece9e7',
+                    100: '#d9d3cf',
+                    200: '#b3a89f',
+                    300: '#8c7c6f',
+                    400: '#66503f',
+                    500: '#3C2A1E', // Rich Espresso Brown
+                    600: '#30221a',
+                    700: '#251a13',
+                    800: '#1a120d',
+                    900: '#0d0906',
                 },
-                // Rich Gold
+                // Burnt Orange (kept the same)
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#fbf7eb',
-                    100: '#f7efd7',
-                    200: '#efdeaf',
-                    300: '#e7cd87',
-                    400: '#dfbc5f',
-                    500: '#DAA520', // Rich Gold
-                    600: '#ae841a',
-                    700: '#836313',
-                    800: '#57420d',
-                    900: '#2c2106',
+                    50: '#fceee4',
+                    100: '#faddc9',
+                    200: '#f5ba94',
+                    300: '#f0975e',
+                    400: '#eb7429',
+                    500: '#E65100', // Burnt Orange
+                    600: '#b84100',
+                    700: '#8a3100',
+                    800: '#5c2000',
+                    900: '#2e1000',
+                },
+                // Warm Sand (replacing Soft Cream)
+                cream: {
+                    50: '#fefcf8',
+                    100: '#fcf9f1',
+                    200: '#f9f3e4',
+                    300: '#f7edd6',
+                    400: '#f5e7c9',
+                    500: '#F4E1C1', // Warm Sand
+                    600: '#c3b49a',
+                    700: '#928774',
+                    800: '#615a4d',
+                    900: '#302d27',
+                },
+                // Pure Black (replacing Deep Charcoal)
+                charcoal: {
+                    50: '#e6e6e6',
+                    100: '#cccccc',
+                    200: '#999999',
+                    300: '#666666',
+                    400: '#333333',
+                    500: '#000000', // Pure Black
+                    600: '#000000',
+                    700: '#000000',
+                    800: '#000000',
+                    900: '#000000',
+                },
+                // Rich Espresso Brown (replacing Mocha Brown)
+                mocha: {
+                    50: '#ece9e7',
+                    100: '#d9d3cf',
+                    200: '#b3a89f',
+                    300: '#8c7c6f',
+                    400: '#66503f',
+                    500: '#3C2A1E', // Rich Espresso Brown
+                    600: '#30221a',
+                    700: '#251a13',
+                    800: '#1a120d',
+                    900: '#0d0906',
+                },
+                // Deep Emerald (replacing Teal)
+                teal: {
+                    50: '#e0f2ee',
+                    100: '#b3e0d6',
+                    200: '#80cabb',
+                    300: '#4db49f',
+                    400: '#269f84',
+                    500: '#00704A', // Deep Emerald Green
+                    600: '#005f3f',
+                    700: '#004d33',
+                    800: '#003c28',
+                    900: '#002a1c',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -87,13 +139,6 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
                 },
-                // Adding explicit colors for text and background
-                slate: {
-                    500: '#4A4A4A', // Dark Gray for text
-                },
-                gray: {
-                    500: '#2FDB14', // Bright Green for background (replacing Ivory White)
-                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
