@@ -6,39 +6,39 @@ import { cn } from "@/lib/utils"
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange" | "teal" | "mocha" | "teal-orange" | "mocha-cream";
+    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange" | "navy" | "mint" | "navy-gold" | "mint-gray";
     hoverEffect?: boolean;
-    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info" | "teal" | "mocha" | "orange";
+    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info" | "navy" | "mint" | "gold";
   }
 >(({ className, gradient = "none", hoverEffect = false, coloredBorder = "none", ...props }, ref) => {
   const gradientStyles = {
     neon: "bg-gradient-to-br from-accent-500/15 to-background border-l-4 border-accent-500 shadow-md",
     electric: "bg-gradient-to-br from-secondary-500/15 to-background border-l-4 border-secondary-500 shadow-md",
-    dark: "bg-gradient-to-br from-primary-500/15 to-background border-l-4 border-primary-600 shadow-md",
-    crimson: "bg-gradient-to-br from-primary-500/15 to-background border-l-4 border-primary-600 shadow-md",
-    gold: "bg-gradient-to-br from-accent-500/15 to-background border-l-4 border-accent-500 shadow-md",
-    brown: "bg-gradient-to-br from-secondary-500/15 to-background border-l-4 border-secondary-600 shadow-md",
+    dark: "bg-gradient-to-br from-charcoal-500/15 to-background border-l-4 border-charcoal-600 shadow-md",
+    crimson: "bg-gradient-to-br from-red-500/15 to-background border-l-4 border-red-600 shadow-md",
+    gold: "bg-gradient-to-br from-primary-500/15 to-background border-l-4 border-primary-500 shadow-md",
+    brown: "bg-gradient-to-br from-yellow-800/15 to-background border-l-4 border-yellow-900 shadow-md",
     blue: "bg-gradient-to-br from-blue-500/15 to-background border-l-4 border-blue-600 shadow-md",
     green: "bg-gradient-to-br from-green-500/15 to-background border-l-4 border-green-600 shadow-md",
     purple: "bg-gradient-to-br from-purple-500/15 to-background border-l-4 border-purple-600 shadow-md",
     orange: "bg-gradient-to-br from-orange-500/15 to-background border-l-4 border-orange-600 shadow-md",
-    teal: "bg-gradient-to-br from-teal-500/15 to-background border-l-4 border-teal-600 shadow-md",
-    mocha: "bg-gradient-to-br from-mocha-500/15 to-background border-l-4 border-mocha-600 shadow-md",
-    "teal-orange": "bg-gradient-to-br from-teal-500/15 to-accent-500/15 border-l-4 border-teal-600 shadow-md",
-    "mocha-cream": "bg-gradient-to-br from-mocha-500/15 to-cream-500/40 border-l-4 border-mocha-600 shadow-md",
-    none: "shadow-sm border border-mocha-200/30"
+    navy: "bg-gradient-to-br from-navy-500/15 to-background border-l-4 border-navy-600 shadow-md",
+    mint: "bg-gradient-to-br from-mint-500/15 to-background border-l-4 border-mint-600 shadow-md",
+    "navy-gold": "bg-gradient-to-br from-navy-500/15 to-primary-500/15 border-l-4 border-navy-600 shadow-md",
+    "mint-gray": "bg-gradient-to-br from-mint-500/15 to-gray-300/40 border-l-4 border-mint-600 shadow-md",
+    none: "shadow-sm border border-charcoal-200/30"
   };
 
   const borderStyles = {
     accent: "border-l-4 border-accent-500",
     secondary: "border-l-4 border-secondary-500",
     destructive: "border-l-4 border-destructive",
-    primary: "border-l-4 border-primary-600",
+    primary: "border-l-4 border-primary-500",
     success: "border-l-4 border-green-600",
     info: "border-l-4 border-blue-600",
-    teal: "border-l-4 border-teal-600",
-    mocha: "border-l-4 border-mocha-600",
-    orange: "border-l-4 border-accent-500",
+    navy: "border-l-4 border-navy-600",
+    mint: "border-l-4 border-mint-600",
+    gold: "border-l-4 border-primary-500",
     none: ""
   };
 
@@ -49,7 +49,7 @@ const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border bg-cream-500 text-charcoal-500",
+        "rounded-lg border bg-gray-300 text-charcoal-500",
         gradientStyles[gradient],
         coloredBorder !== "none" && gradient === "none" ? borderStyles[coloredBorder] : "",
         hoverStyles,

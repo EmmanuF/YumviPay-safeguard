@@ -26,102 +26,102 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Deep Emerald Green (replacing Bright Teal Green)
+                // Warm Gold (primary color)
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#e0f2ee',
-                    100: '#b3e0d6',
-                    200: '#80cabb',
-                    300: '#4db49f',
-                    400: '#269f84',
-                    500: '#00704A', // Deep Emerald Green
-                    600: '#005f3f',
-                    700: '#004d33',
-                    800: '#003c28',
-                    900: '#002a1c',
+                    50: '#FFF8E1',
+                    100: '#FFECB3',
+                    200: '#FFE082',
+                    300: '#FFD54F',
+                    400: '#FFC928',
+                    500: '#FFB400', // Warm Gold
+                    600: '#FFA000',
+                    700: '#FF8F00',
+                    800: '#FF6F00',
+                    900: '#FF5722',
                 },
-                // Rich Espresso Brown (replacing Dark Mocha)
+                // Deep Navy Blue (secondary color)
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#ece9e7',
-                    100: '#d9d3cf',
-                    200: '#b3a89f',
-                    300: '#8c7c6f',
-                    400: '#66503f',
-                    500: '#3C2A1E', // Rich Espresso Brown
-                    600: '#30221a',
-                    700: '#251a13',
-                    800: '#1a120d',
-                    900: '#0d0906',
+                    50: '#E3E9F2',
+                    100: '#B9C8DE',
+                    200: '#8FA7CA',
+                    300: '#6485B5',
+                    400: '#3F67A0',
+                    500: '#0A2540', // Deep Navy Blue
+                    600: '#092138',
+                    700: '#071C30',
+                    800: '#051628',
+                    900: '#021120',
                 },
-                // Burnt Orange (kept the same)
+                // Warm Gold (accent color)
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#fceee4',
-                    100: '#faddc9',
-                    200: '#f5ba94',
-                    300: '#f0975e',
-                    400: '#eb7429',
-                    500: '#E65100', // Burnt Orange
-                    600: '#b84100',
-                    700: '#8a3100',
-                    800: '#5c2000',
-                    900: '#2e1000',
+                    50: '#FFF8E1',
+                    100: '#FFECB3',
+                    200: '#FFE082',
+                    300: '#FFD54F',
+                    400: '#FFC928',
+                    500: '#FFB400', // Warm Gold
+                    600: '#FFA000',
+                    700: '#FF8F00',
+                    800: '#FF6F00',
+                    900: '#FF5722',
                 },
-                // Warm Sand (replacing Soft Cream)
-                cream: {
-                    50: '#fefcf8',
-                    100: '#fcf9f1',
-                    200: '#f9f3e4',
-                    300: '#f7edd6',
-                    400: '#f5e7c9',
-                    500: '#F4E1C1', // Warm Sand
-                    600: '#c3b49a',
-                    700: '#928774',
-                    800: '#615a4d',
-                    900: '#302d27',
+                // Cool Light Gray
+                gray: {
+                    50: '#FAFAFA',
+                    100: '#F8F8F8',
+                    200: '#F5F5F5',
+                    300: '#F2F2F2', // Cool Light Gray
+                    400: '#EEEEEE',
+                    500: '#E0E0E0',
+                    600: '#BDBDBD',
+                    700: '#9E9E9E',
+                    800: '#757575',
+                    900: '#616161',
                 },
-                // Pure Black (replacing Deep Charcoal)
+                // Charcoal Gray
                 charcoal: {
-                    50: '#e6e6e6',
-                    100: '#cccccc',
-                    200: '#999999',
-                    300: '#666666',
-                    400: '#333333',
-                    500: '#000000', // Pure Black
-                    600: '#000000',
-                    700: '#000000',
-                    800: '#000000',
-                    900: '#000000',
+                    50: '#E6E6E6',
+                    100: '#CCCCCC',
+                    200: '#B3B3B3',
+                    300: '#999999',
+                    400: '#666666',
+                    500: '#333333', // Charcoal Gray
+                    600: '#292929',
+                    700: '#1F1F1F',
+                    800: '#141414',
+                    900: '#0A0A0A',
                 },
-                // Rich Espresso Brown (replacing Mocha Brown)
-                mocha: {
-                    50: '#ece9e7',
-                    100: '#d9d3cf',
-                    200: '#b3a89f',
-                    300: '#8c7c6f',
-                    400: '#66503f',
-                    500: '#3C2A1E', // Rich Espresso Brown
-                    600: '#30221a',
-                    700: '#251a13',
-                    800: '#1a120d',
-                    900: '#0d0906',
+                // Soft Mint Green
+                mint: {
+                    50: '#E8F7ED',
+                    100: '#D1F0DB',
+                    200: '#BAE8C9',
+                    300: '#A7E3BE', // Soft Mint Green
+                    400: '#8ED9AE',
+                    500: '#75CF9E',
+                    600: '#5CB88E',
+                    700: '#42A17E',
+                    800: '#29896E',
+                    900: '#0F725E',
                 },
-                // Deep Emerald (replacing Teal)
-                teal: {
-                    50: '#e0f2ee',
-                    100: '#b3e0d6',
-                    200: '#80cabb',
-                    300: '#4db49f',
-                    400: '#269f84',
-                    500: '#00704A', // Deep Emerald Green
-                    600: '#005f3f',
-                    700: '#004d33',
-                    800: '#003c28',
-                    900: '#002a1c',
+                // Deep Navy Blue
+                navy: {
+                    50: '#E3E9F2',
+                    100: '#B9C8DE',
+                    200: '#8FA7CA',
+                    300: '#6485B5',
+                    400: '#3F67A0',
+                    500: '#0A2540', // Deep Navy Blue
+                    600: '#092138',
+                    700: '#071C30',
+                    800: '#051628',
+                    900: '#021120',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',

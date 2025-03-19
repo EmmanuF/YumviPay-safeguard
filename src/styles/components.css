@@ -12,7 +12,7 @@
   left: 0;
   right: 0;
   height: 100%;
-  background-color: #00704A; /* Updated to Deep Emerald */
+  background-color: #0A2540; /* Deep Navy Blue */
   z-index: -1;
 }
 
@@ -30,12 +30,12 @@
   left: 0;
   right: 0;
   height: 70px;
-  background-color: #E65100; /* Kept Burnt Orange */
+  background-color: #0A2540; /* Deep Navy Blue */
 }
 
 /* Enhanced specific styles for homepage header - with deeper shadows */
 .homepage-header-orange {
-  background-color: #E65100;
+  background-color: #0A2540; /* Deep Navy Blue */
   position: absolute;
   top: 0;
   left: 0;
@@ -53,12 +53,12 @@
   left: 0;
   right: 0;
   height: 15px;
-  background-color: #F0975E;
+  background-color: #215184; /* Lighter Navy */
   z-index: 24;
   pointer-events: none;
 }
 
-/* Home page diagonal orange header - enhanced with smoother transitions and shadows */
+/* Home page diagonal header - enhanced with smoother transitions and shadows */
 .home-orange-header {
   position: relative;
   overflow: visible;
@@ -72,7 +72,7 @@
   left: 0;
   right: 0;
   height: 70px;
-  background-color: #E65100;
+  background-color: #0A2540; /* Deep Navy Blue */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -83,7 +83,7 @@
   left: 0;
   right: 0;
   height: 40px;
-  background-color: #EB7429;
+  background-color: #092138; /* Slightly darker navy blue */
   transform: skewY(-3deg);
   transform-origin: right;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
