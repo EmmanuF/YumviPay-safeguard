@@ -11,12 +11,25 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Badge } from '@/components/ui/badge';
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 
 const PromotionsManager = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState<any>(null);
+  
+  // State for date ranges
+  const [startDateRange, setStartDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: undefined
+  });
+  
+  const [endDateRange, setEndDateRange] = useState<DateRange | undefined>({
+    from: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+    to: undefined
+  });
   
   // Sample promotions data
   const [promotions, setPromotions] = useState([
@@ -157,6 +170,28 @@ const PromotionsManager = () => {
     promo.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
+  // Handle start date change
+  const handleStartDateChange = (range: DateRange | undefined) => {
+    setStartDateRange(range);
+    if (range?.from) {
+      setNewPromotion(prev => ({
+        ...prev,
+        startDate: range.from as Date
+      }));
+    }
+  };
+  
+  // Handle end date change
+  const handleEndDateChange = (range: DateRange | undefined) => {
+    setEndDateRange(range);
+    if (range?.from) {
+      setNewPromotion(prev => ({
+        ...prev,
+        endDate: range.from as Date
+      }));
+    }
+  };
+  
   return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-t-lg">
@@ -213,15 +248,15 @@ const PromotionsManager = () => {
                   <div className="grid gap-2">
                     <Label>Start Date</Label>
                     <DatePicker 
-                      date={newPromotion.startDate}
-                      setDate={(date) => date && setNewPromotion({...newPromotion, startDate: date})}
+                      value={startDateRange}
+                      onChange={handleStartDateChange}
                     />
                   </div>
                   <div className="grid gap-2">
                     <Label>End Date</Label>
                     <DatePicker 
-                      date={newPromotion.endDate}
-                      setDate={(date) => date && setNewPromotion({...newPromotion, endDate: date})}
+                      value={endDateRange}
+                      onChange={handleEndDateChange}
                     />
                   </div>
                 </div>
