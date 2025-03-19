@@ -27,9 +27,19 @@ export const getCachedCountries = (): Country[] | null => {
       return null;
     }
     
+    // Validate that cached countries have all required properties
+    if (!cachedData.countries || !Array.isArray(cachedData.countries) || cachedData.countries.length === 0) {
+      console.log('Invalid countries cache format, clearing cache');
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    
+    console.log(`Retrieved ${cachedData.countries.length} countries from cache`);
+    console.log('Sending countries in cache:', cachedData.countries.filter(c => c.isSendingEnabled).map(c => c.code).join(', '));
     return cachedData.countries;
   } catch (error) {
     console.error('Error reading countries cache:', error);
+    localStorage.removeItem(CACHE_KEY); // Clear potentially corrupted cache
     return null;
   }
 };
@@ -39,6 +49,11 @@ export const getCachedCountries = (): Country[] | null => {
  */
 export const updateCountriesCache = (countries: Country[]): void => {
   try {
+    if (!countries || !Array.isArray(countries) || countries.length === 0) {
+      console.error('Invalid countries data provided for caching');
+      return;
+    }
+    
     const cacheData: CachedData = {
       countries,
       timestamp: Date.now(),
@@ -46,6 +61,7 @@ export const updateCountriesCache = (countries: Country[]): void => {
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     console.log(`Updated countries cache with ${countries.length} countries`);
+    console.log('Sending countries in updated cache:', countries.filter(c => c.isSendingEnabled).map(c => c.code).join(', '));
   } catch (error) {
     console.error('Error updating countries cache:', error);
   }
