@@ -40,11 +40,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 border-r border-primary-700 transition-all duration-300 ease-in-out shadow-lg z-30",
+      "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-700 to-primary-800 border-r border-primary-900 transition-all duration-300 ease-in-out shadow-lg z-30",
       collapsed ? "w-16" : "w-64",
       className // Apply the optional className
     )}>
-      <div className="flex items-center justify-between p-4 border-b border-primary-700">
+      <div className="flex items-center justify-between p-4 border-b border-primary-900">
         {!collapsed && (
           <span className="text-white text-xl font-bold">Yumvi-Pay Admin</span>
         )}
@@ -92,7 +92,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
         </nav>
       </div>
       
-      <div className="p-4 border-t border-primary-700 bg-primary-800/50">
+      <div className="p-4 border-t border-primary-900 bg-primary-800/50">
         <div className={cn(
           "flex items-center", 
           collapsed ? "justify-center" : "space-x-3"

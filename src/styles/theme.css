@@ -14,7 +14,8 @@
     --popover: 0 0% 95%;
     --popover-foreground: 210 29% 24%;
 
-    --primary: 180 100% 25%;
+    /* Updated primary color to a darker teal to match admin panel */
+    --primary: 180 100% 19%;
     --primary-foreground: 0 0% 95%;
 
     --secondary: 45 100% 67%;
@@ -31,7 +32,7 @@
 
     --border: 0 0% 85%;
     --input: 0 0% 85%;
-    --ring: 180 100% 25%;
+    --ring: 180 100% 19%;
 
     --radius: 1rem;
   }
@@ -46,7 +47,8 @@
     --popover: 0 0% 95%;
     --popover-foreground: 210 29% 24%;
 
-    --primary: 180 100% 25%;
+    /* Updated primary color to a darker teal to match admin panel */
+    --primary: 180 100% 19%;
     --primary-foreground: 0 0% 95%;
 
     --secondary: 45 100% 67%;
@@ -63,7 +65,7 @@
 
     --border: 0 0% 85%;
     --input: 0 0% 85%;
-    --ring: 180 100% 25%;
+    --ring: 180 100% 19%;
   }
 }
 

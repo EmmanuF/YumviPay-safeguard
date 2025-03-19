@@ -26,20 +26,20 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Updated color system
+                // Updated color system with darker teal shades
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#e6f5f5',
-                    100: '#ccecec',
-                    200: '#99d9d9',
-                    300: '#66c6c6',
-                    400: '#33b3b3',
-                    500: '#008080', // Deep Teal
-                    600: '#006666',
-                    700: '#004d4d',
-                    800: '#003333',
-                    900: '#001a1a',
+                    50: '#e6f2f2',
+                    100: '#cce6e6',
+                    200: '#99cccc',
+                    300: '#66b3b3',
+                    400: '#339999',
+                    500: '#006060', // Darker Deep Teal (matched to admin panel)
+                    600: '#004d4d',
+                    700: '#003939',
+                    800: '#002626',
+                    900: '#001313',
                 },
                 // Soft Yellow
                 secondary: {
