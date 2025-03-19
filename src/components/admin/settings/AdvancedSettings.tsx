@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ const AdvancedSettings = () => {
               </p>
             </div>
             <Switch 
+              checked={settings.maintenanceMode}
               onCheckedChange={(checked) => handleSettingChange('maintenanceMode', checked)} 
             />
           </div>
@@ -50,7 +52,10 @@ const AdvancedSettings = () => {
                 Enable rate limiting for API endpoints
               </p>
             </div>
-            <Switch defaultChecked />
+            <Switch 
+              checked={settings.rateLimiting}
+              onCheckedChange={(checked) => handleSettingChange('rateLimiting', checked)} 
+            />
           </div>
           
           <div className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-4">
@@ -60,7 +65,10 @@ const AdvancedSettings = () => {
                 Collect anonymous usage data
               </p>
             </div>
-            <Switch defaultChecked />
+            <Switch 
+              checked={settings.analytics}
+              onCheckedChange={(checked) => handleSettingChange('analytics', checked)} 
+            />
           </div>
         </div>
       </CardContent>
