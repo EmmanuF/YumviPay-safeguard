@@ -18,29 +18,66 @@ export interface ExchangeRateCalculatorState {
 export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuth();
-  const { countries, isLoading: countriesLoading } = useCountries();
+  const { countries, isLoading: countriesLoading, getSendingCountries, getReceivingCountries, refreshCountries } = useCountries();
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
   const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
   const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
   const [isProcessing, setIsProcessing] = useState(false);
+  const [sendingCountryList, setSendingCountryList] = useState<string[]>([]);
+  const [receivingCountryList, setReceivingCountryList] = useState<string[]>([]);
 
-  // Memoize currency lists to reduce re-calculation
-  const sourceCurrencies = useMemo(() => 
-    Array.from(new Set(
-      countries
-        .filter(country => country.isSendingEnabled)
-        .map(country => country.currency)
-    )), [countries]);
-  
-  const targetCurrencies = useMemo(() => 
-    Array.from(new Set(
-      countries
-        .filter(country => country.isReceivingEnabled)
-        .map(country => country.currency)
-    )), [countries]);
+  // Load sending and receiving countries on component mount
+  useEffect(() => {
+    const loadCountryLists = async () => {
+      console.log('Loading country lists in useExchangeRateCalculator');
+      
+      try {
+        // Fetch sending countries
+        const sendingCountries = await getSendingCountries();
+        const sendingCurrencies = Array.from(new Set(
+          sendingCountries.map(country => country.currency)
+        ));
+        console.log('Sending currencies retrieved:', sendingCurrencies);
+        setSendingCountryList(sendingCurrencies);
+        
+        // Fetch receiving countries
+        const receivingCountries = await getReceivingCountries();
+        const receivingCurrencies = Array.from(new Set(
+          receivingCountries.map(country => country.currency)
+        ));
+        console.log('Receiving currencies retrieved:', receivingCurrencies);
+        setReceivingCountryList(receivingCurrencies);
+        
+        // If the source currency isn't in the sending list, reset it to USD or first available
+        if (sendingCurrencies.length > 0 && !sendingCurrencies.includes(sourceCurrency)) {
+          const defaultCurrency = sendingCurrencies.includes('USD') ? 'USD' : sendingCurrencies[0];
+          console.log(`Resetting source currency to ${defaultCurrency}`);
+          setSourceCurrency(defaultCurrency);
+        }
+        
+        // If the target currency isn't in the receiving list, reset it to XAF or first available
+        if (receivingCurrencies.length > 0 && !receivingCurrencies.includes(targetCurrency)) {
+          const defaultCurrency = receivingCurrencies.includes('XAF') ? 'XAF' : receivingCurrencies[0];
+          console.log(`Resetting target currency to ${defaultCurrency}`);
+          setTargetCurrency(defaultCurrency);
+        }
+      } catch (error) {
+        console.error('Error loading country lists:', error);
+      }
+    };
+    
+    loadCountryLists();
+    
+    // Try refreshing countries data if the lists are empty
+    if (countries.length === 0) {
+      console.log('Countries list is empty, refreshing data');
+      refreshCountries();
+    }
+  }, [countries, getSendingCountries, getReceivingCountries, refreshCountries]);
 
+  // Update exchange rate when currencies change
   useEffect(() => {
     const calculateRate = () => {
       // Get exchange rate from utility function
@@ -145,8 +182,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     isProcessing,
     authLoading,
     countriesLoading,
-    sourceCurrencies,
-    targetCurrencies,
+    sourceCurrencies: sendingCountryList,
+    targetCurrencies: receivingCountryList,
     handleContinue
   };
 };

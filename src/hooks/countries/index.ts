@@ -32,9 +32,15 @@ export function useCountries() {
           console.log('Sending countries from cache:', sendingCountries.map(c => c.code).join(', '));
           console.log('Receiving countries from cache:', receivingCountries.map(c => c.code).join(', '));
           
-          setCountries(cachedData);
-          setIsLoading(false);
-          return;
+          // Check if we have at least one sending and one receiving country
+          if (sendingCountries.length === 0 || receivingCountries.length === 0) {
+            console.log('Missing sending or receiving countries in cache, clearing cache');
+            clearCountriesCache();
+          } else {
+            setCountries(cachedData);
+            setIsLoading(false);
+            return;
+          }
         }
         
         setIsLoading(true);
@@ -54,10 +60,15 @@ export function useCountries() {
             console.log('Sending countries from API:', sendingFromApi.map(c => c.code).join(', '));
             console.log('Receiving countries from API:', receivingFromApi.map(c => c.code).join(', '));
             
-            updateCountriesCache(apiData);
-            setCountries(apiData);
-            setIsLoading(false);
-            return;
+            // Verify we have both sending and receiving countries from API
+            if (sendingFromApi.length > 0 && receivingFromApi.length > 0) {
+              updateCountriesCache(apiData);
+              setCountries(apiData);
+              setIsLoading(false);
+              return;
+            } else {
+              console.log('API returned countries but missing sending or receiving flags, falling back to mock data');
+            }
           } else {
             console.log('API returned no countries or failed, falling back to mock data');
           }
@@ -66,13 +77,19 @@ export function useCountries() {
         // Use mock data if offline or API error
         console.log('Using mock country data due to offline status or API error');
         
-        // Make sure mock data has the correct settings
+        // Verify that mock data has correct sending/receiving flags
         const sendingCountriesFromMock = mockCountries.filter(c => c.isSendingEnabled);
         const receivingCountriesFromMock = mockCountries.filter(c => c.isReceivingEnabled);
         
         console.log('Mock data has', mockCountries.length, 'countries');
         console.log('Sending countries from mock:', sendingCountriesFromMock.map(c => c.code).join(', '));
         console.log('Receiving countries from mock:', receivingCountriesFromMock.map(c => c.code).join(', '));
+        
+        // Verify we have both sending and receiving countries in mock data
+        if (sendingCountriesFromMock.length === 0 || receivingCountriesFromMock.length === 0) {
+          console.error('Mock data is missing sending or receiving countries!');
+          setError(new Error('No sending or receiving countries available'));
+        }
         
         setCountries(mockCountries);
         
@@ -110,10 +127,15 @@ export function useCountries() {
       
       // If we already have countries data, filter it locally
       if (countries.length > 0) {
-        const sendingCountries = countries.filter(country => country.isSendingEnabled);
+        const sendingCountries = countries.filter(country => country.isSendingEnabled === true);
         console.log('Filtered sending countries from loaded data:', sendingCountries.length);
         console.log('Sending country codes:', sendingCountries.map(c => c.code).join(', '));
-        return sendingCountries;
+        
+        if (sendingCountries.length > 0) {
+          return sendingCountries;
+        } else {
+          console.log('No sending countries found in loaded data, trying API or mock data');
+        }
       }
       
       if (!isOffline) {
@@ -128,7 +150,7 @@ export function useCountries() {
         }
       }
       
-      const mockSendingCountries = mockCountries.filter(country => country.isSendingEnabled);
+      const mockSendingCountries = mockCountries.filter(country => country.isSendingEnabled === true);
       console.log('Using mock sending countries:', mockSendingCountries.length);
       console.log('Mock sending country codes:', mockSendingCountries.map(c => c.code).join(', '));
       return mockSendingCountries;
@@ -142,10 +164,15 @@ export function useCountries() {
       
       // If we already have countries data, filter it locally
       if (countries.length > 0) {
-        const receivingCountries = countries.filter(country => country.isReceivingEnabled);
+        const receivingCountries = countries.filter(country => country.isReceivingEnabled === true);
         console.log('Filtered receiving countries from loaded data:', receivingCountries.length);
         console.log('Receiving country codes:', receivingCountries.map(c => c.code).join(', '));
-        return receivingCountries;
+        
+        if (receivingCountries.length > 0) {
+          return receivingCountries;
+        } else {
+          console.log('No receiving countries found in loaded data, trying API or mock data');
+        }
       }
       
       if (!isOffline) {
@@ -160,7 +187,7 @@ export function useCountries() {
         }
       }
       
-      const mockReceivingCountries = mockCountries.filter(country => country.isReceivingEnabled);
+      const mockReceivingCountries = mockCountries.filter(country => country.isReceivingEnabled === true);
       console.log('Using mock receiving countries:', mockReceivingCountries.length);
       console.log('Mock receiving country codes:', mockReceivingCountries.map(c => c.code).join(', '));
       return mockReceivingCountries;
@@ -179,9 +206,25 @@ export function useCountries() {
         const apiData = await fetchCountriesFromApi();
         
         if (apiData && apiData.length > 0) {
-          updateCountriesCache(apiData);
-          setCountries(apiData);
-          console.log('Countries data refreshed successfully from API');
+          // Verify we have both sending and receiving countries
+          const sendingCountries = apiData.filter(c => c.isSendingEnabled);
+          const receivingCountries = apiData.filter(c => c.isReceivingEnabled);
+          
+          console.log('API refresh returned:', {
+            total: apiData.length,
+            sending: sendingCountries.length,
+            receiving: receivingCountries.length
+          });
+          
+          if (sendingCountries.length > 0 && receivingCountries.length > 0) {
+            updateCountriesCache(apiData);
+            setCountries(apiData);
+            console.log('Countries data refreshed successfully from API');
+          } else {
+            console.log('API missing sending or receiving countries, falling back to mock data');
+            setCountries(mockCountries);
+            updateCountriesCache(mockCountries);
+          }
         } else {
           setCountries(mockCountries);
           updateCountriesCache(mockCountries);

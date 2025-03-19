@@ -14,8 +14,24 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries } = useCountries();
 
-  // Find the selected country by currency code
+  // Find the selected country by currency code - prefer countries that match the sending/receiving pattern
   const getCountryByCurrency = (currencyCode: string) => {
+    // For source currency selector, prioritize countries that have isSendingEnabled=true
+    if (label.toLowerCase().includes('source')) {
+      const sendingCountry = countries.find(country => 
+        country.currency === currencyCode && country.isSendingEnabled);
+      
+      if (sendingCountry) return sendingCountry;
+    } 
+    // For target currency selector, prioritize countries that have isReceivingEnabled=true
+    else if (label.toLowerCase().includes('target')) {
+      const receivingCountry = countries.find(country => 
+        country.currency === currencyCode && country.isReceivingEnabled);
+      
+      if (receivingCountry) return receivingCountry;
+    }
+    
+    // Fallback to any country with matching currency if we can't find one with the right flag
     return countries.find(country => country.currency === currencyCode);
   };
 
