@@ -46,11 +46,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
+      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} className="admin-sidebar" />
       <div 
         className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
       >
-        <AdminHeader />
+        <AdminHeader className="admin-header" />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="mx-auto max-w-7xl">
             {children}

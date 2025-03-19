@@ -33,7 +33,7 @@
 
 .analytics-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px -5px rgba(91, 60, 196, 0.25);
+  box-shadow: 0 12px 20px -5px rgba(0, 128, 128, 0.25);
 }
 
 .analytics-stat-grid {
@@ -52,4 +52,24 @@
   .analytics-stat-grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+/* Add specific overrides for admin components to ensure color consistency */
+.admin-sidebar {
+  background-color: #008080 !important; /* Ensure exact Deep Teal */
+}
+
+.admin-header {
+  background-color: #008080 !important; /* Ensure exact Deep Teal */
+}
+
+.admin-nav-item.active,
+.admin-tab.active {
+  background-color: #008080 !important; /* Ensure exact Deep Teal */
+}
+
+/* Fix admin tab styling to match theme */
+.admin-tabs .admin-tab[data-state="active"] {
+  background: linear-gradient(to right, #008080, #009090) !important;
+  color: white !important;
 }
