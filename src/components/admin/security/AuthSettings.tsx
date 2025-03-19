@@ -5,7 +5,7 @@ import { Lock } from 'lucide-react';
 
 const AuthSettings = () => {
   return (
-    <Card gradient="green" hoverEffect>
+    <Card gradient="teal" hoverEffect>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lock className="w-5 h-5" />

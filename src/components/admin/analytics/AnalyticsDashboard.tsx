@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -89,7 +90,7 @@ const AnalyticsDashboard = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card gradient="purple" hoverEffect={true}>
+        <Card gradient="teal" hoverEffect={true}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Total Users</CardTitle>
             <CardDescription>All registered users</CardDescription>
@@ -115,7 +116,7 @@ const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
         
-        <Card gradient="green" hoverEffect={true}>
+        <Card gradient="teal" hoverEffect={true}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Transaction Volume</CardTitle>
             <CardDescription>Total amount processed</CardDescription>

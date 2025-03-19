@@ -82,7 +82,7 @@ const Analytics = () => {
             {timeframe === 'custom' && (
               <Card 
                 className="shadow-sm" 
-                gradient="purple"
+                gradient="teal"
               >
                 <CardContent className="p-3">
                   <div className="flex gap-2 items-center">

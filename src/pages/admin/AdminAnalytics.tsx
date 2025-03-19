@@ -12,7 +12,7 @@ const AdminAnalytics = () => {
         
         <Card 
           className="overflow-visible shadow-md"
-          gradient="purple"
+          gradient="teal"
           hoverEffect={true}
         >
           <CardHeader className="bg-gradient-to-br from-primary-50 to-white border-b border-primary-100">

@@ -16,7 +16,7 @@ interface StatCardsProps {
 const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card gradient="purple" hoverEffect>
+      <Card gradient="teal" hoverEffect>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">Total Users</CardTitle>
           <Users className="w-5 h-5 text-primary-600" />
@@ -42,7 +42,7 @@ const StatCards: React.FC<StatCardsProps> = ({ stats }) => {
         </CardContent>
       </Card>
       
-      <Card gradient="green" hoverEffect>
+      <Card gradient="teal" hoverEffect>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
           <TrendingUp className="w-5 h-5 text-green-500" />

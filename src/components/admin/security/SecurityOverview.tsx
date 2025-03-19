@@ -5,7 +5,7 @@ import { Shield } from 'lucide-react';
 
 const SecurityOverview = () => {
   return (
-    <Card gradient="purple" hoverEffect>
+    <Card gradient="teal" hoverEffect>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="w-5 h-5" />
