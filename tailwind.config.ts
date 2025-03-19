@@ -26,50 +26,50 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Updated color system with darker teal shades
+                // Updated color system with crimson shades
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#e6f2f2',
-                    100: '#cce6e6',
-                    200: '#99cccc',
-                    300: '#66b3b3',
-                    400: '#339999',
-                    500: '#006060', // Darker Deep Teal (matched to admin panel)
-                    600: '#004d4d',
-                    700: '#003939',
-                    800: '#002626',
-                    900: '#001313',
+                    50: '#fbe4e8',
+                    100: '#f7c9d1',
+                    200: '#ef93a3',
+                    300: '#e75d75',
+                    400: '#e02647',
+                    500: '#DC143C', // Crimson Red
+                    600: '#b01030',
+                    700: '#840c24',
+                    800: '#580818',
+                    900: '#2c040c',
                 },
-                // Soft Yellow
+                // Warm Brown
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#fffbeb',
-                    100: '#fff8d6',
-                    200: '#fff1ad',
-                    300: '#ffea85',
-                    400: '#ffe35c',
-                    500: '#FFDD57', // Soft Yellow
-                    600: '#ccb146',
-                    700: '#998534',
-                    800: '#665a23',
-                    900: '#332d11',
+                    50: '#f3ede7',
+                    100: '#e7dbcf',
+                    200: '#cfb79f',
+                    300: '#b7936f',
+                    400: '#9f6f3f',
+                    500: '#8B4513', // Warm Brown
+                    600: '#6f370f',
+                    700: '#53290b',
+                    800: '#371c08',
+                    900: '#1c0e04',
                 },
-                // Vibrant Orange
+                // Rich Gold
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#fff4e6',
-                    100: '#ffe9cc',
-                    200: '#ffd399',
-                    300: '#ffbd66',
-                    400: '#ffa733',
-                    500: '#FFA500', // Vibrant Orange
-                    600: '#cc8400',
-                    700: '#996300',
-                    800: '#664200',
-                    900: '#332100',
+                    50: '#fbf7eb',
+                    100: '#f7efd7',
+                    200: '#efdeaf',
+                    300: '#e7cd87',
+                    400: '#dfbc5f',
+                    500: '#DAA520', // Rich Gold
+                    600: '#ae841a',
+                    700: '#836313',
+                    800: '#57420d',
+                    900: '#2c2106',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -87,12 +87,12 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
                 },
-                // Adding explicit colors for additional gradients and borders
+                // Adding explicit colors for text and background
                 slate: {
-                    500: '#2C3E50', // Dark Slate Gray
+                    500: '#4A4A4A', // Dark Gray for text
                 },
                 gray: {
-                    500: '#F2F2F2', // Light Gray
+                    500: '#FFFFF0', // Ivory White for background
                 }
 			},
 			borderRadius: {

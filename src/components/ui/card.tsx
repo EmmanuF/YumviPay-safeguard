@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    gradient?: "neon" | "electric" | "dark" | "none" | "teal" | "blue" | "orange" | "yellow" | "purple" | "green";
+    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green";
     hoverEffect?: boolean;
     coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info";
   }
@@ -15,11 +15,10 @@ const Card = React.forwardRef<
     neon: "bg-gradient-to-br from-accent-500/10 to-background border-l-4 border-accent-500",
     electric: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
     dark: "bg-gradient-to-br from-primary-500/10 to-background border-l-4 border-primary-500",
-    teal: "bg-gradient-to-br from-primary-500/10 to-background border-l-4 border-primary-500",
+    crimson: "bg-gradient-to-br from-primary-500/10 to-background border-l-4 border-primary-500",
+    gold: "bg-gradient-to-br from-accent-500/10 to-background border-l-4 border-accent-500",
+    brown: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
     blue: "bg-gradient-to-br from-blue-500/10 to-background border-l-4 border-blue-500",
-    orange: "bg-gradient-to-br from-accent-500/10 to-background border-l-4 border-accent-500",
-    yellow: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
-    purple: "bg-gradient-to-br from-purple-500/10 to-background border-l-4 border-purple-500",
     green: "bg-gradient-to-br from-green-500/10 to-background border-l-4 border-green-500",
     none: ""
   };
@@ -35,7 +34,7 @@ const Card = React.forwardRef<
   };
 
   const hoverStyles = hoverEffect ? 
-    "transition-all duration-300 hover:shadow-lg hover:shadow-accent-500/20 hover:translate-y-[-3px]" : "";
+    "transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20 hover:translate-y-[-3px]" : "";
 
   return (
     <div

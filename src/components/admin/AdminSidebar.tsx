@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 interface AdminSidebarProps {
   collapsed: boolean;
   onToggleCollapse: (collapsed: boolean) => void;
-  className?: string; // Added className prop
+  className?: string;
 }
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
@@ -42,7 +42,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
     <div className={cn(
       "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-700 to-primary-800 border-r border-primary-900 transition-all duration-300 ease-in-out shadow-lg z-30",
       collapsed ? "w-16" : "w-64",
-      className // Apply the optional className
+      className
     )}>
       <div className="flex items-center justify-between p-4 border-b border-primary-900">
         {!collapsed && (
@@ -66,7 +66,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
               to={item.href}
               className={({ isActive }) => cn(
                 isActive
-                  ? 'bg-primary-800 text-white border-l-4 border-white/80'
+                  ? 'bg-primary-800 text-white border-l-4 border-accent-500'
                   : 'text-primary-100 hover:bg-primary-700/50 border-l-4 border-transparent',
                 'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200',
                 collapsed ? 'justify-center' : 'justify-start'
@@ -98,7 +98,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
           collapsed ? "justify-center" : "space-x-3"
         )}>
           <div className="flex-shrink-0">
-            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-100 to-primary-300 flex items-center justify-center text-primary-900 font-semibold shadow-md">
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-accent-300 to-accent-500 flex items-center justify-center text-primary-900 font-semibold shadow-md">
               A
             </div>
           </div>

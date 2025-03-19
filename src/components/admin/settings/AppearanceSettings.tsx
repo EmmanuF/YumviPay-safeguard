@@ -60,11 +60,11 @@ const AppearanceSettings = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="orange">Vibrant Orange</SelectItem>
-                      <SelectItem value="teal">Deep Teal</SelectItem>
-                      <SelectItem value="yellow">Soft Yellow</SelectItem>
+                      <SelectItem value="gold">Rich Gold</SelectItem>
+                      <SelectItem value="crimson">Crimson Red</SelectItem>
+                      <SelectItem value="brown">Warm Brown</SelectItem>
                       <SelectItem value="blue">Blue</SelectItem>
-                      <SelectItem value="red">Red</SelectItem>
+                      <SelectItem value="green">Green</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>

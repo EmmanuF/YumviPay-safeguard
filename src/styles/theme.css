@@ -5,67 +5,71 @@
 
 @layer base {
   :root {
-    --background: 0 0% 95%;
-    --foreground: 210 29% 24%;
+    --background: 60 100% 97%;
+    --foreground: 0 0% 29%;
 
-    --card: 0 0% 95%;
-    --card-foreground: 210 29% 24%;
+    --card: 60 100% 97%;
+    --card-foreground: 0 0% 29%;
 
-    --popover: 0 0% 95%;
-    --popover-foreground: 210 29% 24%;
+    --popover: 60 100% 97%;
+    --popover-foreground: 0 0% 29%;
 
-    /* Updated primary color to a darker teal to match admin panel */
-    --primary: 180 100% 19%;
-    --primary-foreground: 0 0% 95%;
+    /* Updated primary color to Crimson Red */
+    --primary: 348 83% 47%;
+    --primary-foreground: 60 100% 97%;
 
-    --secondary: 45 100% 67%;
-    --secondary-foreground: 210 29% 24%;
+    /* Updated secondary color to Warm Brown */
+    --secondary: 20 71% 31%;
+    --secondary-foreground: 60 100% 97%;
 
-    --muted: 0 0% 90%;
-    --muted-foreground: 210 29% 45%;
+    --muted: 60 15% 90%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 39 100% 50%;
-    --accent-foreground: 210 29% 24%;
+    /* Updated accent color to Rich Gold */
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 29%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive-foreground: 60 100% 97%;
 
-    --border: 0 0% 85%;
-    --input: 0 0% 85%;
-    --ring: 180 100% 19%;
+    --border: 60 30% 85%;
+    --input: 60 30% 85%;
+    --ring: 348 83% 47%;
 
     --radius: 1rem;
   }
 
   .dark {
-    --background: 0 0% 95%;
-    --foreground: 210 29% 24%;
+    --background: 60 100% 97%;
+    --foreground: 0 0% 29%;
 
-    --card: 0 0% 95%;
-    --card-foreground: 210 29% 24%;
+    --card: 60 100% 97%;
+    --card-foreground: 0 0% 29%;
 
-    --popover: 0 0% 95%;
-    --popover-foreground: 210 29% 24%;
+    --popover: 60 100% 97%;
+    --popover-foreground: 0 0% 29%;
 
-    /* Updated primary color to a darker teal to match admin panel */
-    --primary: 180 100% 19%;
-    --primary-foreground: 0 0% 95%;
+    /* Updated primary color to Crimson Red */
+    --primary: 348 83% 47%;
+    --primary-foreground: 60 100% 97%;
 
-    --secondary: 45 100% 67%;
-    --secondary-foreground: 210 29% 24%;
+    /* Updated secondary color to Warm Brown */
+    --secondary: 20 71% 31%;
+    --secondary-foreground: 60 100% 97%;
 
-    --muted: 0 0% 90%;
-    --muted-foreground: 210 29% 45%;
+    --muted: 60 15% 90%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 39 100% 50%;
-    --accent-foreground: 210 29% 24%;
+    /* Updated accent color to Rich Gold */
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 29%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive-foreground: 60 100% 97%;
 
-    --border: 0 0% 85%;
-    --input: 0 0% 85%;
-    --ring: 180 100% 19%;
+    --border: 60 30% 85%;
+    --input: 60 30% 85%;
+    --ring: 348 83% 47%;
   }
 }
 
@@ -80,7 +84,7 @@
   }
 
   body {
-    @apply bg-[#F2F2F2] text-[#2C3E50];
+    @apply bg-[#FFFFF0] text-[#4A4A4A];
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
