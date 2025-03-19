@@ -34,19 +34,19 @@ const Home = () => {
     <MobileAppLayout>
       <PageTransition>
         <div className="min-h-screen">
-          {/* Purple header with cleaner styling */}
+          {/* Updated dark header with neon accents */}
           <div className="relative overflow-hidden">
-            {/* Purple header base layer */}
+            {/* Dark header base layer */}
             <div className="absolute top-0 left-0 right-0 z-20">
-              {/* Top solid section */}
-              <div className="h-20 bg-primary-600"></div>
+              {/* Top solid section - changed to primary (Jet Black) */}
+              <div className="h-20 bg-primary-500"></div>
               
               {/* Additional bottom layer for smoother transition */}
               <div className="h-4 bg-primary-400 transform origin-top-right"></div>
             </div>
             
-            {/* Yellow background section */}
-            <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-10">
+            {/* Updated hero background section from yellow to dark */}
+            <div className="bg-gradient-to-b from-primary-400 to-primary-500/90 pt-24 relative z-10">
               <div className="pt-8">
                 <Navigation onGetStarted={handleGetStarted} />
                 <Hero onGetStarted={handleGetStarted} />
@@ -54,8 +54,8 @@ const Home = () => {
             </div>
           </div>
           
-          {/* Rest of the sections with neutral/light/purple background */}
-          <div className="bg-gradient-to-b from-primary-50 to-white">
+          {/* Rest of the sections with dark theme background */}
+          <div className="bg-gradient-to-b from-primary-300 to-background">
             <div className="container mx-auto px-4 pb-24">
               <motion.div
                 variants={containerVariants}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
@@ -91,7 +92,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div 
-            className="text-2xl font-bold text-primary-700 cursor-pointer" 
+            className="text-2xl font-bold text-white cursor-pointer" 
             onClick={() => !isNavigating && navigate('/')}
           >
             {t('app.name')}
@@ -106,8 +107,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               className={cn(
                 "text-sm font-medium transition-colors",
                 location.pathname === item.path 
-                  ? "text-primary-600 font-semibold" 
-                  : "text-primary-500 hover:text-primary-600"
+                  ? "text-accent font-semibold" 
+                  : "text-white/80 hover:text-white"
               )}
               disabled={isNavigating}
             >
@@ -122,7 +123,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           {!isLoggedIn ? (
             <button
               onClick={() => handleNavigation('/signin')}
-              className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
               disabled={isNavigating}
             >
               {t('auth.signin')}
@@ -140,7 +141,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               )}
               <button
                 onClick={() => handleNavigation('/profile')}
-                className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
                 disabled={isNavigating}
               >
                 {t('nav.profile')}
@@ -151,7 +152,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           <button
             onClick={handleStarted}
             className={cn(
-              "bg-primary-500 hover:bg-primary-600 text-white font-medium px-5 py-2 rounded-full transition-colors text-sm",
+              "bg-accent hover:bg-accent/80 text-primary-500 font-medium px-5 py-2 rounded-full transition-colors text-sm",
               isNavigating && "opacity-75 pointer-events-none"
             )}
             disabled={isNavigating}
@@ -165,7 +166,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-sm"
+        className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-800/90 to-primary-700/80 backdrop-blur-md border border-primary-600/30 shadow-sm"
       >
         {navItems.map((item) => (
           <button
@@ -178,8 +179,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               className={cn(
                 "p-2 rounded-full transition-all duration-300",
                 location.pathname === item.path 
-                  ? "text-primary-600 bg-primary-100/50" 
-                  : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/50",
+                  ? "text-accent bg-primary-600/50" 
+                  : "text-white/70 hover:text-white hover:bg-primary-600/30",
                 isNavigating && "opacity-75"
               )}
             >
@@ -188,8 +189,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             <span className={cn(
               "text-xs mt-1 font-medium",
               location.pathname === item.path
-                ? "text-primary-600"
-                : "text-primary-500"
+                ? "text-accent"
+                : "text-white/70"
             )}>
               {item.name}
             </span>
