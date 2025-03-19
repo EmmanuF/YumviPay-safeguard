@@ -7,20 +7,20 @@ const FooterBottom: React.FC = () => {
   const { t } = useLocale();
   
   return (
-    <div className="mt-12 pt-6 border-t border-mocha-300/30">
-      <div className="flex flex-row justify-between items-center bg-secondary-500 rounded-lg p-4 text-white shadow-md">
-        <div className="text-sm text-cream-500 font-medium">
+    <div className="mt-12 pt-6 border-t border-gray-200">
+      <div className="flex flex-row justify-between items-center bg-primary-500 rounded-lg p-4 text-white">
+        <div className="text-sm text-primary-50">
           © {new Date().getFullYear()} Yumvi-Pay. All rights reserved.
         </div>
         
         <div className="flex items-center space-x-2">
-          <span className="mr-2 text-sm font-medium text-cream-300">Follow Us</span>
+          <span className="mr-2 text-sm font-medium">Follow Us</span>
           <a 
             href="https://twitter.com/yumvipay" 
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="Twitter"
-            className="bg-cream-500 hover:bg-cream-400 text-secondary-700 p-1.5 rounded-full transition-colors shadow-sm"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Twitter className="h-4 w-4" />
           </a>
@@ -30,7 +30,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="Facebook"
-            className="bg-cream-500 hover:bg-cream-400 text-secondary-700 p-1.5 rounded-full transition-colors shadow-sm"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Facebook className="h-4 w-4" />
           </a>
@@ -40,7 +40,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="Instagram"
-            className="bg-cream-500 hover:bg-cream-400 text-secondary-700 p-1.5 rounded-full transition-colors shadow-sm"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Instagram className="h-4 w-4" />
           </a>
@@ -50,7 +50,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="LinkedIn"
-            className="bg-cream-500 hover:bg-cream-400 text-secondary-700 p-1.5 rounded-full transition-colors shadow-sm"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Linkedin className="h-4 w-4" />
           </a>

@@ -26,102 +26,50 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Warm Gold (primary color)
+                // Updated color system with crimson shades
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#FFF8E1',
-                    100: '#FFECB3',
-                    200: '#FFE082',
-                    300: '#FFD54F',
-                    400: '#FFC928',
-                    500: '#FFB400', // Warm Gold
-                    600: '#FFA000',
-                    700: '#FF8F00',
-                    800: '#FF6F00',
-                    900: '#FF5722',
+                    50: '#fbe4e8',
+                    100: '#f7c9d1',
+                    200: '#ef93a3',
+                    300: '#e75d75',
+                    400: '#e02647',
+                    500: '#DC143C', // Crimson Red
+                    600: '#b01030',
+                    700: '#840c24',
+                    800: '#580818',
+                    900: '#2c040c',
                 },
-                // Deep Navy Blue (secondary color)
+                // Warm Brown
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#E3E9F2',
-                    100: '#B9C8DE',
-                    200: '#8FA7CA',
-                    300: '#6485B5',
-                    400: '#3F67A0',
-                    500: '#0A2540', // Deep Navy Blue
-                    600: '#092138',
-                    700: '#071C30',
-                    800: '#051628',
-                    900: '#021120',
+                    50: '#f3ede7',
+                    100: '#e7dbcf',
+                    200: '#cfb79f',
+                    300: '#b7936f',
+                    400: '#9f6f3f',
+                    500: '#8B4513', // Warm Brown
+                    600: '#6f370f',
+                    700: '#53290b',
+                    800: '#371c08',
+                    900: '#1c0e04',
                 },
-                // Warm Gold (accent color)
+                // Rich Gold
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#FFF8E1',
-                    100: '#FFECB3',
-                    200: '#FFE082',
-                    300: '#FFD54F',
-                    400: '#FFC928',
-                    500: '#FFB400', // Warm Gold
-                    600: '#FFA000',
-                    700: '#FF8F00',
-                    800: '#FF6F00',
-                    900: '#FF5722',
-                },
-                // Cool Light Gray
-                gray: {
-                    50: '#FAFAFA',
-                    100: '#F8F8F8',
-                    200: '#F5F5F5',
-                    300: '#F2F2F2', // Cool Light Gray
-                    400: '#EEEEEE',
-                    500: '#E0E0E0',
-                    600: '#BDBDBD',
-                    700: '#9E9E9E',
-                    800: '#757575',
-                    900: '#616161',
-                },
-                // Charcoal Gray
-                charcoal: {
-                    50: '#E6E6E6',
-                    100: '#CCCCCC',
-                    200: '#B3B3B3',
-                    300: '#999999',
-                    400: '#666666',
-                    500: '#333333', // Charcoal Gray
-                    600: '#292929',
-                    700: '#1F1F1F',
-                    800: '#141414',
-                    900: '#0A0A0A',
-                },
-                // Soft Mint Green
-                mint: {
-                    50: '#E8F7ED',
-                    100: '#D1F0DB',
-                    200: '#BAE8C9',
-                    300: '#A7E3BE', // Soft Mint Green
-                    400: '#8ED9AE',
-                    500: '#75CF9E',
-                    600: '#5CB88E',
-                    700: '#42A17E',
-                    800: '#29896E',
-                    900: '#0F725E',
-                },
-                // Deep Navy Blue
-                navy: {
-                    50: '#E3E9F2',
-                    100: '#B9C8DE',
-                    200: '#8FA7CA',
-                    300: '#6485B5',
-                    400: '#3F67A0',
-                    500: '#0A2540', // Deep Navy Blue
-                    600: '#092138',
-                    700: '#071C30',
-                    800: '#051628',
-                    900: '#021120',
+                    50: '#fbf7eb',
+                    100: '#f7efd7',
+                    200: '#efdeaf',
+                    300: '#e7cd87',
+                    400: '#dfbc5f',
+                    500: '#DAA520', // Rich Gold
+                    600: '#ae841a',
+                    700: '#836313',
+                    800: '#57420d',
+                    900: '#2c2106',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -139,6 +87,13 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
                 },
+                // Adding explicit colors for text and background
+                slate: {
+                    500: '#4A4A4A', // Dark Gray for text
+                },
+                gray: {
+                    500: '#2FDB14', // Bright Green for background (replacing Ivory White)
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -52,17 +52,17 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   
   // Enhanced glass effects with different intensities
   const glassClass = glassEffectIntensity === 'light' 
-    ? 'bg-gradient-to-b from-navy-500/95 to-mint-300/90 border border-navy-500/50 shadow-lg'
-    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-navy-500/90 to-mint-300/80 border border-navy-500/40 shadow-[0_8px_32px_rgba(10,37,64,0.2)]';
+    ? 'bg-gradient-to-b from-gray-500/90 to-white/80 border border-secondary-500/40'
+    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-gray-500/80 to-white/70 border border-secondary-500/30 shadow-[0_8px_32px_rgba(0,128,128,0.15)]';
   
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
       {/* Diagonal top design - only shown on non-home pages */}
       {!isHome && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-navy-500 shadow-md"></div>
+          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-500"></div>
           <div className="absolute top-0 left-0 right-0 h-24">
-            <div className="absolute bottom-0 left-0 right-0 h-14 bg-navy-400 transform skew-y-6 origin-right shadow-sm"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-400 transform skew-y-6 origin-right"></div>
           </div>
         </div>
       )}
@@ -111,7 +111,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           <SignOutButton 
             iconOnly 
             size="sm"
-            className="rounded-full p-2 bg-primary-500 hover:bg-primary-600 text-black border-none shadow-lg"
+            className="rounded-full p-2 bg-primary-500 hover:bg-primary-600 text-white border-none shadow-lg"
           />
         </div>
       )}
@@ -125,13 +125,13 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: animSettings.duration, type: "spring" }}
             className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
-                      ${glassEffectIntensity === 'light' ? 'bg-navy-400 border border-navy-300 shadow-md' : 'glass-effect bg-navy-400/95 backdrop-blur-md border border-navy-300/40 shadow-lg'} 
+                      ${glassEffectIntensity === 'light' ? 'bg-primary-300 border border-primary-200' : 'glass-effect bg-primary-300/90 backdrop-blur-md border border-primary-200/30 shadow-lg'} 
                       text-white rounded-full flex items-center space-x-2 z-40`}
           >
             <WifiOff className="w-4 h-4" />
             <span className="text-sm font-medium">Offline</span>
             {pendingOperationsCount > 0 && (
-              <span className="bg-gray-300 text-navy-600 rounded-full px-1.5 text-xs font-semibold">
+              <span className="bg-white text-primary-500 rounded-full px-1.5 text-xs font-medium">
                 {pendingOperationsCount}
               </span>
             )}
@@ -150,13 +150,12 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           style: {
             borderRadius: '0.75rem',
             background: glassEffectIntensity === 'light' 
-              ? 'rgba(242, 242, 242, 0.97)' 
-              : 'rgba(242, 242, 242, 0.9)',
+              ? 'rgba(255, 221, 87, 0.95)' 
+              : 'rgba(255, 221, 87, 0.85)',
             backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(12px)',
-            border: '1px solid rgba(10, 37, 64, 0.4)',
-            boxShadow: '0 8px 32px -4px rgba(10, 37, 64, 0.2)',
-            color: '#000000',
-            fontWeight: '500'
+            border: '1px solid rgba(0, 128, 128, 0.3)',
+            boxShadow: '0 8px 32px -4px rgba(0, 128, 128, 0.15)',
+            color: '#2C3E50',
           },
           className: 'glass-card',
         }}

@@ -5,87 +5,79 @@
 
 @layer base {
   :root {
-    /* New color palette with better contrast */
-    --background: 134 47% 77%;
-    --foreground: 0 0% 0%;  /* Pure black for better contrast */
+    --background: 112 86% 47%;
+    --foreground: 0 0% 29%;
 
-    /* Cool Light Gray for cards and popovers */
-    --card: 0 0% 95%;
-    --card-foreground: 0 0% 0%;
-    --popover: 0 0% 95%;
-    --popover-foreground: 0 0% 0%;
+    --card: 112 86% 47%;
+    --card-foreground: 0 0% 29%;
 
-    /* Warm Gold as primary color */
-    --primary: 42 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --popover: 112 86% 47%;
+    --popover-foreground: 0 0% 29%;
 
-    /* Deep Navy Blue as secondary color */
-    --secondary: 212 76% 15%;
-    --secondary-foreground: 0 0% 100%;
+    /* Updated primary color to Crimson Red */
+    --primary: 348 83% 47%;
+    --primary-foreground: 112 86% 47%;
 
-    /* Muted colors with stronger contrast */
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 20%;
+    /* Updated secondary color to Warm Brown */
+    --secondary: 20 71% 31%;
+    --secondary-foreground: 112 86% 47%;
 
-    /* Warm Gold as accent color */
-    --accent: 42 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --muted: 112 15% 90%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Updated accent color to Rich Gold */
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 29%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 112 86% 47%;
 
-    /* Additional colors for gradients with updated values */
-    --purple: 270 50% 55%;
-    --orange: 42 100% 50%;      /* Warm Gold */
-    --navy: 212 76% 15%;        /* Deep Navy Blue */
-    --mint: 134 47% 77%;        /* Soft Mint Green */
-    --gray: 0 0% 95%;           /* Cool Light Gray */
-    --charcoal: 0 0% 20%;       /* Charcoal Gray */
+    /* Adding purple and orange colors for gradients */
+    --purple: 270 50% 60%;
+    --orange: 30 100% 50%;
 
-    --border: 0 0% 85%;
-    --input: 0 0% 85%;
-    --ring: 42 100% 50%;
+    --border: 112 30% 85%;
+    --input: 112 30% 85%;
+    --ring: 348 83% 47%;
 
     --radius: 1rem;
   }
 
   .dark {
-    /* Dark mode colors also updated for consistency */
-    --background: 134 30% 40%;
-    --foreground: 0 0% 100%;
+    --background: 112 86% 47%;
+    --foreground: 0 0% 29%;
 
-    --card: 212 40% 10%;
-    --card-foreground: 0 0% 100%;
-    --popover: 212 40% 10%;
-    --popover-foreground: 0 0% 100%;
+    --card: 112 86% 47%;
+    --card-foreground: 0 0% 29%;
 
-    --primary: 42 90% 45%;
-    --primary-foreground: 0 0% 0%;
+    --popover: 112 86% 47%;
+    --popover-foreground: 0 0% 29%;
 
-    --secondary: 212 76% 15%;
-    --secondary-foreground: 0 0% 100%;
+    /* Updated primary color to Crimson Red */
+    --primary: 348 83% 47%;
+    --primary-foreground: 112 86% 47%;
 
-    /* Muted colors */
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 80%;
+    /* Updated secondary color to Warm Brown */
+    --secondary: 20 71% 31%;
+    --secondary-foreground: 112 86% 47%;
 
-    --accent: 42 90% 45%;
-    --accent-foreground: 0 0% 0%;
+    --muted: 112 15% 90%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Additional colors for gradients */
-    --purple: 270 50% 55%;
-    --orange: 42 90% 45%;       /* Warm Gold (dark mode) */
-    --navy: 212 76% 15%;        /* Deep Navy Blue */
-    --mint: 134 30% 40%;        /* Soft Mint Green (dark mode) */
-    --gray: 0 0% 15%;           /* Cool Light Gray (dark mode) */
-    --charcoal: 0 0% 80%;       /* Charcoal Gray (dark mode) */
+    /* Updated accent color to Rich Gold */
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 29%;
+
+    /* Adding purple and orange colors for gradients */
+    --purple: 270 50% 60%;
+    --orange: 30 100% 50%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 112 86% 47%;
 
-    --border: 0 0% 25%;
-    --input: 0 0% 25%;
-    --ring: 42 90% 45%;
+    --border: 112 30% 85%;
+    --input: 112 30% 85%;
+    --ring: 348 83% 47%;
   }
 }
 
@@ -100,27 +92,27 @@
   }
 
   body {
-    @apply bg-[#A7E3BE] text-[#000000];
+    @apply bg-[#2FDB14] text-[#4A4A4A];
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Glass effects classes with improved opacity and contrast */
+/* Glass effects classes */
 .glass-effect {
-  @apply bg-white/90 backdrop-blur-sm border border-secondary-200/40 shadow-md;
+  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm;
 }
 
 .glass-strong {
-  @apply bg-white/95 backdrop-blur-md border border-secondary-300/50 shadow-lg;
+  @apply bg-white/90 backdrop-blur-md border border-white/30 shadow-md;
 }
 
-/* Gradient backgrounds using our updated color scheme */
+/* Gradient backgrounds using our color scheme */
 .gradient-primary {
   @apply bg-gradient-to-br from-primary-500 to-primary-600;
 }
 
 .gradient-accent {
-  @apply bg-gradient-to-r from-accent-500 to-accent-600;
+  @apply bg-gradient-to-r from-accent-400 to-accent-500;
 }
 
 .gradient-primary-accent {
@@ -128,14 +120,5 @@
 }
 
 .gradient-card {
-  @apply bg-gradient-to-br from-gray-200 to-background;
-}
-
-/* Specific combinations for our new theme */
-.gradient-navy-gold {
-  @apply bg-gradient-to-br from-navy-600 to-orange-500;
-}
-
-.gradient-mint-gray {
-  @apply bg-gradient-to-br from-mint-500 to-gray-300;
+  @apply bg-gradient-to-br from-white to-background;
 }
