@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown, Sparkles, TrendingUp } from 'lucide-react';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
-import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
+import { useExchangeRateCalculator } from '@/hooks/exchange-rate'; // Updated import path
 import ExchangeRatesModal from '@/components/calculator/ExchangeRatesModal';
 
 const containerVariants = {
