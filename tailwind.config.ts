@@ -26,35 +26,50 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Updated Yumvi-Pay colors - thicker yellow
+                // Updated color system
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#f5f0ff',
-                    100: '#ece0ff',
-                    200: '#d9c2ff',
-                    300: '#c095ff',
-                    400: '#a566ff',
-                    500: '#6E36E5', // Main primary purple color
-                    600: '#5922d9',
-                    700: '#4a1bb8',
-                    800: '#3d1996',
-                    900: '#321878',
+                    50: '#e6e8e9',
+                    100: '#cdd0d2',
+                    200: '#9a9fa4',
+                    300: '#666d77',
+                    400: '#333c49',
+                    500: '#101820', // Jet Black
+                    600: '#0d141a',
+                    700: '#0a1015',
+                    800: '#080c10',
+                    900: '#06080a',
                 },
-                // Secondary colors changed from yellow to neutral gray
+                // Electric Blue
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#f9f9fa', // Light gray tint
-                    100: '#f1f1f2', // Lighter gray tint
-                    200: '#e4e4e6',
-                    300: '#d2d2d6',
-                    400: '#a9a9b0',
-                    500: '#8E9196', // Main gray
-                    600: '#71747a',
-                    700: '#585b61',
-                    800: '#45484e',
-                    900: '#393b40',
+                    50: '#e6ffff',
+                    100: '#ccffff',
+                    200: '#99ffff',
+                    300: '#66ffff',
+                    400: '#33ffff',
+                    500: '#00FFFF', // Electric Blue
+                    600: '#00cccc',
+                    700: '#009999',
+                    800: '#006666',
+                    900: '#003333',
+                },
+                // Neon Green
+                accent: {
+                    DEFAULT: 'hsl(var(--accent))',
+                    foreground: 'hsl(var(--accent-foreground))',
+                    50: '#ecffe7',
+                    100: '#d9fecf',
+                    200: '#b3fe9e',
+                    300: '#8dfd6d',
+                    400: '#66fc3c',
+                    500: '#39FF14', // Neon Green
+                    600: '#2ecc10',
+                    700: '#22990c',
+                    800: '#176608',
+                    900: '#0b3304',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -63,10 +78,6 @@ export default {
                 muted: {
                     DEFAULT: 'hsl(var(--muted))',
                     foreground: 'hsl(var(--muted-foreground))'
-                },
-                accent: {
-                    DEFAULT: 'hsl(var(--accent))',
-                    foreground: 'hsl(var(--accent-foreground))'
                 },
                 popover: {
                     DEFAULT: 'hsl(var(--popover))',
