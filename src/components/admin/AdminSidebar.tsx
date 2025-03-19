@@ -11,7 +11,8 @@ import {
   ShieldAlert,
   Globe,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layout
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Transactions', href: '/admin/transactions', icon: CreditCard },
     { name: 'Countries', href: '/admin/countries', icon: Globe },
+    { name: 'CMS', href: '/admin/cms', icon: Layout },
     { name: 'Reports', href: '/admin/reports', icon: FileText },
     { name: 'Security', href: '/admin/security', icon: ShieldAlert },
     { name: 'Settings', href: '/admin/settings', icon: Settings },

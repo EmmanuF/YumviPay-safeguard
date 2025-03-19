@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NetworkProvider } from '@/contexts/NetworkContext';
@@ -49,7 +48,7 @@ function App() {
       <AuthProvider>
         <LocaleProvider>
           <HelmetProvider>
-            <BrowserRouter>
+            <Router>
               <AppInitializer />
               <SessionTimeout />
               <Routes>
@@ -139,7 +138,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />
-            </BrowserRouter>
+            </Router>
           </HelmetProvider>
         </LocaleProvider>
       </AuthProvider>
