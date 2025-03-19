@@ -8,6 +8,8 @@ export interface AdminUser {
   country: string;
   status: 'active' | 'inactive' | 'suspended';
   registered: string;
+  lastActive?: string;
+  transactionCount?: number;
 }
 
 /**
@@ -41,6 +43,25 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
       console.log('Admin API access error (expected):', authErr);
     }
     
+    // Get transaction counts per user
+    let transactionCounts: Record<string, number> = {};
+    try {
+      const { data: transactions, error: txError } = await supabase
+        .from('transactions')
+        .select('user_id, id');
+      
+      if (!txError && transactions) {
+        // Count transactions per user
+        transactions.forEach(tx => {
+          if (tx.user_id) {
+            transactionCounts[tx.user_id] = (transactionCounts[tx.user_id] || 0) + 1;
+          }
+        });
+      }
+    } catch (txErr) {
+      console.log('Error fetching transaction counts:', txErr);
+    }
+    
     // Combine the data
     const combinedUsers = profiles.map(profile => {
       // Find matching auth user if we have auth data
@@ -69,7 +90,9 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
         email: authUser?.email || 'Protected',
         country: profile.country_code || 'Unknown',
         status,
-        registered: profile.created_at
+        registered: profile.created_at,
+        lastActive: authUser?.last_sign_in_at || null,
+        transactionCount: transactionCounts[profile.id] || 0
       };
     });
     
@@ -86,7 +109,8 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
         email: 'example@yumvipay.com',
         country: 'Cameroon',
         status: 'active',
-        registered: new Date().toISOString()
+        registered: new Date().toISOString(),
+        transactionCount: 3
       }
     ];
   }
@@ -99,15 +123,15 @@ export const updateUserStatus = async (userId: string, status: string): Promise<
   console.log(`Updating user ${userId} status to ${status}...`);
   
   try {
-    // In a real implementation, we would update the user's status in the database
-    // For demo purposes, we'll simulate a successful update with a slight delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
     // Add data validation to prevent freezing on invalid status
     if (!['active', 'inactive', 'suspended'].includes(status)) {
       console.error('Invalid status provided:', status);
       return false;
     }
+    
+    // In a real implementation, we would update the user's status in the database
+    // For demo purposes, we'll simulate a successful update with a slight delay
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // In the future, we would do something like:
     // const { error } = await supabase
@@ -120,5 +144,70 @@ export const updateUserStatus = async (userId: string, status: string): Promise<
   } catch (error) {
     console.error('Error updating user status:', error);
     return false;
+  }
+};
+
+/**
+ * Get user profile details
+ */
+export const getUserProfile = async (userId: string): Promise<any> => {
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return profile;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+};
+
+/**
+ * Update user profile
+ */
+export const updateUserProfile = async (userId: string, profileData: any): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update(profileData)
+      .eq('id', userId);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return false;
+  }
+};
+
+/**
+ * Get user transactions
+ */
+export const getUserTransactions = async (userId: string): Promise<any[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching user transactions:', error);
+    return [];
   }
 };
