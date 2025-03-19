@@ -28,6 +28,17 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const [sendingCountryList, setSendingCountryList] = useState<string[]>([]);
   const [receivingCountryList, setReceivingCountryList] = useState<string[]>([]);
 
+  // First, clear the countries cache to ensure we get fresh data
+  useEffect(() => {
+    console.log('Initializing ExchangeRateCalculator, clearing cache to ensure fresh data');
+    // Import directly inside the hook to avoid circular dependencies
+    const { clearCountriesCache } = require('./countries/countriesCache');
+    clearCountriesCache();
+    
+    // Then refresh the countries data
+    refreshCountries();
+  }, []);
+
   // Load sending and receiving countries on component mount
   useEffect(() => {
     const loadCountryLists = async () => {
@@ -35,47 +46,66 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       
       try {
         // Fetch sending countries
+        console.log('Fetching sending countries...');
         const sendingCountries = await getSendingCountries();
+        console.log('Got sending countries:', sendingCountries.map(c => c.name).join(', '));
+        
         const sendingCurrencies = Array.from(new Set(
           sendingCountries.map(country => country.currency)
-        ));
+        )).sort();
+        
         console.log('Sending currencies retrieved:', sendingCurrencies);
         setSendingCountryList(sendingCurrencies);
         
         // Fetch receiving countries
+        console.log('Fetching receiving countries...');
         const receivingCountries = await getReceivingCountries();
+        console.log('Got receiving countries:', receivingCountries.map(c => c.name).join(', '));
+        
         const receivingCurrencies = Array.from(new Set(
           receivingCountries.map(country => country.currency)
-        ));
+        )).sort();
+        
         console.log('Receiving currencies retrieved:', receivingCurrencies);
         setReceivingCountryList(receivingCurrencies);
         
         // If the source currency isn't in the sending list, reset it to USD or first available
-        if (sendingCurrencies.length > 0 && !sendingCurrencies.includes(sourceCurrency)) {
-          const defaultCurrency = sendingCurrencies.includes('USD') ? 'USD' : sendingCurrencies[0];
-          console.log(`Resetting source currency to ${defaultCurrency}`);
-          setSourceCurrency(defaultCurrency);
+        if (sendingCurrencies.length > 0) {
+          if (!sendingCurrencies.includes(sourceCurrency)) {
+            const defaultCurrency = sendingCurrencies.includes('USD') ? 'USD' : sendingCurrencies[0];
+            console.log(`Resetting source currency to ${defaultCurrency}`);
+            setSourceCurrency(defaultCurrency);
+          } else {
+            console.log(`Keeping source currency as ${sourceCurrency}`);
+          }
+        } else {
+          console.warn('No sending currencies available!');
         }
         
         // If the target currency isn't in the receiving list, reset it to XAF or first available
-        if (receivingCurrencies.length > 0 && !receivingCurrencies.includes(targetCurrency)) {
-          const defaultCurrency = receivingCurrencies.includes('XAF') ? 'XAF' : receivingCurrencies[0];
-          console.log(`Resetting target currency to ${defaultCurrency}`);
-          setTargetCurrency(defaultCurrency);
+        if (receivingCurrencies.length > 0) {
+          if (!receivingCurrencies.includes(targetCurrency)) {
+            const defaultCurrency = receivingCurrencies.includes('XAF') ? 'XAF' : receivingCurrencies[0];
+            console.log(`Resetting target currency to ${defaultCurrency}`);
+            setTargetCurrency(defaultCurrency);
+          } else {
+            console.log(`Keeping target currency as ${targetCurrency}`);
+          }
+        } else {
+          console.warn('No receiving currencies available!');
         }
       } catch (error) {
         console.error('Error loading country lists:', error);
       }
     };
     
-    loadCountryLists();
-    
-    // Try refreshing countries data if the lists are empty
-    if (countries.length === 0) {
-      console.log('Countries list is empty, refreshing data');
-      refreshCountries();
+    // Only load country lists if countries data is available
+    if (countries.length > 0) {
+      loadCountryLists();
+    } else {
+      console.log('Countries data not yet available, waiting...');
     }
-  }, [countries, getSendingCountries, getReceivingCountries, refreshCountries]);
+  }, [countries, getSendingCountries, getReceivingCountries]);
 
   // Update exchange rate when currencies change
   useEffect(() => {
