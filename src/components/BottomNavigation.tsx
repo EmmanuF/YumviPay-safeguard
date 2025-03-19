@@ -27,17 +27,17 @@ const BottomNavigation: React.FC = () => {
 
   return (
     <div className="relative">
-      {/* Diagonal background design */}
+      {/* Diagonal background design with our primary and accent colors */}
       <div className="absolute bottom-0 left-0 right-0 h-24 overflow-hidden z-10">
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-primary-600"></div>
         <div className="absolute bottom-0 left-0 right-0 h-24">
-          <div className="absolute top-0 left-0 right-0 h-14 bg-[#FFDD33] transform -skew-y-6 origin-left"></div>
+          <div className="absolute top-0 left-0 right-0 h-14 bg-secondary-500 transform -skew-y-6 origin-left"></div>
         </div>
       </div>
 
       {/* Navigation bar */}
       <div className="fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around z-20">
-        {navItems.map((item, index) => (
+        {navItems.map((item) => (
           <motion.div
             key={item.path}
             className={`flex flex-col items-center justify-center cursor-pointer p-2 rounded-lg z-30 ${

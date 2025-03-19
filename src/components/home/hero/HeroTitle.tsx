@@ -23,7 +23,7 @@ const HeroTitle: React.FC = () => {
       </h1>
       
       <motion.div 
-        className="absolute -top-5 -right-5 text-primary-500 rotate-12 opacity-50"
+        className="absolute -top-5 -right-5 text-primary-500 rotate-12 opacity-70"
         animate={{ rotate: [12, 5, 12], scale: [1, 1.05, 1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >

@@ -28,7 +28,7 @@ const NavActions: React.FC<NavActionsProps> = ({
       {!isLoggedIn ? (
         <button
           onClick={() => handleNavigation('/signin')}
-          className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+          className="text-sm font-medium text-white/90 hover:text-white transition-colors"
           disabled={isNavigating}
         >
           {t('auth.signin')}
@@ -46,7 +46,7 @@ const NavActions: React.FC<NavActionsProps> = ({
           )}
           <button
             onClick={() => handleNavigation('/profile')}
-            className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            className="text-sm font-medium text-white/90 hover:text-white transition-colors"
             disabled={isNavigating}
           >
             {t('nav.profile')}
@@ -57,7 +57,7 @@ const NavActions: React.FC<NavActionsProps> = ({
       <button
         onClick={handleStarted}
         className={cn(
-          "bg-accent hover:bg-accent/80 text-primary-500 font-medium px-5 py-2 rounded-full transition-colors text-sm",
+          "bg-secondary-500 hover:bg-secondary-400 text-charcoal-500 font-medium px-5 py-2 rounded-full transition-colors text-sm shadow-md",
           isNavigating && "opacity-75 pointer-events-none"
         )}
         disabled={isNavigating}

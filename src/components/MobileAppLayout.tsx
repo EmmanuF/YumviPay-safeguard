@@ -8,7 +8,7 @@ import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { AlertTriangle, WifiOff } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useAuth } from '@/contexts/AuthContext';
 import { SignOutButton } from '@/components/authentication';

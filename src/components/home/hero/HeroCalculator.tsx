@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
+import { ChevronDown, Sparkles, TrendingUp } from 'lucide-react';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
@@ -45,12 +45,12 @@ const HeroCalculator: React.FC = () => {
       />
       <motion.div 
         variants={itemVariants}
-        className="absolute inset-0 bg-gradient-to-tr from-yellow-200/20 to-primary-200/20 rounded-2xl transform -rotate-1 scale-[1.01] opacity-60"
+        className="absolute inset-0 bg-gradient-to-tr from-secondary-200/20 to-primary-200/20 rounded-2xl transform -rotate-1 scale-[1.01] opacity-60"
       />
       
       {/* Decorative elements */}
       <motion.div 
-        className="absolute -top-6 -left-6 w-12 h-12 bg-yellow-300 rounded-full opacity-70 z-0"
+        className="absolute -top-6 -left-6 w-12 h-12 bg-secondary-400 rounded-full opacity-70 z-0"
         animate={{ 
           y: [0, -8, 0],
           scale: [1, 1.05, 1],
@@ -106,7 +106,7 @@ const HeroCalculator: React.FC = () => {
               ease: "easeInOut"
             }}
           >
-            <Sparkles className="text-yellow-400 h-6 w-6" />
+            <Sparkles className="text-secondary-500 h-6 w-6" />
           </motion.div>
           
           <motion.div
@@ -129,7 +129,7 @@ const HeroCalculator: React.FC = () => {
       
       <motion.div
         variants={itemVariants}
-        className="relative z-10 glass-strong rounded-2xl transform"
+        className="relative z-10 glass-strong rounded-2xl"
         whileHover={{ 
           scale: 1.02, 
           rotate: shouldUseComplexAnimations ? [-1, 1, 0] : 0, 

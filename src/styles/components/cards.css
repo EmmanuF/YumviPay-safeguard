@@ -8,7 +8,7 @@
 
 .card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 20px -10px rgba(91, 60, 196, 0.3);
+  box-shadow: 0 12px 20px -10px rgba(46, 139, 87, 0.3);
 }
 
 /* Enhanced settings panel styling */
@@ -31,4 +31,18 @@
 
 .form-group:hover {
   @apply shadow-md;
+}
+
+/* Premium card effect */
+.premium-card {
+  @apply bg-gradient-to-br from-secondary-100 to-secondary-50 
+         border border-secondary-200/40 rounded-xl shadow-md 
+         hover:shadow-lg transition-all duration-300;
+}
+
+/* Primary action card */
+.action-card {
+  @apply bg-gradient-to-br from-primary-100 to-primary-50
+         border border-primary-200/40 rounded-xl shadow-md
+         hover:shadow-lg transition-all duration-300;
 }
