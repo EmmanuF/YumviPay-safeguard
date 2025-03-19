@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
@@ -30,6 +31,7 @@ import AdminCountries from '@/pages/admin/AdminCountries';
 import AdminReports from '@/pages/admin/AdminReports';
 import AdminSecurity from '@/pages/admin/AdminSecurity';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminCMS from '@/pages/admin/AdminCMS';
 
 // Footer pages
 import AboutUs from '@/pages/company/AboutUs';
@@ -106,6 +108,11 @@ function App() {
                 <Route path="/admin/countries" element={
                   <AdminProtectedRoute>
                     <AdminCountries />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/cms" element={
+                  <AdminProtectedRoute>
+                    <AdminCMS />
                   </AdminProtectedRoute>
                 } />
                 <Route path="/admin/reports" element={
