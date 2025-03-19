@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -29,46 +30,46 @@ export default {
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#edf7f3',
-                    100: '#d5ece0',
-                    200: '#abdbc2',
-                    300: '#82caa4',
-                    400: '#58b985',
-                    500: '#2E8B57', // Emerald Green
-                    600: '#25704a',
-                    700: '#1c553c',
-                    800: '#133a2f',
-                    900: '#0a1f21',
+                    50: '#e6f5f5',
+                    100: '#ccecec',
+                    200: '#99d9d9',
+                    300: '#66c6c6',
+                    400: '#33b3b3',
+                    500: '#008080', // Deep Teal
+                    600: '#006666',
+                    700: '#004d4d',
+                    800: '#003333',
+                    900: '#001a1a',
                 },
-                // Gold
+                // Soft Yellow
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#fffaeb',
-                    100: '#fff5d6',
-                    200: '#ffeaad',
-                    300: '#ffe085',
-                    400: '#ffd54d',
-                    500: '#FFD700', // Gold
-                    600: '#ccac00',
-                    700: '#998100',
-                    800: '#665700',
-                    900: '#332c00',
+                    50: '#fffbeb',
+                    100: '#fff8d6',
+                    200: '#fff1ad',
+                    300: '#ffea85',
+                    400: '#ffe35c',
+                    500: '#FFDD57', // Soft Yellow
+                    600: '#ccb146',
+                    700: '#998534',
+                    800: '#665a23',
+                    900: '#332d11',
                 },
-                // Gold (Accent is same as secondary for this theme)
+                // Vibrant Orange
                 accent: {
                     DEFAULT: 'hsl(var(--accent))',
                     foreground: 'hsl(var(--accent-foreground))',
-                    50: '#fffaeb',
-                    100: '#fff5d6',
-                    200: '#ffeaad',
-                    300: '#ffe085',
-                    400: '#ffd54d',
-                    500: '#FFD700', // Gold
-                    600: '#ccac00',
-                    700: '#998100',
-                    800: '#665700',
-                    900: '#332c00',
+                    50: '#fff4e6',
+                    100: '#ffe9cc',
+                    200: '#ffd399',
+                    300: '#ffbd66',
+                    400: '#ffa733',
+                    500: '#FFA500', // Vibrant Orange
+                    600: '#cc8400',
+                    700: '#996300',
+                    800: '#664200',
+                    900: '#332100',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -87,14 +88,11 @@ export default {
                     foreground: 'hsl(var(--card-foreground))'
                 },
                 // Adding explicit colors for additional gradients and borders
-                charcoal: {
-                    500: '#333333',
+                slate: {
+                    500: '#2C3E50', // Dark Slate Gray
                 },
-                beige: {
-                    500: '#E8D5B7',
-                },
-                offwhite: {
-                    500: '#F8F9FA',
+                gray: {
+                    500: '#F2F2F2', // Light Gray
                 }
 			},
 			borderRadius: {

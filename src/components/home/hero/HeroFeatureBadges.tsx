@@ -15,8 +15,8 @@ const HeroFeatureBadges: React.FC = () => {
         <Zap size={16} className="mr-1 text-primary-600" />
         Fast & Secure
       </span>
-      <span className="bg-secondary-100/80 text-charcoal-500 px-3 py-1 rounded-full text-sm font-medium flex items-center border border-secondary-200/50">
-        <Shield size={16} className="mr-1 text-secondary-600" />
+      <span className="bg-secondary-100/80 text-slate-500 px-3 py-1 rounded-full text-sm font-medium flex items-center border border-secondary-200/50">
+        <Shield size={16} className="mr-1 text-accent-600" />
         Free Transfers
       </span>
     </motion.div>

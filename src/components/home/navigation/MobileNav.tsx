@@ -32,7 +32,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNav
             className={cn(
               "p-2 rounded-full transition-all duration-300",
               location.pathname === item.path 
-                ? "text-secondary-500 bg-primary-600/50" 
+                ? "text-accent-500 bg-primary-600/50" 
                 : "text-white/80 hover:text-white hover:bg-primary-600/30",
               isNavigating && "opacity-75"
             )}
@@ -42,7 +42,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNav
           <span className={cn(
             "text-xs mt-1 font-medium",
             location.pathname === item.path
-              ? "text-secondary-500"
+              ? "text-accent-500"
               : "text-white/80"
           )}>
             {item.name}

@@ -52,12 +52,12 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   
   // Enhanced glass effects with different intensities
   const glassClass = glassEffectIntensity === 'light' 
-    ? 'bg-gradient-to-b from-offwhite-500/90 to-white/80 border border-beige-500/40'
-    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-offwhite-500/80 to-white/70 border border-beige-500/30 shadow-[0_8px_32px_rgba(46,139,87,0.15)]';
+    ? 'bg-gradient-to-b from-gray-500/90 to-white/80 border border-secondary-500/40'
+    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-gray-500/80 to-white/70 border border-secondary-500/30 shadow-[0_8px_32px_rgba(0,128,128,0.15)]';
   
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
-      {/* Diagonal green top design - only shown on non-home pages */}
+      {/* Diagonal top design - only shown on non-home pages */}
       {!isHome && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
           <div className="absolute top-0 left-0 right-0 h-16 bg-primary-500"></div>
@@ -150,12 +150,12 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           style: {
             borderRadius: '0.75rem',
             background: glassEffectIntensity === 'light' 
-              ? 'rgba(232, 213, 183, 0.95)' 
-              : 'rgba(232, 213, 183, 0.85)',
+              ? 'rgba(255, 221, 87, 0.95)' 
+              : 'rgba(255, 221, 87, 0.85)',
             backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(12px)',
-            border: '1px solid rgba(46, 139, 87, 0.3)',
-            boxShadow: '0 8px 32px -4px rgba(46, 139, 87, 0.15)',
-            color: '#333',
+            border: '1px solid rgba(0, 128, 128, 0.3)',
+            boxShadow: '0 8px 32px -4px rgba(0, 128, 128, 0.15)',
+            color: '#2C3E50',
           },
           className: 'glass-card',
         }}

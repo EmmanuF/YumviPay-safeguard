@@ -17,7 +17,7 @@ const RateDisplay: React.FC<RateDisplayProps> = ({
 }) => {
   if (inline) {
     return (
-      <div className="flex items-center justify-center text-sm text-gray-600 mb-4">
+      <div className="flex items-center justify-center text-sm text-slate-500 mb-4">
         <span>1 {sourceCurrency}</span>
         <ArrowRight className="mx-2 h-4 w-4" />
         <span className="font-medium">{rate.toFixed(2)} {targetCurrency}</span>

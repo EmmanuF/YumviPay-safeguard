@@ -22,8 +22,8 @@ const NavItems: React.FC<NavItemsProps> = ({ navItems, handleNavigation, isNavig
           className={cn(
             "text-sm font-medium transition-colors",
             location.pathname === item.path 
-              ? "text-secondary-500 font-semibold" 
-              : "text-white hover:text-secondary-200"
+              ? "text-accent-500 font-semibold" 
+              : "text-white hover:text-accent-200"
           )}
           disabled={isNavigating}
         >

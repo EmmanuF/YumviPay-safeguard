@@ -23,7 +23,7 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
         ? "bg-red-50 border-red-200" 
         : isChecked 
           ? "bg-green-50 border-green-200" 
-          : "bg-amber-50 border-amber-200"
+          : "bg-accent-50 border-accent-200"
     )}>
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-0.5">
@@ -32,21 +32,21 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
           ) : isChecked ? (
             <CheckCircle className="h-5 w-5 text-green-500" />
           ) : (
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <AlertTriangle className="h-5 w-5 text-accent-500" />
           )}
         </div>
         
         <div className="flex-1">
           <h3 className={cn(
             "text-sm font-medium",
-            showError ? "text-red-800" : isChecked ? "text-green-800" : "text-amber-800"
+            showError ? "text-red-800" : isChecked ? "text-green-800" : "text-accent-800"
           )}>
             IMPORTANT: Verify name and number match exactly
           </h3>
           
           <p className={cn(
             "text-xs mt-1",
-            showError ? "text-red-700" : isChecked ? "text-green-700" : "text-amber-700"
+            showError ? "text-red-700" : isChecked ? "text-green-700" : "text-accent-700"
           )}>
             The recipient name and contact number/account must <strong>exactly match</strong> what's 
             registered with the payment provider. Mismatched details can result in transaction 
@@ -67,7 +67,7 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
               htmlFor="name-match-confirmation" 
               className={cn(
                 "text-xs cursor-pointer",
-                showError ? "text-red-700" : isChecked ? "text-green-700" : "text-amber-700"
+                showError ? "text-red-700" : isChecked ? "text-green-700" : "text-accent-700"
               )}
             >
               I confirm that the recipient name and number/account exactly match the details 

@@ -33,7 +33,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
       
       <Button
         variant="outline"
-        className="border-beige-500 text-charcoal-500 hover:bg-beige-500/20 shadow-sm"
+        className="border-secondary-500 text-slate-500 hover:bg-secondary-500/20 shadow-sm"
         size="lg"
       >
         <motion.span
