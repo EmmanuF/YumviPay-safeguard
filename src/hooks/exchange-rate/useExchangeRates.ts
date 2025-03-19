@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getExchangeRate } from '@/data/exchangeRates';
 import { ExchangeRate } from './types';
 
@@ -28,8 +28,10 @@ export const useExchangeRates = (
     calculateRate();
   }, [sendAmount, sourceCurrency, targetCurrency]);
 
-  // Generate all possible exchange rate combinations
-  const generateAllExchangeRates = (sendingCurrencies: string[], receivingCurrencies: string[]) => {
+  // Generate all possible exchange rate combinations - memoized with useCallback
+  const generateAllExchangeRates = useCallback((sendingCurrencies: string[], receivingCurrencies: string[]) => {
+    console.log('Generating all exchange rates combinations');
+    
     // Take at most 5 sending and 5 receiving currencies to keep the list manageable
     const topSendingCurrencies = sendingCurrencies.slice(0, 5);
     const topReceivingCurrencies = receivingCurrencies.slice(0, 5);
@@ -44,7 +46,7 @@ export const useExchangeRates = (
     });
     
     setAllExchangeRates(rates);
-  };
+  }, []);
 
   return {
     exchangeRate,

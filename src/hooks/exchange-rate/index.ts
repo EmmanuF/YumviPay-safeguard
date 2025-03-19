@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInitializeCountries } from './useInitializeCountries';
 import { useExchangeRates } from './useExchangeRates';
 import { useCurrencySelection } from './useCurrencySelection';
@@ -40,10 +40,12 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     authLoading 
   } = useTransactionContinue(onContinue);
 
-  // When currency lists change, generate all exchange rates
-  if (sendingCountryList.length > 0 && receivingCountryList.length > 0) {
-    generateAllExchangeRates(sendingCountryList, receivingCountryList);
-  }
+  // Generate all exchange rates when currency lists change - moved inside useEffect
+  useEffect(() => {
+    if (sendingCountryList.length > 0 && receivingCountryList.length > 0) {
+      generateAllExchangeRates(sendingCountryList, receivingCountryList);
+    }
+  }, [sendingCountryList, receivingCountryList, generateAllExchangeRates]);
   
   // Combined handler for continue action
   const handleContinue = () => {
