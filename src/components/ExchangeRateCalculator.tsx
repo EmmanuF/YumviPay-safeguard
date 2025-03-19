@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
+import { useExchangeRateCalculator } from '@/hooks/exchange-rate';
 import InlineCalculator from '@/components/calculator/InlineCalculator';
 import FullCalculator from '@/components/calculator/FullCalculator';
 import LoadingCalculator from '@/components/calculator/LoadingCalculator';
