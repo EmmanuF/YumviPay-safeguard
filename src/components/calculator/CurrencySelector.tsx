@@ -17,14 +17,14 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
   // Find the selected country by currency code - prefer countries that match the sending/receiving pattern
   const getCountryByCurrency = (currencyCode: string) => {
     // For source currency selector, prioritize countries that have isSendingEnabled=true
-    if (label.toLowerCase().includes('source')) {
+    if (label.toLowerCase().includes('source') || label.toLowerCase().includes('from')) {
       const sendingCountry = countries.find(country => 
         country.currency === currencyCode && country.isSendingEnabled);
       
       if (sendingCountry) return sendingCountry;
     } 
     // For target currency selector, prioritize countries that have isReceivingEnabled=true
-    else if (label.toLowerCase().includes('target')) {
+    else if (label.toLowerCase().includes('target') || label.toLowerCase().includes('to')) {
       const receivingCountry = countries.find(country => 
         country.currency === currencyCode && country.isReceivingEnabled);
       

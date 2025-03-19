@@ -55,8 +55,20 @@ export const getCachedCountries = (): Country[] | null => {
     const sendingCountries = validCountries.filter(c => c.isSendingEnabled);
     const receivingCountries = validCountries.filter(c => c.isReceivingEnabled);
     
-    console.log('Sending countries in cache:', sendingCountries.map(c => c.code).join(', '));
+    console.log('Sending countries in cache:', sendingCountries.map(c => c.name).join(', '));
     console.log('Receiving countries in cache:', receivingCountries.map(c => c.code).join(', '));
+    
+    // Ensure no African countries are marked as sending
+    const africaCountryCodes = ['CM', 'NG', 'GH', 'KE', 'ZA', 'ET', 'CD', 'TZ', 'CI', 'SN', 'ML'];
+    const incorrectSendingCountries = sendingCountries.filter(c => 
+      africaCountryCodes.includes(c.code)
+    );
+    
+    if (incorrectSendingCountries.length > 0) {
+      console.warn('Found African countries incorrectly marked as sending in cache, clearing cache');
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
     
     return validCountries;
   } catch (error) {
@@ -91,6 +103,15 @@ export const updateCountriesCache = (countries: Country[]): void => {
       console.warn(`Filtered out ${countries.length - validCountries.length} invalid countries before caching`);
     }
     
+    // Ensure no African countries are marked as sending
+    const africaCountryCodes = ['CM', 'NG', 'GH', 'KE', 'ZA', 'ET', 'CD', 'TZ', 'CI', 'SN', 'ML'];
+    validCountries.forEach(country => {
+      if (africaCountryCodes.includes(country.code) && country.isSendingEnabled) {
+        console.warn(`Fixing incorrect sending flag for ${country.name}`);
+        country.isSendingEnabled = false;
+      }
+    });
+    
     const cacheData: CachedData = {
       countries: validCountries,
       timestamp: Date.now(),
@@ -103,7 +124,7 @@ export const updateCountriesCache = (countries: Country[]): void => {
     const sendingCountries = validCountries.filter(c => c.isSendingEnabled);
     const receivingCountries = validCountries.filter(c => c.isReceivingEnabled);
     
-    console.log('Sending countries in updated cache:', sendingCountries.map(c => c.code).join(', '));
+    console.log('Sending countries in updated cache:', sendingCountries.map(c => c.name).join(', '));
     console.log('Receiving countries in updated cache:', receivingCountries.map(c => c.code).join(', '));
   } catch (error) {
     console.error('Error updating countries cache:', error);
