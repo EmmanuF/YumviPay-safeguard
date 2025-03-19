@@ -1,59 +1,74 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Home, Heart, TrendingUp, Users, Settings } from 'lucide-react';
+import { usePreview } from '@/contexts/PreviewContext';
 
 const ContentEditor = () => {
   const { toast } = useToast();
-  const [activeSection, setActiveSection] = useState('hero');
+  const { updatePreviewData } = usePreview();
   
-  // Sample content data - in a real app, this would be fetched from the database
-  const [contentData, setContentData] = useState({
-    hero: {
-      title: "Transfer Without Boundaries",
-      description: "Send money to Africa with zero fees, better exchange rates, and lightning-fast transfers. Your loved ones receive funds directly to their mobile wallets or bank accounts.",
-      cta: "Get Started",
-    },
-    features: {
-      title: "Why Choose Yumvi-Pay",
-      feature1Title: "Best Exchange Rates",
-      feature1Description: "We offer the most competitive exchange rates in the market, ensuring you get more value for your money.",
-      feature2Title: "Zero Transfer Fees",
-      feature2Description: "No hidden charges or markup fees. What you send is what they get.",
-      feature3Title: "Secure & Compliant",
-      feature3Description: "Advanced encryption and fully compliant with financial regulations for your peace of mind."
-    },
-    countries: {
-      title: "Send Money Across Africa",
-      description: "We support transfers to multiple African countries, with more being added regularly"
-    },
-    testimonials: {
-      title: "What Our Customers Say",
-      description: "Join thousands of satisfied customers who trust Yumvi-Pay for their money transfer needs"
-    }
+  const [homeContent, setHomeContent] = useState({
+    title: 'Send Money to Cameroon',
+    subtitle: 'Fast and secure way to transfer money to your loved ones',
+    heroText: '<p>Yumvi-Pay provides the easiest way to send money to Cameroon with competitive rates and low fees. Send money to family and friends with just a few taps.</p>',
   });
   
-  const handleInputChange = (section: string, field: string, value: string) => {
-    setContentData(prev => ({
+  const [aboutContent, setAboutContent] = useState({
+    title: 'About Yumvi-Pay',
+    subtitle: 'Our mission and values',
+    mainContent: '<p>Yumvi-Pay was founded with a simple mission: to make international money transfers to Africa simple, affordable, and accessible to everyone. We specialize in providing seamless money transfer services with a focus on Cameroon.</p><p>Our team combines expertise in financial technology with deep understanding of African markets to offer you the best service possible.</p>',
+  });
+  
+  // Send content to preview when it changes
+  useEffect(() => {
+    updatePreviewData({
+      content: `
+        <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;">
+          <h1 style="font-size: 2rem; font-weight: bold; color: #333;">${homeContent.title}</h1>
+          <h2 style="font-size: 1.2rem; color: #666; margin-bottom: 1rem;">${homeContent.subtitle}</h2>
+          <div>${homeContent.heroText}</div>
+        </div>
+      `,
+      pageType: 'home'
+    });
+  }, [homeContent, updatePreviewData]);
+  
+  const handleHomeContentChange = (field: keyof typeof homeContent, value: string) => {
+    setHomeContent(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [field]: value
-      }
+      [field]: value
     }));
   };
   
+  const handleAboutContentChange = (field: keyof typeof aboutContent, value: string) => {
+    setAboutContent(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Update preview data if about section is being edited
+    updatePreviewData({
+      content: `
+        <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;">
+          <h1 style="font-size: 2rem; font-weight: bold; color: #333;">${aboutContent.title}</h1>
+          <h2 style="font-size: 1.2rem; color: #666; margin-bottom: 1rem;">${aboutContent.subtitle}</h2>
+          <div>${aboutContent.mainContent}</div>
+        </div>
+      `,
+      pageType: 'about'
+    });
+  };
+  
   const handleSaveContent = () => {
-    // In a real app, this would call an API to save the content to the database
     toast({
       title: "Content Saved",
-      description: `${activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} section content has been updated.`,
+      description: "Your content changes have been saved successfully"
     });
   };
   
@@ -62,180 +77,104 @@ const ContentEditor = () => {
       <CardHeader className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-t-lg">
         <CardTitle className="text-lg text-primary-700">Content Editor</CardTitle>
         <CardDescription>
-          Edit text content for different sections of your website
+          Edit website text content and manage translations
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
-        <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-6">
-            <TabsTrigger value="hero" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Hero
-            </TabsTrigger>
-            <TabsTrigger value="features" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Features
-            </TabsTrigger>
-            <TabsTrigger value="countries" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              Countries
-            </TabsTrigger>
-            <TabsTrigger value="testimonials" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Testimonials
-            </TabsTrigger>
+        <Tabs defaultValue="home" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="home">Home Page</TabsTrigger>
+            <TabsTrigger value="about">About Us</TabsTrigger>
+            <TabsTrigger value="services">Services</TabsTrigger>
+            <TabsTrigger value="faq">FAQ</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="hero" className="space-y-4">
+          <TabsContent value="home" className="space-y-4">
             <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="hero-title">Main Heading</Label>
+              <div className="space-y-2">
+                <Label htmlFor="home-title">Page Title</Label>
                 <Input 
-                  id="hero-title" 
-                  value={contentData.hero.title}
-                  onChange={(e) => handleInputChange('hero', 'title', e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="hero-description">Description</Label>
-                <Textarea 
-                  id="hero-description" 
-                  rows={4}
-                  value={contentData.hero.description}
-                  onChange={(e) => handleInputChange('hero', 'description', e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="hero-cta">Call to Action Button</Label>
-                <Input 
-                  id="hero-cta" 
-                  value={contentData.hero.cta}
-                  onChange={(e) => handleInputChange('hero', 'cta', e.target.value)}
-                />
-              </div>
-            </div>
-            <Button onClick={handleSaveContent} className="w-full">Save Hero Content</Button>
-          </TabsContent>
-          
-          <TabsContent value="features" className="space-y-4">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="features-title">Section Title</Label>
-                <Input 
-                  id="features-title" 
-                  value={contentData.features.title}
-                  onChange={(e) => handleInputChange('features', 'title', e.target.value)}
+                  id="home-title" 
+                  value={homeContent.title}
+                  onChange={(e) => handleHomeContentChange('title', e.target.value)}
                 />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="feature1-title">Feature 1 Title</Label>
-                  <Input 
-                    id="feature1-title" 
-                    value={contentData.features.feature1Title}
-                    onChange={(e) => handleInputChange('features', 'feature1Title', e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="feature1-description">Feature 1 Description</Label>
-                  <Textarea 
-                    id="feature1-description" 
-                    rows={2}
-                    value={contentData.features.feature1Description}
-                    onChange={(e) => handleInputChange('features', 'feature1Description', e.target.value)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="home-subtitle">Subtitle</Label>
+                <Input 
+                  id="home-subtitle" 
+                  value={homeContent.subtitle}
+                  onChange={(e) => handleHomeContentChange('subtitle', e.target.value)}
+                />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="feature2-title">Feature 2 Title</Label>
-                  <Input 
-                    id="feature2-title" 
-                    value={contentData.features.feature2Title}
-                    onChange={(e) => handleInputChange('features', 'feature2Title', e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="feature2-description">Feature 2 Description</Label>
-                  <Textarea 
-                    id="feature2-description" 
-                    rows={2}
-                    value={contentData.features.feature2Description}
-                    onChange={(e) => handleInputChange('features', 'feature2Description', e.target.value)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="home-hero">Hero Content (HTML)</Label>
+                <Textarea 
+                  id="home-hero" 
+                  rows={6}
+                  value={homeContent.heroText}
+                  onChange={(e) => handleHomeContentChange('heroText', e.target.value)}
+                  className="font-mono text-sm"
+                />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="about" className="space-y-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="about-title">Page Title</Label>
+                <Input 
+                  id="about-title" 
+                  value={aboutContent.title}
+                  onChange={(e) => handleAboutContentChange('title', e.target.value)}
+                />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="feature3-title">Feature 3 Title</Label>
-                  <Input 
-                    id="feature3-title" 
-                    value={contentData.features.feature3Title}
-                    onChange={(e) => handleInputChange('features', 'feature3Title', e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="feature3-description">Feature 3 Description</Label>
-                  <Textarea 
-                    id="feature3-description" 
-                    rows={2}
-                    value={contentData.features.feature3Description}
-                    onChange={(e) => handleInputChange('features', 'feature3Description', e.target.value)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="about-subtitle">Subtitle</Label>
+                <Input 
+                  id="about-subtitle" 
+                  value={aboutContent.subtitle}
+                  onChange={(e) => handleAboutContentChange('subtitle', e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="about-content">Main Content (HTML)</Label>
+                <Textarea 
+                  id="about-content" 
+                  rows={10}
+                  value={aboutContent.mainContent}
+                  onChange={(e) => handleAboutContentChange('mainContent', e.target.value)}
+                  className="font-mono text-sm"
+                />
               </div>
             </div>
-            <Button onClick={handleSaveContent} className="w-full">Save Features Content</Button>
           </TabsContent>
           
-          <TabsContent value="countries" className="space-y-4">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="countries-title">Section Title</Label>
-                <Input 
-                  id="countries-title" 
-                  value={contentData.countries.title}
-                  onChange={(e) => handleInputChange('countries', 'title', e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="countries-description">Description</Label>
-                <Textarea 
-                  id="countries-description" 
-                  rows={4}
-                  value={contentData.countries.description}
-                  onChange={(e) => handleInputChange('countries', 'description', e.target.value)}
-                />
-              </div>
+          <TabsContent value="services">
+            <div className="py-8 text-center text-muted-foreground">
+              Services content editor will be available soon.
             </div>
-            <Button onClick={handleSaveContent} className="w-full">Save Countries Content</Button>
           </TabsContent>
           
-          <TabsContent value="testimonials" className="space-y-4">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="testimonials-title">Section Title</Label>
-                <Input 
-                  id="testimonials-title" 
-                  value={contentData.testimonials.title}
-                  onChange={(e) => handleInputChange('testimonials', 'title', e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="testimonials-description">Description</Label>
-                <Textarea 
-                  id="testimonials-description" 
-                  rows={4}
-                  value={contentData.testimonials.description}
-                  onChange={(e) => handleInputChange('testimonials', 'description', e.target.value)}
-                />
-              </div>
+          <TabsContent value="faq">
+            <div className="py-8 text-center text-muted-foreground">
+              FAQ content editor will be available soon.
             </div>
-            <Button onClick={handleSaveContent} className="w-full">Save Testimonials Content</Button>
           </TabsContent>
+          
+          <div className="flex justify-end pt-4">
+            <Button 
+              onClick={handleSaveContent}
+              className="bg-primary-600 hover:bg-primary-700"
+            >
+              Save Content
+            </Button>
+          </div>
         </Tabs>
       </CardContent>
     </Card>
