@@ -10,7 +10,7 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon }) => {
   return (
-    <div className="glass-effect rounded-2xl p-6 bg-gradient-to-br from-white/80 to-primary-50/30 border border-primary-100/30">
+    <div className="glass-effect rounded-2xl p-6 bg-gradient-to-br from-white/90 to-primary-50/40 border border-primary-100/40 shadow-lg">
       <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4 text-primary-500">
         {icon}
       </div>

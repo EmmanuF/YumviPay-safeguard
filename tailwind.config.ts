@@ -92,7 +92,7 @@ export default {
                     500: '#4A4A4A', // Dark Gray for text
                 },
                 gray: {
-                    500: '#FFFFF0', // Ivory White for background
+                    500: '#2FDB14', // Bright Green for background (replacing Ivory White)
                 }
 			},
 			borderRadius: {

@@ -5,24 +5,24 @@
 
 @layer base {
   :root {
-    --background: 60 100% 97%;
+    --background: 112 86% 47%;
     --foreground: 0 0% 29%;
 
-    --card: 60 100% 97%;
+    --card: 112 86% 47%;
     --card-foreground: 0 0% 29%;
 
-    --popover: 60 100% 97%;
+    --popover: 112 86% 47%;
     --popover-foreground: 0 0% 29%;
 
     /* Updated primary color to Crimson Red */
     --primary: 348 83% 47%;
-    --primary-foreground: 60 100% 97%;
+    --primary-foreground: 112 86% 47%;
 
     /* Updated secondary color to Warm Brown */
     --secondary: 20 71% 31%;
-    --secondary-foreground: 60 100% 97%;
+    --secondary-foreground: 112 86% 47%;
 
-    --muted: 60 15% 90%;
+    --muted: 112 15% 90%;
     --muted-foreground: 0 0% 45%;
 
     /* Updated accent color to Rich Gold */
@@ -30,38 +30,38 @@
     --accent-foreground: 0 0% 29%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 100% 97%;
+    --destructive-foreground: 112 86% 47%;
 
     /* Adding purple and orange colors for gradients */
     --purple: 270 50% 60%;
     --orange: 30 100% 50%;
 
-    --border: 60 30% 85%;
-    --input: 60 30% 85%;
+    --border: 112 30% 85%;
+    --input: 112 30% 85%;
     --ring: 348 83% 47%;
 
     --radius: 1rem;
   }
 
   .dark {
-    --background: 60 100% 97%;
+    --background: 112 86% 47%;
     --foreground: 0 0% 29%;
 
-    --card: 60 100% 97%;
+    --card: 112 86% 47%;
     --card-foreground: 0 0% 29%;
 
-    --popover: 60 100% 97%;
+    --popover: 112 86% 47%;
     --popover-foreground: 0 0% 29%;
 
     /* Updated primary color to Crimson Red */
     --primary: 348 83% 47%;
-    --primary-foreground: 60 100% 97%;
+    --primary-foreground: 112 86% 47%;
 
     /* Updated secondary color to Warm Brown */
     --secondary: 20 71% 31%;
-    --secondary-foreground: 60 100% 97%;
+    --secondary-foreground: 112 86% 47%;
 
-    --muted: 60 15% 90%;
+    --muted: 112 15% 90%;
     --muted-foreground: 0 0% 45%;
 
     /* Updated accent color to Rich Gold */
@@ -73,10 +73,10 @@
     --orange: 30 100% 50%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 100% 97%;
+    --destructive-foreground: 112 86% 47%;
 
-    --border: 60 30% 85%;
-    --input: 60 30% 85%;
+    --border: 112 30% 85%;
+    --input: 112 30% 85%;
     --ring: 348 83% 47%;
   }
 }
@@ -92,7 +92,7 @@
   }
 
   body {
-    @apply bg-[#FFFFF0] text-[#4A4A4A];
+    @apply bg-[#2FDB14] text-[#4A4A4A];
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
