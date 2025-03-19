@@ -18,7 +18,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
     >
       <Button
         onClick={onGetStarted}
-        className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base shadow-lg shadow-primary-600/30 hover:shadow-xl hover:shadow-primary-600/40 border border-primary-700/50 font-semibold"
+        className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30"
         size="lg"
       >
         <motion.span
@@ -33,7 +33,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
       
       <Button
         variant="outline"
-        className="border-secondary-600 text-secondary-700 hover:bg-secondary-600/20 shadow-md hover:shadow-lg font-semibold"
+        className="border-secondary-500 text-slate-500 hover:bg-secondary-500/20 shadow-sm"
         size="lg"
       >
         <motion.span
