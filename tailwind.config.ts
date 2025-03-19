@@ -86,6 +86,19 @@ export default {
                 card: {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
+                },
+                // Adding explicit colors for additional gradients and borders
+                purple: {
+                    500: '#6E36E5',
+                },
+                blue: {
+                    500: '#3b82f6',
+                },
+                green: {
+                    500: '#10b981',
+                },
+                orange: {
+                    500: '#f97316',
                 }
 			},
 			borderRadius: {

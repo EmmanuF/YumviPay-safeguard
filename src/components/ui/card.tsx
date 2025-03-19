@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -5,15 +6,19 @@ import { cn } from "@/lib/utils"
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    gradient?: "neon" | "electric" | "dark" | "none";
+    gradient?: "neon" | "electric" | "dark" | "none" | "purple" | "blue" | "green" | "orange";
     hoverEffect?: boolean;
-    coloredBorder?: "accent" | "secondary" | "destructive" | "none";
+    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info";
   }
 >(({ className, gradient = "none", hoverEffect = false, coloredBorder = "none", ...props }, ref) => {
   const gradientStyles = {
     neon: "bg-gradient-to-br from-accent/10 to-background border-l-4 border-accent",
     electric: "bg-gradient-to-br from-secondary/10 to-background border-l-4 border-secondary",
     dark: "bg-gradient-to-br from-primary-400/10 to-background border-l-4 border-primary-400",
+    purple: "bg-gradient-to-br from-purple-500/10 to-background border-l-4 border-purple-500",
+    blue: "bg-gradient-to-br from-blue-500/10 to-background border-l-4 border-blue-500",
+    green: "bg-gradient-to-br from-green-500/10 to-background border-l-4 border-green-500",
+    orange: "bg-gradient-to-br from-orange-500/10 to-background border-l-4 border-orange-500",
     none: ""
   };
 
@@ -21,6 +26,9 @@ const Card = React.forwardRef<
     accent: "border-l-4 border-accent",
     secondary: "border-l-4 border-secondary",
     destructive: "border-l-4 border-destructive",
+    primary: "border-l-4 border-primary",
+    success: "border-l-4 border-green-500",
+    info: "border-l-4 border-blue-500",
     none: ""
   };
 
