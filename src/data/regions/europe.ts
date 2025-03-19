@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const europeanCountries: Country[] = [
@@ -6,7 +7,7 @@ export const europeanCountries: Country[] = [
     code: 'GB',
     flagUrl: 'https://flagcdn.com/gb.svg',
     currency: 'GBP',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Ensure this is set to true
     isReceivingEnabled: false,
     paymentMethods: [
       {

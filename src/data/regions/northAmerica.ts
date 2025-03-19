@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const northAmericanCountries: Country[] = [
@@ -6,7 +7,7 @@ export const northAmericanCountries: Country[] = [
     code: 'US',
     flagUrl: 'https://flagcdn.com/us.svg',
     currency: 'USD',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Ensure this is set to true
     isReceivingEnabled: false,
     paymentMethods: [
       {

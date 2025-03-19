@@ -7,7 +7,7 @@ export const centralAfricanCountries: Country[] = [
     code: 'CM',
     flagUrl: 'https://flagcdn.com/cm.svg',
     currency: 'XAF',
-    isSendingEnabled: true, // Changed back to true to enable as MVP country
+    isSendingEnabled: true, 
     isReceivingEnabled: true,
     phonePrefix: '+237',
     paymentMethods: [

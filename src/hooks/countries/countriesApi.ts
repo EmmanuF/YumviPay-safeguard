@@ -8,14 +8,21 @@ import { parsePaymentMethods } from './parseCountryData';
  */
 export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
   try {
+    console.log('Fetching all countries from Supabase...');
+    
     const { data, error } = await supabase
       .from('countries')
       .select('*')
       .order('name');
       
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching countries from Supabase:', error);
+      throw error;
+    }
     
     if (data && data.length > 0) {
+      console.log(`Fetched ${data.length} countries from Supabase`);
+      
       return data.map(country => ({
         name: country.name,
         code: country.code,
@@ -26,6 +33,8 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
         paymentMethods: parsePaymentMethods(country.payment_methods)
       }));
     }
+    
+    console.log('No countries data returned from Supabase');
     return null;
   } catch (error) {
     console.error('Error fetching countries from Supabase:', error);
@@ -38,15 +47,22 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
  */
 export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> => {
   try {
+    console.log('Fetching sending countries from Supabase...');
+    
     const { data, error } = await supabase
       .from('countries')
       .select('*')
       .eq('is_sending_enabled', true)
       .order('name');
       
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching sending countries from Supabase:', error);
+      throw error;
+    }
     
     if (data && data.length > 0) {
+      console.log(`Fetched ${data.length} sending countries from Supabase`);
+      
       return data.map(country => ({
         name: country.name,
         code: country.code,
@@ -57,6 +73,8 @@ export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> 
         paymentMethods: parsePaymentMethods(country.payment_methods)
       }));
     }
+    
+    console.log('No sending countries data returned from Supabase');
     return null;
   } catch (error) {
     console.error('Error fetching sending countries from Supabase:', error);
@@ -69,15 +87,22 @@ export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> 
  */
 export const fetchReceivingCountriesFromApi = async (): Promise<Country[] | null> => {
   try {
+    console.log('Fetching receiving countries from Supabase...');
+    
     const { data, error } = await supabase
       .from('countries')
       .select('*')
       .eq('is_receiving_enabled', true)
       .order('name');
       
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching receiving countries from Supabase:', error);
+      throw error;
+    }
     
     if (data && data.length > 0) {
+      console.log(`Fetched ${data.length} receiving countries from Supabase`);
+      
       return data.map(country => ({
         name: country.name,
         code: country.code,
@@ -88,6 +113,8 @@ export const fetchReceivingCountriesFromApi = async (): Promise<Country[] | null
         paymentMethods: parsePaymentMethods(country.payment_methods)
       }));
     }
+    
+    console.log('No receiving countries data returned from Supabase');
     return null;
   } catch (error) {
     console.error('Error fetching receiving countries from Supabase:', error);
