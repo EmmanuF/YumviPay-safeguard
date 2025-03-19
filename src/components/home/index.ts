@@ -1,5 +1,5 @@
 
-export { default as Navigation } from './Navigation';
+export { Navigation } from './navigation';
 export { default as Hero } from './Hero';
 export { default as Features } from './features/Features';
 export { default as HowItWorks } from './HowItWorks';
