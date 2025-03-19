@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
 import InlineCalculator from '@/components/calculator/InlineCalculator';
 import FullCalculator from '@/components/calculator/FullCalculator';
 import LoadingCalculator from '@/components/calculator/LoadingCalculator';
+import ExchangeRatesModal from '@/components/calculator/ExchangeRatesModal';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
@@ -16,6 +17,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   onContinue,
   inlineMode = false
 }) => {
+  const [showRatesModal, setShowRatesModal] = useState(false);
+  
   const {
     sendAmount,
     setSendAmount,
@@ -30,7 +33,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     countriesLoading,
     sourceCurrencies,
     targetCurrencies,
-    handleContinue
+    handleContinue,
+    allExchangeRates
   } = useExchangeRateCalculator(onContinue);
 
   // Loading state - show skeleton UI
@@ -38,10 +42,45 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     return <LoadingCalculator className={className} />;
   }
 
+  const handleSeeMoreRates = () => {
+    setShowRatesModal(true);
+  };
+
   // In inline mode, we use a simpler layout without the header and descriptions
   if (inlineMode) {
     return (
-      <InlineCalculator
+      <>
+        <InlineCalculator
+          sendAmount={sendAmount}
+          setSendAmount={setSendAmount}
+          receiveAmount={receiveAmount}
+          sourceCurrency={sourceCurrency}
+          setSourceCurrency={setSourceCurrency}
+          targetCurrency={targetCurrency}
+          setTargetCurrency={setTargetCurrency}
+          exchangeRate={exchangeRate}
+          isProcessing={isProcessing}
+          authLoading={authLoading}
+          sourceCurrencies={sourceCurrencies}
+          targetCurrencies={targetCurrencies}
+          handleContinue={handleContinue}
+          onSeeMoreRates={handleSeeMoreRates}
+          className={className}
+        />
+        
+        <ExchangeRatesModal
+          isOpen={showRatesModal}
+          onClose={() => setShowRatesModal(false)}
+          rates={allExchangeRates}
+        />
+      </>
+    );
+  }
+
+  // Default full mode layout
+  return (
+    <>
+      <FullCalculator
         sendAmount={sendAmount}
         setSendAmount={setSendAmount}
         receiveAmount={receiveAmount}
@@ -55,29 +94,16 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
         sourceCurrencies={sourceCurrencies}
         targetCurrencies={targetCurrencies}
         handleContinue={handleContinue}
+        onSeeMoreRates={handleSeeMoreRates}
         className={className}
       />
-    );
-  }
-
-  // Default full mode layout
-  return (
-    <FullCalculator
-      sendAmount={sendAmount}
-      setSendAmount={setSendAmount}
-      receiveAmount={receiveAmount}
-      sourceCurrency={sourceCurrency}
-      setSourceCurrency={setSourceCurrency}
-      targetCurrency={targetCurrency}
-      setTargetCurrency={setTargetCurrency}
-      exchangeRate={exchangeRate}
-      isProcessing={isProcessing}
-      authLoading={authLoading}
-      sourceCurrencies={sourceCurrencies}
-      targetCurrencies={targetCurrencies}
-      handleContinue={handleContinue}
-      className={className}
-    />
+      
+      <ExchangeRatesModal
+        isOpen={showRatesModal}
+        onClose={() => setShowRatesModal(false)}
+        rates={allExchangeRates}
+      />
+    </>
   );
 };
 

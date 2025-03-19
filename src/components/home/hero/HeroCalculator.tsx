@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Sparkles, TrendingUp } from 'lucide-react';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
+import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
+import ExchangeRatesModal from '@/components/calculator/ExchangeRatesModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,6 +32,8 @@ const itemVariants = {
 
 const HeroCalculator: React.FC = () => {
   const { shouldUseComplexAnimations } = useDeviceOptimizations();
+  const [showRatesModal, setShowRatesModal] = useState(false);
+  const { allExchangeRates } = useExchangeRateCalculator();
   
   return (
     <motion.div
@@ -143,11 +147,19 @@ const HeroCalculator: React.FC = () => {
           whileHover={{ y: 2 }}
           animate={{ y: [0, 4, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          onClick={() => setShowRatesModal(true)}
         >
           <span className="group-hover:text-primary-600 transition-colors">See more rates</span>
           <ChevronDown size={14} className="group-hover:text-primary-600 transition-colors" />
         </motion.div>
       </motion.div>
+      
+      {/* Exchange Rates Modal */}
+      <ExchangeRatesModal
+        isOpen={showRatesModal}
+        onClose={() => setShowRatesModal(false)}
+        rates={allExchangeRates}
+      />
     </motion.div>
   );
 };

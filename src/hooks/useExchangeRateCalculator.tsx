@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,6 +5,7 @@ import { useCountries } from '@/hooks/useCountries';
 import { getExchangeRate } from '@/data/exchangeRates';
 import { toast } from '@/hooks/use-toast';
 import { clearCountriesCache } from './countries/countriesCache';
+import { useNetwork } from '@/contexts/network';
 
 export interface ExchangeRateCalculatorState {
   sendAmount: string;
@@ -20,6 +20,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuth();
   const { countries, isLoading: countriesLoading, getSendingCountries, getReceivingCountries, refreshCountries } = useCountries();
+  const { isOffline } = useNetwork();
+  
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
@@ -28,6 +30,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [sendingCountryList, setSendingCountryList] = useState<string[]>([]);
   const [receivingCountryList, setReceivingCountryList] = useState<string[]>([]);
+  const [showAllRates, setShowAllRates] = useState(false);
+  const [allExchangeRates, setAllExchangeRates] = useState<{from: string, to: string, rate: number}[]>([]);
 
   // First, clear the countries cache to ensure we get fresh data
   useEffect(() => {
@@ -94,6 +98,9 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
         } else {
           console.warn('No receiving currencies available!');
         }
+        
+        // Generate all exchange rates combinations for the "See more rates" feature
+        generateAllExchangeRates(sendingCurrencies, receivingCurrencies);
       } catch (error) {
         console.error('Error loading country lists:', error);
       }
@@ -106,6 +113,24 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       console.log('Countries data not yet available, waiting...');
     }
   }, [countries, getSendingCountries, getReceivingCountries, sourceCurrency, targetCurrency]);
+
+  // Generate all possible exchange rate combinations
+  const generateAllExchangeRates = (sendingCurrencies: string[], receivingCurrencies: string[]) => {
+    // Take at most 5 sending and 5 receiving currencies to keep the list manageable
+    const topSendingCurrencies = sendingCurrencies.slice(0, 5);
+    const topReceivingCurrencies = receivingCurrencies.slice(0, 5);
+    
+    const rates: {from: string, to: string, rate: number}[] = [];
+    
+    topSendingCurrencies.forEach(from => {
+      topReceivingCurrencies.forEach(to => {
+        const rate = getExchangeRate(from, to);
+        rates.push({ from, to, rate });
+      });
+    });
+    
+    setAllExchangeRates(rates);
+  };
 
   // Update exchange rate when currencies change
   useEffect(() => {
@@ -200,6 +225,10 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     }
   };
 
+  const toggleRatesDisplay = () => {
+    setShowAllRates(!showAllRates);
+  };
+
   return {
     sendAmount,
     setSendAmount,
@@ -214,6 +243,9 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     countriesLoading,
     sourceCurrencies: sendingCountryList,
     targetCurrencies: receivingCountryList,
-    handleContinue
+    handleContinue,
+    showAllRates,
+    toggleRatesDisplay,
+    allExchangeRates
   };
 };

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CurrencySelector from '@/components/calculator/CurrencySelector';
 import AmountInput from '@/components/calculator/AmountInput';
@@ -20,6 +20,7 @@ interface InlineCalculatorProps {
   sourceCurrencies: string[];
   targetCurrencies: string[];
   handleContinue: () => void;
+  onSeeMoreRates: () => void;
   className?: string;
 }
 
@@ -37,6 +38,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
   sourceCurrencies,
   targetCurrencies,
   handleContinue,
+  onSeeMoreRates,
   className
 }) => {
   const onContinueClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -92,6 +94,16 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
             rate={exchangeRate} 
             inline={true}
           />
+        </div>
+        
+        <div className="text-center mb-4">
+          <button 
+            onClick={onSeeMoreRates}
+            className="text-sm text-gray-500 hover:text-primary-500 flex items-center justify-center mx-auto"
+          >
+            <span>See more rates</span>
+            <ChevronDown className="h-4 w-4 ml-1" />
+          </button>
         </div>
         
         <Button
