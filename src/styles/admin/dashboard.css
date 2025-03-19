@@ -33,7 +33,7 @@
 
 .analytics-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px -5px rgba(220, 20, 60, 0.25);
+  box-shadow: 0 12px 20px -5px rgba(0, 166, 118, 0.25);
 }
 
 .analytics-stat-grid {
@@ -54,22 +54,22 @@
   }
 }
 
-/* Add specific overrides for admin components to match the crimson theme */
+/* Add specific overrides for admin components to match the teal theme */
 .admin-sidebar {
-  background-color: #DC143C !important;
+  background-color: #00A676 !important;
 }
 
 .admin-header {
-  background-color: #DC143C !important;
+  background-color: #00A676 !important;
 }
 
 .admin-nav-item.active,
 .admin-tab.active {
-  background-color: #DC143C !important;
+  background-color: #00A676 !important;
 }
 
 /* Fix admin tab styling to match theme */
 .admin-tabs .admin-tab[data-state="active"] {
-  background: linear-gradient(to right, #DC143C, #e02647) !important;
+  background: linear-gradient(to right, #00A676, #06c28e) !important;
   color: white !important;
 }

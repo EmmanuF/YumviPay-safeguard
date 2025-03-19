@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils"
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange";
+    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange" | "teal" | "mocha" | "teal-orange" | "mocha-cream";
     hoverEffect?: boolean;
-    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info";
+    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info" | "teal" | "mocha" | "orange";
   }
 >(({ className, gradient = "none", hoverEffect = false, coloredBorder = "none", ...props }, ref) => {
   const gradientStyles = {
@@ -22,6 +22,10 @@ const Card = React.forwardRef<
     green: "bg-gradient-to-br from-green-500/10 to-background border-l-4 border-green-500",
     purple: "bg-gradient-to-br from-purple-500/10 to-background border-l-4 border-purple-500",
     orange: "bg-gradient-to-br from-orange-500/10 to-background border-l-4 border-orange-500",
+    teal: "bg-gradient-to-br from-teal-500/10 to-background border-l-4 border-teal-500",
+    mocha: "bg-gradient-to-br from-mocha-500/10 to-background border-l-4 border-mocha-500",
+    "teal-orange": "bg-gradient-to-br from-teal-500/10 to-accent-500/10 border-l-4 border-teal-500",
+    "mocha-cream": "bg-gradient-to-br from-mocha-500/10 to-cream-500/30 border-l-4 border-mocha-500",
     none: ""
   };
 
@@ -32,6 +36,9 @@ const Card = React.forwardRef<
     primary: "border-l-4 border-primary-500",
     success: "border-l-4 border-green-500",
     info: "border-l-4 border-blue-500",
+    teal: "border-l-4 border-teal-500",
+    mocha: "border-l-4 border-mocha-500",
+    orange: "border-l-4 border-accent-500",
     none: ""
   };
 
@@ -42,7 +49,7 @@ const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border bg-card text-card-foreground shadow-sm",
+        "rounded-lg border bg-cream-500 text-charcoal-500 shadow-sm",
         gradientStyles[gradient],
         coloredBorder !== "none" && gradient === "none" ? borderStyles[coloredBorder] : "",
         hoverStyles,

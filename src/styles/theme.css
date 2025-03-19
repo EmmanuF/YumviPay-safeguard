@@ -5,79 +5,89 @@
 
 @layer base {
   :root {
-    --background: 60 100% 97%;
-    --foreground: 0 0% 29%;
+    /* Updated color palette */
+    --background: 39 77% 83%;
+    --foreground: 0 0% 13%;
 
-    --card: 60 100% 97%;
-    --card-foreground: 0 0% 29%;
+    /* Soft Cream for cards and popovers */
+    --card: 60 33% 94%;
+    --card-foreground: 0 0% 13%;
+    --popover: 60 33% 94%;
+    --popover-foreground: 0 0% 13%;
 
-    --popover: 60 100% 97%;
-    --popover-foreground: 0 0% 29%;
+    /* Bright Teal Green as primary color */
+    --primary: 161 100% 33%;
+    --primary-foreground: 60 33% 94%;
 
-    /* Updated primary color to Crimson Red */
-    --primary: 348 83% 47%;
-    --primary-foreground: 60 100% 97%;
+    /* Dark Mocha Brown as secondary color */
+    --secondary: 15 21% 29%;
+    --secondary-foreground: 60 33% 94%;
 
-    /* Updated secondary color to Warm Brown */
-    --secondary: 20 71% 31%;
-    --secondary-foreground: 60 100% 97%;
-
+    /* Muted colors */
     --muted: 60 15% 90%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 15 10% 40%;
 
-    /* Updated accent color to Rich Gold */
-    --accent: 43 74% 49%;
-    --accent-foreground: 0 0% 29%;
+    /* Burnt Orange as accent color */
+    --accent: 21 100% 45%;
+    --accent-foreground: 60 33% 94%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 100% 97%;
+    --destructive-foreground: 60 33% 94%;
 
-    /* Adding purple and orange colors for gradients */
+    /* Additional colors for gradients */
     --purple: 270 50% 60%;
-    --orange: 30 100% 50%;
+    --orange: 21 100% 45%;
+    --teal: 161 100% 33%;
+    --cream: 60 33% 94%;
+    --mocha: 15 21% 29%;
 
-    --border: 60 30% 85%;
-    --input: 60 30% 85%;
-    --ring: 348 83% 47%;
+    --border: 15 15% 85%;
+    --input: 15 15% 85%;
+    --ring: 161 100% 33%;
 
     --radius: 1rem;
   }
 
   .dark {
-    --background: 60 100% 97%;
-    --foreground: 0 0% 29%;
+    /* Updated color palette - dark mode */
+    --background: 39 77% 83%;
+    --foreground: 0 0% 13%;
 
-    --card: 60 100% 97%;
-    --card-foreground: 0 0% 29%;
+    /* Soft Cream for cards and popovers */
+    --card: 60 33% 94%;
+    --card-foreground: 0 0% 13%;
+    --popover: 60 33% 94%;
+    --popover-foreground: 0 0% 13%;
 
-    --popover: 60 100% 97%;
-    --popover-foreground: 0 0% 29%;
+    /* Bright Teal Green as primary color */
+    --primary: 161 100% 33%;
+    --primary-foreground: 60 33% 94%;
 
-    /* Updated primary color to Crimson Red */
-    --primary: 348 83% 47%;
-    --primary-foreground: 60 100% 97%;
+    /* Dark Mocha Brown as secondary color */
+    --secondary: 15 21% 29%;
+    --secondary-foreground: 60 33% 94%;
 
-    /* Updated secondary color to Warm Brown */
-    --secondary: 20 71% 31%;
-    --secondary-foreground: 60 100% 97%;
-
+    /* Muted colors */
     --muted: 60 15% 90%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 15 10% 40%;
 
-    /* Updated accent color to Rich Gold */
-    --accent: 43 74% 49%;
-    --accent-foreground: 0 0% 29%;
+    /* Burnt Orange as accent color */
+    --accent: 21 100% 45%;
+    --accent-foreground: 60 33% 94%;
 
-    /* Adding purple and orange colors for gradients */
+    /* Additional colors for gradients */
     --purple: 270 50% 60%;
-    --orange: 30 100% 50%;
+    --orange: 21 100% 45%;
+    --teal: 161 100% 33%;
+    --cream: 60 33% 94%;
+    --mocha: 15 21% 29%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 100% 97%;
+    --destructive-foreground: 60 33% 94%;
 
-    --border: 60 30% 85%;
-    --input: 60 30% 85%;
-    --ring: 348 83% 47%;
+    --border: 15 15% 85%;
+    --input: 15 15% 85%;
+    --ring: 161 100% 33%;
   }
 }
 
@@ -92,18 +102,18 @@
   }
 
   body {
-    @apply bg-[#FFFFF0] text-[#4A4A4A];
+    @apply bg-[#F5F5DC] text-[#212121];
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 /* Glass effects classes */
 .glass-effect {
-  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm;
+  @apply bg-white/80 backdrop-blur-sm border border-secondary-200/20 shadow-sm;
 }
 
 .glass-strong {
-  @apply bg-white/90 backdrop-blur-md border border-white/30 shadow-md;
+  @apply bg-white/90 backdrop-blur-md border border-secondary-300/30 shadow-md;
 }
 
 /* Gradient backgrounds using our color scheme */
@@ -120,5 +130,14 @@
 }
 
 .gradient-card {
-  @apply bg-gradient-to-br from-white to-background;
+  @apply bg-gradient-to-br from-cream-100 to-background;
+}
+
+/* Specific combinations for our new theme */
+.gradient-teal-orange {
+  @apply bg-gradient-to-br from-teal-500 to-orange-500;
+}
+
+.gradient-mocha-cream {
+  @apply bg-gradient-to-br from-mocha-500 to-cream-300;
 }
