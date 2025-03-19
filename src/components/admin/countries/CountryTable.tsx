@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { AdminCountry } from '@/services/admin/adminCountryService';
+import { AdminCountry } from '@/services/admin/countries/types';
 
 interface CountryTableProps {
   countries: AdminCountry[];
