@@ -6,50 +6,43 @@ import { cn } from "@/lib/utils"
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange" | "teal" | "mocha" | "teal-orange" | "mocha-cream";
+    gradient?: "neon" | "electric" | "dark" | "none" | "crimson" | "gold" | "brown" | "blue" | "green" | "purple" | "orange";
     hoverEffect?: boolean;
-    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info" | "teal" | "mocha" | "orange";
+    coloredBorder?: "accent" | "secondary" | "destructive" | "none" | "primary" | "success" | "info";
   }
 >(({ className, gradient = "none", hoverEffect = false, coloredBorder = "none", ...props }, ref) => {
   const gradientStyles = {
-    neon: "bg-gradient-to-br from-accent-500/15 to-background border-l-4 border-accent-500 shadow-md",
-    electric: "bg-gradient-to-br from-secondary-500/15 to-background border-l-4 border-secondary-500 shadow-md",
-    dark: "bg-gradient-to-br from-primary-500/15 to-background border-l-4 border-primary-600 shadow-md",
-    crimson: "bg-gradient-to-br from-primary-500/15 to-background border-l-4 border-primary-600 shadow-md",
-    gold: "bg-gradient-to-br from-accent-500/15 to-background border-l-4 border-accent-500 shadow-md",
-    brown: "bg-gradient-to-br from-secondary-500/15 to-background border-l-4 border-secondary-600 shadow-md",
-    blue: "bg-gradient-to-br from-blue-500/15 to-background border-l-4 border-blue-600 shadow-md",
-    green: "bg-gradient-to-br from-green-500/15 to-background border-l-4 border-green-600 shadow-md",
-    purple: "bg-gradient-to-br from-purple-500/15 to-background border-l-4 border-purple-600 shadow-md",
-    orange: "bg-gradient-to-br from-orange-500/15 to-background border-l-4 border-orange-600 shadow-md",
-    teal: "bg-gradient-to-br from-teal-500/15 to-background border-l-4 border-teal-600 shadow-md",
-    mocha: "bg-gradient-to-br from-mocha-500/15 to-background border-l-4 border-mocha-600 shadow-md",
-    "teal-orange": "bg-gradient-to-br from-teal-500/15 to-accent-500/15 border-l-4 border-teal-600 shadow-md",
-    "mocha-cream": "bg-gradient-to-br from-mocha-500/15 to-cream-500/40 border-l-4 border-mocha-600 shadow-md",
-    none: "shadow-sm border border-mocha-200/30"
+    neon: "bg-gradient-to-br from-accent-500/10 to-background border-l-4 border-accent-500",
+    electric: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
+    dark: "bg-gradient-to-br from-primary-500/10 to-background border-l-4 border-primary-500",
+    crimson: "bg-gradient-to-br from-primary-500/10 to-background border-l-4 border-primary-500",
+    gold: "bg-gradient-to-br from-accent-500/10 to-background border-l-4 border-accent-500",
+    brown: "bg-gradient-to-br from-secondary-500/10 to-background border-l-4 border-secondary-500",
+    blue: "bg-gradient-to-br from-blue-500/10 to-background border-l-4 border-blue-500",
+    green: "bg-gradient-to-br from-green-500/10 to-background border-l-4 border-green-500",
+    purple: "bg-gradient-to-br from-purple-500/10 to-background border-l-4 border-purple-500",
+    orange: "bg-gradient-to-br from-orange-500/10 to-background border-l-4 border-orange-500",
+    none: ""
   };
 
   const borderStyles = {
     accent: "border-l-4 border-accent-500",
     secondary: "border-l-4 border-secondary-500",
     destructive: "border-l-4 border-destructive",
-    primary: "border-l-4 border-primary-600",
-    success: "border-l-4 border-green-600",
-    info: "border-l-4 border-blue-600",
-    teal: "border-l-4 border-teal-600",
-    mocha: "border-l-4 border-mocha-600",
-    orange: "border-l-4 border-accent-500",
+    primary: "border-l-4 border-primary-500",
+    success: "border-l-4 border-green-500",
+    info: "border-l-4 border-blue-500",
     none: ""
   };
 
   const hoverStyles = hoverEffect ? 
-    "transition-all duration-300 hover:shadow-lg hover:shadow-primary-600/30 hover:translate-y-[-3px]" : "";
+    "transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20 hover:translate-y-[-3px]" : "";
 
   return (
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border bg-cream-500 text-charcoal-500",
+        "rounded-lg border bg-card text-card-foreground shadow-sm",
         gradientStyles[gradient],
         coloredBorder !== "none" && gradient === "none" ? borderStyles[coloredBorder] : "",
         hoverStyles,
@@ -80,7 +73,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight text-charcoal-500",
+      "text-2xl font-semibold leading-none tracking-tight",
       className
     )}
     {...props}
@@ -94,7 +87,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground font-medium", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ))

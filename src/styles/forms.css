@@ -1,50 +1,49 @@
 
-/* Form control enhancements with improved visuals and contrast */
+/* Form control enhancements with improved visuals */
 .form-control-modern {
-  @apply bg-cream-500/90 backdrop-blur-sm border border-mocha-300/60 
-         rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-500/70 
-         focus:border-primary-500/70 focus:outline-none transition-all duration-200
-         shadow-sm;
+  @apply bg-secondary-50/70 backdrop-blur-sm border border-secondary-100/80 
+         rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-300/50 
+         focus:border-primary-300/50 focus:outline-none transition-all duration-200;
 }
 
-/* Input with floating label - enhanced for better UX and contrast */
+/* Input with floating label - enhanced for better UX */
 .floating-input {
   position: relative;
 }
 
 .floating-input input {
-  @apply h-14 pt-4 bg-cream-500 border-mocha-300;
+  @apply h-14 pt-4;
 }
 
 .floating-input label {
-  @apply absolute left-4 top-4 text-charcoal-500 transition-all duration-200 pointer-events-none font-medium;
+  @apply absolute left-4 top-4 text-gray-500 transition-all duration-200 pointer-events-none;
   transform-origin: left top;
 }
 
 .floating-input input:focus + label,
 .floating-input input:not(:placeholder-shown) + label {
-  @apply transform -translate-y-3 scale-75 text-primary-600 font-semibold;
+  @apply transform -translate-y-3 scale-75 text-primary-500;
 }
 
-/* Form validation styles with stronger colors */
+/* Form validation styles */
 .input-valid {
-  @apply border-primary-500 focus:border-primary-600 focus:ring-primary-500/70 shadow-sm;
+  @apply border-green-500 focus:border-green-500 focus:ring-green-500/50;
 }
 
 .input-invalid {
-  @apply border-red-500 focus:border-red-600 focus:ring-red-500/70 shadow-sm;
+  @apply border-red-500 focus:border-red-500 focus:ring-red-500/50;
 }
 
 .validation-message {
-  @apply mt-1 text-xs font-medium;
+  @apply mt-1 text-xs;
 }
 
 .validation-message.valid {
-  @apply text-primary-700 flex items-center;
+  @apply text-green-600 flex items-center;
 }
 
 .validation-message.invalid {
-  @apply text-red-600 flex items-center font-semibold;
+  @apply text-red-600 flex items-center;
 }
 
 .validation-icon {
@@ -53,7 +52,7 @@
 
 /* Requirements list */
 .requirements-list {
-  @apply text-xs text-charcoal-500 mt-2 font-medium;
+  @apply text-xs text-gray-500 mt-2;
 }
 
 .requirements-list ul {
