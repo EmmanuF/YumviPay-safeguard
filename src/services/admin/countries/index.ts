@@ -1,6 +1,6 @@
 
 // Re-export types
-export { AdminCountry } from './types';
+export type { AdminCountry } from './types';
 
 // Re-export query functions
 export { getAdminCountries, getCountryByCode } from './countryQueries';
