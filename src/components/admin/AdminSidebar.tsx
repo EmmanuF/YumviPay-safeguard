@@ -19,11 +19,13 @@ import { Button } from '@/components/ui/button';
 interface AdminSidebarProps {
   collapsed: boolean;
   onToggleCollapse: (collapsed: boolean) => void;
+  className?: string; // Added className prop
 }
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
   collapsed, 
-  onToggleCollapse 
+  onToggleCollapse,
+  className
 }) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Home },
@@ -39,7 +41,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
   return (
     <div className={cn(
       "fixed top-0 left-0 h-full flex flex-col bg-gradient-to-b from-primary-900 to-primary-800 border-r border-primary-700 transition-all duration-300 ease-in-out shadow-lg z-30",
-      collapsed ? "w-16" : "w-64"
+      collapsed ? "w-16" : "w-64",
+      className // Apply the optional className
     )}>
       <div className="flex items-center justify-between p-4 border-b border-primary-700">
         {!collapsed && (
