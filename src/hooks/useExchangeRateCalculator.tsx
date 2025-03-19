@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCountries } from '@/hooks/useCountries';
 import { getExchangeRate } from '@/data/exchangeRates';
 import { toast } from '@/hooks/use-toast';
+import { clearCountriesCache } from './countries/countriesCache';
 
 export interface ExchangeRateCalculatorState {
   sendAmount: string;
@@ -31,13 +32,12 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   // First, clear the countries cache to ensure we get fresh data
   useEffect(() => {
     console.log('Initializing ExchangeRateCalculator, clearing cache to ensure fresh data');
-    // Import directly inside the hook to avoid circular dependencies
-    const { clearCountriesCache } = require('./countries/countriesCache');
+    // Clear the cache directly using the imported function
     clearCountriesCache();
     
     // Then refresh the countries data
     refreshCountries();
-  }, []);
+  }, [refreshCountries]);
 
   // Load sending and receiving countries on component mount
   useEffect(() => {
@@ -105,7 +105,7 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     } else {
       console.log('Countries data not yet available, waiting...');
     }
-  }, [countries, getSendingCountries, getReceivingCountries]);
+  }, [countries, getSendingCountries, getReceivingCountries, sourceCurrency, targetCurrency]);
 
   // Update exchange rate when currencies change
   useEffect(() => {
