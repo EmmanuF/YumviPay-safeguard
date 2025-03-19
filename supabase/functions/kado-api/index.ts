@@ -3,8 +3,9 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 // Constants
 const KADO_API_URL = 'https://api.kado.money/v1';
-const KADO_API_KEY = Deno.env.get('KADO_API_KEY') ?? '';
-const KADO_API_SECRET = Deno.env.get('KADO_API_SECRET') ?? '';
+const KADO_WIDGET_ID = Deno.env.get('KADO_WIDGET_ID') ?? '';
+const KADO_API_PUBLIC_KEY = Deno.env.get('KADO_API_PUBLIC_KEY') ?? '';
+const KADO_API_PRIVATE_KEY = Deno.env.get('KADO_API_PRIVATE_KEY') ?? '';
 
 // CORS headers
 const corsHeaders = {
@@ -32,20 +33,32 @@ serve(async (req) => {
       });
     }
 
+    // Parse request body
+    const { endpoint, method = 'GET', data } = await req.json();
+    
+    // Special case for getting configuration
+    if (endpoint === 'config') {
+      return new Response(JSON.stringify({ 
+        widgetId: KADO_WIDGET_ID,
+        apiPublicKey: KADO_API_PUBLIC_KEY,
+        isConfigured: Boolean(KADO_WIDGET_ID && KADO_API_PUBLIC_KEY && KADO_API_PRIVATE_KEY)
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
     // Check if API keys are configured
-    if (!KADO_API_KEY || !KADO_API_SECRET) {
+    if (!KADO_API_PUBLIC_KEY || !KADO_API_PRIVATE_KEY) {
       console.error('Kado API keys not configured');
       return new Response(JSON.stringify({ 
-        error: 'API keys not configured. Please add KADO_API_KEY and KADO_API_SECRET to your environment variables.' 
+        error: 'API keys not configured. Please add KADO_API_PUBLIC_KEY and KADO_API_PRIVATE_KEY to your environment variables.' 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Parse request body
-    const { endpoint, method = 'GET', data } = await req.json();
-    
     if (!endpoint) {
       return new Response(JSON.stringify({ error: 'Endpoint is required' }), {
         status: 400,
@@ -58,12 +71,17 @@ serve(async (req) => {
     
     console.log(`Making ${method} request to Kado API: ${url}`);
     
+    // Generate timestamp for authentication
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    
     // Set up authentication headers
     const headers = {
       'Content-Type': 'application/json',
-      'X-API-Key': KADO_API_KEY,
-      // For actual implementation, you would generate the proper auth header
-      // For example: 'Authorization': `Bearer ${generateKadoAuthToken(KADO_API_SECRET)}`
+      'X-API-Key': KADO_API_PUBLIC_KEY,
+      'X-API-Timestamp': timestamp,
+      // In a real implementation, you would generate a proper signature
+      // For now, we're using the private key directly which is NOT recommended for production
+      'X-API-Signature': KADO_API_PRIVATE_KEY
     };
     
     // Make the request to Kado API
