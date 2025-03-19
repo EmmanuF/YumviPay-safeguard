@@ -15,6 +15,21 @@ interface TransactionAnalyticsProps {
   isLoading: boolean;
 }
 
+interface StatusDistribution {
+  [key: string]: number;
+}
+
+interface CountryDistribution {
+  [key: string]: number;
+}
+
+interface StatisticsData {
+  byStatus?: StatusDistribution;
+  byCountry?: CountryDistribution;
+  totalCount?: number;
+  totalVolume?: string;
+}
+
 const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({ 
   statistics, 
   isLoading 
@@ -58,6 +73,9 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
     }
   };
 
+  // Cast the statistics to the proper type
+  const typedStatistics = statistics as StatisticsData;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -67,12 +85,12 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
             <CardTitle className="text-sm font-medium">Status Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            {statistics.byStatus && Object.entries(statistics.byStatus).map(([status, count]) => (
+            {typedStatistics.byStatus && Object.entries(typedStatistics.byStatus).map(([status, count]) => (
               <div key={status} className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
                   {getStatusBadge(status)}
                 </div>
-                <span className="text-sm font-medium">{count}</span>
+                <span className="text-sm font-medium">{count.toString()}</span>
               </div>
             ))}
           </CardContent>
@@ -84,13 +102,13 @@ const TransactionAnalytics: React.FC<TransactionAnalyticsProps> = ({
             <CardTitle className="text-sm font-medium">Country Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            {statistics.byCountry && Object.entries(statistics.byCountry)
+            {typedStatistics.byCountry && Object.entries(typedStatistics.byCountry)
               .sort(([, countA], [, countB]) => (countB as number) - (countA as number))
               .slice(0, 5)
               .map(([country, count]) => (
                 <div key={country} className="flex items-center justify-between mb-2">
                   <span className="text-sm">{country}</span>
-                  <span className="text-sm font-medium">{count}</span>
+                  <span className="text-sm font-medium">{count.toString()}</span>
                 </div>
               ))}
           </CardContent>
