@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
@@ -100,7 +101,25 @@ export const useAdminCountries = () => {
 
   const handleAddCountry = async (data: Partial<AdminCountry>) => {
     try {
-      const success = await addNewCountry(data);
+      console.log('Adding country with data:', data);
+      
+      // Make sure all required fields are present
+      if (!data.code || !data.name || !data.currency || !data.currency_symbol) {
+        toast({
+          title: "Missing Required Fields",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Ensure payment_methods is set as an empty array if not provided
+      const countryData = {
+        ...data,
+        payment_methods: data.payment_methods || []
+      };
+      
+      const success = await addNewCountry(countryData);
       
       if (success) {
         toast({
@@ -117,6 +136,7 @@ export const useAdminCountries = () => {
         });
       }
     } catch (error) {
+      console.error('Error in handleAddCountry:', error);
       toast({
         title: "Error",
         description: "An error occurred while adding the country",
@@ -134,6 +154,7 @@ export const useAdminCountries = () => {
           title: "Payment Methods Updated",
           description: `Payment methods for ${code} have been updated successfully`,
         });
+        setIsPaymentMethodsDialogOpen(false);
         refetch();
       } else {
         toast({
@@ -143,6 +164,7 @@ export const useAdminCountries = () => {
         });
       }
     } catch (error) {
+      console.error('Error in handleUpdatePaymentMethods:', error);
       toast({
         title: "Error",
         description: "An error occurred while updating payment methods",
@@ -160,6 +182,7 @@ export const useAdminCountries = () => {
         description: "Country list has been updated",
       });
     } catch (error) {
+      console.error('Error in handleRefresh:', error);
       toast({
         title: "Refresh Failed",
         description: "There was an error refreshing the data",

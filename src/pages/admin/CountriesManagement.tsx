@@ -1,5 +1,5 @@
 
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,8 @@ import {
   EditPaymentMethodsDialog
 } from '@/components/admin/countries';
 import { Loader2 } from 'lucide-react';
+import { checkAndInitializeSendingCountries } from '@/services/admin/countries/utils';
+import { addNewCountry } from '@/services/admin/countries';
 
 // Lazy load the tab content components for better performance
 const SendingCountriesTab = lazy(() => 
@@ -43,7 +45,27 @@ const CountriesManagement = () => {
     setSelectedCountry,
     handleAddCountry,
     handleUpdatePaymentMethods,
+    filteredCountries,
+    isLoading,
+    refetch
   } = useAdminCountries();
+
+  // Initialize countries if needed
+  useEffect(() => {
+    const initializeCountries = async () => {
+      if (!isLoading && filteredCountries.length > 0) {
+        try {
+          await checkAndInitializeSendingCountries(filteredCountries, addNewCountry);
+          // After initialization, refetch the data
+          refetch();
+        } catch (error) {
+          console.error('Error initializing countries:', error);
+        }
+      }
+    };
+    
+    initializeCountries();
+  }, [isLoading, filteredCountries, refetch]);
 
   // Log render for performance tracking
   console.log('CountriesManagement component rendering');

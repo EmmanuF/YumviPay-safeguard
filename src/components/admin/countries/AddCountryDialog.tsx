@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/form';
 import { AdminCountry } from '@/services/admin/countries/types';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   code: z.string().length(2, { message: "Country code must be exactly 2 characters" }).toUpperCase(),
@@ -48,6 +49,8 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
   onSubmit,
   type = 'sending'
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,15 +66,32 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
 
   const handleSubmit = async (data: FormValues) => {
     try {
-      await onSubmit(data);
+      setIsSubmitting(true);
+      
+      // Ensure payment_methods is included as empty array
+      const countryData = {
+        ...data,
+        payment_methods: []
+      };
+      
+      await onSubmit(countryData);
       form.reset();
     } catch (error) {
       console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isSubmitting) {
+        onOpenChange(isOpen);
+        if (!isOpen) {
+          form.reset();
+        }
+      }
+    }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add New Country</DialogTitle>
@@ -92,6 +112,7 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                         {...field} 
                         onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                         maxLength={2}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -106,7 +127,11 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                   <FormItem>
                     <FormLabel>Country Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="United States" {...field} />
+                      <Input 
+                        placeholder="United States" 
+                        {...field} 
+                        disabled={isSubmitting}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,6 +152,7 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                         {...field} 
                         onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                         maxLength={3}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -141,7 +167,12 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                   <FormItem>
                     <FormLabel>Currency Symbol</FormLabel>
                     <FormControl>
-                      <Input placeholder="$" {...field} maxLength={3} />
+                      <Input 
+                        placeholder="$" 
+                        {...field} 
+                        maxLength={3}
+                        disabled={isSubmitting}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +187,11 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                 <FormItem>
                   <FormLabel>Flag Emoji (optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="🇺🇸" {...field} />
+                    <Input 
+                      placeholder="🇺🇸" 
+                      {...field} 
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -173,6 +208,7 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -191,6 +227,7 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -202,11 +239,26 @@ const AddCountryDialog: React.FC<AddCountryDialogProps> = ({
             </div>
             
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
-              <Button type="submit">
-                Add Country
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                    Adding...
+                  </>
+                ) : (
+                  'Add Country'
+                )}
               </Button>
             </DialogFooter>
           </form>

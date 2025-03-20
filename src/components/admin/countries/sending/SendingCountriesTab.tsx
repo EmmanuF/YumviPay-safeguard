@@ -15,8 +15,9 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { AdminCountry } from '@/services/admin/countries/types';
 import { getAdminCountries, updateCountrySettings } from '@/services/admin/countries';
-import { CountryTableRow } from '../sending/CountryTableRow';
+import { CountryTableRow } from './CountryTableRow';
 
+// Define sending countries but don't use it to filter the API results initially
 const SENDING_COUNTRIES = [
   // North America
   'US', 'CA', 'MX', 'PA',
@@ -53,9 +54,9 @@ export const SendingCountriesTab: React.FC<SendingCountriesTabProps> = ({
     refetchOnWindowFocus: false,
   });
 
-  // Filter to only include sending countries
+  // Get only countries that are marked as sending enabled or are in our SENDING_COUNTRIES list
   const sendingCountries = allCountries.filter(country => 
-    SENDING_COUNTRIES.includes(country.code)
+    country.is_sending_enabled || SENDING_COUNTRIES.includes(country.code)
   );
   
   // Apply search filter
