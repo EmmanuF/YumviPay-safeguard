@@ -38,13 +38,23 @@ export const useSendMoneySteps = () => {
         case 'confirmation':
           setIsSubmitting(true);
           console.log('Submitting transaction...');
+          
+          // Make sure transaction data is saved to localStorage before navigating
+          const pendingTransaction = localStorage.getItem('processedPendingTransaction');
+          if (!pendingTransaction) {
+            console.error('No pending transaction data found');
+            setError('Transaction data not found. Please try again.');
+            setIsSubmitting(false);
+            return;
+          }
+          
           setTimeout(() => {
             setIsSubmitting(false);
             // Use Sonner toast for better visibility
             toast.success("Transaction Initiated", {
               description: "Your transaction has been initiated successfully.",
             });
-            // Navigate to the new transaction page instead of using a fixed transaction ID
+            // Navigate to the new transaction page
             navigate('/transaction/new');
           }, 1000);
           break;

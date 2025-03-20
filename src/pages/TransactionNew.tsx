@@ -21,17 +21,20 @@ const TransactionNew: React.FC = () => {
   useEffect(() => {
     const getPendingTransaction = async () => {
       try {
+        console.log('TransactionNew: Getting pending transaction data');
         // Try to get the processed transaction data
         const processedPendingTransaction = localStorage.getItem('processedPendingTransaction');
         const pendingTransaction = processedPendingTransaction || localStorage.getItem('pendingTransaction');
         
         if (!pendingTransaction) {
+          console.error('TransactionNew: No transaction data found');
           setError('No transaction data found. Please try again.');
+          setIsLoading(false);
           return;
         }
         
         const data = JSON.parse(pendingTransaction);
-        console.log('Transaction data found:', data);
+        console.log('TransactionNew: Transaction data found:', data);
         setTransactionData(data);
         
         // Generate a transaction ID for reference
@@ -39,48 +42,56 @@ const TransactionNew: React.FC = () => {
         
         // Get user details
         if (!user || !user.id) {
+          console.error('TransactionNew: User not authenticated');
           setError('User not authenticated. Please sign in and try again.');
+          setIsLoading(false);
           return;
         }
         
+        console.log('TransactionNew: Saving transaction to Supabase');
         // Save transaction to Supabase
         // Make sure we only use fields that exist in the transactions table
-        const { error: saveError } = await supabase
+        const { data: savedTransaction, error: saveError } = await supabase
           .from('transactions')
           .insert({
             user_id: user.id,
             amount: data.amount,
-            // Instead of 'currency', use an existing field or store currency info in a different way
-            // For example, we could store it in the provider field or total_amount field temporarily
-            total_amount: data.sourceCurrency, // Store source currency here temporarily
+            total_amount: data.convertedAmount || 0,
             status: 'pending',
-            country: 'CM', // Default to Cameroon for MVP
-            recipient_name: "Recipient" // Default value
-          });
+            country: data.targetCountry || 'CM',
+            recipient_name: data.recipientName || 'Recipient',
+            payment_method: data.paymentMethod || 'mobile_money'
+          })
+          .select()
+          .single();
           
         if (saveError) {
-          console.error('Error saving transaction:', saveError);
-          throw saveError;
+          console.error('TransactionNew: Error saving transaction:', saveError);
+          setError('Failed to save transaction. Please try again.');
+          setIsLoading(false);
+          return;
         }
+        
+        console.log('TransactionNew: Transaction saved:', savedTransaction);
         
         // Clear localStorage
         localStorage.removeItem('pendingTransaction');
         localStorage.removeItem('processedPendingTransaction');
         
+        console.log('TransactionNew: Redirecting to Kado');
         // Redirect to Kado
         await redirectToKadoAndReturn({
           amount: data.amount.toString(),
-          recipientName: "Recipient", // This should be retrieved from the form or user input
-          recipientContact: "recipient@example.com", // This should be retrieved from the form
-          country: "CM", // Default to Cameroon for MVP
-          paymentMethod: "mobile_money", // Default to mobile money
-          transactionId: transactionId
+          recipientName: data.recipientName || "Recipient",
+          recipientContact: data.recipientContact || "recipient@example.com",
+          country: data.targetCountry || "CM",
+          paymentMethod: data.paymentMethod || "mobile_money",
+          transactionId: savedTransaction?.id || transactionId
         });
         
-      } catch (error) {
-        console.error('Error processing transaction:', error);
+      } catch (error: any) {
+        console.error('TransactionNew: Error processing transaction:', error);
         setError('An error occurred while processing your transaction. Please try again.');
-      } finally {
         setIsLoading(false);
       }
     };

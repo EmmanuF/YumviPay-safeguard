@@ -47,6 +47,7 @@ import CountryPage from '@/pages/countries/CountryPage';
 import { AdminProtectedRoute } from '@/components/admin';
 
 function App() {
+  console.log('App component rendering');
   return (
     <NetworkProvider>
       <AuthProvider>
