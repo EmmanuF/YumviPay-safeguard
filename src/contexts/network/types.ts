@@ -1,8 +1,12 @@
 
-export type NetworkContextType = {
+import React from 'react';
+
+// Paused requests queue
+export const pausedRequests: Array<() => Promise<any>> = [];
+
+export interface NetworkContextType {
   isOffline: boolean;
   isOnline: boolean;
-  addPausedRequest: (callback: () => Promise<any>) => void;
   offlineModeActive: boolean;
   toggleOfflineMode: () => void;
   syncOfflineData: () => Promise<boolean>;
@@ -10,7 +14,8 @@ export type NetworkContextType = {
   pendingOperationsCount: number;
   isSyncing: boolean;
   offlineSince: Date | null;
-};
+  addPausedRequest: (callback: () => Promise<any>) => void;
+}
 
 export interface NetworkProviderProps {
   children: React.ReactNode;

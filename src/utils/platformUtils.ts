@@ -1,48 +1,54 @@
 
-import { Capacitor } from '@capacitor/core';
-
 /**
- * Check if the app is running on a specific platform
- * @param platform 'web', 'ios', 'android', 'capacitor', 'mobile', or 'native'
- * @returns boolean indicating if the app is running on the specified platform
+ * Utility functions for platform detection
  */
-export function isPlatform(platform: 'web' | 'ios' | 'android' | 'capacitor' | 'mobile' | 'native'): boolean {
-  if (platform === 'capacitor' || platform === 'native') {
-    return Capacitor.isNativePlatform();
+
+// Check if running on Capacitor (native mobile) platform
+export function isPlatform(platform: 'capacitor' | 'web' | 'ios' | 'android'): boolean {
+  // On server-side rendering, we're definitely not on a native platform
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return false;
   }
   
-  if (platform === 'mobile') {
-    const currentPlatform = Capacitor.getPlatform();
-    return currentPlatform === 'ios' || currentPlatform === 'android';
+  // Check for Capacitor global object
+  const hasCapacitor = typeof (window as any).Capacitor !== 'undefined';
+  
+  if (platform === 'capacitor') {
+    return hasCapacitor;
   }
   
   if (platform === 'web') {
-    return !Capacitor.isNativePlatform();
+    return !hasCapacitor;
   }
   
-  return Capacitor.getPlatform() === platform;
+  // For specific platforms, check with Capacitor's isPlatform if available
+  if (hasCapacitor && (window as any).Capacitor.getPlatform) {
+    return (window as any).Capacitor.getPlatform().toLowerCase() === platform;
+  }
+  
+  // Fallback to user agent checking for specific platforms
+  const userAgent = navigator.userAgent.toLowerCase();
+  
+  if (platform === 'ios') {
+    return /iphone|ipad|ipod/.test(userAgent);
+  }
+  
+  if (platform === 'android') {
+    return /android/.test(userAgent);
+  }
+  
+  return false;
 }
 
-/**
- * Get the current platform the app is running on
- * @returns 'web', 'ios', or 'android'
- */
-export function getCurrentPlatform(): 'web' | 'ios' | 'android' {
-  return Capacitor.getPlatform() as 'web' | 'ios' | 'android';
+// Get the current platform
+export function getCurrentPlatform(): 'ios' | 'android' | 'web' {
+  if (isPlatform('ios')) return 'ios';
+  if (isPlatform('android')) return 'android';
+  return 'web';
 }
 
-/**
- * Check if the app is running in a production environment
- * @returns boolean
- */
-export function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production';
-}
-
-/**
- * Check if the app is running in development mode
- * @returns boolean
- */
-export function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development';
+// Check if the app is running in a PWA context
+export function isPWA(): boolean {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         (window.navigator as any).standalone === true;
 }

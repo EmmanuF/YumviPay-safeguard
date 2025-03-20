@@ -7,7 +7,9 @@ import BottomNavigation from '@/components/BottomNavigation';
 import InitialDataCalculator from '@/components/send-money/InitialDataCalculator';
 import LoadingState from '@/components/transaction/LoadingState';
 import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
-import { useSendMoneyTransaction, TransactionData } from '@/hooks/useSendMoneyTransaction';
+import { useSendMoneyTransaction } from '@/hooks/useSendMoneyTransaction';
+import { useNetwork } from '@/contexts/NetworkContext';
+import { WifiOff } from 'lucide-react';
 
 interface SendMoneyContainerProps {
   isLoading: boolean;
@@ -24,6 +26,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
   defaultCountryCode,
   onInitialDataContinue
 }) => {
+  const { isOffline, offlineModeActive } = useNetwork();
   const { transactionData, updateTransactionData, isInitialized, error: transactionError } = 
     useSendMoneyTransaction(defaultCountryCode);
   
@@ -41,9 +44,11 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
       error: error ? true : false,
       transactionError: transactionError ? true : false,
       isInitialized,
-      currentStep
+      currentStep,
+      isOffline,
+      offlineModeActive
     });
-  }, [isLoading, needsInitialData, error, transactionError, isInitialized, currentStep]);
+  }, [isLoading, needsInitialData, error, transactionError, isInitialized, currentStep, isOffline, offlineModeActive]);
   
   // Format error message for display
   const getErrorMessage = (err: string | Error | null): string => {
@@ -66,8 +71,15 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
     return "An unexpected error occurred";
   };
 
+  // Offline indicator
+  const OfflineIndicator = () => ((isOffline || offlineModeActive) ? (
+    <div className="flex items-center justify-center bg-amber-50 text-amber-800 px-3 py-1 rounded-full text-xs font-medium mb-2">
+      <WifiOff className="h-3 w-3 mr-1" />
+      <span>Using offline data</span>
+    </div>
+  ) : null);
+
   // Show loading state if necessary
-  // Set a maximum loading time of 10 seconds to prevent infinite loading
   if (isLoading && !isInitialized) {
     return <LoadingState 
       message="Preparing your transaction..." 
@@ -93,6 +105,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
             stepCount={4}
             title="Set Transfer Details"
           >
+            <OfflineIndicator />
             <InitialDataCalculator onContinue={onInitialDataContinue} />
           </SendMoneyLayout>
           <div className="pb-16"></div>
@@ -110,6 +123,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
           currentStep={currentStep} 
           stepCount={3}
         >
+          <OfflineIndicator />
           <SendMoneyStepRenderer
             currentStep={currentStep}
             transactionData={transactionData}
