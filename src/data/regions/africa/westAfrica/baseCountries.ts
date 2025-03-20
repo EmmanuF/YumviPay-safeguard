@@ -1,5 +1,5 @@
 
-import { Country } from '../../../../../types/country';
+import { Country } from '../../../../types/country';
 
 // Define base data for West African countries
 export const getWestAfricaBaseCountries = (): Country[] => {

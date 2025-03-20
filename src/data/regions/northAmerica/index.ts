@@ -56,6 +56,33 @@ export const northAmericanCountries: Country[] = [
         processingTime: 'Instant',
       },
     ],
+  },
+  {
+    name: 'Mexico',
+    code: 'MX',
+    flagUrl: 'https://flagcdn.com/mx.svg',
+    currency: 'MXN',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    phonePrefix: '+52',
+    paymentMethods: [
+      {
+        id: 'bank_transfer',
+        name: 'SPEI Transfer',
+        description: 'Send directly from your bank account',
+        icon: 'bank',
+        fees: '1.0%',
+        processingTime: '1-2 business days',
+      },
+      {
+        id: 'debit_card',
+        name: 'Debit Card',
+        description: 'Pay with Visa, Mastercard or other cards',
+        icon: 'credit-card',
+        fees: '1.5%',
+        processingTime: 'Instant',
+      },
+    ],
   }
 ];
 
