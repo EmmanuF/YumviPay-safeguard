@@ -5,6 +5,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 import { Loader2 } from 'lucide-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -56,25 +68,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }
   
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
-      <div 
-        className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
-      >
-        <AdminHeader />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="mx-auto max-w-7xl">
-            <Suspense fallback={
-              <div className="flex justify-center items-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            }>
-              {children}
-            </Suspense>
-          </div>
-        </main>
+    <QueryClientProvider client={queryClient}>
+      <div className="flex min-h-screen bg-gray-100">
+        <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
+        <div 
+          className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
+        >
+          <AdminHeader />
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            <div className="mx-auto max-w-7xl">
+              <Suspense fallback={
+                <div className="flex justify-center items-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              }>
+                {children}
+              </Suspense>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 };
 
