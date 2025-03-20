@@ -7,7 +7,7 @@ export const cameroonCountry: Country = {
   code: 'CM',
   flagUrl: 'https://flagcdn.com/w80/cm.png',
   currency: 'XAF',
-  isSendingEnabled: true,
+  isSendingEnabled: false, // Updated to false - Cameroon is receiving only
   isReceivingEnabled: true,
   phonePrefix: '+237',
   paymentMethods: [
