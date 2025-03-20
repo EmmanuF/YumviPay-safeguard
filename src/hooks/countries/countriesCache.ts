@@ -58,18 +58,6 @@ export const getCachedCountries = (): Country[] | null => {
     console.log('Sending countries in cache:', sendingCountries.map(c => c.name).join(', '));
     console.log('Receiving countries in cache:', receivingCountries.map(c => c.code).join(', '));
     
-    // Make sure we have some sending countries - European/North American countries
-    const expectedSendingCountryCodes = ['US', 'GB', 'DE', 'FR', 'ES', 'IT', 'CA'];
-    const foundSendingCountries = sendingCountries.filter(c => 
-      expectedSendingCountryCodes.includes(c.code)
-    );
-    
-    if (sendingCountries.length === 0 || foundSendingCountries.length === 0) {
-      console.warn('No sending countries found in cache or missing expected sending countries, clearing cache');
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    
     // Ensure no African countries are marked as sending
     const africaCountryCodes = ['CM', 'NG', 'GH', 'KE', 'ZA', 'ET', 'CD', 'TZ', 'CI', 'SN', 'ML'];
     const incorrectSendingCountries = sendingCountries.filter(c => 
@@ -115,23 +103,12 @@ export const updateCountriesCache = (countries: Country[]): void => {
       console.warn(`Filtered out ${countries.length - validCountries.length} invalid countries before caching`);
     }
     
-    // Ensure correct sending/receiving flags for specific regions
-    // European/North American countries should be sending
-    const sendingCountryCodes = ['US', 'GB', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'CH', 'CA', 'MX', 'PA'];
-    // African countries should be receiving
+    // Ensure no African countries are marked as sending
     const africaCountryCodes = ['CM', 'NG', 'GH', 'KE', 'ZA', 'ET', 'CD', 'TZ', 'CI', 'SN', 'ML'];
-    
     validCountries.forEach(country => {
-      // Ensure African countries are not marked as sending
       if (africaCountryCodes.includes(country.code) && country.isSendingEnabled) {
         console.warn(`Fixing incorrect sending flag for ${country.name}`);
         country.isSendingEnabled = false;
-      }
-      
-      // Ensure European/North American countries are marked as sending
-      if (sendingCountryCodes.includes(country.code) && !country.isSendingEnabled) {
-        console.warn(`Fixing missing sending flag for ${country.name}`);
-        country.isSendingEnabled = true;
       }
     });
     
@@ -149,11 +126,6 @@ export const updateCountriesCache = (countries: Country[]): void => {
     
     console.log('Sending countries in updated cache:', sendingCountries.map(c => c.name).join(', '));
     console.log('Receiving countries in updated cache:', receivingCountries.map(c => c.code).join(', '));
-    
-    // Verify we have some sending countries
-    if (sendingCountries.length === 0) {
-      console.warn('No sending countries found in updated cache!');
-    }
   } catch (error) {
     console.error('Error updating countries cache:', error);
   }

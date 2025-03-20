@@ -13,48 +13,26 @@ interface CurrencySelectorProps {
 const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, options, label }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries } = useCountries();
-  
-  // Debug available countries for this selector
-  console.log(`CurrencySelector "${label}" rendering with ${options.length} options:`, options);
 
   // Find the selected country by currency code - prefer countries that match the sending/receiving pattern
   const getCountryByCurrency = (currencyCode: string) => {
     // For source currency selector, prioritize countries that have isSendingEnabled=true
-    if (label.toLowerCase().includes('source') || label.toLowerCase().includes('from') || label.toLowerCase().includes('send')) {
-      console.log(`Looking for sending country with currency ${currencyCode}`);
+    if (label.toLowerCase().includes('source') || label.toLowerCase().includes('from')) {
       const sendingCountry = countries.find(country => 
         country.currency === currencyCode && country.isSendingEnabled);
       
-      if (sendingCountry) {
-        console.log(`Found sending country for ${currencyCode}:`, sendingCountry.name);
-        return sendingCountry;
-      } else {
-        console.log(`No sending country found for ${currencyCode}`);
-      }
+      if (sendingCountry) return sendingCountry;
     } 
     // For target currency selector, prioritize countries that have isReceivingEnabled=true
-    else if (label.toLowerCase().includes('target') || label.toLowerCase().includes('to') || label.toLowerCase().includes('receive')) {
-      console.log(`Looking for receiving country with currency ${currencyCode}`);
+    else if (label.toLowerCase().includes('target') || label.toLowerCase().includes('to')) {
       const receivingCountry = countries.find(country => 
         country.currency === currencyCode && country.isReceivingEnabled);
       
-      if (receivingCountry) {
-        console.log(`Found receiving country for ${currencyCode}:`, receivingCountry.name);
-        return receivingCountry;
-      } else {
-        console.log(`No receiving country found for ${currencyCode}`);
-      }
+      if (receivingCountry) return receivingCountry;
     }
     
     // Fallback to any country with matching currency if we can't find one with the right flag
-    console.log(`Falling back to any country with currency ${currencyCode}`);
-    const anyCountry = countries.find(country => country.currency === currencyCode);
-    if (anyCountry) {
-      console.log(`Found fallback country for ${currencyCode}:`, anyCountry.name);
-    } else {
-      console.log(`No fallback country found for ${currencyCode}`);
-    }
-    return anyCountry;
+    return countries.find(country => country.currency === currencyCode);
   };
 
   const selectedCountry = getCountryByCurrency(value);
