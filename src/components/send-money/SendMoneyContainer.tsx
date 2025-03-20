@@ -41,9 +41,32 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
       error: error ? true : false,
       transactionError: transactionError ? true : false,
       isInitialized,
-      currentStep
+      currentStep,
+      transactionData
     });
-  }, [isLoading, needsInitialData, error, transactionError, isInitialized, currentStep]);
+  }, [isLoading, needsInitialData, error, transactionError, isInitialized, currentStep, transactionData]);
+  
+  // Save transaction data to localStorage before proceeding to final step
+  useEffect(() => {
+    if (currentStep === 'confirmation' && !isSubmitting) {
+      console.log('Saving completed transaction data to localStorage:', transactionData);
+      
+      try {
+        // Store all the information we'll need for the Kado integration
+        localStorage.setItem('processedPendingTransaction', JSON.stringify({
+          ...transactionData,
+          amount: transactionData.amount,
+          sourceCurrency: transactionData.sourceCurrency,
+          targetCurrency: transactionData.targetCurrency,
+          recipientName: transactionData.recipientName,
+          recipientContact: transactionData.recipientContact || 'recipient@example.com',
+          paymentMethod: transactionData.paymentMethod || 'mobile_money'
+        }));
+      } catch (err) {
+        console.error('Error saving transaction data to localStorage:', err);
+      }
+    }
+  }, [currentStep, isSubmitting, transactionData]);
   
   // Format error message for display
   const getErrorMessage = (err: string | Error | null): string => {
