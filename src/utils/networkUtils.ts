@@ -168,9 +168,8 @@ export const waitForNetwork = (timeout = 30000): Promise<boolean> => {
 
 // Hook to use in components that need to track network status
 export const useNetworkStatus = () => {
-  // Import React and useEffect directly from the same sources that are being used in the rest of the app
-  const React = window.React;
-  const { useEffect } = React;
+  // Import React and useEffect only inside function components
+  const { useEffect } = require('react');
   const { useNetwork } = require('@/contexts/network');
   
   const { isOffline, offlineModeActive, addPausedRequest, lastOnlineAt } = useNetwork();

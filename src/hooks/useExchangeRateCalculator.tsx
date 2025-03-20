@@ -1,215 +1,205 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNetwork } from '@/contexts/NetworkContext';
+import { useCountries } from '@/hooks/useCountries';
+import { getExchangeRate } from '@/data/exchangeRates';
 import { toast } from '@/hooks/use-toast';
-import { 
-  getMockExchangeRate, 
-  getMockSendingCurrencies, 
-  getMockReceivingCurrencies 
-} from '@/data/mockExchangeData';
 
-export function useExchangeRateCalculator(onContinue?: () => void) {
-  const { isOffline, offlineModeActive } = useNetwork();
+export interface ExchangeRateCalculatorState {
+  sendAmount: string;
+  receiveAmount: string;
+  sourceCurrency: string;
+  targetCurrency: string;
+  exchangeRate: number;
+  isProcessing: boolean;
+}
+
+export const useExchangeRateCalculator = (onContinue?: () => void) => {
+  const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuth();
-  
-  // State for the form values
-  const [sendAmount, setSendAmount] = useState<number>(100);
-  const [receiveAmount, setReceiveAmount] = useState<number>(0);
-  const [sourceCurrency, setSourceCurrency] = useState<string>('USD');
-  const [targetCurrency, setTargetCurrency] = useState<string>('XAF');
-  const [exchangeRate, setExchangeRate] = useState<number>(0);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  
-  // Countries and currencies state
-  const [sourceCurrencies, setSourceCurrencies] = useState<string[]>([]);
-  const [targetCurrencies, setTargetCurrencies] = useState<string[]>([]);
-  const [countriesLoading, setCountriesLoading] = useState<boolean>(true);
-  const [isUsingMockData, setIsUsingMockData] = useState<boolean>(false);
-  
-  // Effect to initialize currencies
+  const { countries, isLoading: countriesLoading, getSendingCountries, getReceivingCountries, refreshCountries } = useCountries();
+  const [sendAmount, setSendAmount] = useState('100');
+  const [receiveAmount, setReceiveAmount] = useState('');
+  const [sourceCurrency, setSourceCurrency] = useState('USD');
+  const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
+  const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [sendingCountryList, setSendingCountryList] = useState<string[]>([]);
+  const [receivingCountryList, setReceivingCountryList] = useState<string[]>([]);
+
+  // First, clear the countries cache to ensure we get fresh data
   useEffect(() => {
-    const initializeCurrencies = async () => {
-      setCountriesLoading(true);
+    console.log('Initializing ExchangeRateCalculator, clearing cache to ensure fresh data');
+    // Import directly inside the hook to avoid circular dependencies
+    const { clearCountriesCache } = require('./countries/countriesCache');
+    clearCountriesCache();
+    
+    // Then refresh the countries data
+    refreshCountries();
+  }, []);
+
+  // Load sending and receiving countries on component mount
+  useEffect(() => {
+    const loadCountryLists = async () => {
+      console.log('Loading country lists in useExchangeRateCalculator');
       
       try {
-        let sourceCurs: string[] = [];
-        let targetCurs: string[] = [];
+        // Fetch sending countries
+        console.log('Fetching sending countries...');
+        const sendingCountries = await getSendingCountries();
+        console.log('Got sending countries:', sendingCountries.map(c => c.name).join(', '));
         
-        // In offline mode or if network is offline, use mock data
-        if (isOffline || offlineModeActive) {
-          console.log('Using mock currency data due to offline status');
-          sourceCurs = getMockSendingCurrencies();
-          targetCurs = getMockReceivingCurrencies();
-          setIsUsingMockData(true);
-        } else {
-          try {
-            // Try to fetch from Supabase when online
-            console.log('Fetching currencies from Supabase');
-            
-            // Fetch countries that have sending enabled
-            const { data: sendingCountries, error: sendingError } = await supabase
-              .from('countries')
-              .select('currency')
-              .eq('is_sending_enabled', true);
-            
-            if (sendingError) throw sendingError;
-            
-            // Fetch countries that have receiving enabled
-            const { data: receivingCountries, error: receivingError } = await supabase
-              .from('countries')
-              .select('currency')
-              .eq('is_receiving_enabled', true);
-            
-            if (receivingError) throw receivingError;
-            
-            // Extract currencies from the countries
-            sourceCurs = sendingCountries.map(country => country.currency);
-            targetCurs = receivingCountries.map(country => country.currency);
-            
-            // Check if we have valid data
-            if (sourceCurs.length === 0 || targetCurs.length === 0) {
-              throw new Error('No currencies available from API');
-            }
-            
-            setIsUsingMockData(false);
-          } catch (error) {
-            console.error('Error fetching currencies:', error);
-            // Fall back to mock data if API fails
-            sourceCurs = getMockSendingCurrencies();
-            targetCurs = getMockReceivingCurrencies();
-            setIsUsingMockData(true);
+        const sendingCurrencies = Array.from(new Set(
+          sendingCountries.map(country => country.currency)
+        )).sort();
+        
+        console.log('Sending currencies retrieved:', sendingCurrencies);
+        setSendingCountryList(sendingCurrencies);
+        
+        // Fetch receiving countries
+        console.log('Fetching receiving countries...');
+        const receivingCountries = await getReceivingCountries();
+        console.log('Got receiving countries:', receivingCountries.map(c => c.name).join(', '));
+        
+        const receivingCurrencies = Array.from(new Set(
+          receivingCountries.map(country => country.currency)
+        )).sort();
+        
+        console.log('Receiving currencies retrieved:', receivingCurrencies);
+        setReceivingCountryList(receivingCurrencies);
+        
+        // If the source currency isn't in the sending list, reset it to USD or first available
+        if (sendingCurrencies.length > 0) {
+          if (!sendingCurrencies.includes(sourceCurrency)) {
+            const defaultCurrency = sendingCurrencies.includes('USD') ? 'USD' : sendingCurrencies[0];
+            console.log(`Resetting source currency to ${defaultCurrency}`);
+            setSourceCurrency(defaultCurrency);
+          } else {
+            console.log(`Keeping source currency as ${sourceCurrency}`);
           }
+        } else {
+          console.warn('No sending currencies available!');
         }
         
-        // Ensure we have unique values
-        sourceCurs = [...new Set(sourceCurs)];
-        targetCurs = [...new Set(targetCurs)];
-        
-        console.log('Source currencies:', sourceCurs);
-        console.log('Target currencies:', targetCurs);
-        
-        // Update state with the currencies
-        setSourceCurrencies(sourceCurs);
-        setTargetCurrencies(targetCurs);
-        
-        // Set default values if not already set or current value not in options
-        if (sourceCurs.length > 0 && !sourceCurs.includes(sourceCurrency)) {
-          setSourceCurrency(sourceCurs[0]);
-        }
-        
-        if (targetCurs.length > 0 && !targetCurs.includes(targetCurrency)) {
-          setTargetCurrency(targetCurs[0]);
+        // If the target currency isn't in the receiving list, reset it to XAF or first available
+        if (receivingCurrencies.length > 0) {
+          if (!receivingCurrencies.includes(targetCurrency)) {
+            const defaultCurrency = receivingCurrencies.includes('XAF') ? 'XAF' : receivingCurrencies[0];
+            console.log(`Resetting target currency to ${defaultCurrency}`);
+            setTargetCurrency(defaultCurrency);
+          } else {
+            console.log(`Keeping target currency as ${targetCurrency}`);
+          }
+        } else {
+          console.warn('No receiving currencies available!');
         }
       } catch (error) {
-        console.error('Error initializing currencies:', error);
-        toast({
-          title: 'Error loading currencies',
-          description: 'Using default currencies instead',
-          variant: 'destructive'
-        });
-        
-        // Use fallback data in case of error
-        const fallbackSourceCurs = getMockSendingCurrencies();
-        const fallbackTargetCurs = getMockReceivingCurrencies();
-        
-        setSourceCurrencies(fallbackSourceCurs);
-        setTargetCurrencies(fallbackTargetCurs);
-        setIsUsingMockData(true);
-      } finally {
-        setCountriesLoading(false);
+        console.error('Error loading country lists:', error);
       }
     };
     
-    initializeCurrencies();
-  }, [isOffline, offlineModeActive]);
-  
-  // Effect to calculate exchange rate and receive amount
-  useEffect(() => {
-    const calculateRate = async () => {
-      if (!sourceCurrency || !targetCurrency) return;
-      
-      try {
-        let rate: number;
-        
-        // In offline mode or if network is offline, use mock data
-        if (isOffline || offlineModeActive || isUsingMockData) {
-          rate = getMockExchangeRate(sourceCurrency, targetCurrency);
-        } else {
-          try {
-            // Try to fetch from an exchange rate API
-            console.log('Fetching exchange rate from API');
-            const response = await fetch(
-              `https://api.exchangerate.host/convert?from=${sourceCurrency}&to=${targetCurrency}`
-            );
-            
-            if (!response.ok) throw new Error('Failed to fetch exchange rate');
-            
-            const data = await response.json();
-            rate = data.result || 0;
-            
-            if (!rate) {
-              throw new Error('No exchange rate returned');
-            }
-          } catch (error) {
-            console.error('Error fetching exchange rate:', error);
-            // Fall back to mock data if API fails
-            rate = getMockExchangeRate(sourceCurrency, targetCurrency);
-            setIsUsingMockData(true);
-          }
-        }
-        
-        setExchangeRate(rate);
-        // Calculate receive amount based on send amount and rate
-        setReceiveAmount(Number((sendAmount * rate).toFixed(2)));
-      } catch (error) {
-        console.error('Error calculating exchange rate:', error);
-        // Use a default rate in case of error
-        const defaultRate = 600; // Default fallback rate
-        setExchangeRate(defaultRate);
-        setReceiveAmount(Number((sendAmount * defaultRate).toFixed(2)));
-      }
-    };
-    
-    if (sendAmount && sourceCurrency && targetCurrency) {
-      calculateRate();
+    // Only load country lists if countries data is available
+    if (countries.length > 0) {
+      loadCountryLists();
+    } else {
+      console.log('Countries data not yet available, waiting...');
     }
-  }, [sendAmount, sourceCurrency, targetCurrency, isOffline, offlineModeActive, isUsingMockData]);
-  
-  // Handle continue button click
-  const handleContinue = useCallback(() => {
+  }, [countries, getSendingCountries, getReceivingCountries]);
+
+  // Update exchange rate when currencies change
+  useEffect(() => {
+    const calculateRate = () => {
+      // Get exchange rate from utility function
+      const rate = getExchangeRate(sourceCurrency, targetCurrency);
+      setExchangeRate(rate);
+      
+      const amount = parseFloat(sendAmount) || 0;
+      setReceiveAmount((amount * rate).toLocaleString());
+    };
+    
+    calculateRate();
+  }, [sendAmount, sourceCurrency, targetCurrency]);
+
+  const handleContinue = () => {
+    // Debug the continue action
+    console.log('handleContinue called in useExchangeRateCalculator', { 
+      isProcessing, 
+      authLoading, 
+      onContinue,
+      isLoggedIn
+    });
+    
+    // Prevent multiple clicks
+    if (isProcessing || authLoading) {
+      console.log('Prevented continuation due to processing or loading state');
+      return;
+    }
+    
     setIsProcessing(true);
     
+    // Validate amount
+    const amountValue = parseFloat(sendAmount);
+    if (!amountValue || amountValue <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount to send.",
+        variant: "destructive"
+      });
+      setIsProcessing(false);
+      console.log('Invalid amount, preventing continuation');
+      return;
+    }
+    
+    // Ensure we have a proper receive amount (convert string with commas to number)
+    const cleanedReceiveAmount = receiveAmount.replace(/,/g, '');
+    const receiveAmountValue = parseFloat(cleanedReceiveAmount);
+    
+    // Store the current exchange information in localStorage for use in next steps
+    const transactionData = {
+      sourceCurrency,
+      targetCurrency,
+      amount: amountValue,
+      receiveAmount: receiveAmountValue.toString(),
+      exchangeRate
+    };
+    
+    console.log('Saving transaction data:', transactionData);
+    
     try {
-      // Store transaction data in localStorage for other components to use
-      const transactionData = {
-        sendAmount,
-        receiveAmount,
-        sourceCurrency,
-        targetCurrency,
-        exchangeRate,
-        timestamp: new Date().toISOString(),
-      };
-      
+      // Save the transaction data to localStorage
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
       
-      // Call the onContinue callback if provided
-      if (onContinue) {
-        onContinue();
-      }
+      // Wait to ensure the localStorage write completes
+      setTimeout(() => {
+        if (onContinue) {
+          console.log('Calling onContinue callback directly');
+          // If we're in inline mode, call the onContinue callback
+          onContinue();
+        } else if (isLoggedIn) {
+          console.log('User is logged in, navigating directly to /send');
+          navigate('/send');
+        } else {
+          console.log('User is not logged in, navigating to signin with redirect');
+          navigate('/signin', { state: { redirectTo: '/send' } });
+        }
+        
+        // Reset processing state after a slight delay to give navigation time
+        setTimeout(() => {
+          setIsProcessing(false);
+        }, 200);
+      }, 100);
     } catch (error) {
-      console.error('Error saving transaction data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save transaction data. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
+      console.error('Error in handleContinue:', error);
       setIsProcessing(false);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing your request. Please try again.",
+        variant: "destructive"
+      });
     }
-  }, [sendAmount, receiveAmount, sourceCurrency, targetCurrency, exchangeRate, onContinue]);
-  
+  };
+
   return {
     sendAmount,
     setSendAmount,
@@ -222,9 +212,8 @@ export function useExchangeRateCalculator(onContinue?: () => void) {
     isProcessing,
     authLoading,
     countriesLoading,
-    sourceCurrencies,
-    targetCurrencies,
-    handleContinue,
-    isUsingMockData
+    sourceCurrencies: sendingCountryList,
+    targetCurrencies: receivingCountryList,
+    handleContinue
   };
-}
+};

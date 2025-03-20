@@ -1,56 +1,63 @@
 
-// Store and process paused network requests
-export const pausedRequests: Array<() => Promise<any>> = [];
+import { toast } from 'sonner';
+import { clearApiCache } from '@/services/api/cache';
 
+// Queue for storing requests to be executed when back online
+export const pausedRequests: (() => Promise<any>)[] = [];
+
+// Load offline mode from storage
+export const loadOfflineMode = async (): Promise<boolean> => {
+  try {
+    const { Preferences } = await import('@capacitor/preferences');
+    const { value } = await Preferences.get({ key: 'offlineModeActive' });
+    return value === 'true';
+  } catch (error) {
+    console.error('Failed to load offline mode status:', error);
+    return false;
+  }
+};
+
+// Save offline mode to storage
+export const saveOfflineMode = async (offlineModeActive: boolean): Promise<void> => {
+  try {
+    const { Preferences } = await import('@capacitor/preferences');
+    await Preferences.set({
+      key: 'offlineModeActive',
+      value: offlineModeActive.toString(),
+    });
+  } catch (error) {
+    console.error('Failed to save offline mode status:', error);
+  }
+};
+
+// Process all paused requests and return success/failure counts
 export const processPausedRequests = async (): Promise<{ successCount: number; failureCount: number }> => {
+  console.log(`Processing ${pausedRequests.length} queued requests`);
+  toast.info(`Syncing ${pausedRequests.length} pending operations`);
+  
+  // Create a copy of the requests to process
+  const requestsToProcess = [...pausedRequests];
   let successCount = 0;
   let failureCount = 0;
   
-  if (pausedRequests.length === 0) {
-    return { successCount, failureCount };
-  }
-  
-  // Create a copy of the queue to process
-  const requestsToProcess = [...pausedRequests];
-  // Clear the queue to avoid processing the same requests multiple times
-  pausedRequests.length = 0;
-  
+  // Process all paused requests
   for (const request of requestsToProcess) {
     try {
       await request();
+      // Remove from queue after successful processing
+      const index = pausedRequests.indexOf(request);
+      if (index > -1) {
+        pausedRequests.splice(index, 1);
+      }
       successCount++;
     } catch (error) {
-      console.error('Error processing paused request:', error);
-      // Re-add failed requests back to the queue if they should be retried
-      pausedRequests.push(request);
+      console.error('Error processing queued request:', error);
       failureCount++;
     }
   }
   
+  // Clear API cache to ensure fresh data on next fetch
+  await clearApiCache();
+  
   return { successCount, failureCount };
-};
-
-// Load offline mode setting from storage
-export const loadOfflineMode = async (): Promise<boolean> => {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const value = localStorage.getItem('offlineModeActive');
-      return value === 'true';
-    }
-    return false;
-  } catch (error) {
-    console.warn('Error loading offline mode from storage:', error);
-    return false;
-  }
-};
-
-// Save offline mode setting to storage
-export const saveOfflineMode = (isActive: boolean): void => {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('offlineModeActive', String(isActive));
-    }
-  } catch (error) {
-    console.warn('Error saving offline mode to storage:', error);
-  }
 };
