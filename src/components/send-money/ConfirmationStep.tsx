@@ -42,7 +42,15 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-center mb-4">Confirm Your Transfer</h2>
       
-      <TransactionSummary transactionData={transactionData} />
+      <TransactionSummary 
+        amount={transactionData.amount.toString()}
+        recipientName={transactionData.recipientName}
+        recipient={transactionData.recipient || undefined}
+        selectedCountryData={undefined}
+        selectedCountry={transactionData.targetCountry}
+        selectedPaymentMethod={transactionData.paymentMethod}
+        selectedProvider={transactionData.selectedProvider}
+      />
       
       <div className="text-sm text-muted-foreground p-4 bg-muted rounded-lg">
         <p>
