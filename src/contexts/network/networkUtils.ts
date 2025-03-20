@@ -1,7 +1,7 @@
 
-import { pausedRequests } from './types';
-
 // Store and process paused network requests
+export const pausedRequests: Array<() => Promise<any>> = [];
+
 export const processPausedRequests = async (): Promise<{ successCount: number; failureCount: number }> => {
   let successCount = 0;
   let failureCount = 0;

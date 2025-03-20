@@ -1,9 +1,6 @@
 
 import React from 'react';
 
-// Paused requests queue
-export const pausedRequests: Array<() => Promise<any>> = [];
-
 export interface NetworkContextType {
   isOffline: boolean;
   isOnline: boolean;
