@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Flag } from 'lucide-react';
 import { useCountries } from '@/hooks/useCountries';
 
@@ -13,12 +13,37 @@ interface CurrencySelectorProps {
 const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, options, label }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries } = useCountries();
+  const [hasValidOptions, setHasValidOptions] = useState(false);
+  
+  // Check if we have valid options
+  useEffect(() => {
+    if (options && options.length > 0) {
+      setHasValidOptions(true);
+    } else {
+      setHasValidOptions(false);
+    }
+  }, [options]);
+
+  // Ensure the current value is in options or use first option
+  useEffect(() => {
+    if (hasValidOptions && value && !options.includes(value)) {
+      // Value not found in options, set to first available option
+      onChange(options[0]);
+    }
+  }, [hasValidOptions, options, value, onChange]);
+
+  // Verify if we have a valid value and options
+  const displayValue = hasValidOptions && value ? value : (hasValidOptions ? options[0] : '—');
   
   // Debug available countries for this selector
-  console.log(`CurrencySelector "${label}" rendering with ${options.length} options:`, options);
+  console.log(`CurrencySelector "${label}" rendering with ${options?.length || 0} options:`, options);
 
   // Find the selected country by currency code - prefer countries that match the sending/receiving pattern
   const getCountryByCurrency = (currencyCode: string) => {
+    if (!currencyCode || !countries || countries.length === 0) {
+      return null;
+    }
+
     // For source currency selector, prioritize countries that have isSendingEnabled=true
     if (label.toLowerCase().includes('source') || label.toLowerCase().includes('from') || label.toLowerCase().includes('send')) {
       console.log(`Looking for sending country with currency ${currencyCode}`);
@@ -57,7 +82,17 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
     return anyCountry;
   };
 
-  const selectedCountry = getCountryByCurrency(value);
+  const selectedCountry = getCountryByCurrency(displayValue);
+
+  // Prevent render if we have no options to show
+  if (!hasValidOptions && !options?.length) {
+    return (
+      <div className="bg-primary-50 rounded-lg px-4 py-2 flex items-center">
+        <Flag className="w-4 h-4 mr-2 text-gray-500" />
+        <span className="font-medium text-gray-500">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -72,13 +107,13 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
               alt={`${selectedCountry.name} flag`}
               className="w-5 h-3 object-cover rounded mr-2"
             />
-            <span className="font-medium mr-1">{value}</span>
+            <span className="font-medium mr-1">{displayValue}</span>
             <span className="text-xs text-gray-500">({selectedCountry.name})</span>
           </div>
         ) : (
           <div className="flex items-center">
             <Flag className="w-4 h-4 mr-2 text-gray-500" />
-            <span className="font-medium">{value}</span>
+            <span className="font-medium">{displayValue}</span>
           </div>
         )}
         <ChevronDown className="ml-2 h-4 w-4" />
