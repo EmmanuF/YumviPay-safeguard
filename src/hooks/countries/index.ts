@@ -10,7 +10,7 @@ import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCoun
 const AFRICAN_COUNTRY_CODES = ['CM', 'GH', 'NG', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ'];
 const RECEIVING_ONLY_COUNTRIES = [...AFRICAN_COUNTRY_CODES]; // All African countries are receiving only
 
-// Define sending countries explicitly
+// Define sending countries explicitly - ensure they're always sending countries
 const SENDING_COUNTRIES = [
   // North America
   'US', 'CA', 'MX', 'PA',
@@ -44,7 +44,7 @@ const enforceCountryRules = (countries: Country[]): Country[] => {
       };
     }
     
-    // Explicitly define sending countries
+    // Explicitly define sending countries - FORCE them to be sending countries
     if (SENDING_COUNTRIES.includes(country.code)) {
       if (!country.isSendingEnabled) {
         console.log(`🔍 HOOK ENFORCE: Fixing ${country.name} (${country.code}) - setting isSendingEnabled to true`);
@@ -52,7 +52,8 @@ const enforceCountryRules = (countries: Country[]): Country[] => {
       
       return {
         ...country,
-        isSendingEnabled: true
+        isSendingEnabled: true,
+        // Don't override receiving status for sending countries
       };
     }
     
@@ -65,7 +66,7 @@ const enforceCountryRules = (countries: Country[]): Country[] => {
  * Custom hook for managing countries data
  */
 export function useCountries() {
-  const [countries, setCountries] = useState<Country[]>(getCachedCountries() || []);
+  const [countries, setCountries] = useState<Country[]>(enforceCountryRules(getCachedCountries() || []));
   const [isLoading, setIsLoading] = useState(!getCachedCountries());
   const [error, setError] = useState<Error | null>(null);
   const { isOffline } = useNetwork();
@@ -178,7 +179,7 @@ export function useCountries() {
   useEffect(() => {
     if (countries.length > 0) {
       // After countries are set in state, verify African countries are correctly flagged
-      const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+      const keyCodes = ['CM', 'GH', 'NG', 'SN', 'US', 'GB', 'AE'];
       console.log('🔍 HOOK STATE: Countries after being set in state:');
       countries
         .filter(c => keyCodes.includes(c.code))
@@ -198,43 +199,25 @@ export function useCountries() {
     [countries]
   );
 
+  // DIRECT IMPLEMENTATION for getSendingCountries - don't fetch from API, just use our enforced list
   const getSendingCountries = useMemo(() => 
     async () => {
-      console.log('🔍 HOOK: Getting sending countries...');
+      console.log('🔍 HOOK: Getting sending countries - DIRECT IMPLEMENTATION');
       
-      // If we already have countries data, filter it locally and enforce rules
-      if (countries.length > 0) {
-        // Filter AFTER enforcing rules to ensure consistency
-        const filteredCountries = enforceCountryRules(countries);
-        const sendingCountries = filteredCountries.filter(country => country.isSendingEnabled);
-        
-        console.log('🔍 HOOK SENDING: Filtered sending countries:', sendingCountries.map(c => c.name).join(', '));
-        return sendingCountries;
-      }
+      // Make sure all countries in the SENDING_COUNTRIES array are included
+      // This is a more direct approach than relying on filtering countries that might not be properly set
+      const allCountries = countries.length > 0 ? countries : mockCountries;
       
-      if (!isOffline) {
-        console.log('🔍 HOOK: Attempting to fetch sending countries directly...');
-        const apiData = await fetchSendingCountriesFromApi();
-        if (apiData && apiData.length > 0) {
-          // Apply safety rules to API data
-          const processedApiData = enforceCountryRules(apiData);
-          const sendingCountries = processedApiData.filter(country => country.isSendingEnabled);
-          
-          console.log('🔍 HOOK API SENDING: Successfully loaded sending countries:', sendingCountries.map(c => c.name).join(', '));
-          return sendingCountries;
-        } else {
-          console.log('🔍 HOOK: API returned no sending countries, falling back to mock data');
-        }
-      }
+      // Apply country rules to ensure consistency, then filter ONLY by our explicit sending country list
+      const sendingCountries = enforceCountryRules(allCountries)
+        .filter(country => SENDING_COUNTRIES.includes(country.code));
       
-      // Process mock data with safety rules
-      const processedMockData = enforceCountryRules(mockCountries);
-      const mockSendingCountries = processedMockData.filter(country => country.isSendingEnabled);
+      console.log('🔍 HOOK SENDING DIRECT: Filtered sending countries:',
+        sendingCountries.map(c => c.name).join(', '));
       
-      console.log('🔍 HOOK MOCK SENDING: Using mock sending countries:', mockSendingCountries.map(c => c.name).join(', '));
-      return mockSendingCountries;
+      return sendingCountries;
     },
-    [countries, isOffline]
+    [countries]
   );
 
   const getReceivingCountries = useMemo(() => 
