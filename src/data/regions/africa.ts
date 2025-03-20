@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const africanCountries: Country[] = [
@@ -6,7 +7,7 @@ export const africanCountries: Country[] = [
     code: 'CM',
     flagUrl: 'https://flagcdn.com/cm.svg',
     currency: 'XAF',
-    isSendingEnabled: false, // Changed to false - Cameroon is receiving only
+    isSendingEnabled: false, // Should be false - Cameroon is receiving only
     isReceivingEnabled: true, // This should be true as Cameroon is MVP for receiving
     paymentMethods: [
       {

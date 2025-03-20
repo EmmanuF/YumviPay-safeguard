@@ -4,6 +4,7 @@ import { africanCountries } from './regions/africa';
 import { europeanCountries } from './regions/europe';
 import { northAmericanCountries } from './regions/northAmerica';
 import { asiaPacificCountries } from './regions/asiaPacific';
+import { middleEastCountries } from './regions/middleEast';
 
 // Combine all regional country lists
 export const countries: Country[] = [
@@ -11,4 +12,5 @@ export const countries: Country[] = [
   ...europeanCountries,
   ...northAmericanCountries,
   ...asiaPacificCountries,
+  ...middleEastCountries,
 ];

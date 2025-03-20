@@ -7,7 +7,7 @@ export const northAmericanCountries: Country[] = [
     code: 'US',
     flagUrl: 'https://flagcdn.com/us.svg',
     currency: 'USD',
-    isSendingEnabled: true, // Ensure this is true
+    isSendingEnabled: true, // Ensure this is true for sending
     isReceivingEnabled: false,
     paymentMethods: [
       {
@@ -33,7 +33,7 @@ export const northAmericanCountries: Country[] = [
     code: 'CA',
     flagUrl: 'https://flagcdn.com/ca.svg',
     currency: 'CAD',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Ensure this is true for sending
     isReceivingEnabled: false,
     paymentMethods: [
       {
@@ -59,7 +59,7 @@ export const northAmericanCountries: Country[] = [
     code: 'MX',
     flagUrl: 'https://flagcdn.com/mx.svg',
     currency: 'MXN',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Ensure this is true for sending
     isReceivingEnabled: false,
     paymentMethods: [
       {
@@ -85,7 +85,7 @@ export const northAmericanCountries: Country[] = [
     code: 'PA',
     flagUrl: 'https://flagcdn.com/pa.svg',
     currency: 'PAB',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Ensure this is true for sending
     isReceivingEnabled: false,
     paymentMethods: [
       {
