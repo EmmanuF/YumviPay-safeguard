@@ -166,9 +166,19 @@ export const waitForNetwork = (timeout = 30000): Promise<boolean> => {
   });
 };
 
-// This is a separate function not using require() that components can import directly
+// Hook to use in components that need to track network status
 export const useNetworkStatus = () => {
-  // No longer using require, importing from context properly
-  // This will be imported by the component using this hook
-  return { isOffline, isOfflineModeActive, addPausedRequest, retryWithBackoff, waitForNetwork };
+  // Import React and useEffect directly from the same sources that are being used in the rest of the app
+  const React = window.React;
+  const { useEffect } = React;
+  const { useNetwork } = require('@/contexts/network');
+  
+  const { isOffline, offlineModeActive, addPausedRequest, lastOnlineAt } = useNetwork();
+  
+  // Update the offline status whenever it changes
+  useEffect(() => {
+    updateNetworkStatus(isOffline, offlineModeActive, addPausedRequest, lastOnlineAt);
+  }, [isOffline, offlineModeActive, addPausedRequest, lastOnlineAt]);
+  
+  return { isOffline, offlineModeActive, addPausedRequest, retryWithBackoff, waitForNetwork };
 };
