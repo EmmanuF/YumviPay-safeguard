@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,8 +9,26 @@ import {
   CountryDetailsDialog,
   EditPaymentMethodsDialog
 } from '@/components/admin/countries';
-import { SendingCountriesTab } from '@/components/admin/countries/sending/SendingCountriesTab';
-import { ReceivingCountriesTab } from '@/components/admin/countries/receiving/ReceivingCountriesTab';
+import { Loader2 } from 'lucide-react';
+
+// Lazy load the tab content components for better performance
+const SendingCountriesTab = lazy(() => 
+  import('@/components/admin/countries/sending/SendingCountriesTab')
+    .then(module => ({ default: module.SendingCountriesTab }))
+);
+
+const ReceivingCountriesTab = lazy(() => 
+  import('@/components/admin/countries/receiving/ReceivingCountriesTab')
+    .then(module => ({ default: module.ReceivingCountriesTab }))
+);
+
+// Loading component for tabs
+const TabLoadingIndicator = () => (
+  <div className="flex justify-center items-center min-h-[300px]">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <p className="ml-2 text-lg font-medium">Loading countries data...</p>
+  </div>
+);
 
 const CountriesManagement = () => {
   const [activeTab, setActiveTab] = useState<'sending' | 'receiving'>('sending');
@@ -26,6 +44,9 @@ const CountriesManagement = () => {
     handleAddCountry,
     handleUpdatePaymentMethods,
   } = useAdminCountries();
+
+  // Log render for performance tracking
+  console.log('CountriesManagement component rendering');
 
   return (
     <AdminLayout>
@@ -51,31 +72,35 @@ const CountriesManagement = () => {
               </TabsList>
               
               <TabsContent value="sending" className="p-4">
-                <SendingCountriesTab 
-                  onViewDetails={(country) => {
-                    setSelectedCountry(country);
-                    setIsDetailsDialogOpen(true);
-                  }}
-                  onEditPaymentMethods={(country) => {
-                    setSelectedCountry(country);
-                    setIsPaymentMethodsDialogOpen(true);
-                  }}
-                  onAddCountry={() => setIsAddDialogOpen(true)}
-                />
+                <Suspense fallback={<TabLoadingIndicator />}>
+                  <SendingCountriesTab 
+                    onViewDetails={(country) => {
+                      setSelectedCountry(country);
+                      setIsDetailsDialogOpen(true);
+                    }}
+                    onEditPaymentMethods={(country) => {
+                      setSelectedCountry(country);
+                      setIsPaymentMethodsDialogOpen(true);
+                    }}
+                    onAddCountry={() => setIsAddDialogOpen(true)}
+                  />
+                </Suspense>
               </TabsContent>
               
               <TabsContent value="receiving" className="p-4">
-                <ReceivingCountriesTab 
-                  onViewDetails={(country) => {
-                    setSelectedCountry(country);
-                    setIsDetailsDialogOpen(true);
-                  }}
-                  onEditPaymentMethods={(country) => {
-                    setSelectedCountry(country);
-                    setIsPaymentMethodsDialogOpen(true);
-                  }}
-                  onAddCountry={() => setIsAddDialogOpen(true)}
-                />
+                <Suspense fallback={<TabLoadingIndicator />}>
+                  <ReceivingCountriesTab 
+                    onViewDetails={(country) => {
+                      setSelectedCountry(country);
+                      setIsDetailsDialogOpen(true);
+                    }}
+                    onEditPaymentMethods={(country) => {
+                      setSelectedCountry(country);
+                      setIsPaymentMethodsDialogOpen(true);
+                    }}
+                    onAddCountry={() => setIsAddDialogOpen(true)}
+                  />
+                </Suspense>
               </TabsContent>
             </Tabs>
           </CardContent>

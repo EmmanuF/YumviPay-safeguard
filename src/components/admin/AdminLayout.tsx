@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from './AdminSidebar';
@@ -13,6 +13,7 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, isLoggedIn, loading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isClientReady, setIsClientReady] = useState(false);
   
   // Check if the user is an admin
   const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
@@ -27,7 +28,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     });
   }, [isLoggedIn, user, isAdmin, loading]);
   
-  if (loading) {
+  // Optimize client-side rendering
+  useEffect(() => {
+    // Delay setting client ready to ensure smooth loading
+    const timer = setTimeout(() => {
+      setIsClientReady(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (loading || !isClientReady) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center space-y-2">
@@ -53,7 +64,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <AdminHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="mx-auto max-w-7xl">
-            {children}
+            <Suspense fallback={
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            }>
+              {children}
+            </Suspense>
           </div>
         </main>
       </div>

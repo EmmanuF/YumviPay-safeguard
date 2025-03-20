@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { 
   TableRow,
   TableCell 
@@ -25,7 +25,8 @@ interface CountryTableRowProps {
   onEditPaymentMethods: () => void;
 }
 
-export const CountryTableRow: React.FC<CountryTableRowProps> = ({
+// Memoize the component to prevent unnecessary re-renders
+export const CountryTableRow: React.FC<CountryTableRowProps> = memo(({
   country,
   onToggleEnabled,
   onViewDetails,
@@ -100,4 +101,7 @@ export const CountryTableRow: React.FC<CountryTableRowProps> = ({
       </TableCell>
     </TableRow>
   );
-};
+});
+
+// Add display name for debugging
+CountryTableRow.displayName = 'CountryTableRow';
