@@ -24,6 +24,13 @@ export function useCountries() {
         const cachedData = getCachedCountries();
         if (cachedData && cachedData.length > 0) {
           console.log('Using cached countries data:', cachedData.length, 'countries');
+          
+          // Debug sending/receiving countries from cache
+          console.log('Cached sending countries:', 
+                     cachedData.filter(c => c.isSendingEnabled).map(c => c.name));
+          console.log('Cached receiving countries:', 
+                     cachedData.filter(c => c.isReceivingEnabled).map(c => c.name));
+          
           setCountries(cachedData);
           setIsLoading(false);
           return;
@@ -38,6 +45,13 @@ export function useCountries() {
           
           if (apiData && apiData.length > 0) {
             console.log('Successfully loaded', apiData.length, 'countries from API');
+            
+            // Debug API data
+            console.log('API sending countries:', 
+                       apiData.filter(c => c.isSendingEnabled).map(c => c.name));
+            console.log('API receiving countries:', 
+                       apiData.filter(c => c.isReceivingEnabled).map(c => c.name));
+            
             updateCountriesCache(apiData);
             setCountries(apiData);
             setIsLoading(false);
@@ -51,10 +65,14 @@ export function useCountries() {
         console.log('Using mock country data due to offline status or API error');
         console.log('Mock data has', mockCountries.length, 'countries');
         
-        // Log sending countries from mock data for debugging
+        // Debug mock data
         const sendingCountriesFromMock = mockCountries.filter(c => c.isSendingEnabled);
-        console.log('Mock data has', sendingCountriesFromMock.length, 'sending countries:', 
-                    sendingCountriesFromMock.map(c => c.code).join(', '));
+        console.log('Mock sending countries:', 
+                   sendingCountriesFromMock.map(c => c.name).join(', '));
+        
+        const receivingCountriesFromMock = mockCountries.filter(c => c.isReceivingEnabled);
+        console.log('Mock receiving countries:', 
+                   receivingCountriesFromMock.map(c => c.name).join(', '));
         
         setCountries(mockCountries);
         
@@ -68,8 +86,12 @@ export function useCountries() {
         
         // Even if there's an error, fall back to mock data
         console.log('Error occurred, using mock data as fallback');
-        setCountries(mockCountries);
         
+        // Debug mock data in error case
+        console.log('Mock sending countries in error case:', 
+                   mockCountries.filter(c => c.isSendingEnabled).map(c => c.name));
+        
+        setCountries(mockCountries);
         setIsLoading(false);
       }
     };

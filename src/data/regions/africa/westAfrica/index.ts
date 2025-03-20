@@ -6,7 +6,19 @@ import { maNoWestAfricanCountries } from './maNoWestAfrica';
 
 // Combine all West African sub-regions
 export const westAfricanCountries: Country[] = [
-  ...coastalWestAfricanCountries,
-  ...sahelianWestAfricanCountries,
-  ...maNoWestAfricanCountries,
+  ...coastalWestAfricanCountries.map(country => ({
+    ...country,
+    isSendingEnabled: false,
+    isReceivingEnabled: true
+  })),
+  ...sahelianWestAfricanCountries.map(country => ({
+    ...country,
+    isSendingEnabled: false,
+    isReceivingEnabled: true
+  })),
+  ...maNoWestAfricanCountries.map(country => ({
+    ...country,
+    isSendingEnabled: false,
+    isReceivingEnabled: true
+  }))
 ];

@@ -30,6 +30,7 @@ export const centralAfricanCountries: Country[] = [
     currency: 'XAF',
     isSendingEnabled: false,
     isReceivingEnabled: true,
+    phonePrefix: '+241',
     paymentMethods: [
       {
         id: 'mobile_money',
@@ -56,6 +57,7 @@ export const centralAfricanCountries: Country[] = [
     currency: 'XAF',
     isSendingEnabled: false,
     isReceivingEnabled: true,
+    phonePrefix: '+235',
     paymentMethods: [
       {
         id: 'mobile_money',
@@ -74,6 +76,7 @@ export const centralAfricanCountries: Country[] = [
     currency: 'XAF',
     isSendingEnabled: false,
     isReceivingEnabled: true,
+    phonePrefix: '+236',
     paymentMethods: [
       {
         id: 'mobile_money',
@@ -92,6 +95,7 @@ export const centralAfricanCountries: Country[] = [
     currency: 'XAF',
     isSendingEnabled: false,
     isReceivingEnabled: true,
+    phonePrefix: '+240',
     paymentMethods: [
       {
         id: 'bank_transfer',
@@ -110,6 +114,7 @@ export const centralAfricanCountries: Country[] = [
     currency: 'XAF',
     isSendingEnabled: false,
     isReceivingEnabled: true,
+    phonePrefix: '+242',
     paymentMethods: [
       {
         id: 'mobile_money',

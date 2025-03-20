@@ -1,5 +1,5 @@
 
-import { Country } from '../../types/country';
+import { Country } from '../../../types/country';
 import { northAfricanCountries } from './northAfrica';
 import { eastAfricanCountries } from './eastAfrica';
 import { southernAfricanCountries } from './southernAfrica';

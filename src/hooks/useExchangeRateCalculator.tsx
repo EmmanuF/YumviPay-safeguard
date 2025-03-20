@@ -22,25 +22,33 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
-  const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
-  const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
+  const [targetCurrency, setTargetCurrency] = useState('XAF'); // Default to Cameroon's currency
+  const [exchangeRate, setExchangeRate] = useState(610); // Default rate for USD to XAF
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Memoize currency lists to reduce re-calculation
-  const sourceCurrencies = useMemo(() => 
-    Array.from(new Set(
-      countries
-        .filter(country => country.isSendingEnabled)
-        .map(country => country.currency)
-    )), [countries]);
-  
-  const targetCurrencies = useMemo(() => 
-    Array.from(new Set(
-      countries
-        .filter(country => country.isReceivingEnabled)
-        .map(country => country.currency)
-    )), [countries]);
+  // Log countries to help debug
+  useEffect(() => {
+    if (countries.length > 0) {
+      console.log('All countries loaded:', countries.length);
+      console.log('Sending countries:', countries.filter(c => c.isSendingEnabled).map(c => c.name));
+      console.log('Receiving countries:', countries.filter(c => c.isReceivingEnabled).map(c => c.name));
+    }
+  }, [countries]);
 
+  // Create filtered lists of currencies based on country capabilities
+  const sourceCurrencies = useMemo(() => {
+    const sendingCountries = countries.filter(country => country.isSendingEnabled);
+    console.log('Source currencies from:', sendingCountries.map(c => c.name));
+    return Array.from(new Set(sendingCountries.map(country => country.currency)));
+  }, [countries]);
+  
+  const targetCurrencies = useMemo(() => {
+    const receivingCountries = countries.filter(country => country.isReceivingEnabled);
+    console.log('Target currencies from:', receivingCountries.map(c => c.name));
+    return Array.from(new Set(receivingCountries.map(country => country.currency)));
+  }, [countries]);
+
+  // Calculate receive amount when inputs change
   useEffect(() => {
     const calculateRate = () => {
       // Get exchange rate from utility function
