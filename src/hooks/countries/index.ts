@@ -10,15 +10,28 @@ import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCoun
 const AFRICAN_COUNTRY_CODES = ['CM', 'GH', 'NG', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ'];
 const RECEIVING_ONLY_COUNTRIES = [...AFRICAN_COUNTRY_CODES]; // All African countries are receiving only
 
+// Define sending countries explicitly
+const SENDING_COUNTRIES = [
+  // North America
+  'US', 'CA', 'MX', 'PA',
+  // Europe
+  'GB', 'FR', 'DE', 'IT', 'ES',
+  // Middle East
+  'AE', 'SA', 'QA', 'KW',
+  // Asia Pacific
+  'AU', 'JP', 'SG'
+];
+
 /**
  * Ensures countries have the correct sending/receiving flags
  * This is a safety measure to guarantee African countries are never sending countries
+ * and explicitly define which countries can send money
  */
 const enforceCountryRules = (countries: Country[]): Country[] => {
   console.log('🔍 HOOK ENFORCE: Enforcing country rules...');
   
   return countries.map(country => {
-    // If country is in the African countries list
+    // If country is in the African countries list - strictly receiving only
     if (RECEIVING_ONLY_COUNTRIES.includes(country.code)) {
       if (country.isSendingEnabled) {
         console.log(`🔍 HOOK ENFORCE: Fixing ${country.name} (${country.code}) - setting isSendingEnabled to false`);
@@ -26,11 +39,24 @@ const enforceCountryRules = (countries: Country[]): Country[] => {
       
       return {
         ...country,
-        isSendingEnabled: false,  // Force African countries to be receiving only
+        isSendingEnabled: false,
         isReceivingEnabled: true
       };
     }
     
+    // Explicitly define sending countries
+    if (SENDING_COUNTRIES.includes(country.code)) {
+      if (!country.isSendingEnabled) {
+        console.log(`🔍 HOOK ENFORCE: Fixing ${country.name} (${country.code}) - setting isSendingEnabled to true`);
+      }
+      
+      return {
+        ...country,
+        isSendingEnabled: true
+      };
+    }
+    
+    // For all other countries, leave as is
     return country;
   });
 };
@@ -64,7 +90,7 @@ export function useCountries() {
           const processedCachedData = enforceCountryRules(cachedData);
           
           // Debug key countries from cache
-          const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+          const keyCodes = ['CM', 'GH', 'NG', 'SN', 'US', 'GB', 'AE'];
           console.log('🔍 HOOK CACHE: Key countries from cache after processing:');
           processedCachedData
             .filter(c => keyCodes.includes(c.code))
@@ -91,7 +117,7 @@ export function useCountries() {
             const processedApiData = enforceCountryRules(apiData);
             
             // Debug key countries from API
-            const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+            const keyCodes = ['CM', 'GH', 'NG', 'SN', 'US', 'GB', 'AE'];
             console.log('🔍 HOOK API: Key countries from API after processing:');
             processedApiData
               .filter(c => keyCodes.includes(c.code))
@@ -115,7 +141,7 @@ export function useCountries() {
         const processedMockData = enforceCountryRules(mockCountries);
         
         // Debug key countries from mock data
-        const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+        const keyCodes = ['CM', 'GH', 'NG', 'SN', 'US', 'GB', 'AE'];
         console.log('🔍 HOOK MOCK: Key countries from mock data after processing:');
         processedMockData
           .filter(c => keyCodes.includes(c.code))
