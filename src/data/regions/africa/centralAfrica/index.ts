@@ -1,9 +1,13 @@
-
 import { Country } from '../../../../types/country';
 import { cameroonCountry } from './cameroon';
 
+// Create a properly mapped array to ensure flags are consistent
 export const centralAfricanCountries: Country[] = [
-  cameroonCountry,
+  {
+    ...cameroonCountry,
+    isSendingEnabled: false,  // Explicitly force to false
+    isReceivingEnabled: true
+  },
   {
     name: 'Congo DRC',
     code: 'CD',
@@ -126,4 +130,14 @@ export const centralAfricanCountries: Country[] = [
       },
     ],
   },
-];
+].map(country => {
+  // Add debug logging for each country
+  console.log(`🔍 CENTRAL AFRICA MAPPED: ${country.name}: isSendingEnabled=${country.isSendingEnabled}`);
+  return country;
+});
+
+// Final validation of the array
+console.log('🔍 CENTRAL AFRICA: Final array check - centralAfricanCountries:');
+centralAfricanCountries.forEach(c => {
+  console.log(`🔍 CENTRAL AFRICA FINAL: ${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+});

@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Country, PaymentMethod } from '../../types/country';
 import { countries as mockCountries } from '../../data/countries';
 import { useNetwork } from '@/contexts/network';
-import { getCachedCountries, updateCountriesCache } from './countriesCache';
+import { getCachedCountries, updateCountriesCache, clearCountriesCache } from './countriesCache';
 import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCountriesFromApi } from './countriesApi';
 
 /**
@@ -14,6 +14,12 @@ export function useCountries() {
   const [isLoading, setIsLoading] = useState(!getCachedCountries());
   const [error, setError] = useState<Error | null>(null);
   const { isOffline } = useNetwork();
+
+  // Clear the cache on first load to ensure fresh data
+  useEffect(() => {
+    console.log('🔍 HOOK: Clearing countries cache on initial load to ensure fresh data');
+    clearCountriesCache();
+  }, []);
 
   useEffect(() => {
     const loadCountries = async () => {
@@ -58,8 +64,20 @@ export function useCountries() {
                 console.log(`🔍 HOOK API: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
               });
             
-            updateCountriesCache(apiData);
-            setCountries(apiData);
+            // Process the API data to ensure Cameroon is properly set
+            const processedData = apiData.map(country => {
+              if (country.code === 'CM') {
+                console.log('🔍 HOOK API: Ensuring Cameroon isSendingEnabled is false');
+                return {
+                  ...country,
+                  isSendingEnabled: false
+                };
+              }
+              return country;
+            });
+            
+            updateCountriesCache(processedData);
+            setCountries(processedData);
             setIsLoading(false);
             return;
           } else {
@@ -79,11 +97,23 @@ export function useCountries() {
             console.log(`🔍 HOOK MOCK: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
           });
         
-        setCountries(mockCountries);
+        // Process mock data to ensure Cameroon is always receiving-only
+        const processedMockData = mockCountries.map(country => {
+          if (country.code === 'CM') {
+            console.log('🔍 HOOK MOCK: Ensuring Cameroon isSendingEnabled is false');
+            return {
+              ...country,
+              isSendingEnabled: false
+            };
+          }
+          return country;
+        });
         
-        // Update cache with mock data for future use
-        console.log('🔍 HOOK: Updating cache with mock data');
-        updateCountriesCache(mockCountries);
+        setCountries(processedMockData);
+        
+        // Update cache with processed mock data
+        console.log('🔍 HOOK: Updating cache with processed mock data');
+        updateCountriesCache(processedMockData);
         
         setIsLoading(false);
       } catch (err) {
@@ -93,16 +123,19 @@ export function useCountries() {
         // Even if there's an error, fall back to mock data
         console.log('🔍 HOOK ERROR: Error occurred, using mock data as fallback');
         
-        // Debug key countries from mock data in error case
-        const keyCodes = ['CM', 'GH', 'NG', 'SN'];
-        console.log('🔍 HOOK ERROR: Key countries from mock data (error fallback):');
-        mockCountries
-          .filter(c => keyCodes.includes(c.code))
-          .forEach(c => {
-            console.log(`🔍 HOOK ERROR: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
-          });
+        // Process mock data to ensure Cameroon is properly set
+        const processedMockData = mockCountries.map(country => {
+          if (country.code === 'CM') {
+            console.log('🔍 HOOK ERROR: Ensuring Cameroon isSendingEnabled is false in error fallback');
+            return {
+              ...country,
+              isSendingEnabled: false
+            };
+          }
+          return country;
+        });
         
-        setCountries(mockCountries);
+        setCountries(processedMockData);
         setIsLoading(false);
       }
     };

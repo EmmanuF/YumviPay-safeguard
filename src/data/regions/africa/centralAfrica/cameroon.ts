@@ -1,7 +1,7 @@
 
 import { Country } from '../../../../types/country';
 
-// Log the Cameroon country definition for debugging
+// Explicitly set isSendingEnabled to false with clear logging
 console.log('🔍 DEFINITION: Cameroon country with isSendingEnabled:', false);
 
 export const cameroonCountry: Country = {
@@ -9,7 +9,7 @@ export const cameroonCountry: Country = {
   code: 'CM',
   flagUrl: 'https://flagcdn.com/cm.svg',
   currency: 'XAF',
-  isSendingEnabled: false,
+  isSendingEnabled: false, // Explicitly set to false
   isReceivingEnabled: true,
   phonePrefix: '+237',
   paymentMethods: [
