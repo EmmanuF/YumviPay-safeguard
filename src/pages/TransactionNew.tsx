@@ -21,39 +21,18 @@ const TransactionNew: React.FC = () => {
   useEffect(() => {
     const getPendingTransaction = async () => {
       try {
-        console.log('Starting transaction processing...');
         // Try to get the processed transaction data
         const processedPendingTransaction = localStorage.getItem('processedPendingTransaction');
         const pendingTransaction = processedPendingTransaction || localStorage.getItem('pendingTransaction');
         
-        // Debug log to check what data we have
-        console.log('Found transaction data in localStorage:', !!pendingTransaction);
-        
         if (!pendingTransaction) {
-          console.error('No transaction data found in localStorage');
           setError('No transaction data found. Please try again.');
-          setIsLoading(false);
           return;
         }
         
-        // Parse the transaction data and perform additional validation
-        let data;
-        try {
-          data = JSON.parse(pendingTransaction);
-          console.log('Successfully parsed transaction data:', data);
-          
-          // Validate required fields
-          if (!data.amount || isNaN(parseFloat(data.amount))) {
-            throw new Error('Invalid transaction amount');
-          }
-          
-          setTransactionData(data);
-        } catch (parseError) {
-          console.error('Error parsing transaction data:', parseError);
-          setError('Invalid transaction data. Please try again.');
-          setIsLoading(false);
-          return;
-        }
+        const data = JSON.parse(pendingTransaction);
+        console.log('Transaction data found:', data);
+        setTransactionData(data);
         
         // Generate a transaction ID for reference
         const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -61,15 +40,12 @@ const TransactionNew: React.FC = () => {
         // Get user details
         if (!user || !user.id) {
           setError('User not authenticated. Please sign in and try again.');
-          setIsLoading(false);
           return;
         }
         
-        console.log('Saving transaction to Supabase for user:', user.id);
-        
         // Save transaction to Supabase
         // Make sure we only use fields that exist in the transactions table
-        const { data: savedTransaction, error: saveError } = await supabase
+        const { error: saveError } = await supabase
           .from('transactions')
           .insert({
             user_id: user.id,
@@ -79,39 +55,32 @@ const TransactionNew: React.FC = () => {
             total_amount: data.sourceCurrency, // Store source currency here temporarily
             status: 'pending',
             country: 'CM', // Default to Cameroon for MVP
-            recipient_name: data.recipientName || "Recipient" // Use provided recipient name or default
-          })
-          .select()
-          .single();
+            recipient_name: "Recipient" // Default value
+          });
           
         if (saveError) {
           console.error('Error saving transaction:', saveError);
-          setError('Failed to save transaction. Please try again.');
-          setIsLoading(false);
-          return;
+          throw saveError;
         }
-        
-        console.log('Transaction saved successfully:', savedTransaction);
         
         // Clear localStorage
         localStorage.removeItem('pendingTransaction');
         localStorage.removeItem('processedPendingTransaction');
         
-        console.log('Redirecting to Kado...');
-        
-        // Redirect to Kado with the real transaction ID from Supabase
+        // Redirect to Kado
         await redirectToKadoAndReturn({
           amount: data.amount.toString(),
-          recipientName: data.recipientName || "Recipient",
-          recipientContact: data.recipientContact || "recipient@example.com",
+          recipientName: "Recipient", // This should be retrieved from the form or user input
+          recipientContact: "recipient@example.com", // This should be retrieved from the form
           country: "CM", // Default to Cameroon for MVP
-          paymentMethod: data.paymentMethod || "mobile_money",
-          transactionId: savedTransaction.id.toString()
+          paymentMethod: "mobile_money", // Default to mobile money
+          transactionId: transactionId
         });
         
       } catch (error) {
-        console.error('Unexpected error processing transaction:', error);
+        console.error('Error processing transaction:', error);
         setError('An error occurred while processing your transaction. Please try again.');
+      } finally {
         setIsLoading(false);
       }
     };
@@ -157,9 +126,8 @@ const TransactionNew: React.FC = () => {
     );
   }
   
-  // If no data, redirect to send page, but only after loading is complete
-  if (!transactionData && !isLoading) {
-    // Use a separate useEffect to handle navigation after render
+  // If no data, redirect to send page
+  if (!transactionData) {
     useEffect(() => {
       toast({
         title: "Missing transaction data",
@@ -169,15 +137,10 @@ const TransactionNew: React.FC = () => {
       navigate('/send');
     }, []);
     
-    return (
-      <LoadingState
-        message="Redirecting"
-        submessage="Please wait while we redirect you"
-      />
-    );
+    return null;
   }
   
-  // Default return - showing loading state while we process everything
+  // Default return - should rarely be seen as we either show loading, error, or redirect
   return (
     <LoadingState
       message="Redirecting to payment partner"

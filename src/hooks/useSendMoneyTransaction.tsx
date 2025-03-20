@@ -10,7 +10,6 @@ export interface TransactionData {
   convertedAmount: number;
   recipient: string | null;
   recipientName: string;
-  recipientContact?: string;
   paymentMethod: string | null;
   selectedProvider: string;
   isRecurring?: boolean;
@@ -40,7 +39,6 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
     convertedAmount: 0,
     recipient: null,
     recipientName: '',
-    recipientContact: '',
     paymentMethod: null,
     selectedProvider: '',
     isRecurring: false,
