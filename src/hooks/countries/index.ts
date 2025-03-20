@@ -62,6 +62,27 @@ const enforceCountryRules = (countries: Country[]): Country[] => {
   });
 };
 
+// Prepare sending countries in advance to avoid filtering issues
+const prepareSendingCountries = (allCountries: Country[]): Country[] => {
+  console.log('🔍 HOOK: Preparing sending countries list directly from SENDING_COUNTRIES array');
+  
+  // Filter to only include countries in our SENDING_COUNTRIES list
+  const sendingCountries = allCountries.filter(country => 
+    SENDING_COUNTRIES.includes(country.code)
+  );
+  
+  // Force isSendingEnabled=true for all these countries
+  const preparedSendingCountries = sendingCountries.map(country => ({
+    ...country,
+    isSendingEnabled: true
+  }));
+  
+  console.log('🔍 HOOK: Prepared sending countries:', 
+    preparedSendingCountries.map(c => `${c.name} (${c.code})`).join(', '));
+  
+  return preparedSendingCountries;
+};
+
 /**
  * Custom hook for managing countries data
  */
@@ -70,6 +91,24 @@ export function useCountries() {
   const [isLoading, setIsLoading] = useState(!getCachedCountries());
   const [error, setError] = useState<Error | null>(null);
   const { isOffline } = useNetwork();
+  
+  // NEW: Add explicit sending/receiving country lists as state variables
+  // This ensures they're available immediately without async calls
+  const [sendingCountriesList, setSendingCountriesList] = useState<Country[]>(() => {
+    const cachedCountries = getCachedCountries();
+    if (cachedCountries && cachedCountries.length > 0) {
+      return prepareSendingCountries(cachedCountries);
+    }
+    return prepareSendingCountries(mockCountries);
+  });
+  
+  const [receivingCountriesList, setReceivingCountriesList] = useState<Country[]>(() => {
+    const cachedCountries = getCachedCountries();
+    if (cachedCountries && cachedCountries.length > 0) {
+      return enforceCountryRules(cachedCountries).filter(c => c.isReceivingEnabled);
+    }
+    return enforceCountryRules(mockCountries).filter(c => c.isReceivingEnabled);
+  });
 
   // Clear the cache on first load to ensure fresh data
   useEffect(() => {
@@ -100,6 +139,15 @@ export function useCountries() {
             });
           
           setCountries(processedCachedData);
+          
+          // Update sending countries list
+          const sendingCountries = prepareSendingCountries(processedCachedData);
+          setSendingCountriesList(sendingCountries);
+          
+          // Update receiving countries list
+          const receivingCountries = processedCachedData.filter(c => c.isReceivingEnabled);
+          setReceivingCountriesList(receivingCountries);
+          
           setIsLoading(false);
           return;
         }
@@ -128,6 +176,15 @@ export function useCountries() {
             
             updateCountriesCache(processedApiData);
             setCountries(processedApiData);
+            
+            // Update sending countries list
+            const sendingCountries = prepareSendingCountries(processedApiData);
+            setSendingCountriesList(sendingCountries);
+            
+            // Update receiving countries list 
+            const receivingCountries = processedApiData.filter(c => c.isReceivingEnabled);
+            setReceivingCountriesList(receivingCountries);
+            
             setIsLoading(false);
             return;
           } else {
@@ -152,6 +209,14 @@ export function useCountries() {
         
         setCountries(processedMockData);
         
+        // Update sending countries list
+        const sendingCountries = prepareSendingCountries(processedMockData);
+        setSendingCountriesList(sendingCountries);
+        
+        // Update receiving countries list
+        const receivingCountries = processedMockData.filter(c => c.isReceivingEnabled);
+        setReceivingCountriesList(receivingCountries);
+        
         // Update cache with processed mock data
         console.log('🔍 HOOK: Updating cache with processed mock data');
         updateCountriesCache(processedMockData);
@@ -168,6 +233,15 @@ export function useCountries() {
         const processedMockData = enforceCountryRules(mockCountries);
         
         setCountries(processedMockData);
+        
+        // Update sending countries list
+        const sendingCountries = prepareSendingCountries(processedMockData);
+        setSendingCountriesList(sendingCountries);
+        
+        // Update receiving countries list
+        const receivingCountries = processedMockData.filter(c => c.isReceivingEnabled);
+        setReceivingCountriesList(receivingCountries);
+        
         setIsLoading(false);
       }
     };
@@ -191,73 +265,50 @@ export function useCountries() {
       const sendingCount = countries.filter(c => c.isSendingEnabled).length;
       const receivingCount = countries.filter(c => c.isReceivingEnabled).length;
       console.log(`🔍 HOOK STATE: Total ${sendingCount} sending and ${receivingCount} receiving countries`);
+      
+      // Debug sending countries list
+      console.log('🔍 HOOK STATE: Current sendingCountriesList:', 
+        sendingCountriesList.map(c => c.name).join(', '));
     }
-  }, [countries]);
+  }, [countries, sendingCountriesList]);
 
   const getCountryByCode = useMemo(() => 
     (code: string) => countries.find(country => country.code === code),
     [countries]
   );
 
-  // DIRECT IMPLEMENTATION for getSendingCountries - don't fetch from API, just use our enforced list
-  const getSendingCountries = useMemo(() => 
-    async () => {
-      console.log('🔍 HOOK: Getting sending countries - DIRECT IMPLEMENTATION');
-      
-      // Make sure all countries in the SENDING_COUNTRIES array are included
-      // This is a more direct approach than relying on filtering countries that might not be properly set
-      const allCountries = countries.length > 0 ? countries : mockCountries;
-      
-      // Apply country rules to ensure consistency, then filter ONLY by our explicit sending country list
-      const sendingCountries = enforceCountryRules(allCountries)
-        .filter(country => SENDING_COUNTRIES.includes(country.code));
-      
-      console.log('🔍 HOOK SENDING DIRECT: Filtered sending countries:',
-        sendingCountries.map(c => c.name).join(', '));
-      
-      return sendingCountries;
-    },
-    [countries]
-  );
+  // NEW: Simplified implementation - return prepared data synchronously when possible
+  const getSendingCountries = async () => {
+    console.log('🔍 HOOK: getSendingCountries called - returning prepared list directly');
+    console.log('🔍 HOOK: Sending countries list contains', sendingCountriesList.length, 'countries');
+    console.log('🔍 HOOK: Sending countries:', sendingCountriesList.map(c => c.name).join(', '));
+    
+    if (sendingCountriesList.length > 0) {
+      return sendingCountriesList;
+    }
+    
+    // Fallback to direct filtering if the list is empty
+    console.log('🔍 HOOK: Fallback - filtering from countries list');
+    return countries.filter(country => SENDING_COUNTRIES.includes(country.code))
+      .map(country => ({
+        ...country,
+        isSendingEnabled: true
+      }));
+  };
 
-  const getReceivingCountries = useMemo(() => 
-    async () => {
-      console.log('🔍 HOOK: Getting receiving countries...');
-      
-      // If we already have countries data, filter it locally and enforce rules
-      if (countries.length > 0) {
-        // Filter AFTER enforcing rules to ensure consistency
-        const filteredCountries = enforceCountryRules(countries);
-        const receivingCountries = filteredCountries.filter(country => country.isReceivingEnabled);
-        
-        console.log('🔍 HOOK RECEIVING: Filtered receiving countries:', receivingCountries.map(c => c.name).join(', '));
-        return receivingCountries;
-      }
-      
-      if (!isOffline) {
-        console.log('🔍 HOOK: Attempting to fetch receiving countries directly...');
-        const apiData = await fetchReceivingCountriesFromApi();
-        if (apiData && apiData.length > 0) {
-          // Apply safety rules to API data (though not strictly necessary for receiving countries)
-          const processedApiData = enforceCountryRules(apiData);
-          const receivingCountries = processedApiData.filter(country => country.isReceivingEnabled);
-          
-          console.log('🔍 HOOK API RECEIVING: Successfully loaded receiving countries:', receivingCountries.map(c => c.name).join(', '));
-          return receivingCountries;
-        } else {
-          console.log('🔍 HOOK: API returned no receiving countries, falling back to mock data');
-        }
-      }
-      
-      // Process mock data with safety rules
-      const processedMockData = enforceCountryRules(mockCountries);
-      const mockReceivingCountries = processedMockData.filter(country => country.isReceivingEnabled);
-      
-      console.log('🔍 HOOK MOCK RECEIVING: Using mock receiving countries:', mockReceivingCountries.map(c => c.name).join(', '));
-      return mockReceivingCountries;
-    },
-    [countries, isOffline]
-  );
+  // NEW: Simplified implementation for receiving countries
+  const getReceivingCountries = async () => {
+    console.log('🔍 HOOK: getReceivingCountries called - returning prepared list directly');
+    console.log('🔍 HOOK: Receiving countries list contains', receivingCountriesList.length, 'countries');
+    
+    if (receivingCountriesList.length > 0) {
+      return receivingCountriesList;
+    }
+    
+    // Fallback to direct filtering
+    console.log('🔍 HOOK: Fallback - filtering receiving countries from countries list');
+    return enforceCountryRules(countries).filter(country => country.isReceivingEnabled);
+  };
 
   return {
     countries,
@@ -266,6 +317,9 @@ export function useCountries() {
     getCountryByCode,
     getSendingCountries,
     getReceivingCountries,
+    // NEW: Expose the lists directly for components that need immediate access
+    sendingCountriesList,
+    receivingCountriesList
   };
 }
 
