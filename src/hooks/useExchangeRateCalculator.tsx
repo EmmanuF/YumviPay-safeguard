@@ -7,7 +7,7 @@ import { getExchangeRate } from '@/data/exchangeRates';
 import { toast } from '@/hooks/use-toast';
 import { clearCountriesCache } from './countries/countriesCache';
 import { useOfflineFallback } from '@/hooks/useOfflineFallback';
-import { generateMockCountries, mockSendingCurrencies, mockReceivingCurrencies } from '@/data/mockExchangeData';
+import { generateMockCountries, mockSendingCurrencies, mockReceivingCurrencies, getMockExchangeRate } from '@/data/mockExchangeData';
 
 export interface ExchangeRateCalculatorState {
   sendAmount: string;
@@ -29,14 +29,23 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const { 
     data: sendingCountriesData,
     loading: sendingCountriesLoading,
-    isUsingMockData: isUsingSendingMockData
+    isUsingMockData: isUsingSendingMockData,
+    refresh: refreshSendingCountries
   } = useOfflineFallback({
     key: 'sending_countries',
-    fetchFn: useCallback(async () => {
-      const { getSendingCountries } = useCountries();
-      const countries = await getSendingCountries();
-      return Array.from(new Set(countries.map(country => country.currency))).sort();
-    }, []),
+    fetchFn: async () => {
+      // Since there might be issues with the API, we'll add a safer implementation
+      try {
+        const countries = await fetch('/api/countries?type=sending').then(res => res.json());
+        if (Array.isArray(countries) && countries.length > 0) {
+          return countries.map(c => c.currency).filter(Boolean);
+        }
+        throw new Error('No sending countries returned from API');
+      } catch (error) {
+        console.error('Error fetching sending countries, using mock data', error);
+        return mockSendingCurrencies;
+      }
+    },
     mockData: mockSendingCurrencies
   });
   
@@ -44,14 +53,23 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const { 
     data: receivingCountriesData,
     loading: receivingCountriesLoading,
-    isUsingMockData: isUsingReceivingMockData
+    isUsingMockData: isUsingReceivingMockData,
+    refresh: refreshReceivingCountries
   } = useOfflineFallback({
     key: 'receiving_countries',
-    fetchFn: useCallback(async () => {
-      const { getReceivingCountries } = useCountries();
-      const countries = await getReceivingCountries();
-      return Array.from(new Set(countries.map(country => country.currency))).sort();
-    }, []),
+    fetchFn: async () => {
+      // Since there might be issues with the API, we'll add a safer implementation
+      try {
+        const countries = await fetch('/api/countries?type=receiving').then(res => res.json());
+        if (Array.isArray(countries) && countries.length > 0) {
+          return countries.map(c => c.currency).filter(Boolean);
+        }
+        throw new Error('No receiving countries returned from API');
+      } catch (error) {
+        console.error('Error fetching receiving countries, using mock data', error);
+        return mockReceivingCurrencies;
+      }
+    },
     mockData: mockReceivingCurrencies
   });
   
@@ -61,31 +79,43 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
   const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Combine real and mock data loading states
-  const countriesLoading = originalCountriesLoading || sendingCountriesLoading || receivingCountriesLoading;
+  const countriesLoading = (!isInitialized && (originalCountriesLoading || sendingCountriesLoading || receivingCountriesLoading));
+  
+  // Flag to track if we're using mock data
+  const isUsingMockData = isUsingSendingMockData || isUsingReceivingMockData;
   
   // First, clear the countries cache to ensure we get fresh data
   useEffect(() => {
-    console.log('Initializing ExchangeRateCalculator, clearing cache to ensure fresh data');
-    // Clear the cache directly using the imported function
-    clearCountriesCache();
-    
-    // Then refresh the countries data
-    refreshCountries();
-  }, [refreshCountries]);
+    if (!isInitialized) {
+      console.log('Initializing ExchangeRateCalculator, clearing cache to ensure fresh data');
+      // Clear the cache directly using the imported function
+      clearCountriesCache();
+      
+      // Then refresh the countries data
+      refreshCountries();
+      
+      // Mark as initialized to prevent multiple refreshes
+      setIsInitialized(true);
+    }
+  }, [refreshCountries, isInitialized]);
   
   // Update selected currencies when data loads
   useEffect(() => {
-    if (sendingCountriesData?.length > 0 && receivingCountriesData?.length > 0) {
+    const sourceCurrencyOptions = sendingCountriesData || mockSendingCurrencies;
+    const targetCurrencyOptions = receivingCountriesData || mockReceivingCurrencies;
+    
+    if (sourceCurrencyOptions?.length > 0 && targetCurrencyOptions?.length > 0) {
       // Verify current source and target currencies are in the lists
-      const validSourceCurrency = sendingCountriesData.includes(sourceCurrency) 
+      const validSourceCurrency = sourceCurrencyOptions.includes(sourceCurrency) 
         ? sourceCurrency 
-        : (sendingCountriesData.includes('USD') ? 'USD' : sendingCountriesData[0]);
+        : (sourceCurrencyOptions.includes('USD') ? 'USD' : sourceCurrencyOptions[0]);
         
-      const validTargetCurrency = receivingCountriesData.includes(targetCurrency)
+      const validTargetCurrency = targetCurrencyOptions.includes(targetCurrency)
         ? targetCurrency
-        : (receivingCountriesData.includes('XAF') ? 'XAF' : receivingCountriesData[0]);
+        : (targetCurrencyOptions.includes('XAF') ? 'XAF' : targetCurrencyOptions[0]);
       
       if (validSourceCurrency !== sourceCurrency) {
         console.log(`Updating source currency from ${sourceCurrency} to ${validSourceCurrency}`);
@@ -102,8 +132,23 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   // Update exchange rate when currencies change
   useEffect(() => {
     const calculateRate = () => {
-      // Get exchange rate from utility function
-      const rate = getExchangeRate(sourceCurrency, targetCurrency);
+      let rate;
+      
+      // Use mock rates if we're using mock data
+      if (isUsingMockData) {
+        rate = getMockExchangeRate(sourceCurrency, targetCurrency);
+      } else {
+        // Get exchange rate from utility function
+        rate = getExchangeRate(sourceCurrency, targetCurrency);
+      }
+      
+      // Ensure we have a valid rate
+      if (!rate || isNaN(rate) || rate <= 0) {
+        console.warn(`Invalid exchange rate for ${sourceCurrency}-${targetCurrency}, using fallback rate`);
+        // Fallback to mock rate if available
+        rate = getMockExchangeRate(sourceCurrency, targetCurrency);
+      }
+      
       setExchangeRate(rate);
       
       const amount = parseFloat(sendAmount) || 0;
@@ -111,7 +156,7 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     };
     
     calculateRate();
-  }, [sendAmount, sourceCurrency, targetCurrency]);
+  }, [sendAmount, sourceCurrency, targetCurrency, isUsingMockData]);
 
   const handleContinue = () => {
     // Debug the continue action
@@ -194,14 +239,14 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
 
   // Show a message when using mock data
   useEffect(() => {
-    if (isUsingSendingMockData || isUsingReceivingMockData) {
+    if (isUsingMockData && !countriesLoading) {
       toast({
         title: "Using Offline Data",
         description: "You're currently seeing cached or mock exchange rate data.",
         variant: "default"
       });
     }
-  }, [isUsingSendingMockData, isUsingReceivingMockData]);
+  }, [isUsingMockData, countriesLoading]);
 
   return {
     sendAmount,
@@ -218,6 +263,10 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     sourceCurrencies: sendingCountriesData || mockSendingCurrencies,
     targetCurrencies: receivingCountriesData || mockReceivingCurrencies,
     handleContinue,
-    isUsingMockData: isUsingSendingMockData || isUsingReceivingMockData
+    isUsingMockData,
+    refreshCountries: () => {
+      refreshSendingCountries();
+      refreshReceivingCountries();
+    }
   };
 };

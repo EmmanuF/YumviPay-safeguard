@@ -20,6 +20,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
 }) => {
   const [hasError, setHasError] = useState(false);
   const [retryAttempts, setRetryAttempts] = useState(0);
+  const [forceUseDefaults, setForceUseDefaults] = useState(false);
 
   const {
     sendAmount,
@@ -42,14 +43,16 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   // Add error handling for empty currencies
   useEffect(() => {
     // If we have no currencies but we're not loading, that's an error
-    if (!countriesLoading && (sourceCurrencies.length === 0 || targetCurrencies.length === 0)) {
+    if (!countriesLoading && 
+        ((sourceCurrencies.length === 0 || targetCurrencies.length === 0) && !forceUseDefaults)) {
       console.log('Error: No currencies available', { 
         sourceCurrencies: sourceCurrencies.length, 
         targetCurrencies: targetCurrencies.length,
-        loading: countriesLoading
+        loading: countriesLoading,
+        forceUseDefaults
       });
       
-      if (retryAttempts < 3) {
+      if (retryAttempts < 2) {
         // Retry loading after a short delay
         const timer = setTimeout(() => {
           setRetryAttempts(prev => prev + 1);
@@ -59,7 +62,9 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
         
         return () => clearTimeout(timer);
       } else if (!hasError) {
+        console.log('Max retry attempts reached, falling back to default currencies');
         setHasError(true);
+        setForceUseDefaults(true);
         toast({
           title: "Currency data unavailable",
           description: "Using default values. You can still use the calculator.",
@@ -67,19 +72,24 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
         });
       }
     }
-  }, [countriesLoading, sourceCurrencies, targetCurrencies, retryAttempts, hasError]);
+  }, [countriesLoading, sourceCurrencies, targetCurrencies, retryAttempts, hasError, forceUseDefaults]);
 
   // Always show at least loading state during initial load
-  if (countriesLoading || (sourceCurrencies.length === 0 && targetCurrencies.length === 0)) {
+  if (countriesLoading && retryAttempts < 2 && !forceUseDefaults) {
     return <LoadingCalculator className={className} />;
   }
 
-  // Fallback to defaults if we still have no currencies
-  const finalSourceCurrencies = sourceCurrencies.length > 0 ? sourceCurrencies : ['USD', 'EUR', 'GBP'];
-  const finalTargetCurrencies = targetCurrencies.length > 0 ? targetCurrencies : ['XAF', 'NGN', 'GHS'];
+  // Fallback to defaults if we still have no currencies or if we're forcing defaults
+  const finalSourceCurrencies = (sourceCurrencies.length > 0 && !forceUseDefaults) 
+    ? sourceCurrencies 
+    : ['USD', 'EUR', 'GBP', 'CAD', 'CHF', 'AUD'];
+    
+  const finalTargetCurrencies = (targetCurrencies.length > 0 && !forceUseDefaults) 
+    ? targetCurrencies 
+    : ['XAF', 'NGN', 'GHS', 'KES', 'ZAR', 'UGX'];
 
   // Render offline indicator if using mock data
-  const OfflineIndicator = () => isUsingMockData ? (
+  const OfflineIndicator = () => (isUsingMockData || forceUseDefaults) ? (
     <div className="flex items-center justify-center bg-amber-50 text-amber-800 px-3 py-1 rounded-full text-xs font-medium mb-2">
       <WifiOff className="h-3 w-3 mr-1" />
       <span>Using offline data</span>
@@ -90,7 +100,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   if (inlineMode) {
     return (
       <div className={className}>
-        {isUsingMockData && <OfflineIndicator />}
+        <OfflineIndicator />
         <InlineCalculator
           sendAmount={sendAmount}
           setSendAmount={setSendAmount}
@@ -113,7 +123,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   // Default full mode layout
   return (
     <div className={className}>
-      {isUsingMockData && <OfflineIndicator />}
+      <OfflineIndicator />
       <FullCalculator
         sendAmount={sendAmount}
         setSendAmount={setSendAmount}

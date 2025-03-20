@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, Flag } from 'lucide-react';
 import { useCountries } from '@/hooks/useCountries';
@@ -26,15 +25,18 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
     // If we're looking for source currencies and have no options, add default sending currencies
     if (validOptions.length === 0) {
       if (label.toLowerCase().includes('source') || label.toLowerCase().includes('from') || label.toLowerCase().includes('send')) {
-        validOptions = ['USD', 'EUR', 'GBP', 'CAD'];
+        validOptions = ['USD', 'EUR', 'GBP', 'CAD', 'CHF', 'AUD'];
         console.log('Added default source currencies due to empty options');
       } 
       // If we're looking for target currencies and have no options, add default receiving currencies
       else if (label.toLowerCase().includes('target') || label.toLowerCase().includes('to') || label.toLowerCase().includes('receive')) {
-        validOptions = ['XAF', 'NGN', 'GHS', 'KES'];
+        validOptions = ['XAF', 'NGN', 'GHS', 'KES', 'ZAR', 'UGX'];
         console.log('Added default target currencies due to empty options');
       }
     }
+    
+    // Make sure we have unique values only
+    validOptions = [...new Set(validOptions)];
     
     setLocalOptions(validOptions);
     setHasValidOptions(validOptions.length > 0);

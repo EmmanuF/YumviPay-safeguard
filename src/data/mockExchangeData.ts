@@ -72,14 +72,20 @@ export function getMockExchangeRate(sourceCurrency: string, targetCurrency: stri
   
   // If either currency is not in our mock data, return default rate
   if (!mockExchangeRates[sourceCurrency] || !mockExchangeRates[sourceCurrency][targetCurrency]) {
+    console.log(`No mock exchange rate found for ${sourceCurrency}-${targetCurrency}, using default rate ${defaultRate}`);
     return defaultRate;
   }
   
-  return mockExchangeRates[sourceCurrency][targetCurrency];
+  const rate = mockExchangeRates[sourceCurrency][targetCurrency];
+  console.log(`Using mock exchange rate for ${sourceCurrency}-${targetCurrency}: ${rate}`);
+  return rate;
 }
 
 // Mock country data structure with minimum fields required
 export interface MockCountry {
+  code: string;
+  name: string;
+  flagUrl: string;
   currency: string;
   isSendingEnabled: boolean;
   isReceivingEnabled: boolean;
@@ -87,25 +93,137 @@ export interface MockCountry {
 
 // Generate mock countries data with required properties
 export function generateMockCountries(): MockCountry[] {
-  const countries: MockCountry[] = [];
-  
-  // Add sending countries
-  mockSendingCurrencies.forEach(currency => {
-    countries.push({
-      currency,
+  const countries: MockCountry[] = [
+    // Sending countries
+    {
+      code: 'US',
+      name: 'United States',
+      flagUrl: 'https://flagcdn.com/w320/us.png',
+      currency: 'USD',
       isSendingEnabled: true,
       isReceivingEnabled: false
-    });
-  });
-  
-  // Add receiving countries
-  mockReceivingCurrencies.forEach(currency => {
-    countries.push({
-      currency,
+    },
+    {
+      code: 'EU', // Not a real country code but works for our mocks
+      name: 'European Union',
+      flagUrl: 'https://flagcdn.com/w320/eu.png',
+      currency: 'EUR',
+      isSendingEnabled: true,
+      isReceivingEnabled: false
+    },
+    {
+      code: 'GB',
+      name: 'United Kingdom',
+      flagUrl: 'https://flagcdn.com/w320/gb.png',
+      currency: 'GBP',
+      isSendingEnabled: true,
+      isReceivingEnabled: false
+    },
+    {
+      code: 'CA',
+      name: 'Canada',
+      flagUrl: 'https://flagcdn.com/w320/ca.png',
+      currency: 'CAD',
+      isSendingEnabled: true,
+      isReceivingEnabled: false
+    },
+    {
+      code: 'CH',
+      name: 'Switzerland',
+      flagUrl: 'https://flagcdn.com/w320/ch.png',
+      currency: 'CHF',
+      isSendingEnabled: true,
+      isReceivingEnabled: false
+    },
+    {
+      code: 'AU',
+      name: 'Australia',
+      flagUrl: 'https://flagcdn.com/w320/au.png',
+      currency: 'AUD',
+      isSendingEnabled: true,
+      isReceivingEnabled: false
+    },
+    
+    // Receiving countries (African countries)
+    {
+      code: 'CM',
+      name: 'Cameroon',
+      flagUrl: 'https://flagcdn.com/w320/cm.png',
+      currency: 'XAF',
       isSendingEnabled: false,
       isReceivingEnabled: true
-    });
-  });
+    },
+    {
+      code: 'NG',
+      name: 'Nigeria',
+      flagUrl: 'https://flagcdn.com/w320/ng.png',
+      currency: 'NGN',
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    },
+    {
+      code: 'GH',
+      name: 'Ghana',
+      flagUrl: 'https://flagcdn.com/w320/gh.png',
+      currency: 'GHS',
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    },
+    {
+      code: 'KE',
+      name: 'Kenya',
+      flagUrl: 'https://flagcdn.com/w320/ke.png',
+      currency: 'KES',
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    },
+    {
+      code: 'ZA',
+      name: 'South Africa',
+      flagUrl: 'https://flagcdn.com/w320/za.png',
+      currency: 'ZAR',
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    },
+    {
+      code: 'UG',
+      name: 'Uganda',
+      flagUrl: 'https://flagcdn.com/w320/ug.png',
+      currency: 'UGX',
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    },
+    {
+      code: 'TZ',
+      name: 'Tanzania',
+      flagUrl: 'https://flagcdn.com/w320/tz.png',
+      currency: 'TZS',
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    }
+  ];
   
   return countries;
+}
+
+// Helper function to get a mock country by currency
+export function getMockCountryByCurrency(currency: string, type: 'sending' | 'receiving' = 'receiving'): MockCountry | null {
+  const mockCountries = generateMockCountries();
+  
+  // Filter by type and currency
+  if (type === 'sending') {
+    return mockCountries.find(c => c.currency === currency && c.isSendingEnabled) || null;
+  } else {
+    return mockCountries.find(c => c.currency === currency && c.isReceivingEnabled) || null;
+  }
+}
+
+// Helper to get mock sending countries currencies
+export function getMockSendingCurrencies(): string[] {
+  return mockSendingCurrencies;
+}
+
+// Helper to get mock receiving countries currencies
+export function getMockReceivingCurrencies(): string[] {
+  return mockReceivingCurrencies;
 }
