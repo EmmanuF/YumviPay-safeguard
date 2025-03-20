@@ -22,7 +22,7 @@ export const validatePaymentSelection = (
       errorToast: {
         title: "Payment Method Required",
         description: "Please select a payment method to continue.",
-        variant: "destructive"
+        variant: "destructive" as const
       }
     };
   }
@@ -34,7 +34,7 @@ export const validatePaymentSelection = (
       errorToast: {
         title: "Provider Required",
         description: "Please select a payment provider to continue.",
-        variant: "destructive"
+        variant: "destructive" as const
       }
     };
   }
@@ -46,7 +46,7 @@ export const validatePaymentSelection = (
       errorToast: {
         title: "Method Not Available",
         description: "This payment method will be available soon. Please select another method.",
-        variant: "destructive"
+        variant: "destructive" as const
       }
     };
   }
@@ -57,7 +57,7 @@ export const validatePaymentSelection = (
       errorToast: {
         title: "Provider Not Available",
         description: "This provider will be available soon. Please select another provider.",
-        variant: "destructive"
+        variant: "destructive" as const
       }
     };
   }
@@ -69,7 +69,7 @@ export const validatePaymentSelection = (
       errorToast: {
         title: "Confirmation Required",
         description: "Please confirm the recipient details to continue.",
-        variant: "destructive"
+        variant: "destructive" as const
       }
     };
   }
