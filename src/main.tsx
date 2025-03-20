@@ -1,23 +1,15 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Toaster } from '@/components/ui/toaster'
-import { NotificationProvider } from '@/contexts/NotificationContext'
+import App from './App.tsx'
 import './index.css'
-import './styles/layout.css'
-import './styles/print.css'
 
-const queryClient = new QueryClient()
+// Clear any cached country data on application load
+localStorage.removeItem('countries-cache');
+console.log('🔍 MAIN: Cleared countries cache on application load');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <NotificationProvider>
-        <App />
-        <Toaster />
-      </NotificationProvider>
-    </QueryClientProvider>
+    <App />
   </React.StrictMode>,
 )
