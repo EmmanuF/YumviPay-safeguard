@@ -15,17 +15,25 @@ interface CachedData {
 export const getCachedCountries = (): Country[] | null => {
   try {
     const cachedDataStr = localStorage.getItem(CACHE_KEY);
-    if (!cachedDataStr) return null;
+    if (!cachedDataStr) {
+      console.log('DEBUG: No countries cache found');
+      return null;
+    }
     
     const cachedData: CachedData = JSON.parse(cachedDataStr);
     const now = Date.now();
     
     // Check if cache is expired
     if (now - cachedData.timestamp > CACHE_EXPIRY) {
-      console.log('Countries cache expired, will fetch fresh data');
+      console.log('DEBUG: Countries cache expired, will fetch fresh data');
       localStorage.removeItem(CACHE_KEY);
       return null;
     }
+    
+    console.log('DEBUG: Using cached countries data, checking first few countries:');
+    cachedData.countries.slice(0, 5).forEach(c => {
+      console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+    });
     
     return cachedData.countries;
   } catch (error) {
@@ -43,6 +51,12 @@ export const updateCountriesCache = (countries: Country[]): void => {
       countries,
       timestamp: Date.now(),
     };
+    
+    // Log before caching to check values
+    console.log('DEBUG: Before caching, checking sending status for first few countries:');
+    countries.slice(0, 5).forEach(c => {
+      console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+    });
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     console.log(`Updated countries cache with ${countries.length} countries`);

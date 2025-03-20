@@ -1,39 +1,33 @@
 
 import { Country } from '../../../../types/country';
 
-// Cameroon - Our MVP focus country
+// Log the Cameroon country definition for debugging
+console.log('Defining Cameroon country with sending enabled:', false);
+
 export const cameroonCountry: Country = {
   name: 'Cameroon',
   code: 'CM',
-  flagUrl: 'https://flagcdn.com/w80/cm.png',
+  flagUrl: 'https://flagcdn.com/cm.svg',
   currency: 'XAF',
-  isSendingEnabled: false, // Updated to false - Cameroon is receiving only
+  isSendingEnabled: false,
   isReceivingEnabled: true,
   phonePrefix: '+237',
   paymentMethods: [
     {
       id: 'mobile_money',
       name: 'Mobile Money',
-      description: 'Send to MTN MoMo or Orange Money',
+      description: 'Pay using Orange Money, MTN Mobile Money or other mobile wallets',
       icon: 'smartphone',
-      fees: '1-2%',
+      fees: '1.2%',
       processingTime: 'Instant',
     },
     {
       id: 'bank_transfer',
       name: 'Bank Transfer',
-      description: 'Send to any Cameroonian bank',
+      description: 'Direct transfer to Cameroonian banks',
       icon: 'bank',
-      fees: '1.5-2.5%',
+      fees: '1.5%',
       processingTime: '1-2 business days',
-    },
-    {
-      id: 'cash_pickup',
-      name: 'Cash Pickup',
-      description: 'Recipient collects cash at a local agent',
-      icon: 'banknote',
-      fees: '2-3%',
-      processingTime: 'Same day',
-    },
+    }
   ],
 };
