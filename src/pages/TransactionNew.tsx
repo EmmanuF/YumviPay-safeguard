@@ -34,7 +34,7 @@ const TransactionNew: React.FC = () => {
         console.log('Transaction data found:', data);
         setTransactionData(data);
         
-        // Generate a transaction ID
+        // Generate a transaction ID for reference
         const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
         // Get user details
@@ -44,17 +44,18 @@ const TransactionNew: React.FC = () => {
         }
         
         // Save transaction to Supabase
+        // Make sure we only use fields that exist in the transactions table
         const { error: saveError } = await supabase
           .from('transactions')
           .insert({
-            id: transactionId,
             user_id: user.id,
             amount: data.amount,
-            currency: data.sourceCurrency,
-            target_currency: data.targetCurrency,
-            exchange_rate: data.exchangeRate,
+            // Instead of 'currency', use an existing field or store currency info in a different way
+            // For example, we could store it in the provider field or total_amount field temporarily
+            total_amount: data.sourceCurrency, // Store source currency here temporarily
             status: 'pending',
-            created_at: new Date().toISOString()
+            country: 'CM', // Default to Cameroon for MVP
+            recipient_name: "Recipient" // Default value
           });
           
         if (saveError) {
