@@ -96,15 +96,25 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     </div>
   ) : null;
 
+  // Convert number values to strings for the component props
+  const sendAmountStr = sendAmount.toString();
+  const receiveAmountStr = receiveAmount.toString();
+  
+  // Create wrapper functions to handle string-to-number conversion
+  const handleSendAmountChange = (value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setSendAmount(numValue);
+  };
+
   // In inline mode, we use a simpler layout without the header and descriptions
   if (inlineMode) {
     return (
       <div className={className}>
         <OfflineIndicator />
         <InlineCalculator
-          sendAmount={sendAmount}
-          setSendAmount={setSendAmount}
-          receiveAmount={receiveAmount}
+          sendAmount={sendAmountStr}
+          setSendAmount={handleSendAmountChange}
+          receiveAmount={receiveAmountStr}
           sourceCurrency={sourceCurrency}
           setSourceCurrency={setSourceCurrency}
           targetCurrency={targetCurrency}
@@ -125,9 +135,9 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     <div className={className}>
       <OfflineIndicator />
       <FullCalculator
-        sendAmount={sendAmount}
-        setSendAmount={setSendAmount}
-        receiveAmount={receiveAmount}
+        sendAmount={sendAmountStr}
+        setSendAmount={handleSendAmountChange}
+        receiveAmount={receiveAmountStr}
         sourceCurrency={sourceCurrency}
         setSourceCurrency={setSourceCurrency}
         targetCurrency={targetCurrency}

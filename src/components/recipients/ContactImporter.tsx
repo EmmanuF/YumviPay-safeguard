@@ -35,7 +35,7 @@ const ContactImporter: React.FC<ContactImporterProps> = ({ onImport }) => {
       const importedContacts = await importContacts();
       setContacts(importedContacts);
       
-      if (importedContacts.length === 0 && isPlatform('native')) {
+      if (importedContacts.length === 0 && isPlatform('capacitor')) {
         toast({
           title: "No contacts found",
           description: "Please grant contacts permission or add contacts to your device",
@@ -114,7 +114,7 @@ const ContactImporter: React.FC<ContactImporterProps> = ({ onImport }) => {
             </DialogDescription>
           </DialogHeader>
           
-          {isPlatform('native') && (
+          {isPlatform('capacitor') && (
             <div className="bg-amber-50 p-3 rounded-md mb-3">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
@@ -199,7 +199,7 @@ const ContactImporter: React.FC<ContactImporterProps> = ({ onImport }) => {
                     </div>
                     <p className="text-lg font-medium mb-1">No contacts found</p>
                     <p className="text-sm text-muted-foreground">
-                      {isPlatform('native') 
+                      {isPlatform('capacitor') 
                         ? "Please add contacts to your device or grant permission to access them"
                         : "No contacts available in demo mode"}
                     </p>

@@ -3,8 +3,11 @@
  * Utility functions for platform detection
  */
 
+// Valid platform types
+export type PlatformType = 'capacitor' | 'web' | 'ios' | 'android' | 'native' | 'mobile';
+
 // Check if running on Capacitor (native mobile) platform
-export function isPlatform(platform: 'capacitor' | 'web' | 'ios' | 'android'): boolean {
+export function isPlatform(platform: PlatformType): boolean {
   // On server-side rendering, we're definitely not on a native platform
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return false;
@@ -13,12 +16,17 @@ export function isPlatform(platform: 'capacitor' | 'web' | 'ios' | 'android'): b
   // Check for Capacitor global object
   const hasCapacitor = typeof (window as any).Capacitor !== 'undefined';
   
-  if (platform === 'capacitor') {
+  if (platform === 'capacitor' || platform === 'native') {
     return hasCapacitor;
   }
   
   if (platform === 'web') {
     return !hasCapacitor;
+  }
+
+  if (platform === 'mobile') {
+    // This is a more general check that includes both iOS and Android
+    return isPlatform('ios') || isPlatform('android');
   }
   
   // For specific platforms, check with Capacitor's isPlatform if available
