@@ -16,7 +16,7 @@ export const getCachedCountries = (): Country[] | null => {
   try {
     const cachedDataStr = localStorage.getItem(CACHE_KEY);
     if (!cachedDataStr) {
-      console.log('DEBUG: No countries cache found');
+      console.log('🔍 CACHE: No countries cache found');
       return null;
     }
     
@@ -25,14 +25,20 @@ export const getCachedCountries = (): Country[] | null => {
     
     // Check if cache is expired
     if (now - cachedData.timestamp > CACHE_EXPIRY) {
-      console.log('DEBUG: Countries cache expired, will fetch fresh data');
+      console.log('🔍 CACHE: Countries cache expired, will fetch fresh data');
       localStorage.removeItem(CACHE_KEY);
       return null;
     }
     
-    console.log('DEBUG: Using cached countries data, checking first few countries:');
-    cachedData.countries.slice(0, 5).forEach(c => {
-      console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+    console.log('🔍 CACHE: Using cached countries data');
+    
+    // Debug African countries specifically
+    const africanCountries = cachedData.countries.filter(c => 
+      ['CM', 'GH', 'NG', 'SN', 'CI'].includes(c.code));
+    
+    console.log('🔍 CACHE: African countries sending status:');
+    africanCountries.forEach(c => {
+      console.log(`🔍 CACHE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
     });
     
     return cachedData.countries;
@@ -47,19 +53,25 @@ export const getCachedCountries = (): Country[] | null => {
  */
 export const updateCountriesCache = (countries: Country[]): void => {
   try {
+    // Debug before caching
+    console.log('🔍 CACHE UPDATE: Before caching countries');
+    
+    // Debug African countries specifically
+    const africanCountries = countries.filter(c => 
+      ['CM', 'GH', 'NG', 'SN', 'CI'].includes(c.code));
+    
+    console.log('🔍 CACHE UPDATE: African countries sending status:');
+    africanCountries.forEach(c => {
+      console.log(`🔍 CACHE UPDATE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+    });
+    
     const cacheData: CachedData = {
       countries,
       timestamp: Date.now(),
     };
     
-    // Log before caching to check values
-    console.log('DEBUG: Before caching, checking sending status for first few countries:');
-    countries.slice(0, 5).forEach(c => {
-      console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
-    });
-    
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    console.log(`Updated countries cache with ${countries.length} countries`);
+    console.log(`🔍 CACHE UPDATE: Updated countries cache with ${countries.length} countries`);
   } catch (error) {
     console.error('Error updating countries cache:', error);
   }
@@ -71,7 +83,7 @@ export const updateCountriesCache = (countries: Country[]): void => {
 export const clearCountriesCache = (): void => {
   try {
     localStorage.removeItem(CACHE_KEY);
-    console.log('Countries cache cleared');
+    console.log('🔍 CACHE: Countries cache cleared');
   } catch (error) {
     console.error('Error clearing countries cache:', error);
   }

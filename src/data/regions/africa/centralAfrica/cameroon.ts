@@ -2,7 +2,7 @@
 import { Country } from '../../../../types/country';
 
 // Log the Cameroon country definition for debugging
-console.log('Defining Cameroon country with sending enabled:', false);
+console.log('🔍 DEFINITION: Cameroon country with isSendingEnabled:', false);
 
 export const cameroonCountry: Country = {
   name: 'Cameroon',
@@ -31,3 +31,6 @@ export const cameroonCountry: Country = {
     }
   ],
 };
+
+// Additional debug check after export
+console.log('🔍 AFTER EXPORT: Cameroon isSendingEnabled:', cameroonCountry.isSendingEnabled);

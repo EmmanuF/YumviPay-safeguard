@@ -29,23 +29,54 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   // Log countries to help debug
   useEffect(() => {
     if (countries.length > 0) {
-      console.log('All countries loaded:', countries.length);
-      console.log('Sending countries:', countries.filter(c => c.isSendingEnabled).map(c => c.name));
-      console.log('Receiving countries:', countries.filter(c => c.isReceivingEnabled).map(c => c.name));
+      console.log('🔍 CALCULATOR: All countries loaded:', countries.length);
+      
+      // Check key African countries
+      const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+      console.log('🔍 CALCULATOR: Key African countries:');
+      countries
+        .filter(c => keyCodes.includes(c.code))
+        .forEach(c => {
+          console.log(`🔍 CALCULATOR: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+        });
+      
+      // Check sending and receiving countries
+      const sendingCountries = countries.filter(c => c.isSendingEnabled);
+      const receivingCountries = countries.filter(c => c.isReceivingEnabled);
+      
+      console.log('🔍 CALCULATOR: Sending countries:', sendingCountries.map(c => c.name).join(', '));
+      console.log('🔍 CALCULATOR: Receiving countries:', receivingCountries.map(c => c.name).join(', '));
     }
   }, [countries]);
 
   // Create filtered lists of currencies based on country capabilities
   const sourceCurrencies = useMemo(() => {
     const sendingCountries = countries.filter(country => country.isSendingEnabled);
-    console.log('Source currencies from:', sendingCountries.map(c => c.name));
-    return Array.from(new Set(sendingCountries.map(country => country.currency)));
+    console.log('🔍 CALCULATOR CURRENCIES: Source currencies from countries:', 
+                sendingCountries.map(c => `${c.name} (${c.currency})`).join(', '));
+    
+    // Additional check for African countries that shouldn't be in sending list
+    const africanCodes = ['CM', 'GH', 'NG', 'SN'];
+    const africanSendingCountries = sendingCountries.filter(c => africanCodes.includes(c.code));
+    
+    if (africanSendingCountries.length > 0) {
+      console.log('🔍 CALCULATOR ERROR: African countries incorrectly marked as sending:', 
+                  africanSendingCountries.map(c => `${c.name} (isSendingEnabled=${c.isSendingEnabled})`).join(', '));
+    }
+    
+    const currencies = Array.from(new Set(sendingCountries.map(country => country.currency)));
+    console.log('🔍 CALCULATOR CURRENCIES: Final source currencies:', currencies.join(', '));
+    return currencies;
   }, [countries]);
   
   const targetCurrencies = useMemo(() => {
     const receivingCountries = countries.filter(country => country.isReceivingEnabled);
-    console.log('Target currencies from:', receivingCountries.map(c => c.name));
-    return Array.from(new Set(receivingCountries.map(country => country.currency)));
+    console.log('🔍 CALCULATOR CURRENCIES: Target currencies from countries:', 
+                receivingCountries.map(c => `${c.name} (${c.currency})`).join(', '));
+    
+    const currencies = Array.from(new Set(receivingCountries.map(country => country.currency)));
+    console.log('🔍 CALCULATOR CURRENCIES: Final target currencies:', currencies.join(', '));
+    return currencies;
   }, [countries]);
 
   // Calculate receive amount when inputs change

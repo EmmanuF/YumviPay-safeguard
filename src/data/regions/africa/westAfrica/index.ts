@@ -5,32 +5,55 @@ import { sahelianWestAfricanCountries } from './sahelianWestAfrica';
 import { maNoWestAfricanCountries } from './maNoWestAfrica';
 
 // Debug imported countries
-console.log('DEBUG: West Africa - Before mapping:');
-console.log('Coastal:', coastalWestAfricanCountries.map(c => c.name + (c.isSendingEnabled ? ' (sending)' : ' (not sending)')));
-console.log('Sahelian:', sahelianWestAfricanCountries.map(c => c.name + (c.isSendingEnabled ? ' (sending)' : ' (not sending)')));
-console.log('MaNo:', maNoWestAfricanCountries.map(c => c.name + (c.isSendingEnabled ? ' (sending)' : ' (not sending)')));
+console.log('🔍 WEST AFRICA: Before mapping - checking original data');
+console.log('🔍 WEST AFRICA: Coastal countries sending status:');
+coastalWestAfricanCountries.forEach(c => {
+  console.log(`🔍 WEST AFRICA: ${c.name}: isSendingEnabled=${c.isSendingEnabled}`);
+});
+
+console.log('🔍 WEST AFRICA: Sahelian countries sending status:');
+sahelianWestAfricanCountries.forEach(c => {
+  console.log(`🔍 WEST AFRICA: ${c.name}: isSendingEnabled=${c.isSendingEnabled}`);
+});
+
+console.log('🔍 WEST AFRICA: MaNo countries sending status:');
+maNoWestAfricanCountries.forEach(c => {
+  console.log(`🔍 WEST AFRICA: ${c.name}: isSendingEnabled=${c.isSendingEnabled}`);
+});
 
 // Combine all West African sub-regions
 export const westAfricanCountries: Country[] = [
-  ...coastalWestAfricanCountries.map(country => ({
-    ...country,
-    isSendingEnabled: false,
-    isReceivingEnabled: true
-  })),
-  ...sahelianWestAfricanCountries.map(country => ({
-    ...country,
-    isSendingEnabled: false,
-    isReceivingEnabled: true
-  })),
-  ...maNoWestAfricanCountries.map(country => ({
-    ...country,
-    isSendingEnabled: false,
-    isReceivingEnabled: true
-  }))
+  ...coastalWestAfricanCountries.map(country => {
+    const result = {
+      ...country,
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    };
+    console.log(`🔍 WEST AFRICA MAPPED: ${country.name}: isSendingEnabled=${result.isSendingEnabled}`);
+    return result;
+  }),
+  ...sahelianWestAfricanCountries.map(country => {
+    const result = {
+      ...country,
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    };
+    console.log(`🔍 WEST AFRICA MAPPED: ${country.name}: isSendingEnabled=${result.isSendingEnabled}`);
+    return result;
+  }),
+  ...maNoWestAfricanCountries.map(country => {
+    const result = {
+      ...country,
+      isSendingEnabled: false,
+      isReceivingEnabled: true
+    };
+    console.log(`🔍 WEST AFRICA MAPPED: ${country.name}: isSendingEnabled=${result.isSendingEnabled}`);
+    return result;
+  })
 ];
 
 // Debug after mapping
-console.log('DEBUG: West Africa - After mapping:');
+console.log('🔍 WEST AFRICA: After mapping - final data');
 westAfricanCountries.forEach(c => {
-  console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+  console.log(`🔍 WEST AFRICA FINAL: ${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
 });

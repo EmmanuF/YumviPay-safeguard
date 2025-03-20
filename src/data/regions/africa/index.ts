@@ -7,17 +7,18 @@ import { centralAfricanCountries } from './centralAfrica';
 import { westAfricanCountries } from './westAfrica';
 
 // Debug sub-regions before combining
-console.log('DEBUG: Africa - Before combining:');
-console.log('North Africa:', northAfricanCountries.length, 'countries');
-console.log('East Africa:', eastAfricanCountries.length, 'countries');
-console.log('Southern Africa:', southernAfricanCountries.length, 'countries');
-console.log('Central Africa:', centralAfricanCountries.length, 'countries');
-console.log('West Africa:', westAfricanCountries.length, 'countries');
+console.log('🔍 AFRICA: Before combining - checking imported sub-regions');
 
 // Check sending status of Central African countries
-console.log('DEBUG: Central African countries sending status:');
+console.log('🔍 AFRICA: Central African countries sending status:');
 centralAfricanCountries.forEach(c => {
-  console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}`);
+  console.log(`🔍 AFRICA CENTRAL: ${c.name}: isSendingEnabled=${c.isSendingEnabled}`);
+});
+
+// Check West African countries
+console.log('🔍 AFRICA: West African countries sending status:');
+westAfricanCountries.forEach(c => {
+  console.log(`🔍 AFRICA WEST: ${c.name}: isSendingEnabled=${c.isSendingEnabled}`);
 });
 
 // Combine all African sub-regions
@@ -29,8 +30,17 @@ export const africanCountries: Country[] = [
   ...westAfricanCountries,
 ];
 
-// Debug after combining
-console.log('DEBUG: Africa - After combining, checking first few countries:');
-africanCountries.slice(0, 5).forEach(c => {
-  console.log(`${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+// Verify combined data
+console.log('🔍 AFRICA: After combining - checking all African countries');
+africanCountries.forEach(c => {
+  console.log(`🔍 AFRICA COMBINED: ${c.name}: isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
 });
+
+// Specifically check key countries
+const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+console.log('🔍 AFRICA: Key countries after combining:');
+africanCountries
+  .filter(c => keyCodes.includes(c.code))
+  .forEach(c => {
+    console.log(`🔍 AFRICA KEY: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+  });
