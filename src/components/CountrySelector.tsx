@@ -19,25 +19,15 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { countries, isLoading, sendingCountriesList, receivingCountriesList } = useCountries();
-  const [filteredCountries, setFilteredCountries] = useState<any[]>([]);
+  const { countries, isLoading } = useCountries();
   
-  // Use the appropriate country list based on type and filter by search term
-  useEffect(() => {
-    const countryList = type === 'send' ? sendingCountriesList : receivingCountriesList;
-    
-    console.log(`🔍 SELECTOR: CountrySelector for ${type} received ${countryList.length} countries`);
-    if (type === 'send') {
-      console.log('🔍 SELECTOR: Sending countries:', countryList.map(c => c.name).join(', '));
-    }
-    
-    const filtered = countryList.filter(country => 
+  // Filter countries based on type (send/receive) and search term
+  const filteredCountries = countries
+    ?.filter(country => 
+      type === 'receive' ? country.isReceivingEnabled : country.isSendingEnabled)
+    .filter(country => 
       country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      country.code.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    
-    setFilteredCountries(filtered);
-  }, [type, searchTerm, sendingCountriesList, receivingCountriesList]);
+      country.code.toLowerCase().includes(searchTerm.toLowerCase()));
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -125,9 +115,7 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
                 {isLoading ? (
                   <div className="p-4 text-center text-gray-500">Loading countries...</div>
                 ) : filteredCountries?.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">
-                    {type === 'send' ? 'No sending countries found' : 'No receiving countries found'}
-                  </div>
+                  <div className="p-4 text-center text-gray-500">No countries found</div>
                 ) : (
                   filteredCountries?.map((country) => (
                     <button

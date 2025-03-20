@@ -1,15 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AdminCountry } from "./types";
 
-const AFRICAN_COUNTRIES = [
-  // Central Africa
-  'CM', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ',
-  // West Africa
-  'NG', 'GH', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR',
-  // Other African regions
-  'MA', 'EG', 'TN', 'DZ', 'LY', 'ZA', 'KE', 'ET', 'UG', 'TZ', 'RW', 'BI'
-];
-
 export const updateCountrySettings = async (
   code: string, 
   updates: Partial<AdminCountry>
@@ -18,11 +9,6 @@ export const updateCountrySettings = async (
   
   if (!code) {
     console.error('Country code is required for updates');
-    return false;
-  }
-  
-  if (AFRICAN_COUNTRIES.includes(code) && updates.is_sending_enabled === true) {
-    console.error(`Cannot set African country ${code} as a sending country`);
     return false;
   }
   
@@ -63,10 +49,7 @@ export const updateCountryPaymentMethods = async (
       .update({ payment_methods: paymentMethods })
       .eq('code', code);
     
-    if (error) {
-      console.error('Error updating country payment methods:', error);
-      return false;
-    }
+    if (error) throw error;
     
     return true;
   } catch (error) {
@@ -84,13 +67,6 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       return false;
     }
     
-    if (AFRICAN_COUNTRIES.includes(country.code) && country.is_sending_enabled === true) {
-      console.error(`Cannot set African country ${country.code} as a sending country`);
-      country.is_sending_enabled = false;
-    }
-    
-    const paymentMethods = Array.isArray(country.payment_methods) ? country.payment_methods : [];
-    
     const countryData = {
       code: country.code,
       name: country.name,
@@ -99,46 +75,18 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       flag_emoji: country.flag_emoji || null,
       is_sending_enabled: country.is_sending_enabled !== undefined ? country.is_sending_enabled : false,
       is_receiving_enabled: country.is_receiving_enabled !== undefined ? country.is_receiving_enabled : false,
-      payment_methods: paymentMethods
+      payment_methods: country.payment_methods || []
     };
     
-    const { data: existingCountry, error: checkError } = await supabase
+    const { error } = await supabase
       .from('countries')
-      .select('code')
-      .eq('code', country.code)
-      .single();
+      .insert(countryData);
     
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking if country exists:', checkError);
-      return false;
-    }
+    if (error) throw error;
     
-    if (existingCountry) {
-      console.log(`Country with code ${country.code} already exists, updating instead`);
-      const { error: updateError } = await supabase
-        .from('countries')
-        .update(countryData)
-        .eq('code', country.code);
-      
-      if (updateError) {
-        console.error('Error updating existing country:', updateError);
-        return false;
-      }
-    } else {
-      const { error: insertError } = await supabase
-        .from('countries')
-        .insert(countryData);
-      
-      if (insertError) {
-        console.error('Error inserting new country:', insertError);
-        return false;
-      }
-    }
-    
-    console.log(`Country ${country.code} successfully added/updated`);
     return true;
   } catch (error) {
-    console.error('Exception in addNewCountry:', error);
+    console.error('Error adding country:', error);
     return false;
   }
 };
@@ -152,10 +100,7 @@ export const deleteCountry = async (code: string): Promise<boolean> => {
       .delete()
       .eq('code', code);
     
-    if (error) {
-      console.error(`Error deleting country ${code}:`, error);
-      return false;
-    }
+    if (error) throw error;
     
     return true;
   } catch (error) {

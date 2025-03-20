@@ -1,12 +1,14 @@
 
-// Export types
-export * from './types';
+// Re-export types
+export type { AdminCountry } from './types';
 
-// Export query functions
-export * from './countryQueries';
+// Re-export query functions
+export { getAdminCountries, getCountryByCode } from './countryQueries';
 
-// Export mutation functions
-export * from './countryMutations';
-
-// Export utility functions
-export * from './utils';
+// Re-export mutation functions
+export { 
+  updateCountrySettings, 
+  updateCountryPaymentMethods, 
+  addNewCountry, 
+  deleteCountry 
+} from './countryMutations';

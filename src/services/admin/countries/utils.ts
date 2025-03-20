@@ -1,6 +1,6 @@
+
 import { AdminCountry } from "./types";
 
-// Helper function to parse country data and handle payment methods
 export const parseCountryData = (data: any[]): AdminCountry[] => {
   return data.map(country => {
     let parsedMethods = [];
@@ -17,103 +17,4 @@ export const parseCountryData = (data: any[]): AdminCountry[] => {
       payment_methods: parsedMethods
     };
   });
-};
-
-// Define African countries to explicitly exclude from sending
-const AFRICAN_COUNTRIES = [
-  // Central Africa
-  'CM', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ',
-  // West Africa
-  'NG', 'GH', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR',
-  // Other African regions
-  'MA', 'EG', 'TN', 'DZ', 'LY', 'ZA', 'KE', 'ET', 'UG', 'TZ', 'RW', 'BI'
-];
-
-// Default sending countries to add when initializing - EXCLUDING all African countries
-export const DEFAULT_SENDING_COUNTRIES = [
-  // North America
-  { code: 'US', name: 'United States', currency: 'USD', currency_symbol: '$', flag_emoji: '🇺🇸', is_sending_enabled: true },
-  { code: 'CA', name: 'Canada', currency: 'CAD', currency_symbol: 'C$', flag_emoji: '🇨🇦', is_sending_enabled: true },
-  { code: 'MX', name: 'Mexico', currency: 'MXN', currency_symbol: '$', flag_emoji: '🇲🇽', is_sending_enabled: true },
-  
-  // Europe
-  { code: 'GB', name: 'United Kingdom', currency: 'GBP', currency_symbol: '£', flag_emoji: '🇬🇧', is_sending_enabled: true },
-  { code: 'FR', name: 'France', currency: 'EUR', currency_symbol: '€', flag_emoji: '🇫🇷', is_sending_enabled: true },
-  { code: 'DE', name: 'Germany', currency: 'EUR', currency_symbol: '€', flag_emoji: '🇩🇪', is_sending_enabled: true },
-  
-  // Middle East
-  { code: 'AE', name: 'United Arab Emirates', currency: 'AED', currency_symbol: 'د.إ', flag_emoji: '🇦🇪', is_sending_enabled: true },
-  { code: 'SA', name: 'Saudi Arabia', currency: 'SAR', currency_symbol: '﷼', flag_emoji: '🇸🇦', is_sending_enabled: true },
-  
-  // Asia Pacific
-  { code: 'AU', name: 'Australia', currency: 'AUD', currency_symbol: 'A$', flag_emoji: '🇦🇺', is_sending_enabled: true },
-  { code: 'JP', name: 'Japan', currency: 'JPY', currency_symbol: '¥', flag_emoji: '🇯🇵', is_sending_enabled: true },
-  { code: 'SG', name: 'Singapore', currency: 'SGD', currency_symbol: 'S$', flag_emoji: '🇸🇬', is_sending_enabled: true },
-];
-
-// Check if sending countries need to be initialized
-export const checkAndInitializeSendingCountries = async (
-  countries: AdminCountry[],
-  addCountryFn: (country: Partial<AdminCountry>) => Promise<boolean>
-): Promise<void> => {
-  console.log('Checking if sending countries need to be initialized...');
-  
-  // Filter out African countries first
-  const validSendingCountries = DEFAULT_SENDING_COUNTRIES.filter(
-    country => !AFRICAN_COUNTRIES.includes(country.code)
-  );
-  
-  // If there are no valid sending-enabled countries, initialize defaults
-  const sendingCountries = countries.filter(c => 
-    c.is_sending_enabled && !AFRICAN_COUNTRIES.includes(c.code)
-  );
-  
-  if (sendingCountries.length === 0) {
-    console.log('No sending countries found. Initializing default sending countries...');
-    
-    for (const country of validSendingCountries) {
-      // Skip African countries completely
-      if (AFRICAN_COUNTRIES.includes(country.code)) {
-        console.log(`Skipping African country ${country.code} - cannot be a sending country`);
-        continue;
-      }
-      
-      // Skip if country already exists but is not sending-enabled
-      const existingCountry = countries.find(c => c.code === country.code);
-      if (existingCountry) {
-        console.log(`Country ${country.code} already exists. Updating to enable sending.`);
-        // Update existing country
-        const updated = await addCountryFn({
-          ...existingCountry,
-          is_sending_enabled: true
-        });
-        if (updated) {
-          console.log(`Successfully enabled sending for ${country.code}`);
-        } else {
-          console.error(`Failed to enable sending for ${country.code}`);
-        }
-      } else {
-        // Add new country
-        console.log(`Adding default sending country: ${country.code}`);
-        const added = await addCountryFn({
-          ...country,
-          payment_methods: []
-        });
-        if (added) {
-          console.log(`Successfully added sending country ${country.code}`);
-        } else {
-          console.error(`Failed to add sending country ${country.code}`);
-        }
-      }
-    }
-    
-    console.log('Default sending countries initialization complete.');
-  } else {
-    console.log(`Found ${sendingCountries.length} sending-enabled countries. No initialization needed.`);
-  }
-};
-
-// Function to ensure African countries are never set as sending countries
-export const validateSendingCountry = (countryCode: string): boolean => {
-  return !AFRICAN_COUNTRIES.includes(countryCode);
 };

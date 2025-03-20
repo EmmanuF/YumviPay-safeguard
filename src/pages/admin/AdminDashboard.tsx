@@ -1,8 +1,15 @@
 
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { DashboardHeader, LoadingState, ErrorState } from '@/components/admin/dashboard';
+import {
+  DashboardHeader,
+  LoadingState,
+  ErrorState,
+  StatCards,
+  TransactionCharts,
+  InfoCards
+} from '@/components/admin/dashboard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAdvancedSettings } from '@/hooks/admin/settings/useAdvancedSettings';
 import { Badge } from '@/components/ui/badge';
@@ -14,18 +21,13 @@ import {
   getSystemStatusMetrics
 } from '@/services/admin/adminDataService';
 
-// Lazy-load components that are not needed immediately
-const StatCards = lazy(() => import('@/components/admin/dashboard/StatCards'));
-const TransactionCharts = lazy(() => import('@/components/admin/dashboard/TransactionCharts'));
-const InfoCards = lazy(() => import('@/components/admin/dashboard/InfoCards'));
-
 const AdminDashboard = () => {
   console.log('Rendering AdminDashboard component');
   
   const { settings } = useAdvancedSettings();
   const maintenanceMode = settings.maintenanceMode;
   
-  // Fetch dashboard stats with optimized configuration
+  // Fetch dashboard stats
   const { 
     data: dashboardStats, 
     isLoading: statsLoading, 
@@ -33,8 +35,6 @@ const AdminDashboard = () => {
   } = useQuery({
     queryKey: ['adminDashboardStats'],
     queryFn: getAdminDashboardStats,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
   });
   
   // Fetch transaction summary data for charts
@@ -45,8 +45,6 @@ const AdminDashboard = () => {
   } = useQuery({
     queryKey: ['adminTransactionSummary'],
     queryFn: () => getTransactionSummaryByMonth(6),
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false,
   });
   
   // Fetch recent transactions
@@ -57,8 +55,6 @@ const AdminDashboard = () => {
   } = useQuery({
     queryKey: ['adminRecentTransactions'],
     queryFn: () => getAdminRecentTransactions(5),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchOnWindowFocus: false,
   });
   
   // Fetch system status
@@ -69,8 +65,6 @@ const AdminDashboard = () => {
   } = useQuery({
     queryKey: ['adminSystemStatus'],
     queryFn: getSystemStatusMetrics,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
   });
   
   // Combine loading states
@@ -79,7 +73,14 @@ const AdminDashboard = () => {
   // Combine errors
   const error = statsError || chartError || txError || systemError;
   
-  console.log('Dashboard data loading state:', isLoading);
+  console.log('Dashboard data:', { 
+    hasStats: !!dashboardStats, 
+    txDataLength: transactionData?.length,
+    recentTxLength: recentTransactions?.length,
+    hasSystemStatus: !!systemStatus,
+    isLoading,
+    hasError: !!error
+  });
 
   return (
     <AdminLayout>
@@ -115,20 +116,12 @@ const AdminDashboard = () => {
           <ErrorState error={error} />
         ) : (
           <>
-            <Suspense fallback={<LoadingState />}>
-              <StatCards stats={dashboardStats!} />
-            </Suspense>
-            
-            <Suspense fallback={<LoadingState />}>
-              <TransactionCharts transactionData={transactionData} />
-            </Suspense>
-            
-            <Suspense fallback={<LoadingState />}>
-              <InfoCards 
-                recentTransactions={recentTransactions} 
-                systemStatus={systemStatus} 
-              />
-            </Suspense>
+            <StatCards stats={dashboardStats!} />
+            <TransactionCharts transactionData={transactionData} />
+            <InfoCards 
+              recentTransactions={recentTransactions} 
+              systemStatus={systemStatus} 
+            />
           </>
         )}
       </div>

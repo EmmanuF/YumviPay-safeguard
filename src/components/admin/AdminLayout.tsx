@@ -1,22 +1,10 @@
 
-import React, { ReactNode, useEffect, useState, Suspense } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 import { Loader2 } from 'lucide-react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-// Create a client for React Query
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -25,7 +13,6 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, isLoggedIn, loading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isClientReady, setIsClientReady] = useState(false);
   
   // Check if the user is an admin
   const isAdmin = isLoggedIn && user?.email?.endsWith('@yumvipay.com');
@@ -40,17 +27,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     });
   }, [isLoggedIn, user, isAdmin, loading]);
   
-  // Optimize client-side rendering
-  useEffect(() => {
-    // Delay setting client ready to ensure smooth loading
-    const timer = setTimeout(() => {
-      setIsClientReady(true);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  if (loading || !isClientReady) {
+  if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center space-y-2">
@@ -68,27 +45,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }
   
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen bg-gray-100">
-        <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
-        <div 
-          className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
-        >
-          <AdminHeader />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6">
-            <div className="mx-auto max-w-7xl">
-              <Suspense fallback={
-                <div className="flex justify-center items-center h-64">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              }>
-                {children}
-              </Suspense>
-            </div>
-          </main>
-        </div>
+    <div className="flex min-h-screen bg-gray-100">
+      <AdminSidebar collapsed={sidebarCollapsed} onToggleCollapse={setSidebarCollapsed} />
+      <div 
+        className={`flex flex-col flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}
+      >
+        <AdminHeader />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="mx-auto max-w-7xl">
+            {children}
+          </div>
+        </main>
       </div>
-    </QueryClientProvider>
+    </div>
   );
 };
 

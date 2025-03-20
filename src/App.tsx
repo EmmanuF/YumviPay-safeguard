@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NetworkProvider } from '@/contexts/NetworkContext';
@@ -33,7 +34,6 @@ import AdminReports from '@/pages/admin/AdminReports';
 import AdminSecurity from '@/pages/admin/AdminSecurity';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminCMS from '@/pages/admin/AdminCMS';
-import CountriesManagement from '@/pages/admin/CountriesManagement';
 
 // Footer pages
 import AboutUs from '@/pages/company/AboutUs';
@@ -46,7 +46,7 @@ import FAQ from '@/pages/support/FAQ';
 import CountryPage from '@/pages/countries/CountryPage';
 import { AdminProtectedRoute } from '@/components/admin';
 
-const App: React.FC = () => {
+function App() {
   console.log('App component rendering');
   return (
     <NetworkProvider>
@@ -102,19 +102,49 @@ const App: React.FC = () => {
                 {/* Admin Routes */}
                 <Route path="/admin" element={
                   <AdminProtectedRoute>
-                    <Outlet />
+                    <AdminDashboard />
                   </AdminProtectedRoute>
-                }>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="transactions" element={<AdminTransactions />} />
-                  <Route path="countries" element={<CountriesManagement />} />
-                  <Route path="cms" element={<AdminCMS />} />
-                  <Route path="reports" element={<AdminReports />} />
-                  <Route path="security" element={<AdminSecurity />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
+                } />
+                <Route path="/admin/analytics" element={
+                  <AdminProtectedRoute>
+                    <AdminAnalytics />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <AdminProtectedRoute>
+                    <AdminUsers />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/transactions" element={
+                  <AdminProtectedRoute>
+                    <AdminTransactions />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/countries" element={
+                  <AdminProtectedRoute>
+                    <AdminCountries />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/cms" element={
+                  <AdminProtectedRoute>
+                    <AdminCMS />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/reports" element={
+                  <AdminProtectedRoute>
+                    <AdminReports />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/security" element={
+                  <AdminProtectedRoute>
+                    <AdminSecurity />
+                  </AdminProtectedRoute>
+                } />
+                <Route path="/admin/settings" element={
+                  <AdminProtectedRoute>
+                    <AdminSettings />
+                  </AdminProtectedRoute>
+                } />
                 
                 {/* Footer Pages */}
                 <Route path="/about" element={<AboutUs />} />
@@ -136,6 +166,6 @@ const App: React.FC = () => {
       </AuthProvider>
     </NetworkProvider>
   );
-};
+}
 
 export default App;
