@@ -63,7 +63,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <Button 
           onClick={handleConfirm}
           disabled={isSubmitting}
-          className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3"
+          className="w-full py-3"
         >
           {isSubmitting ? 'Processing...' : 'Confirm Transfer'}
           {!isSubmitting && <Check className="ml-2 h-5 w-5" />}

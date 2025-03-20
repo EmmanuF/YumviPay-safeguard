@@ -7,7 +7,7 @@ export const northAmericanCountries: Country[] = [
     code: 'US',
     flagUrl: 'https://flagcdn.com/us.svg',
     currency: 'USD',
-    isSendingEnabled: true, // Ensure this is set to true
+    isSendingEnabled: true, // Ensure this is true
     isReceivingEnabled: false,
     paymentMethods: [
       {

@@ -9,6 +9,7 @@ import NameMatchConfirmation from '../payment/NameMatchConfirmation';
 interface PaymentMethodSelectionProps {
   transactionData: {
     recipientCountry?: string;
+    targetCountry?: string; // Allow targetCountry as fallback
     paymentMethod: string | null;
     selectedProvider?: string;
     recipientName?: string;
@@ -30,6 +31,11 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   const comingSoonProviders = ['yoomee_money', 'afriland', 'ecobank'];
   const comingSoonMethods = ['bank_transfer'];
   
+  // Use recipientCountry or targetCountry (whichever is available)
+  const countryCode = transactionData.recipientCountry || transactionData.targetCountry || 'CM';
+  
+  console.log("PaymentMethodSelection rendering with country:", countryCode);
+  
   const handleMethodSelect = (method: string, provider: string) => {
     if (comingSoonMethods.includes(method)) {
       toast({
@@ -49,6 +55,7 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
       return;
     }
 
+    console.log("Selected payment method:", method, "provider:", provider);
     updateTransactionData({
       paymentMethod: method,
       selectedProvider: provider
@@ -70,7 +77,7 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
       
       <Card className="overflow-hidden mb-4">
         <CountryPaymentMethods
-          countryCode={transactionData.recipientCountry || 'CM'}
+          countryCode={countryCode}
           selectedPaymentMethod={transactionData.paymentMethod}
           selectedProvider={transactionData.selectedProvider}
           onSelect={handleMethodSelect}

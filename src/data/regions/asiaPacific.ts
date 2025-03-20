@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const asiaPacificCountries: Country[] = [
@@ -6,7 +7,7 @@ export const asiaPacificCountries: Country[] = [
     code: 'AU',
     flagUrl: 'https://flagcdn.com/au.svg',
     currency: 'AUD',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Ensure this is true
     isReceivingEnabled: false,
     paymentMethods: [
       {

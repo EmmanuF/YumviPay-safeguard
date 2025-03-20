@@ -30,9 +30,11 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
+          console.log('Moving from recipient to payment step');
           setCurrentStep('payment');
           break;
         case 'payment':
+          console.log('Moving from payment to confirmation step');
           setCurrentStep('confirmation');
           break;
         case 'confirmation':
@@ -48,6 +50,8 @@ export const useSendMoneySteps = () => {
             return;
           }
           
+          console.log('Found transaction data, proceeding with submission');
+          
           setTimeout(() => {
             setIsSubmitting(false);
             // Use Sonner toast for better visibility
@@ -55,6 +59,7 @@ export const useSendMoneySteps = () => {
               description: "Your transaction has been initiated successfully.",
             });
             // Navigate to the new transaction page
+            console.log('Navigation to transaction/new');
             navigate('/transaction/new');
           }, 1000);
           break;
@@ -78,9 +83,11 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'payment':
+          console.log('Moving back from payment to recipient step');
           setCurrentStep('recipient');
           break;
         case 'confirmation':
+          console.log('Moving back from confirmation to payment step');
           setCurrentStep('payment');
           break;
         case 'recipient':

@@ -7,7 +7,7 @@ export const europeanCountries: Country[] = [
     code: 'GB',
     flagUrl: 'https://flagcdn.com/gb.svg',
     currency: 'GBP',
-    isSendingEnabled: true, // Ensure this is set to true
+    isSendingEnabled: true, // Ensure this is true
     isReceivingEnabled: false,
     paymentMethods: [
       {
