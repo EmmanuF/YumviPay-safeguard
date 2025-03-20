@@ -44,6 +44,7 @@ export const useSendMoneySteps = () => {
             toast.success("Transaction Initiated", {
               description: "Your transaction has been initiated successfully.",
             });
+            // Navigate to the new transaction page instead of using a fixed transaction ID
             navigate('/transaction/new');
           }, 1000);
           break;

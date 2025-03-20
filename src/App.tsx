@@ -21,6 +21,8 @@ import NotFound from '@/pages/NotFound';
 import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
+import TransactionNew from '@/pages/TransactionNew';
+import TransactionStatus from '@/pages/TransactionStatus';
 
 // Admin pages
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -81,6 +83,18 @@ function App() {
                 <Route path="/recipients" element={
                   <ProtectedRoute>
                     <Recipients />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Transaction Routes */}
+                <Route path="/transaction/new" element={
+                  <ProtectedRoute>
+                    <TransactionNew />
+                  </ProtectedRoute>
+                } />
+                <Route path="/transaction/:transactionId" element={
+                  <ProtectedRoute>
+                    <TransactionStatus />
                   </ProtectedRoute>
                 } />
                 
