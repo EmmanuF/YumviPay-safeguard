@@ -47,7 +47,7 @@ const CountriesManagement = () => {
     handleUpdatePaymentMethods,
     filteredCountries,
     isLoading,
-    refetch
+    handleRefresh // Use handleRefresh instead of refetch
   } = useAdminCountries();
 
   // Initialize countries if needed
@@ -57,7 +57,7 @@ const CountriesManagement = () => {
         try {
           await checkAndInitializeSendingCountries(filteredCountries, addNewCountry);
           // After initialization, refetch the data
-          refetch();
+          handleRefresh(); // Use handleRefresh instead of refetch
         } catch (error) {
           console.error('Error initializing countries:', error);
         }
@@ -65,7 +65,7 @@ const CountriesManagement = () => {
     };
     
     initializeCountries();
-  }, [isLoading, filteredCountries, refetch]);
+  }, [isLoading, filteredCountries, handleRefresh]);
 
   // Log render for performance tracking
   console.log('CountriesManagement component rendering');

@@ -1,4 +1,3 @@
-
 import { AdminCountry } from "./types";
 
 // Helper function to parse country data and handle payment methods
@@ -20,7 +19,17 @@ export const parseCountryData = (data: any[]): AdminCountry[] => {
   });
 };
 
-// Default sending countries to add when initializing
+// Define African countries to explicitly exclude from sending
+const AFRICAN_COUNTRIES = [
+  // Central Africa
+  'CM', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ',
+  // West Africa
+  'NG', 'GH', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR',
+  // Other African regions
+  'MA', 'EG', 'TN', 'DZ', 'LY', 'ZA', 'KE', 'ET', 'UG', 'TZ', 'RW', 'BI'
+];
+
+// Default sending countries to add when initializing - EXCLUDING all African countries
 export const DEFAULT_SENDING_COUNTRIES = [
   // North America
   { code: 'US', name: 'United States', currency: 'USD', currency_symbol: '$', flag_emoji: '🇺🇸', is_sending_enabled: true },
@@ -49,12 +58,26 @@ export const checkAndInitializeSendingCountries = async (
 ): Promise<void> => {
   console.log('Checking if sending countries need to be initialized...');
   
-  // If there are no sending-enabled countries, initialize defaults
-  const sendingCountries = countries.filter(c => c.is_sending_enabled);
+  // Filter out African countries first
+  const validSendingCountries = DEFAULT_SENDING_COUNTRIES.filter(
+    country => !AFRICAN_COUNTRIES.includes(country.code)
+  );
+  
+  // If there are no valid sending-enabled countries, initialize defaults
+  const sendingCountries = countries.filter(c => 
+    c.is_sending_enabled && !AFRICAN_COUNTRIES.includes(c.code)
+  );
+  
   if (sendingCountries.length === 0) {
     console.log('No sending countries found. Initializing default sending countries...');
     
-    for (const country of DEFAULT_SENDING_COUNTRIES) {
+    for (const country of validSendingCountries) {
+      // Skip African countries completely
+      if (AFRICAN_COUNTRIES.includes(country.code)) {
+        console.log(`Skipping African country ${country.code} - cannot be a sending country`);
+        continue;
+      }
+      
       // Skip if country already exists but is not sending-enabled
       const existingCountry = countries.find(c => c.code === country.code);
       if (existingCountry) {
@@ -88,4 +111,9 @@ export const checkAndInitializeSendingCountries = async (
   } else {
     console.log(`Found ${sendingCountries.length} sending-enabled countries. No initialization needed.`);
   }
+};
+
+// Function to ensure African countries are never set as sending countries
+export const validateSendingCountry = (countryCode: string): boolean => {
+  return !AFRICAN_COUNTRIES.includes(countryCode);
 };

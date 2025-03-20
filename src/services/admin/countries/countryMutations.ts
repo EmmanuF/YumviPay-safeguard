@@ -1,6 +1,14 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AdminCountry } from "./types";
+
+const AFRICAN_COUNTRIES = [
+  // Central Africa
+  'CM', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ',
+  // West Africa
+  'NG', 'GH', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR',
+  // Other African regions
+  'MA', 'EG', 'TN', 'DZ', 'LY', 'ZA', 'KE', 'ET', 'UG', 'TZ', 'RW', 'BI'
+];
 
 export const updateCountrySettings = async (
   code: string, 
@@ -10,6 +18,11 @@ export const updateCountrySettings = async (
   
   if (!code) {
     console.error('Country code is required for updates');
+    return false;
+  }
+  
+  if (AFRICAN_COUNTRIES.includes(code) && updates.is_sending_enabled === true) {
+    console.error(`Cannot set African country ${code} as a sending country`);
     return false;
   }
   
@@ -71,7 +84,11 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       return false;
     }
     
-    // Ensure payment_methods is always an array
+    if (AFRICAN_COUNTRIES.includes(country.code) && country.is_sending_enabled === true) {
+      console.error(`Cannot set African country ${country.code} as a sending country`);
+      country.is_sending_enabled = false;
+    }
+    
     const paymentMethods = Array.isArray(country.payment_methods) ? country.payment_methods : [];
     
     const countryData = {
@@ -85,14 +102,13 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       payment_methods: paymentMethods
     };
     
-    // Check if country already exists
     const { data: existingCountry, error: checkError } = await supabase
       .from('countries')
       .select('code')
       .eq('code', country.code)
       .single();
     
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "No rows returned" error
+    if (checkError && checkError.code !== 'PGRST116') {
       console.error('Error checking if country exists:', checkError);
       return false;
     }
@@ -109,7 +125,6 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
         return false;
       }
     } else {
-      // Insert new country
       const { error: insertError } = await supabase
         .from('countries')
         .insert(countryData);

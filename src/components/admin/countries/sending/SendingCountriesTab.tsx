@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, Plus, RefreshCw } from 'lucide-react';
@@ -17,7 +16,7 @@ import { AdminCountry } from '@/services/admin/countries/types';
 import { getAdminCountries, updateCountrySettings } from '@/services/admin/countries';
 import { CountryTableRow } from './CountryTableRow';
 
-// Define sending countries but don't use it to filter the API results initially
+// Define sending countries explicitly - ensure only these are shown in the sending tab
 const SENDING_COUNTRIES = [
   // North America
   'US', 'CA', 'MX', 'PA',
@@ -27,6 +26,16 @@ const SENDING_COUNTRIES = [
   'AE', 'SA', 'QA', 'KW',
   // Asia Pacific
   'AU', 'JP', 'SG'
+];
+
+// Define African countries to explicitly exclude
+const AFRICAN_COUNTRIES = [
+  // Central Africa
+  'CM', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ',
+  // West Africa
+  'NG', 'GH', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 'GW', 'GN', 'SL', 'LR',
+  // Other African regions
+  'MA', 'EG', 'TN', 'DZ', 'LY', 'ZA', 'KE', 'ET', 'UG', 'TZ', 'RW', 'BI'
 ];
 
 interface SendingCountriesTabProps {
@@ -54,10 +63,17 @@ export const SendingCountriesTab: React.FC<SendingCountriesTabProps> = ({
     refetchOnWindowFocus: false,
   });
 
-  // Get only countries that are marked as sending enabled or are in our SENDING_COUNTRIES list
+  // Strictly filter to only allowed sending countries
+  // 1. Must be in SENDING_COUNTRIES list
+  // 2. Must NOT be in AFRICAN_COUNTRIES list
+  // 3. Apply isSendingEnabled flag as secondary filter
   const sendingCountries = allCountries.filter(country => 
-    country.is_sending_enabled || SENDING_COUNTRIES.includes(country.code)
+    SENDING_COUNTRIES.includes(country.code) && 
+    !AFRICAN_COUNTRIES.includes(country.code)
   );
+  
+  console.log('SENDING TAB: Filtered countries to strictly non-African sending countries:', 
+    sendingCountries.map(c => `${c.name} (${c.code})`).join(', '));
   
   // Apply search filter
   const filteredCountries = sendingCountries.filter(country => 
@@ -67,6 +83,16 @@ export const SendingCountriesTab: React.FC<SendingCountriesTabProps> = ({
   );
 
   const handleToggleSending = async (code: string, currentValue: boolean) => {
+    // Skip for African countries
+    if (AFRICAN_COUNTRIES.includes(code)) {
+      toast({
+        title: "Operation Denied",
+        description: `African countries cannot be set as sending countries.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const success = await updateCountrySettings(code, {
         is_sending_enabled: !currentValue
