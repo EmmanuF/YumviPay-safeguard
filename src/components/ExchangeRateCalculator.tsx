@@ -5,6 +5,7 @@ import InlineCalculator from '@/components/calculator/InlineCalculator';
 import FullCalculator from '@/components/calculator/FullCalculator';
 import LoadingCalculator from '@/components/calculator/LoadingCalculator';
 import { toast } from '@/hooks/use-toast';
+import { WifiOff } from 'lucide-react';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
@@ -34,7 +35,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     countriesLoading,
     sourceCurrencies,
     targetCurrencies,
-    handleContinue
+    handleContinue,
+    isUsingMockData
   } = useExchangeRateCalculator(onContinue);
 
   // Add error handling for empty currencies
@@ -76,10 +78,43 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
   const finalSourceCurrencies = sourceCurrencies.length > 0 ? sourceCurrencies : ['USD', 'EUR', 'GBP'];
   const finalTargetCurrencies = targetCurrencies.length > 0 ? targetCurrencies : ['XAF', 'NGN', 'GHS'];
 
+  // Render offline indicator if using mock data
+  const OfflineIndicator = () => isUsingMockData ? (
+    <div className="flex items-center justify-center bg-amber-50 text-amber-800 px-3 py-1 rounded-full text-xs font-medium mb-2">
+      <WifiOff className="h-3 w-3 mr-1" />
+      <span>Using offline data</span>
+    </div>
+  ) : null;
+
   // In inline mode, we use a simpler layout without the header and descriptions
   if (inlineMode) {
     return (
-      <InlineCalculator
+      <div className={className}>
+        {isUsingMockData && <OfflineIndicator />}
+        <InlineCalculator
+          sendAmount={sendAmount}
+          setSendAmount={setSendAmount}
+          receiveAmount={receiveAmount}
+          sourceCurrency={sourceCurrency}
+          setSourceCurrency={setSourceCurrency}
+          targetCurrency={targetCurrency}
+          setTargetCurrency={setTargetCurrency}
+          exchangeRate={exchangeRate}
+          isProcessing={isProcessing}
+          authLoading={authLoading}
+          sourceCurrencies={finalSourceCurrencies}
+          targetCurrencies={finalTargetCurrencies}
+          handleContinue={handleContinue}
+        />
+      </div>
+    );
+  }
+
+  // Default full mode layout
+  return (
+    <div className={className}>
+      {isUsingMockData && <OfflineIndicator />}
+      <FullCalculator
         sendAmount={sendAmount}
         setSendAmount={setSendAmount}
         receiveAmount={receiveAmount}
@@ -93,29 +128,8 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
         sourceCurrencies={finalSourceCurrencies}
         targetCurrencies={finalTargetCurrencies}
         handleContinue={handleContinue}
-        className={className}
       />
-    );
-  }
-
-  // Default full mode layout
-  return (
-    <FullCalculator
-      sendAmount={sendAmount}
-      setSendAmount={setSendAmount}
-      receiveAmount={receiveAmount}
-      sourceCurrency={sourceCurrency}
-      setSourceCurrency={setSourceCurrency}
-      targetCurrency={targetCurrency}
-      setTargetCurrency={setTargetCurrency}
-      exchangeRate={exchangeRate}
-      isProcessing={isProcessing}
-      authLoading={authLoading}
-      sourceCurrencies={finalSourceCurrencies}
-      targetCurrencies={finalTargetCurrencies}
-      handleContinue={handleContinue}
-      className={className}
-    />
+    </div>
   );
 };
 

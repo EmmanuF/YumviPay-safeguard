@@ -1,11 +1,13 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCountries } from '@/hooks/useCountries';
 import { getExchangeRate } from '@/data/exchangeRates';
 import { toast } from '@/hooks/use-toast';
 import { clearCountriesCache } from './countries/countriesCache';
+import { useOfflineFallback } from '@/hooks/useOfflineFallback';
+import { generateMockCountries, mockSendingCurrencies, mockReceivingCurrencies } from '@/data/mockExchangeData';
 
 export interface ExchangeRateCalculatorState {
   sendAmount: string;
@@ -19,16 +21,50 @@ export interface ExchangeRateCalculatorState {
 export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuth();
-  const { countries, isLoading: countriesLoading, getSendingCountries, getReceivingCountries, refreshCountries } = useCountries();
+  
+  // Use the new useOfflineFallback hook to handle countries data
+  const { getCountryByCode, isLoading: originalCountriesLoading, refreshCountries } = useCountries();
+  
+  // Use our offline fallback hook for getting sending countries
+  const { 
+    data: sendingCountriesData,
+    loading: sendingCountriesLoading,
+    isUsingMockData: isUsingSendingMockData
+  } = useOfflineFallback({
+    key: 'sending_countries',
+    fetchFn: useCallback(async () => {
+      const { getSendingCountries } = useCountries();
+      const countries = await getSendingCountries();
+      return Array.from(new Set(countries.map(country => country.currency))).sort();
+    }, []),
+    mockData: mockSendingCurrencies
+  });
+  
+  // Use our offline fallback hook for getting receiving countries
+  const { 
+    data: receivingCountriesData,
+    loading: receivingCountriesLoading,
+    isUsingMockData: isUsingReceivingMockData
+  } = useOfflineFallback({
+    key: 'receiving_countries',
+    fetchFn: useCallback(async () => {
+      const { getReceivingCountries } = useCountries();
+      const countries = await getReceivingCountries();
+      return Array.from(new Set(countries.map(country => country.currency))).sort();
+    }, []),
+    mockData: mockReceivingCurrencies
+  });
+  
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
   const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
   const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
   const [isProcessing, setIsProcessing] = useState(false);
-  const [sendingCountryList, setSendingCountryList] = useState<string[]>([]);
-  const [receivingCountryList, setReceivingCountryList] = useState<string[]>([]);
-
+  
+  // Combine real and mock data loading states
+  const countriesLoading = originalCountriesLoading || sendingCountriesLoading || receivingCountriesLoading;
+  
   // First, clear the countries cache to ensure we get fresh data
   useEffect(() => {
     console.log('Initializing ExchangeRateCalculator, clearing cache to ensure fresh data');
@@ -38,74 +74,30 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     // Then refresh the countries data
     refreshCountries();
   }, [refreshCountries]);
-
-  // Load sending and receiving countries on component mount
+  
+  // Update selected currencies when data loads
   useEffect(() => {
-    const loadCountryLists = async () => {
-      console.log('Loading country lists in useExchangeRateCalculator');
+    if (sendingCountriesData?.length > 0 && receivingCountriesData?.length > 0) {
+      // Verify current source and target currencies are in the lists
+      const validSourceCurrency = sendingCountriesData.includes(sourceCurrency) 
+        ? sourceCurrency 
+        : (sendingCountriesData.includes('USD') ? 'USD' : sendingCountriesData[0]);
+        
+      const validTargetCurrency = receivingCountriesData.includes(targetCurrency)
+        ? targetCurrency
+        : (receivingCountriesData.includes('XAF') ? 'XAF' : receivingCountriesData[0]);
       
-      try {
-        // Fetch sending countries
-        console.log('Fetching sending countries...');
-        const sendingCountries = await getSendingCountries();
-        console.log('Got sending countries:', sendingCountries.map(c => c.name).join(', '));
-        
-        const sendingCurrencies = Array.from(new Set(
-          sendingCountries.map(country => country.currency)
-        )).sort();
-        
-        console.log('Sending currencies retrieved:', sendingCurrencies);
-        setSendingCountryList(sendingCurrencies);
-        
-        // Fetch receiving countries
-        console.log('Fetching receiving countries...');
-        const receivingCountries = await getReceivingCountries();
-        console.log('Got receiving countries:', receivingCountries.map(c => c.name).join(', '));
-        
-        const receivingCurrencies = Array.from(new Set(
-          receivingCountries.map(country => country.currency)
-        )).sort();
-        
-        console.log('Receiving currencies retrieved:', receivingCurrencies);
-        setReceivingCountryList(receivingCurrencies);
-        
-        // If the source currency isn't in the sending list, reset it to USD or first available
-        if (sendingCurrencies.length > 0) {
-          if (!sendingCurrencies.includes(sourceCurrency)) {
-            const defaultCurrency = sendingCurrencies.includes('USD') ? 'USD' : sendingCurrencies[0];
-            console.log(`Resetting source currency to ${defaultCurrency}`);
-            setSourceCurrency(defaultCurrency);
-          } else {
-            console.log(`Keeping source currency as ${sourceCurrency}`);
-          }
-        } else {
-          console.warn('No sending currencies available!');
-        }
-        
-        // If the target currency isn't in the receiving list, reset it to XAF or first available
-        if (receivingCurrencies.length > 0) {
-          if (!receivingCurrencies.includes(targetCurrency)) {
-            const defaultCurrency = receivingCurrencies.includes('XAF') ? 'XAF' : receivingCurrencies[0];
-            console.log(`Resetting target currency to ${defaultCurrency}`);
-            setTargetCurrency(defaultCurrency);
-          } else {
-            console.log(`Keeping target currency as ${targetCurrency}`);
-          }
-        } else {
-          console.warn('No receiving currencies available!');
-        }
-      } catch (error) {
-        console.error('Error loading country lists:', error);
+      if (validSourceCurrency !== sourceCurrency) {
+        console.log(`Updating source currency from ${sourceCurrency} to ${validSourceCurrency}`);
+        setSourceCurrency(validSourceCurrency);
       }
-    };
-    
-    // Only load country lists if countries data is available
-    if (countries.length > 0) {
-      loadCountryLists();
-    } else {
-      console.log('Countries data not yet available, waiting...');
+      
+      if (validTargetCurrency !== targetCurrency) {
+        console.log(`Updating target currency from ${targetCurrency} to ${validTargetCurrency}`);
+        setTargetCurrency(validTargetCurrency);
+      }
     }
-  }, [countries, getSendingCountries, getReceivingCountries, sourceCurrency, targetCurrency]);
+  }, [sendingCountriesData, receivingCountriesData, sourceCurrency, targetCurrency]);
 
   // Update exchange rate when currencies change
   useEffect(() => {
@@ -200,6 +192,17 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     }
   };
 
+  // Show a message when using mock data
+  useEffect(() => {
+    if (isUsingSendingMockData || isUsingReceivingMockData) {
+      toast({
+        title: "Using Offline Data",
+        description: "You're currently seeing cached or mock exchange rate data.",
+        variant: "default"
+      });
+    }
+  }, [isUsingSendingMockData, isUsingReceivingMockData]);
+
   return {
     sendAmount,
     setSendAmount,
@@ -212,8 +215,9 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     isProcessing,
     authLoading,
     countriesLoading,
-    sourceCurrencies: sendingCountryList,
-    targetCurrencies: receivingCountryList,
-    handleContinue
+    sourceCurrencies: sendingCountriesData || mockSendingCurrencies,
+    targetCurrencies: receivingCountriesData || mockReceivingCurrencies,
+    handleContinue,
+    isUsingMockData: isUsingSendingMockData || isUsingReceivingMockData
   };
 };
