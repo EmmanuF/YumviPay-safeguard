@@ -36,6 +36,7 @@ import CheckCountriesStatus from './pages/admin/CheckCountriesStatus';
 // Import NetworkProvider and AuthProvider
 import { NetworkProvider } from './contexts/network';
 import { AuthProvider } from './contexts/AuthContext';
+import { LocaleProvider } from './contexts/LocaleContext';
 
 const queryClient = new QueryClient();
 
@@ -44,41 +45,43 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <NetworkProvider>
-          <Router>
-            <Toaster />
-            <AppInitializer>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/404" element={<NotFound />} />
-                
-                {/* App routes - Protected */}
-                <Route path="/app" element={<ProtectedRoute />}>
-                  <Route index element={<Navigate to="/app/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="profile" element={<Profile />} />
-                </Route>
-                
-                {/* Admin routes */}
-                <Route path="/admin" element={<AdminProtectedRouteWrapper />}>
-                  <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="countries" element={<AdminCountries />} />
-                  <Route path="countries-status" element={<CheckCountriesStatus />} />
-                  <Route path="transactions" element={<AdminTransactions />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="cms" element={<AdminCMS />} />
-                  <Route path="reports" element={<AdminReports />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                  <Route path="security" element={<AdminSecurity />} />
-                </Route>
-                
-                {/* Catch-all route for 404 */}
-                <Route path="*" element={<Navigate to="/404" replace />} />
-              </Routes>
-            </AppInitializer>
-          </Router>
+          <LocaleProvider>
+            <Router>
+              <Toaster />
+              <AppInitializer>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/404" element={<NotFound />} />
+                  
+                  {/* App routes - Protected */}
+                  <Route path="/app" element={<ProtectedRoute />}>
+                    <Route index element={<Navigate to="/app/dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="profile" element={<Profile />} />
+                  </Route>
+                  
+                  {/* Admin routes */}
+                  <Route path="/admin" element={<AdminProtectedRouteWrapper />}>
+                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="countries" element={<AdminCountries />} />
+                    <Route path="countries-status" element={<CheckCountriesStatus />} />
+                    <Route path="transactions" element={<AdminTransactions />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="cms" element={<AdminCMS />} />
+                    <Route path="reports" element={<AdminReports />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                    <Route path="security" element={<AdminSecurity />} />
+                  </Route>
+                  
+                  {/* Catch-all route for 404 */}
+                  <Route path="*" element={<Navigate to="/404" replace />} />
+                </Routes>
+              </AppInitializer>
+            </Router>
+          </LocaleProvider>
         </NetworkProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />

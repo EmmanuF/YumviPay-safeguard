@@ -1,48 +1,27 @@
 
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import { NetworkContext } from './NetworkContext';
 import { NetworkContextType } from './types';
 
 export const useNetwork = (): NetworkContextType => {
-  const networkContext = useContext(NetworkContext);
+  const context = useContext(NetworkContext);
   
-  if (!networkContext) {
-    // Provide a default implementation if the context is not available
-    // This helps prevent errors during testing or when used outside of the NetworkProvider
-    const [isOnline, setIsOnline] = useState<boolean>(
-      typeof navigator !== 'undefined' ? navigator.onLine : true
-    );
-
-    useEffect(() => {
-      const handleOnline = () => setIsOnline(true);
-      const handleOffline = () => setIsOnline(false);
-
-      window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
-
-      return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
-      };
-    }, []);
-
-    // Default implementation with minimal functionality
+  if (context === undefined) {
+    console.warn('useNetwork must be used within a NetworkProvider');
+    // Return fallback values if context is missing
     return {
-      isOnline,
-      isOffline: !isOnline,
+      isOnline: true,
+      isOffline: false,
       offlineModeActive: false,
-      toggleOfflineMode: () => console.warn('NetworkProvider not found. toggleOfflineMode is not available.'),
+      toggleOfflineMode: () => console.warn('NetworkProvider not available'),
       pendingOperationsCount: 0,
-      syncOfflineData: async () => {
-        console.warn('NetworkProvider not found. syncOfflineData is not available.');
-        return false;
-      },
+      syncOfflineData: async () => false,
       isSyncing: false,
       lastSyncTime: null,
       offlineSince: null,
-      addPausedRequest: () => console.warn('NetworkProvider not found. addPausedRequest is not available.')
+      addPausedRequest: () => console.warn('NetworkProvider not available'),
     };
   }
-
-  return networkContext;
+  
+  return context;
 };
