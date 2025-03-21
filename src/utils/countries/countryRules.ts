@@ -1,6 +1,13 @@
+
 import { Country, PaymentMethod } from "@/types/country";
-import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from "@/services/admin/countries/types";
 import { parsePaymentMethods } from "@/hooks/countries/parseCountryData";
+
+/**
+ * Constants for country categorization 
+ * Exported to be used across the application
+ */
+export const AFRICAN_COUNTRY_CODES = ['CM', 'GH', 'NG', 'SN', 'KE', 'ZA', 'EG', 'MA', 'TZ', 'UG', 'RW', 'ET', 'CI'];
+export const SENDING_COUNTRIES = ['US', 'CA', 'GB', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ', 'JP', 'SG', 'AE', 'CH'];
 
 /**
  * Enforce country business rules for the client side Country object.

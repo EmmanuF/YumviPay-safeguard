@@ -5,7 +5,7 @@ import { countries as mockCountries } from '../../data/countries';
 import { useNetwork } from '@/contexts/network';
 import { getCachedCountries, updateCountriesCache, clearCountriesCache } from './countriesCache';
 import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCountriesFromApi } from './countriesApi';
-import { enforceClientCountryRules, SENDING_COUNTRIES } from '@/utils/countries/countryRules';
+import { enforceClientCountryRules, SENDING_COUNTRIES, AFRICAN_COUNTRY_CODES } from '@/utils/countries/countryRules';
 import { logCountryDiagnostics } from '@/utils/countries/diagnostics';
 
 /**

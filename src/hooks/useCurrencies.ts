@@ -48,10 +48,10 @@ export function useCurrencies({ type }: UseCurrenciesOptions): UseCurrenciesResu
           }
         }
 
-        // Extract unique currencies
+        // Extract unique currencies and make sure they're strings
         const uniqueCurrencies = Array.from(
           new Set(filteredCountries.map(country => country.currency))
-        );
+        ).filter(currency => typeof currency === 'string') as string[];
 
         setCurrencies(uniqueCurrencies);
       }

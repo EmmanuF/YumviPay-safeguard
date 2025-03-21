@@ -1,12 +1,5 @@
-
 import { Json } from "@/integrations/supabase/types";
-
-/**
- * Constants for country categorization 
- * Exported to be used across the application
- */
-export const AFRICAN_COUNTRY_CODES = ['CM', 'GH', 'NG', 'SN', 'KE', 'ZA', 'EG', 'MA', 'TZ', 'UG', 'RW', 'ET', 'CI'];
-export const SENDING_COUNTRIES = ['US', 'CA', 'GB', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ', 'JP', 'SG', 'AE', 'CH'];
+import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from "@/utils/countries/countryRules";
 
 /**
  * AdminCountry type definition

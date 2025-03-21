@@ -2,7 +2,7 @@
 import { Country } from '@/types/country';
 import { AdminCountry } from '@/services/admin/countries/types';
 import { supabase } from '@/integrations/supabase/client';
-import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from './countryRules';
+import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from '@/utils/countries/countryRules';
 
 /**
  * Logs detailed diagnostic information about country data
