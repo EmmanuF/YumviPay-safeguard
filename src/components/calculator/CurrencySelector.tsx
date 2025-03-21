@@ -22,31 +22,50 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
       // Check if we can find countries for each currency
       const currencyMap = new Map();
       options.forEach(currencyCode => {
-        const country = countries.find(c => c.currency === currencyCode);
-        currencyMap.set(currencyCode, country ? country.name : null);
+        // Find ALL countries with this currency (there might be multiple)
+        const matchingCountries = countries.filter(c => c.currency === currencyCode);
+        
+        // Prefer sending countries for source currency selector
+        const preferredCountry = label.toLowerCase().includes('source') 
+          ? matchingCountries.find(c => c.isSendingEnabled) || matchingCountries[0]
+          : matchingCountries[0];
+          
+        currencyMap.set(currencyCode, preferredCountry ? preferredCountry.name : null);
       });
       
       console.log(`CurrencySelector (${label}): Currency to country mapping:`, 
         Object.fromEntries(currencyMap.entries()));
       
       // Check specifically for the selected currency
-      const selectedCountry = countries.find(c => c.currency === value);
+      const selectedCountry = getCountryByCurrency(value);
       console.log(`CurrencySelector (${label}): Selected currency ${value} maps to:`, 
         selectedCountry ? `${selectedCountry.name} (flag: ${selectedCountry.flagUrl})` : 'Not found');
     }
   }, [countries, options, value, label]);
 
-  // Find the selected country by currency code - improved version
+  // Find the selected country by currency code - improved version with sending/receiving preference
   const getCountryByCurrency = (currencyCode: string) => {
     if (!currencyCode || !countries || countries.length === 0) return null;
     
-    // Try to find exact match first
-    const exactMatch = countries.find(country => country.currency === currencyCode);
-    if (exactMatch) return exactMatch;
+    // Get all countries with this currency
+    const matchingCountries = countries.filter(country => 
+      country.currency === currencyCode
+    );
     
-    // If no exact match, try case-insensitive match as fallback
-    return countries.find(country => 
-      country.currency.toLowerCase() === currencyCode.toLowerCase());
+    if (matchingCountries.length === 0) {
+      // No exact match, try case-insensitive search as fallback
+      return countries.find(country => 
+        country.currency.toLowerCase() === currencyCode.toLowerCase());
+    }
+    
+    // Choose the appropriate country based on context
+    if (label.toLowerCase().includes('source')) {
+      // For source currencies, prefer countries that are sending-enabled
+      return matchingCountries.find(c => c.isSendingEnabled) || matchingCountries[0];
+    } else {
+      // For target currencies, prefer countries that are receiving-enabled
+      return matchingCountries.find(c => c.isReceivingEnabled) || matchingCountries[0];
+    }
   };
 
   const selectedCountry = getCountryByCurrency(value);
