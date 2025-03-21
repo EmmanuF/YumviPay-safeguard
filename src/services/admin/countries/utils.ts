@@ -23,7 +23,8 @@ export const parseCountryData = (data: any[]): AdminCountry[] => {
     const parsedCountry: AdminCountry = {
       ...country,
       flag_emoji: country.flag_emoji || '🌐', // Provide a default if missing
-      payment_methods: parsedMethods as Json // Cast to Json type for Supabase compatibility
+      // Use a type assertion to safely convert to Json type
+      payment_methods: parsedMethods as unknown as Json 
     };
     
     // Apply country rules to ensure correct sending/receiving flags
