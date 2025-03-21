@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { AdminCountry } from '@/services/admin/countries/types';
+import { AdminCountry } from '@/services/admin/countries';
 
 interface CountryTableProps {
   countries: AdminCountry[];
@@ -115,6 +115,9 @@ const CountryTable: React.FC<CountryTableProps> = ({
         {countries.map((country) => {
           const isSendingProcessing = processingCodes[country.code]?.sending;
           const isReceivingProcessing = processingCodes[country.code]?.receiving;
+          const paymentMethodsCount = Array.isArray(country.payment_methods) 
+            ? country.payment_methods.length 
+            : 0;
           
           return (
             <TableRow key={country.code}>
@@ -154,7 +157,7 @@ const CountryTable: React.FC<CountryTableProps> = ({
               </TableCell>
               <TableCell>
                 <Badge className="bg-primary-50 text-primary-700 hover:bg-primary-100 border-primary-200">
-                  {country.payment_methods?.length || 0} methods
+                  {paymentMethodsCount} methods
                 </Badge>
               </TableCell>
               <TableCell className="text-right">

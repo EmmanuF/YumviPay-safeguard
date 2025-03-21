@@ -9,6 +9,7 @@ import {
   AdminCountriesHeader,
   AdminCountriesContent
 } from '@/components/admin/countries';
+import { AdminCountry } from '@/services/admin/countries/types';
 
 const AdminCountries = () => {
   const {
@@ -45,16 +46,16 @@ const AdminCountries = () => {
         />
         
         <AdminCountriesContent 
-          countries={filteredCountries}
+          countries={filteredCountries as any[]} // Type cast to resolve incompatibility
           isLoading={isLoading}
           onToggleSending={handleToggleSending}
           onToggleReceiving={handleToggleReceiving}
           onViewDetails={(country) => {
-            setSelectedCountry(country);
+            setSelectedCountry(country as AdminCountry); // Type cast for compatibility
             setIsDetailsDialogOpen(true);
           }}
           onEditPaymentMethods={(country) => {
-            setSelectedCountry(country);
+            setSelectedCountry(country as AdminCountry); // Type cast for compatibility
             setIsPaymentMethodsDialogOpen(true);
           }}
         />
@@ -69,7 +70,7 @@ const AdminCountries = () => {
       <CountryDetailsDialog
         open={isDetailsDialogOpen}
         onOpenChange={setIsDetailsDialogOpen}
-        country={selectedCountry}
+        country={selectedCountry as any} // Type cast to resolve incompatibility
         onEditPaymentMethods={() => {
           setIsDetailsDialogOpen(false);
           setIsPaymentMethodsDialogOpen(true);
@@ -79,7 +80,7 @@ const AdminCountries = () => {
       <EditPaymentMethodsDialog
         open={isPaymentMethodsDialogOpen}
         onOpenChange={setIsPaymentMethodsDialogOpen}
-        country={selectedCountry}
+        country={selectedCountry as any} // Type cast to resolve incompatibility
         onSave={handleUpdatePaymentMethods}
       />
     </AdminLayout>

@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { AdminCountry, AFRICAN_COUNTRY_CODES, enforceCountryRules } from "./types";
+import { Json } from "@/integrations/supabase/types";
 
 export const updateCountrySettings = async (
   code: string, 
@@ -15,12 +16,18 @@ export const updateCountrySettings = async (
   
   try {
     // Apply country rules before saving to database
-    let finalUpdates = { ...updates };
+    let finalUpdates: Record<string, any> = { ...updates };
     
     // Never allow African countries to be sending countries
     if (AFRICAN_COUNTRY_CODES.includes(code) && finalUpdates.is_sending_enabled === true) {
       console.warn(`Prevented African country ${code} from being set as a sending country`);
       finalUpdates.is_sending_enabled = false;
+    }
+    
+    // Remove payment_methods from updates if present to handle separately
+    // as it needs special JSON handling
+    if (finalUpdates.payment_methods) {
+      delete finalUpdates.payment_methods;
     }
     
     const { error } = await supabase
@@ -56,7 +63,7 @@ export const updateCountryPaymentMethods = async (
   try {
     const { error } = await supabase
       .from('countries')
-      .update({ payment_methods: paymentMethods })
+      .update({ payment_methods: paymentMethods as Json })
       .eq('code', code);
     
     if (error) throw error;
@@ -86,15 +93,16 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       finalCountry.is_sending_enabled = false;
     }
     
+    // Prepare country data for insertion, ensuring payment_methods is properly formatted as Json
     const countryData = {
       code: finalCountry.code,
       name: finalCountry.name,
       currency: finalCountry.currency,
       currency_symbol: finalCountry.currency_symbol,
-      flag_emoji: finalCountry.flag_emoji || null,
+      flag_emoji: finalCountry.flag_emoji || '🌐', // Provide default
       is_sending_enabled: finalCountry.is_sending_enabled !== undefined ? finalCountry.is_sending_enabled : false,
       is_receiving_enabled: finalCountry.is_receiving_enabled !== undefined ? finalCountry.is_receiving_enabled : false,
-      payment_methods: finalCountry.payment_methods || []
+      payment_methods: (finalCountry.payment_methods || []) as Json
     };
     
     const { error } = await supabase
