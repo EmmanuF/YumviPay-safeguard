@@ -1,6 +1,5 @@
 
 import { toast } from 'sonner';
-import { clearApiCache } from '@/services/api/cache';
 
 // Queue for storing requests to be executed when back online
 export const pausedRequests: (() => Promise<any>)[] = [];
@@ -8,9 +7,12 @@ export const pausedRequests: (() => Promise<any>)[] = [];
 // Load offline mode from storage
 export const loadOfflineMode = async (): Promise<boolean> => {
   try {
-    const { Preferences } = await import('@capacitor/preferences');
-    const { value } = await Preferences.get({ key: 'offlineModeActive' });
-    return value === 'true';
+    // Check if we're in a browser environment
+    if (typeof localStorage !== 'undefined') {
+      const value = localStorage.getItem('offlineModeActive');
+      return value === 'true';
+    }
+    return false;
   } catch (error) {
     console.error('Failed to load offline mode status:', error);
     return false;
@@ -20,11 +22,10 @@ export const loadOfflineMode = async (): Promise<boolean> => {
 // Save offline mode to storage
 export const saveOfflineMode = async (offlineModeActive: boolean): Promise<void> => {
   try {
-    const { Preferences } = await import('@capacitor/preferences');
-    await Preferences.set({
-      key: 'offlineModeActive',
-      value: offlineModeActive.toString(),
-    });
+    // Check if we're in a browser environment
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('offlineModeActive', offlineModeActive.toString());
+    }
   } catch (error) {
     console.error('Failed to save offline mode status:', error);
   }
@@ -55,9 +56,6 @@ export const processPausedRequests = async (): Promise<{ successCount: number; f
       failureCount++;
     }
   }
-  
-  // Clear API cache to ensure fresh data on next fetch
-  await clearApiCache();
   
   return { successCount, failureCount };
 };

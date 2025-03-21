@@ -1,14 +1,14 @@
 
 import React, { createContext, useState, useEffect } from 'react';
-import { useNetworkStatus as useDeviceNetworkStatus } from '@/hooks/useNetworkStatus';
-import { toast } from 'sonner';
 import { NetworkContextType, NetworkProviderProps } from './types';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { toast } from 'sonner';
 import { pausedRequests, loadOfflineMode, saveOfflineMode, processPausedRequests } from './networkUtils';
 
 export const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 
 export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) => {
-  const { isOnline, lastOnlineAt } = useDeviceNetworkStatus();
+  const { isOnline, lastOnlineAt } = useNetworkStatus();
   const [isOffline, setIsOffline] = useState(!isOnline);
   const [offlineModeActive, setOfflineModeActive] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);

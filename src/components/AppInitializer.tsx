@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNetwork } from '@/contexts/network/useNetwork';
+import { useNetwork } from '@/contexts/network';
+import { initializeSupabase } from '@/integrations/supabase/initializeSupabase';
 
 const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -12,6 +13,9 @@ const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
     const initApp = async () => {
       try {
         setIsAuthLoading(true);
+        
+        // Initialize Supabase client
+        await initializeSupabase();
         
         // Initialize the country data
         const { initializeCountries } = await import('@/utils/initializeCountries');
