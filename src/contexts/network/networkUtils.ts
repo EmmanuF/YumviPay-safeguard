@@ -1,61 +1,68 @@
 
-import { toast } from 'sonner';
+// Track the offline status (can be used outside of components)
+let _isOffline = false;
+let _offlineModeActive = false;
 
-// Queue for storing requests to be executed when back online
-export const pausedRequests: (() => Promise<any>)[] = [];
+// Store paused requests that will be executed when back online
+export const pausedRequests: Array<() => Promise<any>> = [];
 
-// Load offline mode from storage
+// Function to load offline mode setting from storage
 export const loadOfflineMode = async (): Promise<boolean> => {
   try {
-    // Check if we're in a browser environment
     if (typeof localStorage !== 'undefined') {
-      const value = localStorage.getItem('offlineModeActive');
-      return value === 'true';
+      const storedMode = localStorage.getItem('offlineModeActive');
+      return storedMode === 'true';
     }
     return false;
   } catch (error) {
-    console.error('Failed to load offline mode status:', error);
+    console.warn('Error loading offline mode from storage:', error);
     return false;
   }
 };
 
-// Save offline mode to storage
-export const saveOfflineMode = async (offlineModeActive: boolean): Promise<void> => {
+// Function to save offline mode setting to storage
+export const saveOfflineMode = async (mode: boolean): Promise<void> => {
   try {
-    // Check if we're in a browser environment
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('offlineModeActive', offlineModeActive.toString());
+      localStorage.setItem('offlineModeActive', mode.toString());
     }
   } catch (error) {
-    console.error('Failed to save offline mode status:', error);
+    console.warn('Error saving offline mode to storage:', error);
   }
 };
 
-// Process all paused requests and return success/failure counts
+// Process paused requests when back online
 export const processPausedRequests = async (): Promise<{ successCount: number; failureCount: number }> => {
-  console.log(`Processing ${pausedRequests.length} queued requests`);
-  toast.info(`Syncing ${pausedRequests.length} pending operations`);
-  
-  // Create a copy of the requests to process
-  const requestsToProcess = [...pausedRequests];
   let successCount = 0;
   let failureCount = 0;
   
-  // Process all paused requests
+  if (pausedRequests.length === 0) {
+    return { successCount, failureCount };
+  }
+  
+  console.log(`Processing ${pausedRequests.length} queued requests`);
+  
+  // Create a copy of the paused requests array
+  const requestsToProcess = [...pausedRequests];
+  
+  // Clear the original array before processing
+  pausedRequests.length = 0;
+  
+  // Process each request
   for (const request of requestsToProcess) {
     try {
       await request();
-      // Remove from queue after successful processing
-      const index = pausedRequests.indexOf(request);
-      if (index > -1) {
-        pausedRequests.splice(index, 1);
-      }
       successCount++;
     } catch (error) {
       console.error('Error processing queued request:', error);
       failureCount++;
+      
+      // Re-add the failed request to the queue
+      pausedRequests.push(request);
     }
   }
+  
+  console.log(`Processed ${successCount} requests successfully, ${failureCount} failed`);
   
   return { successCount, failureCount };
 };

@@ -1,17 +1,19 @@
 
-export type NetworkContextType = {
-  isOffline: boolean;
+import { ReactNode } from 'react';
+
+export interface NetworkContextType {
   isOnline: boolean;
-  addPausedRequest: (callback: () => Promise<any>) => void;
+  isOffline: boolean;
   offlineModeActive: boolean;
   toggleOfflineMode: () => void;
-  syncOfflineData: () => Promise<boolean>;
-  lastSyncTime: Date | null;
   pendingOperationsCount: number;
+  syncOfflineData: () => Promise<boolean>;
   isSyncing: boolean;
+  lastSyncTime: Date | null;
   offlineSince: Date | null;
-};
+  addPausedRequest: (callback: () => Promise<any>) => void;
+}
 
 export interface NetworkProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }

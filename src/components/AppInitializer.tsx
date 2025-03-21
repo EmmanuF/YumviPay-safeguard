@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNetwork } from '@/contexts/network';
 import { initializeSupabase } from '@/integrations/supabase/initializeSupabase';
 
@@ -7,6 +8,7 @@ const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const { isOnline } = useNetwork();
+  const { loading: authLoading } = useAuth();
 
   useEffect(() => {
     // Initialize the app when it loads
@@ -41,7 +43,7 @@ const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
     initApp();
   }, []);
 
-  if (isAuthLoading || !isInitialized) {
+  if (isAuthLoading || authLoading || !isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen">
         <span className="loading loading-dots loading-lg"></span>
