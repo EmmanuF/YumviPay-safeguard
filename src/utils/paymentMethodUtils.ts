@@ -18,7 +18,7 @@ export const parsePaymentMethods = (data: Json | null | undefined): AdminPayment
         item !== null && 
         'id' in item && 
         'name' in item
-      ) as AdminPaymentMethod[];
+      ) as unknown as AdminPaymentMethod[];
     }
     
     // Handle string format (JSON string)
@@ -31,7 +31,7 @@ export const parsePaymentMethods = (data: Json | null | undefined): AdminPayment
             item !== null && 
             'id' in item && 
             'name' in item
-          ) as AdminPaymentMethod[];
+          ) as unknown as AdminPaymentMethod[];
         }
         return [];
       } catch {
@@ -48,7 +48,7 @@ export const parsePaymentMethods = (data: Json | null | undefined): AdminPayment
         item !== null && 
         'id' in item && 
         'name' in item
-      ) as AdminPaymentMethod[];
+      ) as unknown as AdminPaymentMethod[];
     }
     
     // Handle other formats
