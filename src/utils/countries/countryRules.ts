@@ -1,4 +1,3 @@
-
 import { Country, PaymentMethod } from "@/types/country";
 import { parsePaymentMethods } from "@/hooks/countries/parseCountryData";
 

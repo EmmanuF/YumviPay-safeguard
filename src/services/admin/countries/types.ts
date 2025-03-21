@@ -10,10 +10,10 @@ export interface AdminCountry {
   name: string;
   currency: string;
   currency_symbol: string;
-  flag_emoji: string; // Changed from optional to required to match adminCountryService
+  flag_emoji: string;
   is_sending_enabled: boolean;
   is_receiving_enabled: boolean;
-  payment_methods: Json; // Changed from AdminPaymentMethod[] to Json to match Supabase expectations
+  payment_methods: Json;
 }
 
 // Keeping this interface for frontend use, separate from database operations
