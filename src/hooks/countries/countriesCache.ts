@@ -2,8 +2,8 @@
 import { Country } from '../../types/country';
 
 const CACHE_KEY = 'yumvi_countries_cache';
-// Reduced cache expiry to 5 minutes to prevent stale data issues
-const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes in milliseconds
+// Reduce cache expiry to 2 minutes to prevent stale data during development
+const CACHE_EXPIRY = 2 * 60 * 1000; // 2 minutes in milliseconds
 
 interface CachedData {
   countries: Country[];
@@ -15,13 +15,33 @@ interface CachedData {
  */
 export const getCachedCountries = (): Country[] | null => {
   try {
+    if (typeof localStorage === 'undefined') {
+      console.log('🔍 CACHE: localStorage not available, skipping cache');
+      return null;
+    }
+    
     const cachedDataStr = localStorage.getItem(CACHE_KEY);
     if (!cachedDataStr) {
       console.log('🔍 CACHE: No countries cache found');
       return null;
     }
     
-    const cachedData: CachedData = JSON.parse(cachedDataStr);
+    let cachedData: CachedData;
+    try {
+      cachedData = JSON.parse(cachedDataStr);
+    } catch (e) {
+      console.error('🔍 CACHE: Invalid cache data format, clearing cache', e);
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    
+    // Validate cache structure
+    if (!cachedData || !Array.isArray(cachedData.countries)) {
+      console.error('🔍 CACHE: Invalid countries data structure, clearing cache');
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    
     const now = Date.now();
     
     // Check if cache is expired
@@ -31,22 +51,13 @@ export const getCachedCountries = (): Country[] | null => {
       return null;
     }
     
-    console.log('🔍 CACHE: Using cached countries data');
-    
-    // Debug African countries specifically
-    const africanCountries = cachedData.countries.filter(c => 
-      ['CM', 'GH', 'NG', 'SN', 'CI'].includes(c.code));
-    
-    console.log('🔍 CACHE: African countries sending status:');
-    africanCountries.forEach(c => {
-      console.log(`🔍 CACHE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
-    });
+    console.log(`🔍 CACHE: Using cached countries data (${cachedData.countries.length} countries)`);
     
     // Debug sending countries
     const sendingCountries = cachedData.countries.filter(c => c.isSendingEnabled);
     console.log(`🔍 CACHE: Found ${sendingCountries.length} sending countries in cache`);
     if (sendingCountries.length > 0) {
-      console.log('🔍 CACHE: Sending countries:', sendingCountries.map(c => c.code).join(', '));
+      console.log('🔍 CACHE: First 5 sending countries:', sendingCountries.slice(0, 5).map(c => `${c.name} (${c.code})`).join(', '));
     } else {
       console.warn('🔍 CACHE: No sending countries found in cache - might indicate a problem');
     }
@@ -55,7 +66,11 @@ export const getCachedCountries = (): Country[] | null => {
   } catch (error) {
     console.error('Error reading countries cache:', error);
     // If there's an error, clear the cache and return null
-    localStorage.removeItem(CACHE_KEY);
+    try {
+      localStorage.removeItem(CACHE_KEY);
+    } catch (e) {
+      console.error('Failed to clear cache after error:', e);
+    }
     return null;
   }
 };
@@ -64,27 +79,33 @@ export const getCachedCountries = (): Country[] | null => {
  * Update countries cache with new data
  */
 export const updateCountriesCache = (countries: Country[]): void => {
+  if (!countries || !Array.isArray(countries)) {
+    console.error('🔍 CACHE UPDATE: Invalid countries data, not caching', countries);
+    return;
+  }
+  
+  if (countries.length === 0) {
+    console.warn('🔍 CACHE UPDATE: Empty countries array, not caching');
+    return;
+  }
+  
   try {
+    if (typeof localStorage === 'undefined') {
+      console.log('🔍 CACHE UPDATE: localStorage not available, skipping cache update');
+      return;
+    }
+    
     // Debug before caching
-    console.log('🔍 CACHE UPDATE: Before caching countries');
+    console.log(`🔍 CACHE UPDATE: Caching ${countries.length} countries`);
     
     // Debug sending countries
     const sendingCountries = countries.filter(c => c.isSendingEnabled);
     console.log(`🔍 CACHE UPDATE: Caching ${sendingCountries.length} sending countries`);
     if (sendingCountries.length > 0) {
-      console.log('🔍 CACHE UPDATE: Sending countries:', sendingCountries.map(c => c.code).join(', '));
+      console.log('🔍 CACHE UPDATE: First 5 sending countries:', sendingCountries.slice(0, 5).map(c => `${c.name} (${c.code})`).join(', '));
     } else {
       console.warn('🔍 CACHE UPDATE: No sending countries found - check enforcement logic');
     }
-    
-    // Debug African countries specifically
-    const africanCountries = countries.filter(c => 
-      ['CM', 'GH', 'NG', 'SN', 'CI'].includes(c.code));
-    
-    console.log('🔍 CACHE UPDATE: African countries sending status:');
-    africanCountries.forEach(c => {
-      console.log(`🔍 CACHE UPDATE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
-    });
     
     const cacheData: CachedData = {
       countries,
@@ -92,7 +113,7 @@ export const updateCountriesCache = (countries: Country[]): void => {
     };
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    console.log(`🔍 CACHE UPDATE: Updated countries cache with ${countries.length} countries`);
+    console.log(`🔍 CACHE UPDATE: Successfully cached ${countries.length} countries`);
   } catch (error) {
     console.error('Error updating countries cache:', error);
   }
@@ -103,8 +124,13 @@ export const updateCountriesCache = (countries: Country[]): void => {
  */
 export const clearCountriesCache = (): void => {
   try {
+    if (typeof localStorage === 'undefined') {
+      console.log('🔍 CACHE: localStorage not available, cannot clear cache');
+      return;
+    }
+    
     localStorage.removeItem(CACHE_KEY);
-    console.log('🔍 CACHE: Countries cache cleared');
+    console.log('🔍 CACHE: Countries cache cleared successfully');
   } catch (error) {
     console.error('Error clearing countries cache:', error);
   }

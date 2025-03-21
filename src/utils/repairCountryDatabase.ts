@@ -6,6 +6,28 @@ import {
   ALWAYS_RECEIVING_COUNTRIES 
 } from './countryRules';
 import { toast } from 'sonner';
+import { clearCountriesCache } from '@/hooks/countries/countriesCache';
+
+/**
+ * Safely clears the countries cache
+ */
+const safelyClearCache = async (): Promise<void> => {
+  try {
+    console.log('🔧 Safely clearing countries cache to ensure fresh data');
+    
+    // First try direct localStorage access
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('yumvi_countries_cache');
+    }
+    
+    // Then try the imported function
+    clearCountriesCache();
+    
+    console.log('🔧 Countries cache cleared to ensure fresh data');
+  } catch (e) {
+    console.error('Failed to clear countries cache:', e);
+  }
+};
 
 /**
  * Comprehensive utility to repair country database entries
@@ -15,6 +37,9 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
   console.log('🔧 Starting country database repair...');
   
   try {
+    // First clear any cached data to ensure we're working with fresh data
+    await safelyClearCache();
+    
     // Step 1: Get all countries from database
     console.log('🔧 Fetching all countries from database...');
     const { data: countries, error } = await supabase
@@ -24,7 +49,7 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
       
     if (error) {
       console.error('Error fetching countries:', error);
-      throw new Error('Failed to fetch countries from database');
+      throw new Error(`Failed to fetch countries from database: ${error.message}`);
     }
     
     if (!countries || countries.length === 0) {
@@ -50,13 +75,18 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
         update.is_sending_enabled = true;
         needsUpdate = true;
         console.log(`🔧 Setting ${country.name} (${country.code}) as a sending country`);
+      } else if (!SENDING_COUNTRIES.includes(country.code) && country.is_sending_enabled) {
+        // If not in sending countries list but is marked as sending, disable sending
+        update.is_sending_enabled = false;
+        needsUpdate = true;
+        console.log(`🔧 Setting ${country.name} (${country.code}) as NOT a sending country`);
       }
       
-      // Ensure African countries are NEVER sending countries
+      // Ensure African countries are NEVER sending countries (double-check)
       if (AFRICAN_COUNTRY_CODES.includes(country.code) && country.is_sending_enabled) {
         update.is_sending_enabled = false;
         needsUpdate = true;
-        console.log(`🔧 Ensuring ${country.name} (${country.code}) is NOT a sending country`);
+        console.log(`🔧 Ensuring ${country.name} (${country.code}) is NOT a sending country (African country)`);
       }
       
       // Ensure receiving countries are properly flagged
@@ -78,6 +108,7 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
     }
     
     console.log(`🔧 Applying ${updates.length} country updates to database`);
+    console.log('🔧 Updates:', JSON.stringify(updates));
     
     // Execute upsert with all updates
     const { error: updateError } = await supabase
@@ -86,7 +117,7 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
       
     if (updateError) {
       console.error('Error updating countries:', updateError);
-      throw new Error('Failed to update countries');
+      throw new Error(`Failed to update countries: ${updateError.message}`);
     }
     
     // Step 4: Verify updates
@@ -98,7 +129,7 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
       
     if (verifyError) {
       console.error('Error verifying country updates:', verifyError);
-      throw new Error('Failed to verify country updates');
+      throw new Error(`Failed to verify country updates: ${verifyError.message}`);
     }
     
     // Log final state for key countries
@@ -111,22 +142,12 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
     console.log(`🔧 Repair completed. Database now has ${sendingCount} sending countries and ${receivingCount} receiving countries`);
     
     // IMPORTANT: Force clear countries cache to ensure fresh data
-    try {
-      console.log('🔧 Forcibly clearing countries cache to ensure fresh data');
-      localStorage.removeItem('yumvi_countries_cache');
-      
-      // Also try to import and call the cache clear function if possible
-      const { clearCountriesCache } = await import('@/hooks/countries/countriesCache');
-      clearCountriesCache();
-      console.log('🔧 Countries cache cleared to ensure fresh data');
-    } catch (e) {
-      console.error('Failed to clear countries cache:', e);
-    }
+    await safelyClearCache();
     
     return true;
   } catch (error) {
     console.error('Country database repair failed:', error);
-    toast.error('Failed to repair country database');
+    toast.error(`Failed to repair country database: ${error instanceof Error ? error.message : 'Unknown error'}`);
     return false;
   }
 };
@@ -164,18 +185,21 @@ export const ensureCountryFlags = async (): Promise<void> => {
     const success = await repairCountryDatabase();
     
     if (success) {
-      // IMPORTANT: Force a page reload to clear any cached data
-      toast.success('Country flags repaired successfully. Reloading app to apply changes...');
+      toast.success('Country flags repaired successfully');
       
-      // Give time for the toast to be seen before reload
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // Give user the option to reload if they want
+      toast.success('Reload the page to see updated country data', {
+        action: {
+          label: 'Reload Now',
+          onClick: () => window.location.reload()
+        },
+        duration: 5000
+      });
     } else {
       toast.error('Failed to repair country flags');
     }
   } catch (error) {
     console.error('Error ensuring country flags:', error);
-    toast.error('Failed to repair country flags');
+    toast.error(`Failed to repair country flags: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
