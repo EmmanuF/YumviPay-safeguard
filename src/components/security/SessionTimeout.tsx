@@ -15,13 +15,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface SessionTimeoutProps {
-  timeout?: number; // in milliseconds, default 4 hours
-  warningTime?: number; // in milliseconds, default 5 minutes
+  timeout?: number; // in milliseconds, default 60 minutes
+  warningTime?: number; // in milliseconds, default 2 minutes
 }
 
 const SessionTimeout: React.FC<SessionTimeoutProps> = ({ 
-  timeout = 4 * 60 * 60 * 1000, // 4 hours (increased from 60 minutes)
-  warningTime = 5 * 60 * 1000 // 5 minutes (increased from 2 minutes)
+  timeout = 60 * 60 * 1000, // 60 minutes (increased from 15)
+  warningTime = 2 * 60 * 1000 // 2 minutes (increased from 1)
 }) => {
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
   const [showWarning, setShowWarning] = useState<boolean>(false);
@@ -32,19 +32,14 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
   
   // Update last activity timestamp when user interacts with the page
   const updateActivity = useCallback(() => {
-    console.log('User activity detected, updating timestamp');
     setLastActivity(Date.now());
     setShowWarning(false);
-    
-    // Also update local storage to persist activity state across page refreshes
-    localStorage.setItem('lastUserActivity', Date.now().toString());
   }, []);
   
   // Log out the user
   const handleTimeout = useCallback(async () => {
     if (isLoggedIn) {
       try {
-        console.log('Session timeout reached, logging out user');
         await signOut();
         toast({
           title: 'Session Expired',
@@ -63,19 +58,15 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
   useEffect(() => {
     if (!isLoggedIn) return;
     
-    console.log('Setting up session timeout monitoring with timeout:', timeout/60000, 'minutes');
-    
-    // Very comprehensive list of events to detect user activity
+    // Expanded list of events to detect user activity more accurately
     const events = [
-      'mousedown', 'mousemove', 'mouseup', 'keypress', 'scroll', 'touchstart',
-      'click', 'keydown', 'keyup', 'touchmove', 'focus', 'blur', 'input', 'change',
-      'wheel', 'drag', 'dragstart', 'dragend', 'drop', 'submit', 'contextmenu',
-      'pointerdown', 'pointermove', 'pointerup', 'resize', 'visibilitychange',
-      'select', 'selectstart', 'selectionchange'
+      'mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart',
+      'click', 'keydown', 'touchmove', 'focus', 'input', 'change',
+      'wheel', 'drag', 'drop', 'submit'
     ];
     
     events.forEach(event => {
-      window.addEventListener(event, updateActivity, { passive: true });
+      window.addEventListener(event, updateActivity);
     });
     
     // Additionally update activity when user navigates between pages
@@ -87,23 +78,6 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
     // Listen for popstate event (browser back/forward navigation)
     window.addEventListener('popstate', handleRouteChange);
     
-    // Listen for clicks on anchors - these might cause navigation
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'A' || target.closest('a')) {
-        handleRouteChange();
-      }
-    });
-    
-    // Check for stored activity timestamp
-    const storedActivity = localStorage.getItem('lastUserActivity');
-    if (storedActivity) {
-      const storedTime = parseInt(storedActivity);
-      if (!isNaN(storedTime) && storedTime > lastActivity) {
-        setLastActivity(storedTime);
-      }
-    }
-    
     // Update activity on component mount
     updateActivity();
     
@@ -112,9 +86,8 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
         window.removeEventListener(event, updateActivity);
       });
       window.removeEventListener('popstate', handleRouteChange);
-      document.removeEventListener('click', handleRouteChange);
     };
-  }, [isLoggedIn, updateActivity, timeout]);
+  }, [isLoggedIn, updateActivity]);
   
   // Check for timeout
   useEffect(() => {
@@ -147,18 +120,18 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       }
     };
     
-    // Check every 30 seconds when far from timeout, more frequently when close
+    // Only check every 10 seconds when far from timeout, more frequently when close
     intervalId = window.setInterval(() => {
       const elapsed = Date.now() - lastActivity;
       
-      if (elapsed > timeout - warningTime - 60000 || showWarning) {
+      if (elapsed > timeout - warningTime - 30000 || showWarning) {
         // Check every second when close to warning or when warning is shown
         clearInterval(intervalId);
         intervalId = window.setInterval(checkActivity, 1000);
       } else {
         checkActivity();
       }
-    }, 30000); // Reduced frequency to save resources
+    }, 10000);
     
     return () => clearInterval(intervalId);
   }, [isLoggedIn, lastActivity, timeout, warningTime, showWarning, handleTimeout]);
@@ -173,7 +146,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Session Timeout Warning</AlertDialogTitle>
           <AlertDialogDescription>
-            Your session will expire in {Math.floor(timeLeft / 60)} minutes and {timeLeft % 60} seconds due to inactivity. Would you like to continue using the application?
+            Your session will expire in {timeLeft} seconds due to inactivity. Would you like to continue using the application?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

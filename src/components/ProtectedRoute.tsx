@@ -30,23 +30,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           return;
         }
         
-        // Check if we have cached authentication that's recent (within last 15 minutes)
+        // Check if we have cached authentication that's recent (within last 5 minutes)
         const lastAuthCheck = localStorage.getItem('lastAuthCheck');
         if (lastAuthCheck) {
           const lastChecked = parseInt(lastAuthCheck);
-          const isRecent = Date.now() - lastChecked < 15 * 60 * 1000; // 15 minutes (increased from 5)
+          const isRecent = Date.now() - lastChecked < 5 * 60 * 1000; // 5 minutes
           
           if (isRecent) {
             // Get cached session state
             const cachedAuthState = localStorage.getItem('cachedAuthState');
-            if (cachedAuthState) {
-              const parsedState = JSON.parse(cachedAuthState);
-              if (parsedState.isAuthenticated) {
-                console.log('Using cached authentication state (authenticated)');
-                setIsAuthenticated(true);
-                setIsChecking(false);
-                return;
-              }
+            if (cachedAuthState === 'authenticated') {
+              console.log('Using cached authentication state (authenticated)');
+              setIsAuthenticated(true);
+              setIsChecking(false);
+              return;
             }
           }
         }
@@ -58,7 +55,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => {
             reject(new Error('Authentication check timed out'));
-          }, 30000); // 30 seconds timeout (increased from 15)
+          }, 15000); // 15 seconds timeout (increased from 10)
         });
         
         // Race the auth check against the timeout
@@ -72,10 +69,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         // Cache the result
         localStorage.setItem('lastAuthCheck', Date.now().toString());
-        localStorage.setItem('cachedAuthState', JSON.stringify({
-          isAuthenticated: isAuthValid,
-          user: data.session?.user || null
-        }));
+        localStorage.setItem('cachedAuthState', isAuthValid ? 'authenticated' : 'unauthenticated');
         
         setIsAuthenticated(isAuthValid);
         
@@ -98,24 +92,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           // give the benefit of the doubt and let the user continue
           const cachedAuthState = localStorage.getItem('cachedAuthState');
           const isRecentCache = !!localStorage.getItem('lastAuthCheck') && 
-            (Date.now() - parseInt(localStorage.getItem('lastAuthCheck') || '0')) < 60 * 60 * 1000; // 60 minutes (increased from 30)
+            (Date.now() - parseInt(localStorage.getItem('lastAuthCheck') || '0')) < 30 * 60 * 1000; // 30 minutes
           
-          if (cachedAuthState) {
-            const parsedState = JSON.parse(cachedAuthState);
-            if (parsedState.isAuthenticated && isRecentCache) {
-              console.log('Using cached auth state due to timeout');
-              setIsAuthenticated(true);
-              
-              toast({
-                title: "Authentication Check Delayed",
-                description: "Using cached login state. You may need to refresh if you encounter any issues.",
-                variant: "default",
-              });
-              return;
-            }
+          if (cachedAuthState === 'authenticated' && isRecentCache) {
+            console.log('Using cached auth state due to timeout');
+            setIsAuthenticated(true);
+            
+            toast({
+              title: "Authentication Check Delayed",
+              description: "Using cached login state. You may need to refresh if you encounter any issues.",
+              variant: "default",
+            });
+          } else {
+            setIsAuthenticated(false);
           }
-          
-          setIsAuthenticated(false);
         } else {
           setIsAuthenticated(false);
           
@@ -134,7 +124,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [authError, toast, location.pathname, isLoggedIn, authLoading]);
   
   // Show loading state while checking authentication
-  if (authLoading || isChecking) {
+  if (loading || isChecking) {
     return <LoadingState 
       message="Verifying authentication..." 
       submessage="Please wait while we check your login status" 
