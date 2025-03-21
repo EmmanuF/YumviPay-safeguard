@@ -84,8 +84,16 @@ export async function apiRequest<T = any>(
       }
       
       // Parse the response as JSON
-      const data = await response.json();
-      return data;
+      try {
+        const data = await response.json();
+        return data;
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        throw createNetworkError(
+          'Invalid response format from server',
+          'server-error'
+        );
+      }
     };
     
     let data: T;

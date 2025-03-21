@@ -30,103 +30,35 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           return;
         }
         
-        // Check if we have cached authentication that's recent (within last 15 minutes)
-        const lastAuthCheck = localStorage.getItem('lastAuthCheck');
-        if (lastAuthCheck) {
-          const lastChecked = parseInt(lastAuthCheck);
-          const isRecent = Date.now() - lastChecked < 15 * 60 * 1000; // 15 minutes (increased from 5)
+        // Use a simple approach first - try getting the session
+        try {
+          console.log('Getting current session...');
+          const { data, error } = await supabase.auth.getSession();
           
-          if (isRecent) {
-            // Get cached session state
-            const cachedAuthState = localStorage.getItem('cachedAuthState');
-            if (cachedAuthState) {
-              const parsedState = JSON.parse(cachedAuthState);
-              if (parsedState.isAuthenticated) {
-                console.log('Using cached authentication state (authenticated)');
-                setIsAuthenticated(true);
-                setIsChecking(false);
-                return;
-              }
-            }
+          if (error) {
+            console.error('Error getting session:', error);
+            setIsAuthenticated(false);
+          } else {
+            console.log('Session retrieved successfully, authenticated:', !!data.session);
+            setIsAuthenticated(!!data.session);
           }
-        }
-        
-        // Add a timeout for the authentication check with increased timeout
-        const authCheckPromise = supabase.auth.getSession();
-        
-        // Create a timeout promise
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(new Error('Authentication check timed out'));
-          }, 30000); // 30 seconds timeout (increased from 15)
-        });
-        
-        // Race the auth check against the timeout
-        const { data } = await Promise.race([
-          authCheckPromise,
-          timeoutPromise as Promise<any>
-        ]);
-        
-        const isAuthValid = !!data.session;
-        console.log('Auth check result:', isAuthValid ? 'Authenticated' : 'Not authenticated');
-        
-        // Cache the result
-        localStorage.setItem('lastAuthCheck', Date.now().toString());
-        localStorage.setItem('cachedAuthState', JSON.stringify({
-          isAuthenticated: isAuthValid,
-          user: data.session?.user || null
-        }));
-        
-        setIsAuthenticated(isAuthValid);
-        
-        if (!isAuthValid && authError) {
-          console.error('Authentication error:', authError);
-          toast({
-            title: "Authentication Error",
-            description: authError,
-            variant: "destructive",
-          });
-        }
-      } catch (error: any) {
-        console.error('Error checking authentication:', error);
-        
-        // Check if the error is a timeout - in which case we can be more lenient
-        if (error.message.includes('timed out')) {
-          console.log('Auth check timed out, using last known state');
-          
-          // If we were previously authenticated and this is just a timeout,
-          // give the benefit of the doubt and let the user continue
-          const cachedAuthState = localStorage.getItem('cachedAuthState');
-          const isRecentCache = !!localStorage.getItem('lastAuthCheck') && 
-            (Date.now() - parseInt(localStorage.getItem('lastAuthCheck') || '0')) < 60 * 60 * 1000; // 60 minutes (increased from 30)
-          
-          if (cachedAuthState) {
-            const parsedState = JSON.parse(cachedAuthState);
-            if (parsedState.isAuthenticated && isRecentCache) {
-              console.log('Using cached auth state due to timeout');
-              setIsAuthenticated(true);
-              
-              toast({
-                title: "Authentication Check Delayed",
-                description: "Using cached login state. You may need to refresh if you encounter any issues.",
-                variant: "default",
-              });
-              return;
-            }
-          }
-          
+        } catch (sessionError) {
+          console.error('Failed to get session:', sessionError);
           setIsAuthenticated(false);
-        } else {
-          setIsAuthenticated(false);
-          
-          toast({
-            title: "Authentication Error",
-            description: error.message || "Failed to verify your login status. Please try signing in again.",
-            variant: "destructive",
-          });
         }
-      } finally {
+        
+        // Regardless of the result, allow the component to render
         setIsChecking(false);
+      } catch (error: any) {
+        console.error('Error in auth check:', error);
+        setIsAuthenticated(false);
+        setIsChecking(false);
+        
+        toast({
+          title: "Authentication Error",
+          description: error.message || "Failed to verify your login status. Please try signing in again.",
+          variant: "destructive",
+        });
       }
     };
     
