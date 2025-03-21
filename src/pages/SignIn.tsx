@@ -21,8 +21,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
 import { BiometricService } from '@/services/biometric';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, WifiOff, CloudOff } from 'lucide-react';
 import { useNetwork } from '@/contexts/network';
+import { checkSupabaseConnection } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -37,6 +38,7 @@ const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [supabaseAvailable, setSupabaseAvailable] = useState<boolean | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,10 +48,39 @@ const SignIn = () => {
     },
   });
 
+  // Check Supabase connection on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const isAvailable = await checkSupabaseConnection();
+        setSupabaseAvailable(isAvailable);
+        if (!isAvailable && isOnline) {
+          setAuthError("Unable to connect to authentication service. You may need to check your API configuration.");
+        }
+      } catch (error) {
+        console.error("Error checking Supabase connection:", error);
+        setSupabaseAvailable(false);
+      }
+    };
+    
+    if (isOnline) {
+      checkConnection();
+    }
+  }, [isOnline]);
+  
   useEffect(() => {
     // Check if biometric login is available
-    const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
-    setShowBiometricLogin(biometricAvailable);
+    const checkBiometricAvailability = async () => {
+      try {
+        const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
+        setShowBiometricLogin(biometricAvailable);
+      } catch (error) {
+        console.error("Error checking biometric availability:", error);
+        setShowBiometricLogin(false);
+      }
+    };
+    
+    checkBiometricAvailability();
     
     // Clear any previous errors when component mounts
     setAuthError(null);
@@ -58,9 +89,22 @@ const SignIn = () => {
   // Reset auth error if network status changes
   useEffect(() => {
     if (isOnline) {
-      setAuthError(null);
+      // Don't clear the error if it's a configuration issue
+      if (authError && !authError.includes("API configuration")) {
+        setAuthError(null);
+      }
+      
+      // Check Supabase connection again when coming back online
+      checkSupabaseConnection().then(isAvailable => {
+        setSupabaseAvailable(isAvailable);
+        if (!isAvailable) {
+          setAuthError("Unable to connect to authentication service. You may need to check your API configuration.");
+        }
+      });
+    } else {
+      setAuthError("You appear to be offline. Please check your internet connection and try again.");
     }
-  }, [isOnline]);
+  }, [isOnline, authError]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
@@ -98,8 +142,10 @@ const SignIn = () => {
       console.error("Sign in error:", error);
       
       // Set appropriate error message based on error type
-      if (!navigator.onLine || error.message?.includes('Failed to fetch')) {
+      if (!navigator.onLine || error.message?.includes('Failed to fetch') || error.type === 'connection-error') {
         setAuthError("Unable to reach authentication servers. Please check your internet connection and try again.");
+      } else if (error.type === 'timeout-error') {
+        setAuthError("Connection timed out. Please try again later.");
       } else {
         setAuthError(error.message || "Invalid credentials. Please try again.");
       }
@@ -140,6 +186,12 @@ const SignIn = () => {
       });
   };
 
+  const getErrorIcon = () => {
+    if (!isOnline) return <WifiOff className="h-5 w-5 mr-2 flex-shrink-0" />;
+    if (supabaseAvailable === false) return <CloudOff className="h-5 w-5 mr-2 flex-shrink-0" />;
+    return <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />;
+  };
+
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
@@ -153,14 +205,14 @@ const SignIn = () => {
           >
             {!isOnline && (
               <div className="mb-4 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800 flex items-center">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                <WifiOff className="h-5 w-5 mr-2 flex-shrink-0" />
                 <span>You appear to be offline. Sign in requires an internet connection.</span>
               </div>
             )}
             
             {authError && (
               <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-800 flex items-center">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                {getErrorIcon()}
                 <span>{authError}</span>
               </div>
             )}

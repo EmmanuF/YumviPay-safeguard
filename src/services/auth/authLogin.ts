@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { createNetworkError } from '@/utils/errorHandling';
 
 // Sign in user
 export const signInUser = async (email: string, password: string): Promise<any> => {
@@ -11,12 +12,15 @@ export const signInUser = async (email: string, password: string): Promise<any> 
     
     // Check if we're online before attempting to sign in
     if (!navigator.onLine) {
-      throw new Error('You are currently offline. Please check your internet connection and try again.');
+      throw createNetworkError(
+        'You are currently offline. Please check your internet connection and try again.',
+        'connection-error'
+      );
     }
     
     // Add timeout to the Supabase auth request
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), 20000); // 20 second timeout
+    const timeoutId = setTimeout(() => abortController.abort(), 30000); // 30 second timeout (increased from 20)
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -40,6 +44,20 @@ export const signInUser = async (email: string, password: string): Promise<any> 
           throw new Error(error.message || 'Authentication failed. Please try again.');
         }
       }
+      
+      if (!data.user) {
+        throw new Error('Authentication failed. No user data received.');
+      }
+
+      // Store session duration information for visibility
+      if (data.session) {
+        const expiresAt = data.session.expires_at;
+        if (expiresAt) {
+          const expiresAtDate = new Date(expiresAt * 1000);
+          console.log('Session expires at:', expiresAtDate.toISOString());
+          localStorage.setItem('sessionExpiresAt', expiresAtDate.toISOString());
+        }
+      }
 
       return data.user;
     } catch (fetchError: any) {
@@ -47,15 +65,28 @@ export const signInUser = async (email: string, password: string): Promise<any> 
       
       // Handle network-related errors
       if (fetchError.name === 'AbortError') {
-        throw new Error('Login request timed out. Please try again.');
-      } else if (fetchError.message?.includes('fetch')) {
-        throw new Error('Unable to connect to authentication service. Please check your internet connection.');
+        throw createNetworkError(
+          'Login request timed out. Please try again.',
+          'timeout-error'
+        );
+      } else if (fetchError.message?.includes('fetch') || fetchError.message?.includes('Failed to fetch')) {
+        throw createNetworkError(
+          'Unable to connect to authentication service. Please check your internet connection.',
+          'connection-error'
+        );
       }
       
       throw fetchError; // Re-throw if it's not a network error
     }
   } catch (error: any) {
     console.error('Error signing in:', error);
+    
+    // Check if it's already a network error
+    if (error.type) {
+      throw error;
+    }
+    
+    // Create a generic error if it's not already a network error
     throw new Error(error.message || 'Sign in failed. Please check your credentials.');
   }
 };
