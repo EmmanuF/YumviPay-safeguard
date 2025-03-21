@@ -1,100 +1,40 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Shield, AlertTriangle, Clock, PiggyBank, Phone } from 'lucide-react';
-import ProviderOptions from './ProviderOptions';
-import RecipientInfo from './RecipientInfo';
-import { useLocale } from '@/contexts/LocaleContext';
-import { getProviderById } from '@/data/cameroonPaymentProviders';
-import { verifyRecipient } from '@/utils/recipientUtils';
-import { toast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 interface ExpandedContentProps {
   methodName: string;
   options: Array<{
     id: string;
     name: string;
+    logoUrl?: string;
   }>;
   selectedOption: string;
+  onOptionSelect: (optionId: string) => void;
   recipientName: string;
   accountNumber: string;
-  countryCode: string;
-  onOptionSelect: (optionId: string) => void;
   onRecipientNameChange: (value: string) => void;
   onAccountNumberChange: (value: string) => void;
+  countryCode: string;
 }
 
 const ExpandedContent: React.FC<ExpandedContentProps> = ({
   methodName,
   options,
   selectedOption,
+  onOptionSelect,
   recipientName,
   accountNumber,
-  countryCode,
-  onOptionSelect,
   onRecipientNameChange,
   onAccountNumberChange,
+  countryCode
 }) => {
-  const { t } = useLocale();
-  const methodId = methodName.toLowerCase().includes('mobile') 
-    ? 'mobile_money' 
-    : methodName.toLowerCase().includes('bank') 
-      ? 'bank_transfer' 
-      : 'cash_pickup';
-  const [isValid, setIsValid] = useState(false);
-  const [verificationMessage, setVerificationMessage] = useState('');
-  const [hasVerified, setHasVerified] = useState(false);
+  const isBankMethod = methodName.toLowerCase().includes('bank');
+  const phonePrefix = countryCode === 'CM' ? '+237' : '';
   
-  // Auto-select the first option if none is selected
-  useEffect(() => {
-    if (options.length > 0 && !selectedOption) {
-      onOptionSelect(options[0].id);
-    }
-  }, [options, selectedOption, onOptionSelect]);
-
-  // Clear account number when changing providers to avoid format confusion
-  useEffect(() => {
-    if (selectedOption) {
-      onAccountNumberChange('');
-      setHasVerified(false);
-      setVerificationMessage('');
-    }
-  }, [selectedOption, onAccountNumberChange]);
-
-  // Get provider details if available
-  const providerDetails = selectedOption ? getProviderById(methodId, selectedOption) : undefined;
-
-  // Verify recipient when both name and account are provided
-  useEffect(() => {
-    if (recipientName && accountNumber && selectedOption) {
-      const result = verifyRecipient(
-        { 
-          id: 'temp', 
-          name: recipientName, 
-          contact: accountNumber, 
-          country: countryCode, 
-          isFavorite: false 
-        }, 
-        selectedOption
-      );
-      
-      setIsValid(result.isValid);
-      setVerificationMessage(result.message || '');
-      
-      if (result.isValid && !hasVerified) {
-        toast({
-          title: "Recipient information valid",
-          description: "The recipient information format has been verified"
-        });
-        setHasVerified(true);
-      }
-    } else {
-      setIsValid(false);
-      setHasVerified(false);
-    }
-  }, [recipientName, accountNumber, selectedOption, countryCode, hasVerified, toast]);
-
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
@@ -102,118 +42,75 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({
       exit={{ opacity: 0, height: 0 }}
       className="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-100"
     >
-      {options.length > 0 && (
-        <div className="mb-4">
-          <Label htmlFor="provider" className="text-sm font-medium mb-2 block">
-            {methodId === 'mobile_money' 
-              ? t('momo.provider') || "Select Mobile Money Provider"
-              : methodId === 'bank_transfer'
-                ? t('bank.provider') || "Select Bank"
-                : t('cash.provider') || "Select Cash Pickup Provider"}
-          </Label>
-          <ProviderOptions
-            options={options}
-            selectedOption={selectedOption}
-            onSelect={onOptionSelect}
-            methodId={methodId}
+      <div className="mb-4">
+        <Label htmlFor="provider" className="text-sm font-medium mb-2 block">Select Provider</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {options.map((option) => (
+            <div
+              key={option.id}
+              onClick={() => onOptionSelect(option.id)}
+              className={`p-3 rounded-md border text-center cursor-pointer transition-all flex items-center justify-center gap-2 ${
+                selectedOption === option.id
+                  ? "border-primary-500 bg-primary-50 text-primary-700"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              {option.logoUrl && (
+                <img 
+                  src={option.logoUrl} 
+                  alt={option.name} 
+                  className="h-4 w-4 object-contain" 
+                />
+              )}
+              {option.name}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="mb-4">
+        <Label htmlFor="recipientName" className="text-sm font-medium mb-2 block">
+          Recipient Name
+        </Label>
+        <Input
+          id="recipientName"
+          placeholder="Enter recipient's full name"
+          value={recipientName}
+          onChange={(e) => onRecipientNameChange(e.target.value)}
+          className="w-full"
+        />
+        <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 rounded-md">
+          <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-800">
+            Important: The recipient name must exactly match the name registered on their {isBankMethod ? 'bank account' : 'mobile money account'}. Mismatched names may cause transaction delays or funds being sent to the wrong person.
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <Label htmlFor="accountNumber" className="text-sm font-medium mb-2 block">
+          {isBankMethod ? 'Account Number' : 'Mobile Number'}
+        </Label>
+        <div className="relative">
+          {!isBankMethod && phonePrefix && (
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span className="text-gray-500">{phonePrefix}</span>
+            </div>
+          )}
+          <Input
+            id="accountNumber"
+            placeholder={isBankMethod ? "Enter account number" : `Enter mobile number ${phonePrefix ? 'without prefix' : ''}`}
+            value={accountNumber}
+            onChange={(e) => onAccountNumberChange(e.target.value)}
+            className={!isBankMethod && phonePrefix ? "pl-12 w-full" : "w-full"}
           />
         </div>
-      )}
-      
-      <RecipientInfo
-        methodName={methodName}
-        recipientName={recipientName}
-        accountNumber={accountNumber}
-        onRecipientNameChange={onRecipientNameChange}
-        onAccountNumberChange={onAccountNumberChange}
-        countryCode={countryCode}
-        providerId={selectedOption}
-        onValidation={(valid) => setIsValid(valid)}
-      />
-
-      {/* Verification status */}
-      {hasVerified && isValid && recipientName && accountNumber && (
-        <div className="mt-4 p-3 bg-green-50 rounded-lg flex items-start gap-2">
-          <Shield className="h-5 w-5 text-green-600 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-green-800">Verification Passed</h4>
-            <p className="text-sm text-green-700">
-              The recipient information format has been verified.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {verificationMessage && !isValid && (
-        <div className="mt-4 p-3 bg-amber-50 rounded-lg flex items-start gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-amber-800">Verification Issue</h4>
-            <p className="text-sm text-amber-700">{verificationMessage}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Provider-specific details and fees */}
-      {providerDetails && (
-        <div className="mt-4 space-y-3">
-          {/* Processing time */}
-          {providerDetails.processingTime && (
-            <div className="p-3 bg-blue-50 rounded-lg flex items-start gap-2">
-              <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium text-blue-800">Processing Time</h4>
-                <p className="text-sm text-blue-700">
-                  {providerDetails.processingTime}
-                </p>
-              </div>
-            </div>
-          )}
-          
-          {/* Fees information */}
-          {providerDetails.fees && (
-            <div className="p-3 bg-purple-50 rounded-lg flex items-start gap-2">
-              <PiggyBank className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium text-purple-800">Transaction Fees</h4>
-                <p className="text-sm text-purple-700">
-                  {providerDetails.fees.percentage}% + {providerDetails.fees.fixed} {providerDetails.fees.currency}
-                </p>
-                {providerDetails.limits && (
-                  <p className="text-xs text-purple-600 mt-1">
-                    Transaction limits: {providerDetails.limits.min} - {providerDetails.limits.max} {providerDetails.limits.currency}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Support information */}
-          {providerDetails.supportPhone && (
-            <div className="p-3 bg-green-50 rounded-lg flex items-start gap-2">
-              <Phone className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium text-green-800">Customer Support</h4>
-                <p className="text-sm text-green-700">
-                  {providerDetails.supportPhone}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Provider-specific instructions */}
-      {providerDetails?.instructions && (
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-          <h4 className="font-medium text-blue-800 mb-2">Instructions:</h4>
-          <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
-            {providerDetails.instructions.map((instruction, idx) => (
-              <li key={idx}>{instruction}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {!isBankMethod && (
+          <p className="text-xs text-gray-500 mt-1">
+            Example: {countryCode === 'CM' ? '6XXXXXXXX (9 digits without the +237 prefix)' : 'Enter complete number'}
+          </p>
+        )}
+      </div>
     </motion.div>
   );
 };
