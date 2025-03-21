@@ -10,7 +10,6 @@ interface TransactionStatusNotificationsProps {
   onDownload: () => void;
   sendingNotification: boolean;
   generatingReceipt: boolean;
-  notificationType?: 'email' | 'sms' | null;
 }
 
 const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsProps> = ({
@@ -18,8 +17,7 @@ const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsPro
   onSendSms,
   onDownload,
   sendingNotification,
-  generatingReceipt,
-  notificationType
+  generatingReceipt
 }) => {
   const { isOffline } = useNetwork();
   
@@ -35,8 +33,8 @@ const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsPro
             onClick={onSendEmail}
             disabled={sendingNotification || isOffline}
           >
-            <Mail className={`h-4 w-4 mr-2 ${sendingNotification && notificationType === 'email' ? 'animate-spin' : ''}`} />
-            {sendingNotification && notificationType === 'email' ? 'Sending...' : 'Send Email'}
+            <Mail className="h-4 w-4 mr-2" />
+            Send Email
           </Button>
           
           <Button 
@@ -46,8 +44,8 @@ const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsPro
             onClick={onSendSms}
             disabled={sendingNotification || isOffline}
           >
-            <Smartphone className={`h-4 w-4 mr-2 ${sendingNotification && notificationType === 'sms' ? 'animate-spin' : ''}`} />
-            {sendingNotification && notificationType === 'sms' ? 'Sending...' : 'Send SMS'}
+            <Smartphone className="h-4 w-4 mr-2" />
+            Send SMS
           </Button>
           
           <Button 
@@ -57,8 +55,8 @@ const TransactionStatusNotifications: React.FC<TransactionStatusNotificationsPro
             onClick={onDownload}
             disabled={generatingReceipt}
           >
-            <Download className={`h-4 w-4 mr-2 ${generatingReceipt ? 'animate-spin' : ''}`} />
-            {generatingReceipt ? 'Generating...' : 'Download'}
+            <Download className="h-4 w-4 mr-2" />
+            Download
           </Button>
         </div>
         

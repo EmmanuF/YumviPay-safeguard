@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowRight, Send } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CurrencySelector from '@/components/calculator/CurrencySelector';
 import AmountInput from '@/components/calculator/AmountInput';
@@ -40,26 +40,13 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
   handleContinue,
   className
 }) => {
-  // Log props to help with debugging
-  console.log('FullCalculator render:', { 
-    sendAmount, 
-    receiveAmount, 
-    sourceCurrency, 
-    targetCurrency,
-    sourceCurrencies: sourceCurrencies?.length,
-    targetCurrencies: targetCurrencies?.length,
-    handleContinue: !!handleContinue
-  });
-  
   return (
     <div className={`bg-white rounded-3xl shadow-xl overflow-hidden ${className}`}>
-      <div className="bg-primary-500 text-white p-4 flex items-center justify-center">
-        <div className="flex items-center">
-          <span className="text-lg font-semibold">1 {sourceCurrency}</span>
-          <ArrowRight className="mx-3 h-5 w-5" />
-          <span className="text-lg font-semibold">{exchangeRate.toFixed(2)} {targetCurrency}</span>
-        </div>
-      </div>
+      <RateDisplay 
+        sourceCurrency={sourceCurrency} 
+        targetCurrency={targetCurrency} 
+        rate={exchangeRate} 
+      />
       
       <div className="p-6">
         <h3 className="text-xl font-bold text-center mb-4">Send money to your loved ones</h3>
@@ -77,7 +64,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
           <CurrencySelector
             value={sourceCurrency}
             onChange={setSourceCurrency}
-            options={sourceCurrencies || []}
+            options={sourceCurrencies}
             label="Source Currency"
           />
         </div>
@@ -92,7 +79,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
           <CurrencySelector
             value={targetCurrency}
             onChange={setTargetCurrency}
-            options={targetCurrencies || []}
+            options={targetCurrencies}
             label="Target Currency"
           />
         </div>
@@ -106,14 +93,12 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
         
         <Button
           onClick={handleContinue}
-          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+          className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
-          variant="default"
+          disabled={authLoading || isProcessing}
         >
-          <div className="flex items-center justify-center">
-            <Send className="mr-2 h-5 w-5" />
-            {authLoading || isProcessing ? 'Processing...' : 'Send Money'}
-          </div>
+          {authLoading || isProcessing ? 'Processing...' : 'Continue'}
+          {!authLoading && !isProcessing && <ArrowRight className="ml-2 h-5 w-5" />}
         </Button>
       </div>
     </div>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowRight, Send } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CurrencySelector from '@/components/calculator/CurrencySelector';
 import AmountInput from '@/components/calculator/AmountInput';
@@ -39,17 +39,6 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
   handleContinue,
   className
 }) => {
-  // Log props to help with debugging
-  console.log('InlineCalculator render:', { 
-    sendAmount, 
-    receiveAmount, 
-    sourceCurrency, 
-    targetCurrency,
-    sourceCurrencies: sourceCurrencies?.length,
-    targetCurrencies: targetCurrencies?.length,
-    handleContinue: !!handleContinue
-  });
-  
   const onContinueClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent any default form submission
     e.stopPropagation(); // Stop event propagation
@@ -57,11 +46,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
     
     // Add a small delay to ensure UI reacts before navigation
     setTimeout(() => {
-      if (handleContinue) {
-        handleContinue();
-      } else {
-        console.error('handleContinue function is not defined');
-      }
+      handleContinue();
     }, 50);
   };
 
@@ -80,7 +65,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           <CurrencySelector
             value={sourceCurrency}
             onChange={setSourceCurrency}
-            options={sourceCurrencies || []}
+            options={sourceCurrencies}
             label="Source Currency"
           />
         </div>
@@ -95,12 +80,12 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           <CurrencySelector
             value={targetCurrency}
             onChange={setTargetCurrency}
-            options={targetCurrencies || []}
+            options={targetCurrencies}
             label="Target Currency"
           />
         </div>
         
-        <div className="mb-4">
+        <div className="mb-2">
           <RateDisplay 
             sourceCurrency={sourceCurrency} 
             targetCurrency={targetCurrency} 
@@ -111,15 +96,13 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
         
         <Button
           onClick={onContinueClick}
-          className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl"
+          className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
+          disabled={authLoading || isProcessing}
           type="button"
-          variant="default"
         >
-          <div className="flex items-center justify-center">
-            <Send className="mr-2 h-5 w-5" />
-            {authLoading || isProcessing ? 'Processing...' : 'Send Money'}
-          </div>
+          {authLoading || isProcessing ? 'Processing...' : 'Continue'}
+          {!authLoading && !isProcessing && <ArrowRight className="ml-2 h-5 w-5" />}
         </Button>
       </div>
     </div>

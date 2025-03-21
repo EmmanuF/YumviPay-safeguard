@@ -6,7 +6,6 @@ import { isPlatform } from '@/utils/platformUtils';
 import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
 import { simulateKadoWebhook } from '../transaction';
-import { kadoApiService } from './kadoApiService';
 
 /**
  * Service to handle redirecting to Kado for KYC and payment processing
@@ -52,7 +51,7 @@ export const kadoRedirectService = {
       // Generate appropriate return URL based on platform
       let returnUrl: string;
       
-      if (isPlatform('capacitor') && params.deepLinkBack) {
+      if (isPlatform('mobile') && params.deepLinkBack) {
         // Generate a deep link for native apps
         returnUrl = deepLinkService.generateDeepLink(
           `transaction/${params.transactionId}`,
@@ -63,43 +62,14 @@ export const kadoRedirectService = {
         returnUrl = params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`;
       }
       
-      // Get Kado configuration
-      const config = await kadoApiService.getKadoConfig();
+      // In a real app, this would construct a URL to Kado's payment page
+      // Include userRef parameter for KYC tracking
+      const kadoUrl = `https://kado.com/pay?amount=${params.amount}&recipient=${encodeURIComponent(params.recipientName)}&country=${params.country}&payment_method=${params.paymentMethod}&transaction_id=${params.transactionId}&return_url=${encodeURIComponent(returnUrl)}&user_ref=${userRef || 'guest'}`;
       
-      if (!config.widgetId) {
-        console.error('Kado Widget ID not configured');
-        toast({
-          title: "Configuration Error",
-          description: "Kado Widget ID is not configured. Please contact support.",
-          variant: "destructive"
-        });
-        
-        // For development environment, simulate webhook
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Development environment detected, simulating webhook response');
-          await simulateKadoWebhook(params.transactionId);
-        }
-        
-        return;
-      }
-      
-      // Construct URL to Kado's payment widget
-      const kadoUrl = new URL('https://app.kado.money');
-      kadoUrl.searchParams.append('apiKey', config.widgetId);
-      kadoUrl.searchParams.append('amount', params.amount);
-      kadoUrl.searchParams.append('destination', encodeURIComponent(params.recipientName));
-      kadoUrl.searchParams.append('destinationContact', encodeURIComponent(params.recipientContact));
-      kadoUrl.searchParams.append('country', params.country);
-      kadoUrl.searchParams.append('method', params.paymentMethod);
-      kadoUrl.searchParams.append('orderId', params.transactionId);
-      kadoUrl.searchParams.append('returnUrl', encodeURIComponent(returnUrl));
-      
-      if (userRef) {
-        kadoUrl.searchParams.append('userRef', userRef);
-      }
-      
-      // Log the URL being used
-      console.log(`Redirecting to Kado: ${kadoUrl.toString()}`);
+      // For simulation purposes, we'll just log the URL
+      console.log(`Redirecting to Kado: ${kadoUrl}`);
+      console.log(`Return URL: ${returnUrl}`);
+      console.log(`User reference: ${userRef || 'guest'}`);
       
       // Show a toast indicating that we're redirecting
       toast({
@@ -107,24 +77,13 @@ export const kadoRedirectService = {
         description: "You will be redirected to complete KYC and payment"
       });
       
-      // Handle redirection based on platform
-      if (isPlatform('capacitor')) {
-        // Use the device's browser to open the URL on mobile
-        const { Browser } = await import('@capacitor/browser');
-        await Browser.open({ url: kadoUrl.toString() });
-      } else {
-        // Redirect in current window for web
-        window.location.href = kadoUrl.toString();
-      }
+      // Simulate a delay to represent the user going to Kado and completing the process
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // If we're in development mode, simulate the webhook for testing
-      if (process.env.NODE_ENV === 'development') {
-        // Wait a bit to simulate the user going to Kado
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('Development environment detected, simulating webhook response');
-        await simulateKadoWebhook(params.transactionId);
-      }
+      // Simulate the Kado webhook response
+      await simulateKadoWebhook(params.transactionId);
       
+      // Return - in a real app, Kado would redirect back to the returnUrl
       return;
     } catch (error) {
       console.error('Error redirecting to Kado:', error);

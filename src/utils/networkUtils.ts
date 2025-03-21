@@ -170,7 +170,7 @@ export const waitForNetwork = (timeout = 30000): Promise<boolean> => {
 export const useNetworkStatus = () => {
   // Import React and useEffect only inside function components
   const { useEffect } = require('react');
-  const { useNetwork } = require('@/contexts/network');
+  const { useNetwork } = require('@/contexts/NetworkContext');
   
   const { isOffline, offlineModeActive, addPausedRequest, lastOnlineAt } = useNetwork();
   

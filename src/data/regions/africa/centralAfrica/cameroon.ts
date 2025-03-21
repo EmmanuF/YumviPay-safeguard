@@ -1,40 +1,39 @@
 
 import { Country } from '../../../../types/country';
-import { enforceClientCountryRules } from '@/utils/countries/countryRules';
 
-// Create the country with correct data
-let cameroonCountry: Country = {
+// Cameroon - Our MVP focus country
+export const cameroonCountry: Country = {
   name: 'Cameroon',
   code: 'CM',
-  flagUrl: 'https://flagcdn.com/cm.svg',
+  flagUrl: 'https://flagcdn.com/w80/cm.png',
   currency: 'XAF',
-  isSendingEnabled: false, // This should always be false for African countries
+  isSendingEnabled: true,
   isReceivingEnabled: true,
   phonePrefix: '+237',
   paymentMethods: [
     {
       id: 'mobile_money',
       name: 'Mobile Money',
-      description: 'Pay using Orange Money, MTN Mobile Money or other mobile wallets',
+      description: 'Send to MTN MoMo or Orange Money',
       icon: 'smartphone',
-      fees: '1.2%',
+      fees: '1-2%',
       processingTime: 'Instant',
     },
     {
       id: 'bank_transfer',
       name: 'Bank Transfer',
-      description: 'Direct transfer to Cameroonian banks',
+      description: 'Send to any Cameroonian bank',
       icon: 'bank',
-      fees: '1.5%',
+      fees: '1.5-2.5%',
       processingTime: '1-2 business days',
-    }
+    },
+    {
+      id: 'cash_pickup',
+      name: 'Cash Pickup',
+      description: 'Recipient collects cash at a local agent',
+      icon: 'banknote',
+      fees: '2-3%',
+      processingTime: 'Same day',
+    },
   ],
 };
-
-// Apply country rules to ensure consistency even with mock data
-cameroonCountry = enforceClientCountryRules(cameroonCountry);
-
-// Log after rules are applied for verification
-console.log('🔍 AFTER RULES APPLIED: Cameroon isSendingEnabled:', cameroonCountry.isSendingEnabled);
-
-export { cameroonCountry };

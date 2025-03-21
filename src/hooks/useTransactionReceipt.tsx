@@ -28,7 +28,6 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
   const [refreshInterval, setRefreshInterval] = useState<number | null>(null);
   const [receipt, setReceipt] = useState<TransactionReceipt | null>(null);
   const [sendingNotification, setSendingNotification] = useState(false);
-  const [notificationType, setNotificationType] = useState<'email' | 'sms' | null>(null);
   const [generatingReceipt, setGeneratingReceipt] = useState(false);
 
   // Effect to clear interval when component unmounts
@@ -126,7 +125,6 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
     if (!transaction) return;
     
     setSendingNotification(true);
-    setNotificationType('email');
     
     try {
       // Generate receipt if we don't have one
@@ -139,11 +137,6 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
       // Send receipt by email
       if (transaction.recipientContact) {
         await sendReceiptByEmail(currentReceipt, transaction.recipientContact);
-        
-        toast({
-          title: "Receipt Sent",
-          description: `Email receipt sent to ${transaction.recipientName}`,
-        });
         
         // Also send a push notification if enabled
         const pushEnabled = await PushNotificationService.isEnabled();
@@ -170,7 +163,6 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
       });
     } finally {
       setSendingNotification(false);
-      setNotificationType(null);
     }
   };
   
@@ -178,7 +170,6 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
     if (!transaction) return;
     
     setSendingNotification(true);
-    setNotificationType('sms');
     
     try {
       // Notify recipient via SMS
@@ -195,11 +186,6 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
             ? 'transaction_failed' 
             : 'transaction_created',
         contactMethod: 'sms'
-      });
-      
-      toast({
-        title: "SMS Sent",
-        description: `SMS notification sent to ${transaction.recipientName}`,
       });
       
       // Also send a push notification if enabled
@@ -220,14 +206,12 @@ export const useTransactionReceipt = (transaction: Transaction | null) => {
       });
     } finally {
       setSendingNotification(false);
-      setNotificationType(null);
     }
   };
 
   return {
     receipt,
     sendingNotification,
-    notificationType,
     generatingReceipt,
     refreshInterval,
     setRefreshInterval,

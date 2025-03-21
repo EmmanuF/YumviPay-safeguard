@@ -1,15 +1,26 @@
 
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+import './styles/index.css';
+import { initializeApp } from './utils/initializeApp';
 
-// Clear any cached country data on application load
-localStorage.removeItem('countries-cache');
-console.log('🔍 MAIN: Cleared countries cache on application load');
+// Initialize the app (database, auth, etc.)
+initializeApp().catch(error => {
+  console.error('Failed to initialize app:', error);
+});
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+// Initialize the root element
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+// Create the root and render the app
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-)
+);

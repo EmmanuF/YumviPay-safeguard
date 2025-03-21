@@ -1,6 +1,6 @@
 
 import { useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { useNetwork } from '@/contexts/network';
+import { useNetwork } from '@/contexts/NetworkContext';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { isPlatform } from '@/utils/platformUtils';

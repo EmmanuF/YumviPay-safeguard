@@ -9,6 +9,7 @@ import {
   ProfileHeader,
   EditProfileDialog,
   ProfileTabs,
+  LogoutButton,
   ProfileLoading,
   BiometricSettings
 } from '@/components/profile';
@@ -66,7 +67,7 @@ const Profile = () => {
                 onResetNotifications={handleResetNotifications}
               />
               
-              {/* LogoutButton removed since we now have a global sign-out button */}
+              <LogoutButton onLogout={handleLogout} />
             </motion.div>
           )}
         </main>

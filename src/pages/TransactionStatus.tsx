@@ -1,152 +1,135 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import MobileAppLayout from '@/components/MobileAppLayout';
-import LoadingState from '@/components/transaction/LoadingState';
-import TransactionNotFound from '@/components/transaction/TransactionNotFound';
-import { supabase } from '@/integrations/supabase/client';
-import { Transaction } from '@/types/transaction';
+import { useParams } from 'react-router-dom';
+import { getTransactionById, Transaction } from '@/services/transactions';
+import { useNotifications } from '@/contexts/NotificationContext';
+import BottomNavigation from '@/components/BottomNavigation';
+import {
+  LoadingState,
+  TransactionNotFound,
+  TransactionStatusHeader,
+  TransactionStatusContent
+} from '@/components/transaction';
+import { useTransactionReceipt } from '@/hooks/useTransactionReceipt';
 
-const TransactionStatus: React.FC = () => {
-  const { transactionId } = useParams<{ transactionId: string }>();
-  const navigate = useNavigate();
+// Utility function to safely parse a number
+const safeParseNumber = (value: string | number | undefined): number => {
+  if (value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  return parseFloat(value) || 0;
+};
+
+const TransactionStatus = () => {
+  const { id } = useParams<{ id: string }>();
+  const { addNotification } = useNotifications();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  const {
+    sendingNotification,
+    generatingReceipt,
+    refreshInterval,
+    setRefreshInterval,
+    handleShareTransaction,
+    handleDownloadReceipt,
+    handleSendAgain,
+    handleSendEmailReceipt,
+    handleSendSmsNotification
+  } = useTransactionReceipt(transaction);
 
   useEffect(() => {
-    const fetchTransaction = async () => {
-      if (!transactionId) {
-        setError('Transaction ID is missing');
-        setIsLoading(false);
+    // Fetch transaction details
+    const fetchTransactionDetails = async () => {
+      setLoading(true);
+      
+      if (!id) {
+        setLoading(false);
         return;
       }
-
+      
       try {
-        console.log('Fetching transaction:', transactionId);
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('id', transactionId)
-          .single();
-
-        if (error) {
-          console.error('Error fetching transaction:', error);
-          throw error;
+        // Now properly awaiting the async function
+        const fetchedTransaction = await getTransactionById(id);
+        setTransaction(fetchedTransaction);
+        
+        // Add notification for completed transactions
+        if (fetchedTransaction && fetchedTransaction.status === 'completed') {
+          // Convert amount to number for notification
+          const amount = safeParseNumber(fetchedTransaction.amount);
+            
+          addNotification({
+            title: "Transfer Successful",
+            message: `Your transfer of $${amount} to ${fetchedTransaction.recipientName} was successful.`,
+            type: 'success',
+            transactionId: fetchedTransaction.id
+          });
+          
+          // Clear any refresh interval once transaction is completed
+          if (refreshInterval) {
+            clearInterval(refreshInterval);
+            setRefreshInterval(null);
+          }
         }
-
-        if (!data) {
-          console.log('Transaction not found');
-          setTransaction(null);
-        } else {
-          console.log('Transaction found:', data);
-          setTransaction(data as unknown as Transaction);
-        }
-      } catch (err) {
-        console.error('Error in transaction fetch:', err);
-        setError('Failed to load transaction details');
+      } catch (error) {
+        console.error('Error fetching transaction:', error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchTransaction();
-  }, [transactionId]);
+    fetchTransactionDetails();
+    
+    // For pending transactions, start a refresh interval to check for updates
+    if (transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
+      // Only set up the interval if it doesn't exist yet
+      if (!refreshInterval) {
+        const interval = window.setInterval(() => {
+          fetchTransactionDetails();
+        }, 5000); // Check every 5 seconds
+        
+        setRefreshInterval(interval);
+      }
+    }
+    
+  }, [id, addNotification, refreshInterval, transaction?.status, setRefreshInterval]);
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <LoadingState
-        message="Loading transaction details"
-        submessage="Please wait while we retrieve your transaction information"
-      />
-    );
-  }
-
-  if (error) {
-    return (
-      <MobileAppLayout>
-        <Helmet>
-          <title>Transaction Error | Yumvi-Pay</title>
-        </Helmet>
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-red-600 mb-2">Error</h1>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600"
-            >
-              Go to Dashboard
-            </button>
-          </div>
-        </div>
-      </MobileAppLayout>
+      <div className="flex flex-col min-h-screen bg-background">
+        <TransactionStatusHeader />
+        <LoadingState />
+        <BottomNavigation />
+      </div>
     );
   }
 
   if (!transaction) {
-    return <TransactionNotFound />;
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <TransactionStatusHeader />
+        <TransactionNotFound />
+        <BottomNavigation />
+      </div>
+    );
   }
 
   return (
-    <MobileAppLayout>
-      <Helmet>
-        <title>Transaction Status | Yumvi-Pay</title>
-      </Helmet>
-      <div className="flex-1 p-4">
-        <h1 className="text-xl font-bold mb-4">Transaction Status</h1>
-        
-        <div className="bg-white rounded-lg shadow p-4 mb-4">
-          <h2 className="font-medium text-lg">Transaction ID: {transaction.id}</h2>
-          <p className="text-gray-600">Status: <span className="font-semibold">{transaction.status}</span></p>
-          <p className="text-gray-600">Amount: {transaction.amount} {transaction.currency}</p>
-          {transaction.recipientName && (
-            <p className="text-gray-600">Recipient: {transaction.recipientName}</p>
-          )}
-          <p className="text-gray-600">Date: {new Date(transaction.createdAt).toLocaleString()}</p>
-          
-          {transaction.status === 'pending' && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-              <p className="text-yellow-700">
-                Your transaction is being processed. This may take a few minutes.
-              </p>
-            </div>
-          )}
-          
-          {transaction.status === 'completed' && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-green-700">
-                Transaction completed successfully!
-              </p>
-            </div>
-          )}
-          
-          {transaction.status === 'failed' && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-700">
-                Transaction failed: {transaction.failureReason || 'Unknown reason'}
-              </p>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex space-x-2">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex-1 bg-gray-100 text-gray-800 py-2 rounded-lg hover:bg-gray-200"
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => navigate('/send')}
-            className="flex-1 bg-primary-500 text-white py-2 rounded-lg hover:bg-primary-600"
-          >
-            New Transfer
-          </button>
-        </div>
-      </div>
-    </MobileAppLayout>
+    <div className="flex flex-col min-h-screen bg-background">
+      <TransactionStatusHeader />
+      
+      <TransactionStatusContent
+        transaction={transaction}
+        onShare={handleShareTransaction}
+        onDownload={handleDownloadReceipt}
+        onSendAgain={handleSendAgain}
+        onSendEmail={handleSendEmailReceipt}
+        onSendSms={handleSendSmsNotification}
+        sendingNotification={sendingNotification}
+        generatingReceipt={generatingReceipt}
+      />
+      
+      <BottomNavigation />
+    </div>
   );
 };
 

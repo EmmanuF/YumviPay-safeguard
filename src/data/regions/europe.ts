@@ -1,4 +1,3 @@
-
 import { Country } from '../../types/country';
 
 export const europeanCountries: Country[] = [
@@ -7,7 +6,7 @@ export const europeanCountries: Country[] = [
     code: 'GB',
     flagUrl: 'https://flagcdn.com/gb.svg',
     currency: 'GBP',
-    isSendingEnabled: true, // Ensure this is true
+    isSendingEnabled: true,
     isReceivingEnabled: false,
     paymentMethods: [
       {
@@ -29,25 +28,43 @@ export const europeanCountries: Country[] = [
     ],
   },
   {
-    name: 'France',
-    code: 'FR',
-    flagUrl: 'https://flagcdn.com/fr.svg',
+    name: 'Germany',
+    code: 'DE',
+    flagUrl: 'https://flagcdn.com/de.svg',
     currency: 'EUR',
-    isSendingEnabled: true, // Ensure this is true
+    isSendingEnabled: true,
     isReceivingEnabled: false,
     paymentMethods: [
       {
+        id: 'sepa',
+        name: 'SEPA Transfer',
+        description: 'Send via the Single Euro Payments Area',
+        icon: 'bank',
+        fees: '0.5%',
+        processingTime: '1-2 business days',
+      },
+      {
         id: 'credit_card',
         name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or Amex',
+        description: 'Pay with Visa, Mastercard, or American Express',
         icon: 'credit-card',
         fees: '2.5%',
         processingTime: 'Instant',
       },
+    ],
+  },
+  {
+    name: 'France',
+    code: 'FR',
+    flagUrl: 'https://flagcdn.com/fr.svg',
+    currency: 'EUR',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
       {
         id: 'sepa',
         name: 'SEPA Transfer',
-        description: 'European bank transfer',
+        description: 'Send via the Single Euro Payments Area',
         icon: 'bank',
         fees: '0.5%',
         processingTime: '1-2 business days',
@@ -55,13 +72,21 @@ export const europeanCountries: Country[] = [
     ],
   },
   {
-    name: 'Germany',
-    code: 'DE',
-    flagUrl: 'https://flagcdn.com/de.svg',
+    name: 'Spain',
+    code: 'ES',
+    flagUrl: 'https://flagcdn.com/es.svg',
     currency: 'EUR',
-    isSendingEnabled: true, // Ensure this is true
+    isSendingEnabled: true,
     isReceivingEnabled: false,
     paymentMethods: [
+      {
+        id: 'sepa',
+        name: 'SEPA Transfer',
+        description: 'Send via the Single Euro Payments Area',
+        icon: 'bank',
+        fees: '0.5%',
+        processingTime: '1-2 business days',
+      },
       {
         id: 'credit_card',
         name: 'Credit Card',
@@ -70,10 +95,64 @@ export const europeanCountries: Country[] = [
         fees: '2.5%',
         processingTime: 'Instant',
       },
+    ],
+  },
+  {
+    name: 'Italy',
+    code: 'IT',
+    flagUrl: 'https://flagcdn.com/it.svg',
+    currency: 'EUR',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
       {
         id: 'sepa',
         name: 'SEPA Transfer',
-        description: 'European bank transfer',
+        description: 'Send via the Single Euro Payments Area',
+        icon: 'bank',
+        fees: '0.5%',
+        processingTime: '1-2 business days',
+      },
+    ],
+  },
+  {
+    name: 'Netherlands',
+    code: 'NL',
+    flagUrl: 'https://flagcdn.com/nl.svg',
+    currency: 'EUR',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'sepa',
+        name: 'SEPA Transfer',
+        description: 'Send via the Single Euro Payments Area',
+        icon: 'bank',
+        fees: '0.5%',
+        processingTime: '1-2 business days',
+      },
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+    ],
+  },
+  {
+    name: 'Belgium',
+    code: 'BE',
+    flagUrl: 'https://flagcdn.com/be.svg',
+    currency: 'EUR',
+    isSendingEnabled: true,
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'sepa',
+        name: 'SEPA Transfer',
+        description: 'Send via the Single Euro Payments Area',
         icon: 'bank',
         fees: '0.5%',
         processingTime: '1-2 business days',
@@ -85,17 +164,9 @@ export const europeanCountries: Country[] = [
     code: 'CH',
     flagUrl: 'https://flagcdn.com/ch.svg',
     currency: 'CHF',
-    isSendingEnabled: true, // Ensure this is true
+    isSendingEnabled: true,
     isReceivingEnabled: false,
     paymentMethods: [
-      {
-        id: 'credit_card',
-        name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or Amex',
-        icon: 'credit-card',
-        fees: '2.5%',
-        processingTime: 'Instant',
-      },
       {
         id: 'bank_transfer',
         name: 'Bank Transfer',
@@ -104,7 +175,14 @@ export const europeanCountries: Country[] = [
         fees: '0.5%',
         processingTime: '1-2 business days',
       },
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa, Mastercard, or Amex',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
     ],
   },
-  // Add more European countries here as needed
 ];

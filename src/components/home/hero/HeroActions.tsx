@@ -1,15 +1,14 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Download, Send } from 'lucide-react';
+import { ArrowRight, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HeroActionsProps {
   onGetStarted: () => void;
-  onSendMoney?: () => void;
 }
 
-const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted, onSendMoney }) => {
+const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -33,23 +32,8 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted, onSendMoney }) 
       </Button>
       
       <Button
-        onClick={onSendMoney}
-        className="bg-secondary-500 hover:bg-secondary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base shadow-lg shadow-secondary-500/20 hover:shadow-xl hover:shadow-secondary-500/30"
-        size="lg"
-      >
-        <motion.span
-          className="flex items-center"
-          whileHover={{ x: 4 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        >
-          Send Money
-          <Send className="ml-2 h-5 w-5" />
-        </motion.span>
-      </Button>
-      
-      <Button
         variant="outline"
-        className="border-secondary-500 text-slate-500 hover:bg-secondary-500/20 shadow-sm"
+        className="border-primary-200 text-primary-700 hover:bg-primary-50 shadow-sm"
         size="lg"
       >
         <motion.span

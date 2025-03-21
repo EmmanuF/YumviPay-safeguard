@@ -1,9 +1,9 @@
 
 import React from 'react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { AlertTriangle } from 'lucide-react';
 
 interface NameMatchConfirmationProps {
   isChecked: boolean;
@@ -14,49 +14,71 @@ interface NameMatchConfirmationProps {
 const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
   isChecked,
   onCheckedChange,
-  showError = false
+  showError = false,
 }) => {
-  console.log('NameMatchConfirmation: isChecked =', isChecked, 'showError =', showError);
-  
   return (
     <div className={cn(
-      "mt-6 p-4 rounded-lg border",
-      showError ? "border-red-200 bg-red-50" : "border-gray-200 bg-gray-50"
+      "p-4 rounded-lg border mb-4",
+      showError 
+        ? "bg-red-50 border-red-200" 
+        : isChecked 
+          ? "bg-green-50 border-green-200" 
+          : "bg-amber-50 border-amber-200"
     )}>
-      <div className="flex items-start space-x-3">
-        <Checkbox 
-          id="confirm-details" 
-          checked={isChecked}
-          onCheckedChange={onCheckedChange}
-          className={cn(
-            "mt-1",
-            showError ? "border-red-500" : ""
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0 mt-0.5">
+          {showError ? (
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+          ) : isChecked ? (
+            <CheckCircle className="h-5 w-5 text-green-500" />
+          ) : (
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
           )}
-        />
-        <div>
-          <Label 
-            htmlFor="confirm-details" 
-            className={cn(
-              "text-sm font-medium leading-none",
-              showError ? "text-red-700" : "text-gray-900"
-            )}
-          >
-            I confirm the recipient details are correct
-          </Label>
+        </div>
+        
+        <div className="flex-1">
+          <h3 className={cn(
+            "text-sm font-medium",
+            showError ? "text-red-800" : isChecked ? "text-green-800" : "text-amber-800"
+          )}>
+            IMPORTANT: Verify name and number match exactly
+          </h3>
+          
           <p className={cn(
             "text-xs mt-1",
-            showError ? "text-red-600" : "text-gray-500"
+            showError ? "text-red-700" : isChecked ? "text-green-700" : "text-amber-700"
           )}>
-            The name you entered must exactly match the name on the recipient's identification documents or account.
+            The recipient name and contact number/account must <strong>exactly match</strong> what's 
+            registered with the payment provider. Mismatched details can result in transaction 
+            delays, failed transfers, or permanent loss of funds.
           </p>
           
+          <div className="mt-3 flex items-start gap-2">
+            <Checkbox 
+              id="name-match-confirmation" 
+              checked={isChecked}
+              onCheckedChange={onCheckedChange}
+              className={cn(
+                showError ? "border-red-500" : "",
+                isChecked ? "text-green-500" : ""
+              )}
+            />
+            <Label 
+              htmlFor="name-match-confirmation" 
+              className={cn(
+                "text-xs cursor-pointer",
+                showError ? "text-red-700" : isChecked ? "text-green-700" : "text-amber-700"
+              )}
+            >
+              I confirm that the recipient name and number/account exactly match the details 
+              registered with the payment provider.
+            </Label>
+          </div>
+          
           {showError && (
-            <div className="flex items-start space-x-2 mt-2">
-              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-red-600">
-                You must confirm that the recipient details are correct before proceeding.
-              </p>
-            </div>
+            <p className="text-xs text-red-600 mt-2">
+              Please confirm the recipient details match before proceeding.
+            </p>
           )}
         </div>
       </div>

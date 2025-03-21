@@ -1,5 +1,5 @@
 
-import { useNetwork } from '@/contexts/network';
+import { useNetwork } from '@/contexts/NetworkContext';
 import { isPlatform } from '@/utils/platformUtils';
 import { formatDistanceToNow } from 'date-fns';
 

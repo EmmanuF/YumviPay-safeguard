@@ -8,8 +8,8 @@ const FooterBottom: React.FC = () => {
   
   return (
     <div className="mt-12 pt-6 border-t border-gray-200">
-      <div className="flex flex-row justify-between items-center bg-primary rounded-lg p-4 text-primary-foreground">
-        <div className="text-sm">
+      <div className="flex flex-row justify-between items-center bg-primary-500 rounded-lg p-4 text-white">
+        <div className="text-sm text-primary-50">
           © {new Date().getFullYear()} Yumvi-Pay. All rights reserved.
         </div>
         
@@ -20,7 +20,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="Twitter"
-            className="bg-white hover:bg-muted text-primary p-1.5 rounded-full transition-colors"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Twitter className="h-4 w-4" />
           </a>
@@ -30,7 +30,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="Facebook"
-            className="bg-white hover:bg-muted text-primary p-1.5 rounded-full transition-colors"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Facebook className="h-4 w-4" />
           </a>
@@ -40,7 +40,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="Instagram"
-            className="bg-white hover:bg-muted text-primary p-1.5 rounded-full transition-colors"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Instagram className="h-4 w-4" />
           </a>
@@ -50,7 +50,7 @@ const FooterBottom: React.FC = () => {
             target="_blank" 
             rel="noopener noreferrer"
             aria-label="LinkedIn"
-            className="bg-white hover:bg-muted text-primary p-1.5 rounded-full transition-colors"
+            className="bg-white hover:bg-primary-100 text-primary-600 p-1.5 rounded-full transition-colors"
           >
             <Linkedin className="h-4 w-4" />
           </a>

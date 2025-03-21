@@ -8,12 +8,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface SignOutButtonProps extends Omit<ButtonProps, 'onClick'> {
   redirectTo?: string;
-  iconOnly?: boolean;
 }
 
 const SignOutButton: React.FC<SignOutButtonProps> = ({ 
   redirectTo = '/',
-  iconOnly = false,
   children,
   ...props
 }) => {
@@ -48,8 +46,8 @@ const SignOutButton: React.FC<SignOutButtonProps> = ({
     >
       {children || (
         <>
-          <LogOut className={`${iconOnly ? '' : 'mr-2'} h-4 w-4`} />
-          {!iconOnly && "Sign Out"}
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign Out
         </>
       )}
     </Button>

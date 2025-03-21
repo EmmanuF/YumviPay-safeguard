@@ -8,10 +8,8 @@ import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { WifiOff } from 'lucide-react';
+import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
-import { useAuth } from '@/contexts/AuthContext';
-import { SignOutButton } from '@/components/authentication';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -23,7 +21,6 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const isHome = location.pathname === '/';
   const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
-  const { isLoggedIn } = useAuth();
   
   // Get device-specific optimizations
   const {
@@ -52,17 +49,17 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   
   // Enhanced glass effects with different intensities
   const glassClass = glassEffectIntensity === 'light' 
-    ? 'bg-white/90 border border-primary-100/40'
-    : 'glass-effect backdrop-blur-xl bg-white/80 border border-primary-100/30 shadow-[0_8px_32px_rgba(64,224,208,0.15)]';
+    ? 'bg-gradient-to-b from-primary-100/90 to-primary-50/80 border border-white/40'
+    : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-primary-100/80 to-white/70 border border-white/30 shadow-[0_8px_32px_rgba(110,54,229,0.15)]';
   
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
-      {/* Diagonal top design - only shown on non-home pages */}
+      {/* Diagonal purple top design - only shown on non-home pages */}
       {!isHome && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-400"></div>
+          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
           <div className="absolute top-0 left-0 right-0 h-24">
-            <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-300 transform skew-y-6 origin-right"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
           </div>
         </div>
       )}
@@ -105,17 +102,6 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         </AnimatePresence>
       </main>
       
-      {/* Floating sign out button for all pages when logged in */}
-      {isLoggedIn && location.pathname !== '/profile' && (
-        <div className="fixed bottom-24 right-4 z-50">
-          <SignOutButton 
-            iconOnly 
-            size="sm"
-            className="rounded-full p-2 bg-primary-400 hover:bg-primary-500 text-white border-none shadow-lg"
-          />
-        </div>
-      )}
-      
       {/* Floating offline indicator that appears when scrolling */}
       <AnimatePresence>
         {showOfflineIndicator && (
@@ -125,8 +111,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: animSettings.duration, type: "spring" }}
             className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
-                      ${glassEffectIntensity === 'light' ? 'bg-primary-200 border border-primary-100' : 'glass-effect bg-primary-200/90 backdrop-blur-md border border-primary-100/30 shadow-lg'} 
-                      text-charcoal rounded-full flex items-center space-x-2 z-40`}
+                      ${glassEffectIntensity === 'light' ? 'bg-primary-300 border border-primary-200' : 'glass-effect bg-primary-300/90 backdrop-blur-md border border-primary-200/30 shadow-lg'} 
+                      text-white rounded-full flex items-center space-x-2 z-40`}
           >
             <WifiOff className="w-4 h-4" />
             <span className="text-sm font-medium">Offline</span>
@@ -150,12 +136,12 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           style: {
             borderRadius: '0.75rem',
             background: glassEffectIntensity === 'light' 
-              ? 'rgba(255, 255, 255, 0.95)' 
-              : 'rgba(255, 255, 255, 0.85)',
+              ? 'rgba(236, 224, 255, 0.95)' 
+              : 'rgba(236, 224, 255, 0.85)',
             backdropFilter: glassEffectIntensity === 'light' ? 'none' : 'blur(12px)',
-            border: '1px solid rgba(64, 224, 208, 0.3)',
-            boxShadow: '0 8px 32px -4px rgba(64, 224, 208, 0.15)',
-            color: '#2D2D2D',
+            border: '1px solid rgba(143, 91, 255, 0.3)',
+            boxShadow: '0 8px 32px -4px rgba(110, 54, 229, 0.15)',
+            color: '#333',
           },
           className: 'glass-card',
         }}

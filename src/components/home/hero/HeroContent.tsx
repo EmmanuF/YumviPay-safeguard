@@ -10,7 +10,6 @@ import HeroTrustIndicators from './HeroTrustIndicators';
 
 interface HeroContentProps {
   onGetStarted: () => void;
-  onSendMoney?: () => void;
 }
 
 const containerVariants = {
@@ -24,7 +23,7 @@ const containerVariants = {
   },
 };
 
-const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted, onSendMoney }) => {
+const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted }) => {
   return (
     <motion.div
       variants={containerVariants}
@@ -35,7 +34,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted, onSendMoney }) 
       <HeroFeatureBadges />
       <HeroTitle />
       <HeroDescription />
-      <HeroActions onGetStarted={onGetStarted} onSendMoney={onSendMoney} />
+      <HeroActions onGetStarted={onGetStarted} />
       <HeroFeatureBullets />
       <HeroTrustIndicators />
     </motion.div>

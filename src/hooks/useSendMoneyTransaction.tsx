@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useCountries } from './useCountries';
 
@@ -9,7 +10,6 @@ export interface TransactionData {
   convertedAmount: number;
   recipient: string | null;
   recipientName: string;
-  recipientContact?: string | null;
   paymentMethod: string | null;
   selectedProvider: string;
   isRecurring?: boolean;
@@ -39,7 +39,6 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
     convertedAmount: 0,
     recipient: null,
     recipientName: '',
-    recipientContact: null,
     paymentMethod: null,
     selectedProvider: '',
     isRecurring: false,

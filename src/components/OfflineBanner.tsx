@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WifiOff, Wifi, RotateCw, Clock, AlertTriangle } from 'lucide-react';
-import { useNetwork } from '@/contexts/network';
+import { useNetwork } from '@/contexts/NetworkContext';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { Progress } from '@/components/ui/progress';

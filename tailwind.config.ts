@@ -26,17 +26,35 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
+                // Updated Yumvi-Pay colors - thicker yellow
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
+                    50: '#f5f0ff',
+                    100: '#ece0ff',
+                    200: '#d9c2ff',
+                    300: '#c095ff',
+                    400: '#a566ff',
+                    500: '#6E36E5', // Main primary purple color
+                    600: '#5922d9',
+                    700: '#4a1bb8',
+                    800: '#3d1996',
+                    900: '#321878',
                 },
+                // Secondary colors changed from yellow to neutral gray
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                },
-                accent: {
-                    DEFAULT: 'hsl(var(--accent))',
-                    foreground: 'hsl(var(--accent-foreground))',
+                    50: '#f9f9fa', // Light gray tint
+                    100: '#f1f1f2', // Lighter gray tint
+                    200: '#e4e4e6',
+                    300: '#d2d2d6',
+                    400: '#a9a9b0',
+                    500: '#8E9196', // Main gray
+                    600: '#71747a',
+                    700: '#585b61',
+                    800: '#45484e',
+                    900: '#393b40',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
@@ -46,6 +64,10 @@ export default {
                     DEFAULT: 'hsl(var(--muted))',
                     foreground: 'hsl(var(--muted-foreground))'
                 },
+                accent: {
+                    DEFAULT: 'hsl(var(--accent))',
+                    foreground: 'hsl(var(--accent-foreground))'
+                },
                 popover: {
                     DEFAULT: 'hsl(var(--popover))',
                     foreground: 'hsl(var(--popover-foreground))'
@@ -53,7 +75,7 @@ export default {
                 card: {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
-                },
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

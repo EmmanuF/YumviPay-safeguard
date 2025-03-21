@@ -62,12 +62,12 @@ const Analytics = () => {
         <div className="p-4 flex-1">
           <div className="mb-4 flex flex-col space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-primary-700">Transaction Analytics</h2>
+              <h2 className="text-xl font-bold">Transaction Analytics</h2>
               <Select 
                 value={timeframe} 
                 onValueChange={(value) => setTimeframe(value as any)}
               >
-                <SelectTrigger className="w-[160px] border-primary-200 bg-primary-50/50">
+                <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Select timeframe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -80,13 +80,10 @@ const Analytics = () => {
             </div>
             
             {timeframe === 'custom' && (
-              <Card 
-                className="shadow-sm" 
-                gradient="teal"
-              >
+              <Card>
                 <CardContent className="p-3">
                   <div className="flex gap-2 items-center">
-                    <Calendar className="h-5 w-5 text-primary-500" />
+                    <Calendar className="h-5 w-5 text-muted-foreground" />
                     <DatePicker 
                       value={dateRange} 
                       onChange={setDateRange} 
@@ -97,7 +94,7 @@ const Analytics = () => {
               </Card>
             )}
             
-            <div className="text-sm text-muted-foreground pl-2 mt-1">
+            <div className="text-sm text-muted-foreground">
               {timeframe === 'custom' ? (
                 <span>
                   {dateRange.from && dateRange.to 
@@ -120,14 +117,11 @@ const Analytics = () => {
           </div>
           
           {loading ? (
-            <div className="flex-1 flex items-center justify-center h-64">
+            <div className="flex-1 flex items-center justify-center">
               <Loader2 className="h-8 w-8 text-primary animate-spin" />
             </div>
           ) : (
-            <TransactionAnalytics 
-              transactions={filteredTransactions} 
-              className="shadow-md hover:shadow-lg transition-all duration-300"
-            />
+            <TransactionAnalytics transactions={filteredTransactions} />
           )}
         </div>
       </div>

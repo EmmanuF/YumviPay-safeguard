@@ -3,8 +3,6 @@ import { Transaction } from "@/types/transaction";
 import { isOffline, addPausedRequest } from "@/utils/networkUtils";
 import { toast } from "@/hooks/use-toast";
 import { isPlatform } from "@/utils/platformUtils";
-import { formatCurrency } from "@/utils/formatUtils";
-import { supabase } from "@/integrations/supabase/client";
 
 // Store receipts in localStorage
 const RECEIPT_STORAGE_KEY = 'yumvi_receipts';
@@ -75,24 +73,29 @@ const safeParseNumber = (value: string | number | undefined): number => {
   return parseFloat(value) || 0;
 };
 
+// Format currency
+const formatCurrency = (amount: number | string): string => {
+  const numAmount = safeParseNumber(amount);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(numAmount);
+};
+
 // Format date
-const formatDate = (date: Date | string): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(dateObj);
+  }).format(date);
 };
 
 // Generate an HTML receipt
 export const generateHtmlReceipt = (transaction: Transaction): string => {
   const date = transaction.completedAt || transaction.updatedAt || transaction.createdAt;
-  const amount = safeParseNumber(transaction.amount);
-  const fee = safeParseNumber(transaction.fee || 0);
-  const totalAmount = safeParseNumber(transaction.totalAmount || amount);
   
   return `
     <!DOCTYPE html>
@@ -182,21 +185,6 @@ export const generateHtmlReceipt = (transaction: Transaction): string => {
           background-color: #fef2f2;
           color: #dc2626;
         }
-        .logo {
-          max-width: 150px;
-          margin: 0 auto 10px;
-          display: block;
-        }
-        @media print {
-          body {
-            padding: 0;
-            margin: 0;
-          }
-          .receipt {
-            border: none;
-            padding: 10px;
-          }
-        }
       </style>
     </head>
     <body>
@@ -229,7 +217,7 @@ export const generateHtmlReceipt = (transaction: Transaction): string => {
         
         <div class="info-row">
           <span class="label">Payment Method:</span>
-          <span class="value">${transaction.paymentMethod || 'N/A'}</span>
+          <span class="value">${transaction.paymentMethod}</span>
         </div>
         
         <div class="info-row">
@@ -239,17 +227,17 @@ export const generateHtmlReceipt = (transaction: Transaction): string => {
         
         <div class="info-row">
           <span class="label">Amount:</span>
-          <span class="value">${formatCurrency(amount)}</span>
+          <span class="value">${formatCurrency(transaction.amount)}</span>
         </div>
         
         <div class="info-row">
           <span class="label">Fee:</span>
-          <span class="value">${fee > 0 ? formatCurrency(fee) : 'Free'}</span>
+          <span class="value">${formatCurrency(transaction.fee)}</span>
         </div>
         
         <div class="total-row">
           <span>Total:</span>
-          <span>${formatCurrency(totalAmount)}</span>
+          <span>${formatCurrency(transaction.totalAmount)}</span>
         </div>
       </div>
       
@@ -269,37 +257,12 @@ export const generateReceipt = async (transaction: Transaction): Promise<Transac
   
   // Parse transaction values to numbers
   const amount = safeParseNumber(transaction.amount);
-  const fee = safeParseNumber(transaction.fee || 0);
-  const totalAmount = safeParseNumber(transaction.totalAmount || amount);
+  const fee = safeParseNumber(transaction.fee);
+  const totalAmount = safeParseNumber(transaction.totalAmount);
   
   // Create receipt object
-  const receiptId = `receipt_${transaction.id}`;
-  
-  // Check if receipt already exists
-  const existingReceipt = getReceiptByTransactionId(transaction.id);
-  if (existingReceipt) {
-    // Update the HTML content but keep the ID
-    const updatedReceipt: TransactionReceipt = {
-      ...existingReceipt,
-      recipientName: transaction.recipientName,
-      recipientContact: transaction.recipientContact || '',
-      amount: amount,
-      fee: fee,
-      totalAmount: totalAmount,
-      paymentMethod: transaction.paymentMethod || '',
-      status: transaction.status,
-      htmlContent: htmlContent,
-    };
-    
-    // Store updated receipt
-    storeReceipt(updatedReceipt);
-    
-    return updatedReceipt;
-  }
-  
-  // Create new receipt
   const receipt: TransactionReceipt = {
-    id: receiptId,
+    id: `receipt_${transaction.id}`,
     transactionId: transaction.id,
     recipientName: transaction.recipientName,
     recipientContact: transaction.recipientContact || '',
@@ -338,33 +301,13 @@ export const sendReceiptByEmail = async (
   }
   
   try {
-    const transaction = receipt.transactionId.startsWith('receipt_') 
-      ? receipt.transactionId.substring(8) 
-      : receipt.transactionId;
+    // In a real app, this would call a backend API endpoint
+    // For now, we'll simulate success
+    console.log(`Receipt would be sent to ${recipientEmail}`);
+    console.log('Receipt HTML:', receipt.htmlContent?.substring(0, 100) + '...');
     
-    // Call the Supabase Edge Function to send the email
-    const { data, error } = await supabase.functions.invoke('send-receipt', {
-      body: {
-        recipientEmail,
-        recipientName: receipt.recipientName,
-        transactionId: transaction,
-        amount: receipt.amount,
-        fee: receipt.fee,
-        totalAmount: receipt.totalAmount,
-        currency: 'USD', // In a real app, this would come from the transaction
-        date: formatDate(receipt.generatedAt),
-        status: receipt.status,
-        paymentMethod: receipt.paymentMethod,
-        country: 'Cameroon', // In a real app, this would come from the transaction
-        htmlContent: receipt.htmlContent
-      },
-    });
-
-    if (error) {
-      throw new Error(`Error sending email: ${error.message}`);
-    }
-    
-    console.log('Email sent successfully:', data);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1200));
     
     toast({
       title: "Receipt Sent",
@@ -433,9 +376,4 @@ export const saveReceiptsOffline = async (receipts: TransactionReceipt[]): Promi
   } catch (error) {
     console.error('Error saving receipts offline:', error);
   }
-};
-
-// Print the current receipt
-export const printReceipt = (): void => {
-  window.print();
 };

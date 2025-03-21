@@ -22,103 +22,25 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const [sendAmount, setSendAmount] = useState('100');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [sourceCurrency, setSourceCurrency] = useState('USD');
-  const [targetCurrency, setTargetCurrency] = useState('XAF'); // Default to Cameroon's currency
-  const [exchangeRate, setExchangeRate] = useState(610); // Default rate for USD to XAF
+  const [targetCurrency, setTargetCurrency] = useState('XAF'); // Set Cameroon's currency as default
+  const [exchangeRate, setExchangeRate] = useState(610); // Updated default rate for USD to XAF
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Log initial state for debugging
-  useEffect(() => {
-    console.log('💰 CALCULATOR INITIALIZED with:', {
-      sourceCurrency,
-      targetCurrency,
-      sendAmount,
-      exchangeRate,
-      countriesLoaded: countries.length > 0,
-      authLoading,
-      isLoggedIn
-    });
-  }, []);
-
-  // Log countries to help debug
-  useEffect(() => {
-    if (countries.length > 0) {
-      console.log('🔍 CALCULATOR: All countries loaded:', countries.length);
-      
-      // Check key African countries
-      const keyCodes = ['CM', 'GH', 'NG', 'SN'];
-      console.log('🔍 CALCULATOR: Key African countries:');
+  // Memoize currency lists to reduce re-calculation
+  const sourceCurrencies = useMemo(() => 
+    Array.from(new Set(
       countries
-        .filter(c => keyCodes.includes(c.code))
-        .forEach(c => {
-          console.log(`🔍 CALCULATOR: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
-        });
-      
-      // Check sending and receiving countries
-      const sendingCountries = countries.filter(c => c.isSendingEnabled);
-      const receivingCountries = countries.filter(c => c.isReceivingEnabled);
-      
-      console.log('🔍 CALCULATOR: Sending countries:', sendingCountries.map(c => c.name).join(', '));
-      console.log('🔍 CALCULATOR: Receiving countries:', receivingCountries.map(c => c.name).join(', '));
-    } else {
-      console.log('🔍 CALCULATOR WARNING: No countries loaded, will use fallbacks');
-    }
-  }, [countries]);
-
-  // Create filtered lists of currencies based on country capabilities
-  const sourceCurrencies = useMemo(() => {
-    if (countries.length === 0) {
-      console.log('🔍 CALCULATOR: No countries loaded, using default source currencies');
-      return ['USD', 'EUR', 'GBP', 'CAD']; // Default currencies when countries not loaded
-    }
-    
-    const sendingCountries = countries.filter(country => country.isSendingEnabled);
-    console.log('🔍 CALCULATOR CURRENCIES: Source currencies from countries:', 
-                sendingCountries.map(c => `${c.name} (${c.currency})`).join(', '));
-    
-    // Additional check for African countries that shouldn't be in sending list
-    const africanCodes = ['CM', 'GH', 'NG', 'SN'];
-    const africanSendingCountries = sendingCountries.filter(c => africanCodes.includes(c.code));
-    
-    if (africanSendingCountries.length > 0) {
-      console.log('🔍 CALCULATOR ERROR: African countries incorrectly marked as sending:', 
-                  africanSendingCountries.map(c => `${c.name} (isSendingEnabled=${c.isSendingEnabled})`).join(', '));
-    }
-    
-    // Ensure we always have some source currencies even if none are configured correctly
-    let currencies = Array.from(new Set(sendingCountries.map(country => country.currency)));
-    
-    if (currencies.length === 0) {
-      console.log('🔍 CALCULATOR: No sending countries found, using default currencies');
-      currencies = ['USD', 'EUR', 'GBP', 'CAD']; // Fallback if no sending countries
-    }
-    
-    console.log('🔍 CALCULATOR CURRENCIES: Final source currencies:', currencies.join(', '));
-    return currencies;
-  }, [countries]);
+        .filter(country => country.isSendingEnabled)
+        .map(country => country.currency)
+    )), [countries]);
   
-  const targetCurrencies = useMemo(() => {
-    if (countries.length === 0) {
-      console.log('🔍 CALCULATOR: No countries loaded, using default target currencies');
-      return ['XAF', 'NGN', 'GHS']; // Default African currencies when countries not loaded
-    }
-    
-    const receivingCountries = countries.filter(country => country.isReceivingEnabled);
-    console.log('🔍 CALCULATOR CURRENCIES: Target currencies from countries:', 
-                receivingCountries.map(c => `${c.name} (${c.currency})`).join(', '));
-    
-    // Ensure we always have some target currencies even if none are configured correctly
-    let currencies = Array.from(new Set(receivingCountries.map(country => country.currency)));
-    
-    if (currencies.length === 0) {
-      console.log('🔍 CALCULATOR: No receiving countries found, using XAF as default');
-      currencies = ['XAF', 'NGN', 'GHS']; // Fallback to African currencies
-    }
-    
-    console.log('🔍 CALCULATOR CURRENCIES: Final target currencies:', currencies.join(', '));
-    return currencies;
-  }, [countries]);
+  const targetCurrencies = useMemo(() => 
+    Array.from(new Set(
+      countries
+        .filter(country => country.isReceivingEnabled)
+        .map(country => country.currency)
+    )), [countries]);
 
-  // Calculate receive amount when inputs change
   useEffect(() => {
     const calculateRate = () => {
       // Get exchange rate from utility function

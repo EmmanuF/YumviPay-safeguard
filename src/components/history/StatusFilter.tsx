@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useNetwork } from '@/contexts/network';
+import { useNetwork } from '@/contexts/NetworkContext';
 
 interface StatusFilterProps {
   statusFilter: string[];
@@ -60,6 +61,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           <Label htmlFor="status-cancelled">Cancelled</Label>
         </div>
         
+        {/* Add offline-specific filter option */}
         <div className="flex items-center space-x-2">
           <Checkbox 
             id="status-offline-pending" 

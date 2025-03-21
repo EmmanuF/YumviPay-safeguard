@@ -30,36 +30,20 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
-          console.log('Moving from recipient to payment step');
           setCurrentStep('payment');
           break;
         case 'payment':
-          console.log('Moving from payment to confirmation step');
           setCurrentStep('confirmation');
           break;
         case 'confirmation':
           setIsSubmitting(true);
           console.log('Submitting transaction...');
-          
-          // Make sure transaction data is saved to localStorage before navigating
-          const pendingTransaction = localStorage.getItem('processedPendingTransaction');
-          if (!pendingTransaction) {
-            console.error('No pending transaction data found');
-            setError('Transaction data not found. Please try again.');
-            setIsSubmitting(false);
-            return;
-          }
-          
-          console.log('Found transaction data, proceeding with submission');
-          
           setTimeout(() => {
             setIsSubmitting(false);
             // Use Sonner toast for better visibility
             toast.success("Transaction Initiated", {
               description: "Your transaction has been initiated successfully.",
             });
-            // Navigate to the new transaction page
-            console.log('Navigation to transaction/new');
             navigate('/transaction/new');
           }, 1000);
           break;
@@ -83,11 +67,9 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'payment':
-          console.log('Moving back from payment to recipient step');
           setCurrentStep('recipient');
           break;
         case 'confirmation':
-          console.log('Moving back from confirmation to payment step');
           setCurrentStep('payment');
           break;
         case 'recipient':
