@@ -1,53 +1,53 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth';
+import { useNetwork } from '@/contexts/network';
+import { initializeSupabase } from '@/integrations/supabase/initializeSupabase';
 
-import { useEffect } from 'react';
-import { PushNotificationService } from '@/services/push/pushNotificationService';
-import { isPlatform } from '@/utils/platformUtils';
+const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const { isLoading: isAuthLoading } = useAuth();
+  const { isOnline } = useNetwork();
 
-/**
- * Component to initialize app-wide services
- * Place this component at the root of your app
- */
-const AppInitializer = () => {
   useEffect(() => {
-    const initializeApp = async () => {
-      // Initialize native features only if running on a capacitor platform
-      if (isPlatform('capacitor')) {
-        console.log('Initializing native app features...');
+    // Initialize the app when it loads
+    const initApp = async () => {
+      try {
+        // Initialize Supabase client
+        await initializeSupabase();
         
-        // Initialize push notification listeners
-        try {
-          const pushAvailable = await PushNotificationService.isAvailable();
-          if (pushAvailable) {
-            console.log('Setting up push notification listeners...');
-            await PushNotificationService.initListeners();
-          }
-        } catch (error) {
-          console.error('Error initializing push notifications:', error);
-        }
+        // New imports for country initialization
+        const { initializeCountries } = await import('../utils/initializeCountries');
+        const { initializeSendingCountries } = await import('../utils/initializeSendingCountries');
+        const { resetCountryFlags } = await import('../utils/resetSendingCountries');
+        
+        // Run country initialization functions
+        await initializeCountries();
+        await initializeSendingCountries();
+        await resetCountryFlags();
+        
+        // Set app as initialized
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Error initializing app:', error);
       }
     };
-    
-    initializeApp();
-    
-    // Clean up on unmount
-    return () => {
-      // Remove push notification listeners when app is unmounted
-      const cleanup = async () => {
-        if (isPlatform('capacitor')) {
-          try {
-            await PushNotificationService.removeListeners();
-          } catch (error) {
-            console.error('Error removing listeners:', error);
-          }
-        }
-      };
-      
-      cleanup();
-    };
+
+    initApp();
   }, []);
-  
-  // This component doesn't render anything
-  return null;
+
+  if (isAuthLoading || !isInitialized) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="loading loading-dots loading-lg"></span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {children}
+    </>
+  );
 };
 
 export default AppInitializer;

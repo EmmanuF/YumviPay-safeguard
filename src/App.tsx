@@ -1,171 +1,107 @@
-
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from '@/contexts/AuthContext';
-import { NetworkProvider } from '@/contexts/NetworkContext';
-import { LocaleProvider } from '@/contexts/LocaleContext';
-import { HelmetProvider } from 'react-helmet-async';
-import AppInitializer from '@/components/AppInitializer';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { Toaster } from 'sonner';
 
-// Core pages
-import Home from '@/pages/Home';
-import Profile from '@/pages/Profile';
-import SignIn from '@/pages/SignIn';
-import SignUp from '@/pages/SignUp';
-import SendMoney from '@/pages/SendMoney';
-import TransactionHistory from '@/pages/TransactionHistory';
-import Recipients from '@/pages/Recipients';
-import NotFound from '@/pages/NotFound';
-import Dashboard from '@/pages/Dashboard';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import SessionTimeout from '@/components/security/SessionTimeout';
-import TransactionNew from '@/pages/TransactionNew';
-import TransactionStatus from '@/pages/TransactionStatus';
+// Import components
+import AppInitializer from './components/AppInitializer';
+import PublicHome from './pages/PublicHome';
+import Pricing from './pages/Pricing';
+import Contact from './pages/Contact';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Transactions from './pages/Transactions';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Security from './pages/Security';
+import NotFound from './pages/NotFound';
 
-// Admin pages
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import AdminUsers from '@/pages/admin/AdminUsers';
-import AdminTransactions from '@/pages/admin/AdminTransactions';
-import AdminAnalytics from '@/pages/admin/AdminAnalytics';
-import AdminCountries from '@/pages/admin/AdminCountries';
-import AdminReports from '@/pages/admin/AdminReports';
-import AdminSecurity from '@/pages/admin/AdminSecurity';
-import AdminSettings from '@/pages/admin/AdminSettings';
-import AdminCMS from '@/pages/admin/AdminCMS';
+// Import admin components and routes
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminCountries from './pages/admin/AdminCountries';
+import AdminTransactions from './pages/admin/AdminTransactions';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminCMS from './pages/admin/AdminCMS';
+import AdminReports from './pages/admin/AdminReports';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminSecurity from './pages/admin/AdminSecurity';
 
-// Footer pages
-import AboutUs from '@/pages/company/AboutUs';
-import TermsOfService from '@/pages/legal/TermsOfService';
-import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
-import Contact from '@/pages/support/Contact';
-import FAQ from '@/pages/support/FAQ';
+// Import our new country status check page
+import CheckCountriesStatus from './pages/admin/CheckCountriesStatus';
 
-// Country pages
-import CountryPage from '@/pages/countries/CountryPage';
-import { AdminProtectedRoute } from '@/components/admin';
+const queryClient = new QueryClient();
 
-function App() {
-  console.log('App component rendering');
+const App = () => {
   return (
-    <NetworkProvider>
-      <AuthProvider>
-        <LocaleProvider>
-          <HelmetProvider>
-            <Router>
-              <AppInitializer />
-              <SessionTimeout />
-              <Routes>
-                {/* Client Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/send" element={
-                  <ProtectedRoute>
-                    <SendMoney />
-                  </ProtectedRoute>
-                } />
-                <Route path="/transactions" element={
-                  <ProtectedRoute>
-                    <TransactionHistory />
-                  </ProtectedRoute>
-                } />
-                <Route path="/recipients" element={
-                  <ProtectedRoute>
-                    <Recipients />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Transaction Routes */}
-                <Route path="/transaction/new" element={
-                  <ProtectedRoute>
-                    <TransactionNew />
-                  </ProtectedRoute>
-                } />
-                <Route path="/transaction/:transactionId" element={
-                  <ProtectedRoute>
-                    <TransactionStatus />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Admin Routes */}
-                <Route path="/admin" element={
-                  <AdminProtectedRoute>
-                    <AdminDashboard />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/analytics" element={
-                  <AdminProtectedRoute>
-                    <AdminAnalytics />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/users" element={
-                  <AdminProtectedRoute>
-                    <AdminUsers />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/transactions" element={
-                  <AdminProtectedRoute>
-                    <AdminTransactions />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/countries" element={
-                  <AdminProtectedRoute>
-                    <AdminCountries />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/cms" element={
-                  <AdminProtectedRoute>
-                    <AdminCMS />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/reports" element={
-                  <AdminProtectedRoute>
-                    <AdminReports />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/security" element={
-                  <AdminProtectedRoute>
-                    <AdminSecurity />
-                  </AdminProtectedRoute>
-                } />
-                <Route path="/admin/settings" element={
-                  <AdminProtectedRoute>
-                    <AdminSettings />
-                  </AdminProtectedRoute>
-                } />
-                
-                {/* Footer Pages */}
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/faq" element={<FAQ />} />
-                
-                {/* Country Pages */}
-                <Route path="/country/:countryId" element={<CountryPage />} />
-                
-                {/* 404 Not Found */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </Router>
-          </HelmetProvider>
-        </LocaleProvider>
-      </AuthProvider>
-    </NetworkProvider>
+    <QueryClientProvider client={queryClient}>
+      <Helmet>
+        <title>Yumvi-Pay</title>
+        <meta name="description" content="Send money internationally with ease" />
+      </Helmet>
+      
+      <Router>
+        <Toaster />
+        <AppInitializer>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<PublicHome />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/404" element={<NotFound />} />
+            
+            {/* App routes - Protected */}
+            <Route path="/app" element={<ProtectedRoute />}>
+              <Route index element={<Navigate to="/app/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="security" element={<Security />} />
+            </Route>
+            
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminProtectedRoute />}>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="countries" element={<AdminCountries />} />
+              <Route path="countries-status" element={<CheckCountriesStatus />} />
+              <Route path="transactions" element={<AdminTransactions />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="cms" element={<AdminCMS />} />
+              <Route path="reports" element={<AdminReports />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="security" element={<AdminSecurity />} />
+            </Route>
+            
+            {/* Catch-all route for 404 */}
+            <Route path="*" element={<Navigate to="/404" replace />} />
+          </Routes>
+        </AppInitializer>
+      </Router>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;
+
+// Simple protected route setup
+function ProtectedRoute() {
+  const isAuthenticated = localStorage.getItem('authToken'); // Example auth check
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+}
+
+import { Outlet } from 'react-router-dom';
