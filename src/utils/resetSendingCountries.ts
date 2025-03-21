@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { SENDING_COUNTRIES, AFRICAN_COUNTRY_CODES } from '@/services/admin/countries/types';
+import { SENDING_COUNTRIES, AFRICAN_COUNTRY_CODES } from '@/utils/countries/countryRules';
 
 /**
  * Reset all sending and receiving flags to their correct values

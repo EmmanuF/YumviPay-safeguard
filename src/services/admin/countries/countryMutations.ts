@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { AdminCountry, AFRICAN_COUNTRY_CODES, enforceCountryRules } from "./types";
+import { AdminCountry, enforceCountryRules } from "./types";
+import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from "@/utils/countries/countryRules";
 import { Json } from "@/integrations/supabase/types";
 
 export const updateCountrySettings = async (

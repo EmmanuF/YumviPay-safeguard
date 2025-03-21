@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { SENDING_COUNTRIES } from '@/services/admin/countries/types';
+import { SENDING_COUNTRIES } from '@/utils/countries/countryRules';
 
 /**
  * Ensures that all designated sending countries are properly set in the database
