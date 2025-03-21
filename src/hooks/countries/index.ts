@@ -31,22 +31,7 @@ export function useCountries() {
       try {
         console.log('🔍 HOOK: Loading countries data...');
         
-        // Return cached data if it exists and is still valid
-        const cachedData = getCachedCountries();
-        if (cachedData && cachedData.length > 0) {
-          console.log('🔍 HOOK: Using cached countries data:', cachedData.length, 'countries');
-          
-          // Apply centralized rules to cached data
-          const processedCachedData = enforceCountryRulesForArray(cachedData);
-          
-          // Debug key countries from cache
-          logKeyCountriesStatus(processedCachedData, 'HOOK CACHE');
-          
-          setCountries(processedCachedData);
-          setIsLoading(false);
-          return;
-        }
-        
+        // Always try API first to get fresh data
         setIsLoading(true);
         
         if (!isOffline) {
@@ -60,6 +45,15 @@ export function useCountries() {
             // Apply centralized rules to API data
             const processedApiData = enforceCountryRulesForArray(apiData);
             
+            // Debug sending countries
+            const sendingCountries = processedApiData.filter(c => c.isSendingEnabled);
+            console.log(`🔍 HOOK API: Found ${sendingCountries.length} sending countries`);
+            if (sendingCountries.length > 0) {
+              console.log('🔍 HOOK API: Sending countries:', sendingCountries.map(c => c.code).join(', '));
+            } else {
+              console.warn('🔍 HOOK API: No sending countries found after enforcement - check rules');
+            }
+            
             // Debug key countries from API
             logKeyCountriesStatus(processedApiData, 'HOOK API');
             
@@ -68,12 +62,28 @@ export function useCountries() {
             setIsLoading(false);
             return;
           } else {
-            console.log('🔍 HOOK: API returned no countries or failed, falling back to mock data');
+            console.log('🔍 HOOK: API returned no countries or failed, falling back to cache or mock data');
           }
         }
         
-        // Use mock data if offline or API error
-        console.log('🔍 HOOK: Using mock country data due to offline status or API error');
+        // Try to use cached data if API failed or offline
+        const cachedData = getCachedCountries();
+        if (cachedData && cachedData.length > 0) {
+          console.log('🔍 HOOK: Using cached countries data as fallback:', cachedData.length, 'countries');
+          
+          // Apply centralized rules to cached data
+          const processedCachedData = enforceCountryRulesForArray(cachedData);
+          
+          // Debug key countries from cache
+          logKeyCountriesStatus(processedCachedData, 'HOOK CACHE');
+          
+          setCountries(processedCachedData);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Use mock data as last resort
+        console.log('🔍 HOOK: Using mock country data as last resort');
         
         // Apply centralized rules to mock data
         const processedMockData = enforceCountryRulesForArray(mockCountries);
@@ -111,6 +121,15 @@ export function useCountries() {
     if (countries.length > 0) {
       // After countries are set in state, log their status
       logKeyCountriesStatus(countries, 'HOOK STATE');
+      
+      // Check if sending countries are properly set
+      const sendingCountries = countries.filter(c => c.isSendingEnabled);
+      console.log(`🔍 HOOK STATE: Found ${sendingCountries.length} sending countries in state`);
+      if (sendingCountries.length > 0) {
+        console.log('🔍 HOOK STATE: Sending countries:', sendingCountries.map(c => c.code).join(', '));
+      } else {
+        console.warn('🔍 HOOK STATE: No sending countries found in state - check enforcement logic');
+      }
     }
   }, [countries]);
 
@@ -125,6 +144,23 @@ export function useCountries() {
       console.log('🔍 HOOK: Getting sending countries - DIRECT IMPLEMENTATION');
       
       // Make sure all countries in the SENDING_COUNTRIES array are included
+      // Either filter from our current countries or use a dedicated API endpoint
+      if (!isOffline) {
+        try {
+          // Try to get sending countries directly from API first
+          const apiSendingCountries = await fetchSendingCountriesFromApi();
+          if (apiSendingCountries && apiSendingCountries.length > 0) {
+            // Apply rules to ensure correctness
+            const processedSendingCountries = enforceCountryRulesForArray(apiSendingCountries);
+            console.log(`🔍 HOOK SENDING API: Got ${processedSendingCountries.length} sending countries from API`);
+            return processedSendingCountries;
+          }
+        } catch (err) {
+          console.error('Error fetching sending countries from API:', err);
+        }
+      }
+      
+      // Fallback: filter from local countries
       const allCountries = countries.length > 0 ? countries : mockCountries;
       
       // Apply country rules and filter by our explicit sending country list
@@ -136,7 +172,7 @@ export function useCountries() {
       
       return sendingCountries;
     },
-    [countries]
+    [countries, isOffline]
   );
 
   const getReceivingCountries = useMemo(() => 

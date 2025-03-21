@@ -2,7 +2,8 @@
 import { Country } from '../../types/country';
 
 const CACHE_KEY = 'yumvi_countries_cache';
-const CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutes in milliseconds
+// Reduced cache expiry to 5 minutes to prevent stale data issues
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 interface CachedData {
   countries: Country[];
@@ -41,9 +42,20 @@ export const getCachedCountries = (): Country[] | null => {
       console.log(`🔍 CACHE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
     });
     
+    // Debug sending countries
+    const sendingCountries = cachedData.countries.filter(c => c.isSendingEnabled);
+    console.log(`🔍 CACHE: Found ${sendingCountries.length} sending countries in cache`);
+    if (sendingCountries.length > 0) {
+      console.log('🔍 CACHE: Sending countries:', sendingCountries.map(c => c.code).join(', '));
+    } else {
+      console.warn('🔍 CACHE: No sending countries found in cache - might indicate a problem');
+    }
+    
     return cachedData.countries;
   } catch (error) {
     console.error('Error reading countries cache:', error);
+    // If there's an error, clear the cache and return null
+    localStorage.removeItem(CACHE_KEY);
     return null;
   }
 };
@@ -55,6 +67,15 @@ export const updateCountriesCache = (countries: Country[]): void => {
   try {
     // Debug before caching
     console.log('🔍 CACHE UPDATE: Before caching countries');
+    
+    // Debug sending countries
+    const sendingCountries = countries.filter(c => c.isSendingEnabled);
+    console.log(`🔍 CACHE UPDATE: Caching ${sendingCountries.length} sending countries`);
+    if (sendingCountries.length > 0) {
+      console.log('🔍 CACHE UPDATE: Sending countries:', sendingCountries.map(c => c.code).join(', '));
+    } else {
+      console.warn('🔍 CACHE UPDATE: No sending countries found - check enforcement logic');
+    }
     
     // Debug African countries specifically
     const africanCountries = countries.filter(c => 

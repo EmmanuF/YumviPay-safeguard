@@ -110,8 +110,12 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
     
     console.log(`🔧 Repair completed. Database now has ${sendingCount} sending countries and ${receivingCount} receiving countries`);
     
-    // Clear countries cache to force reload from database
+    // IMPORTANT: Force clear countries cache to ensure fresh data
     try {
+      console.log('🔧 Forcibly clearing countries cache to ensure fresh data');
+      localStorage.removeItem('yumvi_countries_cache');
+      
+      // Also try to import and call the cache clear function if possible
       const { clearCountriesCache } = await import('@/hooks/countries/countriesCache');
       clearCountriesCache();
       console.log('🔧 Countries cache cleared to ensure fresh data');
@@ -160,7 +164,13 @@ export const ensureCountryFlags = async (): Promise<void> => {
     const success = await repairCountryDatabase();
     
     if (success) {
-      toast.success('Country flags repaired successfully');
+      // IMPORTANT: Force a page reload to clear any cached data
+      toast.success('Country flags repaired successfully. Reloading app to apply changes...');
+      
+      // Give time for the toast to be seen before reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } else {
       toast.error('Failed to repair country flags');
     }
