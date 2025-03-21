@@ -40,6 +40,17 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
   handleContinue,
   className
 }) => {
+  // Log props to help with debugging
+  console.log('FullCalculator render:', { 
+    sendAmount, 
+    receiveAmount, 
+    sourceCurrency, 
+    targetCurrency,
+    sourceCurrencies: sourceCurrencies?.length,
+    targetCurrencies: targetCurrencies?.length,
+    handleContinue: !!handleContinue
+  });
+  
   return (
     <div className={`bg-white rounded-3xl shadow-xl overflow-hidden ${className}`}>
       <div className="bg-primary-500 text-white p-4 flex items-center justify-center">
@@ -66,7 +77,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
           <CurrencySelector
             value={sourceCurrency}
             onChange={setSourceCurrency}
-            options={sourceCurrencies}
+            options={sourceCurrencies || []}
             label="Source Currency"
           />
         </div>
@@ -81,7 +92,7 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
           <CurrencySelector
             value={targetCurrency}
             onChange={setTargetCurrency}
-            options={targetCurrencies}
+            options={targetCurrencies || []}
             label="Target Currency"
           />
         </div>
@@ -97,7 +108,6 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
           onClick={handleContinue}
           className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl"
           size="lg"
-          disabled={authLoading || isProcessing}
         >
           <div className="flex items-center justify-center">
             <Send className="mr-2 h-5 w-5" />

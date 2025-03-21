@@ -39,6 +39,17 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
   handleContinue,
   className
 }) => {
+  // Log props to help with debugging
+  console.log('InlineCalculator render:', { 
+    sendAmount, 
+    receiveAmount, 
+    sourceCurrency, 
+    targetCurrency,
+    sourceCurrencies: sourceCurrencies?.length,
+    targetCurrencies: targetCurrencies?.length,
+    handleContinue: !!handleContinue
+  });
+  
   const onContinueClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent any default form submission
     e.stopPropagation(); // Stop event propagation
@@ -46,7 +57,11 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
     
     // Add a small delay to ensure UI reacts before navigation
     setTimeout(() => {
-      handleContinue();
+      if (handleContinue) {
+        handleContinue();
+      } else {
+        console.error('handleContinue function is not defined');
+      }
     }, 50);
   };
 
@@ -65,7 +80,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           <CurrencySelector
             value={sourceCurrency}
             onChange={setSourceCurrency}
-            options={sourceCurrencies}
+            options={sourceCurrencies || []}
             label="Source Currency"
           />
         </div>
@@ -80,7 +95,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           <CurrencySelector
             value={targetCurrency}
             onChange={setTargetCurrency}
-            options={targetCurrencies}
+            options={targetCurrencies || []}
             label="Target Currency"
           />
         </div>
@@ -98,7 +113,6 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           onClick={onContinueClick}
           className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
           size="lg"
-          disabled={authLoading || isProcessing}
           type="button"
         >
           <div className="flex items-center justify-center">
