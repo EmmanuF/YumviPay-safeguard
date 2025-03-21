@@ -15,6 +15,9 @@ const HomePage = () => {
   
   // Determine if user is admin (example check, adjust as needed)
   const isAdmin = user?.email?.endsWith('@admin.com') || process.env.NODE_ENV === 'development';
+  
+  // NEW: Disable country-related features temporarily to improve performance
+  const disableCountryFeatures = true; // Set to false when you want to re-enable country features
 
   return (
     <PageTransition>
@@ -31,7 +34,10 @@ const HomePage = () => {
           
           {/* Admin controls for debugging - only visible in development */}
           {process.env.NODE_ENV === 'development' && (
-            <AdminControls className="mt-6" />
+            <AdminControls 
+              className="mt-6" 
+              disableCountryFeatures={disableCountryFeatures} 
+            />
           )}
         </div>
         

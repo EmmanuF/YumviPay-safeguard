@@ -1,24 +1,21 @@
 
 import { toast } from 'sonner';
 import { clearCountriesCache } from '@/hooks/countries/countriesCache';
-import { repairCountryDatabase } from './repairCountryDatabase';
 
 /**
- * Utility function to completely refresh country data
- * This performs a full refresh of country data, including:
- * 1. Clearing the cache
- * 2. Repairing the database
- * 3. Optionally reloading the app
+ * Utility function to quickly refresh country data
+ * This performs a lightweight refresh by just clearing the cache
+ * to improve performance during development
  */
 export const forceCountryRefresh = async (showToasts = true): Promise<boolean> => {
   try {
     if (showToasts) {
-      toast.info('Refreshing country data...', { id: 'refresh-toast' });
+      toast.info('Refreshing country data cache...', { id: 'refresh-toast' });
     }
     
-    console.log('🔄 REFRESH: Starting complete country data refresh');
+    console.log('🔄 REFRESH: Starting lightweight country data refresh');
     
-    // Step 1: Clear the cache
+    // Simply clear the cache to force a fresh fetch on next load
     let cacheCleared = false;
     if (typeof localStorage !== 'undefined') {
       try {
@@ -31,20 +28,6 @@ export const forceCountryRefresh = async (showToasts = true): Promise<boolean> =
       }
     }
     
-    // Step 2: Repair the database (at least attempt to)
-    let repairSuccess = false;
-    try {
-      console.log('🔄 REFRESH: Repairing country database...');
-      repairSuccess = await repairCountryDatabase();
-      console.log('🔄 REFRESH: Country database repair result:', repairSuccess);
-    } catch (e) {
-      console.error('🔄 REFRESH: Error repairing country database:', e);
-      if (showToasts) {
-        toast.error('Failed to repair country database', { id: 'refresh-toast' });
-      }
-    }
-    
-    // Even if repair failed, we can still proceed with cache clearing
     if (cacheCleared && showToasts) {
       toast.success('Country cache refreshed', {
         id: 'refresh-toast',
@@ -56,8 +39,7 @@ export const forceCountryRefresh = async (showToasts = true): Promise<boolean> =
       });
     }
     
-    // If cache was cleared, we consider it partially successful
-    return cacheCleared || repairSuccess;
+    return cacheCleared;
   } catch (error) {
     console.error('🔄 REFRESH: Error during country refresh:', error);
     if (showToasts) {
