@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -5,21 +6,27 @@ import { calculateExchange } from '@/utils/exchangeRate';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCurrencies } from '@/hooks/useCurrencies';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
-import { useToast } from "@/components/ui/use-toast"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import CurrencySelector from '@/components/calculator/CurrencySelector';
 
-interface ExchangeRateCalculatorProps {
+export interface ExchangeRateCalculatorProps {
   className?: string;
+  onContinue?: () => void;
+  inlineMode?: boolean;
 }
 
-const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ className }) => {
+const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ 
+  className,
+  onContinue,
+  inlineMode = false
+}) => {
   const [sourceAmount, setSourceAmount] = useState<number>(1);
   const [targetAmount, setTargetAmount] = useState<number>(0);
   const [sourceCurrency, setSourceCurrency] = useState<string>('USD');
   const [targetCurrency, setTargetCurrency] = useState<string>('EUR');
   const debouncedSourceAmount = useDebounce(sourceAmount, 500);
-  const { toast } = useToast()
+  const { toast } = useToast();
   
   const { 
     currencies: sourceCurrencies, 
@@ -46,7 +53,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
         title: "Error",
         description: error.message,
         variant: "destructive",
-      })
+      });
     }
   }, [error, toast]);
   
@@ -74,8 +81,14 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
     }
   };
   
+  const handleContinue = () => {
+    if (onContinue) {
+      onContinue();
+    }
+  };
+  
   return (
-    <div className="glass-card p-4 rounded-xl mb-6">
+    <div className={`glass-card p-4 rounded-xl mb-6 ${className || ''}`}>
       <h2 className="text-lg font-semibold mb-4">Exchange Rate Calculator</h2>
       
       <div className="flex justify-between items-center gap-2 mb-4">
@@ -84,7 +97,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
           value={sourceCurrency}
           onChange={setSourceCurrency}
           options={sourceCurrencyOptions}
-          type="source" // Add this type prop
+          type="source"
         />
         
         <div className="flex flex-col space-y-1 w-1/2">
@@ -106,7 +119,7 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
           value={targetCurrency}
           onChange={setTargetCurrency}
           options={targetCurrencyOptions}
-          type="target" // Add this type prop
+          type="target"
         />
         
         <div className="flex flex-col space-y-1 w-1/2">
@@ -131,6 +144,18 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ classNa
           </>
         )}
       </div>
+      
+      {inlineMode && onContinue && (
+        <div className="mt-4">
+          <button 
+            onClick={handleContinue}
+            className="w-full py-2 px-4 bg-primary text-white rounded hover:bg-primary/90 transition"
+            disabled={isLoadingExchangeRate}
+          >
+            Continue
+          </button>
+        </div>
+      )}
     </div>
   );
 };

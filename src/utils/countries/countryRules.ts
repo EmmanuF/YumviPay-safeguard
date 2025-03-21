@@ -1,39 +1,22 @@
-import { Country } from '@/types/country';
-import { AdminCountry } from '@/services/admin/countries/types';
-
-// Define constant arrays of country codes to ensure proper flags
-export const AFRICAN_COUNTRY_CODES = [
-  'CM', 'GH', 'NG', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 
-  'GW', 'GN', 'SL', 'LR', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ'
-];
-
-// Define sending countries explicitly - ensure they're always sending countries
-export const SENDING_COUNTRIES = [
-  // North America
-  'US', 'CA', 'MX', 'PA',
-  // Europe
-  'GB', 'FR', 'DE', 'IT', 'ES',
-  // Middle East
-  'AE', 'SA', 'QA', 'KW',
-  // Asia Pacific
-  'AU', 'JP', 'SG'
-];
+import { Country, PaymentMethod } from "@/types/country";
+import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from "@/services/admin/countries/types";
+import { parsePaymentMethods } from "@/hooks/countries/parseCountryData";
 
 /**
- * Enforces country rules consistently for client Country objects
- * This is the centralized rule enforcement function for the client side
+ * Enforce country business rules for the client side Country object.
+ * This ensures consistency regardless of what data comes from the server.
  */
 export function enforceClientCountryRules(country: Country): Country {
-  // If country is African, it can never be a sending country
+  // Rule: African countries can NEVER be sending countries
   if (AFRICAN_COUNTRY_CODES.includes(country.code)) {
     return {
       ...country,
       isSendingEnabled: false,
-      isReceivingEnabled: true
+      isReceivingEnabled: true // African countries are always receiving
     };
   }
   
-  // If country is in explicit sending list, ensure it's marked as sending
+  // Rule: Designated sending countries are always sending
   if (SENDING_COUNTRIES.includes(country.code)) {
     return {
       ...country,
@@ -46,59 +29,35 @@ export function enforceClientCountryRules(country: Country): Country {
 }
 
 /**
- * Enforces country rules consistently for admin AdminCountry objects
- * This is the centralized rule enforcement function for the admin side
+ * Apply country rules to an array of Countries
  */
-export function enforceAdminCountryRules(country: AdminCountry): AdminCountry {
-  // If country is African, force receiving-only
-  if (AFRICAN_COUNTRY_CODES.includes(country.code)) {
-    return {
-      ...country,
-      is_sending_enabled: false,
-      is_receiving_enabled: true
-    };
-  }
-  
-  // If country is in explicit sending list, ensure it's marked as sending
-  if (SENDING_COUNTRIES.includes(country.code)) {
-    return {
-      ...country,
-      is_sending_enabled: true
-    };
-  }
-  
-  // Otherwise, leave as is
-  return country;
+export function enforceClientCountryRulesArray(countries: Country[]): Country[] {
+  return countries.map(country => enforceClientCountryRules(country));
 }
 
 /**
- * Convert AdminCountry to client Country format
- * Ensures consistent mapping between admin and client data models
+ * Convert AdminCountry to frontend Country
+ * Handles the transformation between the admin panel and frontend representations
  */
-export function adminToClientCountry(adminCountry: AdminCountry): Country {
-  // Convert payment methods from Json type to PaymentMethod[]
-  const paymentMethods = Array.isArray(adminCountry.payment_methods) 
-    ? adminCountry.payment_methods.map(method => ({
-        id: method.id || '',
-        name: method.name || '',
-        description: method.description || '',
-        icon: method.icon || 'credit-card',
-        fees: method.fees || '',
-        processingTime: method.processingTime || ''
-      }))
-    : [];
-
-  // Map the admin country to client country format
-  const clientCountry: Country = {
+export function convertAdminToClientCountry(adminCountry: any): Country {
+  let paymentMethods: PaymentMethod[] = [];
+  
+  // Process payment methods, handling different possible formats
+  if (adminCountry.payment_methods) {
+    paymentMethods = parsePaymentMethods(adminCountry.payment_methods);
+  }
+  
+  const country: Country = {
     name: adminCountry.name,
     code: adminCountry.code,
-    flagUrl: `https://flagcdn.com/w80/${adminCountry.code.toLowerCase()}.png`,
+    flagUrl: `https://flagcdn.com/${adminCountry.code.toLowerCase()}.svg`,
     currency: adminCountry.currency,
     isSendingEnabled: adminCountry.is_sending_enabled,
     isReceivingEnabled: adminCountry.is_receiving_enabled,
-    paymentMethods: paymentMethods
+    phonePrefix: adminCountry.phone_prefix || '',
+    paymentMethods
   };
-
-  // Apply client-side rules to ensure consistency
-  return enforceClientCountryRules(clientCountry);
+  
+  // Apply business rules to ensure consistency
+  return enforceClientCountryRules(country);
 }
