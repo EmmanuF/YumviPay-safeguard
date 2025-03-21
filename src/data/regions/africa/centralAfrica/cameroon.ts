@@ -1,15 +1,14 @@
 
 import { Country } from '../../../../types/country';
+import { enforceClientCountryRules } from '@/utils/countries/countryRules';
 
-// Explicitly set isSendingEnabled to false with clear logging
-console.log('🔍 DEFINITION: Cameroon country with isSendingEnabled:', false);
-
-export const cameroonCountry: Country = {
+// Create the country with correct data
+let cameroonCountry: Country = {
   name: 'Cameroon',
   code: 'CM',
   flagUrl: 'https://flagcdn.com/cm.svg',
   currency: 'XAF',
-  isSendingEnabled: false, // Explicitly set to false
+  isSendingEnabled: false, // This should always be false for African countries
   isReceivingEnabled: true,
   phonePrefix: '+237',
   paymentMethods: [
@@ -32,5 +31,10 @@ export const cameroonCountry: Country = {
   ],
 };
 
-// Additional debug check after export
-console.log('🔍 AFTER EXPORT: Cameroon isSendingEnabled:', cameroonCountry.isSendingEnabled);
+// Apply country rules to ensure consistency even with mock data
+cameroonCountry = enforceClientCountryRules(cameroonCountry);
+
+// Log after rules are applied for verification
+console.log('🔍 AFTER RULES APPLIED: Cameroon isSendingEnabled:', cameroonCountry.isSendingEnabled);
+
+export { cameroonCountry };

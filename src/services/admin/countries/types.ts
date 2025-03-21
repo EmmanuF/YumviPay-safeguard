@@ -1,4 +1,5 @@
 import { Json } from "@/integrations/supabase/types";
+import { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES } from "@/utils/countries/countryRules";
 
 /**
  * AdminCountry type definition
@@ -25,27 +26,10 @@ export interface AdminPaymentMethod {
   processingTime: string;
 }
 
-// List of African country codes that should NEVER be sending countries
-export const AFRICAN_COUNTRY_CODES = [
-  'CM', 'GH', 'NG', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 
-  'GW', 'GN', 'SL', 'LR', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ'
-];
-
-// List of countries that should ALWAYS be sending countries
-export const SENDING_COUNTRIES = [
-  // North America
-  'US', 'CA', 'MX', 'PA',
-  // Europe
-  'GB', 'FR', 'DE', 'IT', 'ES',
-  // Middle East
-  'AE', 'SA', 'QA', 'KW',
-  // Asia Pacific
-  'AU', 'JP', 'SG'
-];
-
 /**
  * Ensures that African countries are never marked as sending countries
  * and that designated sending countries are always marked correctly
+ * This is now a wrapper around the centralized rules
  */
 export function enforceCountryRules(country: AdminCountry): AdminCountry {
   // If country is African, force receiving-only

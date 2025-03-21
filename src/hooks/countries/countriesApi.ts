@@ -2,9 +2,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Country } from '../../types/country';
 import { parsePaymentMethods } from './parseCountryData';
+import { enforceClientCountryRules } from '@/utils/countries/countryRules';
 
 /**
  * Fetches countries from Supabase API
+ * Uses centralized rule enforcement
  */
 export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
   try {
@@ -23,7 +25,7 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
     if (data && data.length > 0) {
       console.log(`Fetched ${data.length} countries from Supabase`);
       
-      return data.map(country => ({
+      const countries = data.map(country => ({
         name: country.name,
         code: country.code,
         currency: country.currency,
@@ -32,6 +34,9 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
         isReceivingEnabled: country.is_receiving_enabled,
         paymentMethods: parsePaymentMethods(country.payment_methods)
       }));
+      
+      // Apply consistent rule enforcement to all countries
+      return countries.map(enforceClientCountryRules);
     }
     
     console.log('No countries data returned from Supabase');
@@ -44,6 +49,7 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
 
 /**
  * Fetches only sending countries from Supabase
+ * Uses centralized rule enforcement
  */
 export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> => {
   try {
@@ -63,7 +69,7 @@ export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> 
     if (data && data.length > 0) {
       console.log(`Fetched ${data.length} sending countries from Supabase`);
       
-      return data.map(country => ({
+      const countries = data.map(country => ({
         name: country.name,
         code: country.code,
         currency: country.currency,
@@ -72,6 +78,9 @@ export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> 
         isReceivingEnabled: country.is_receiving_enabled,
         paymentMethods: parsePaymentMethods(country.payment_methods)
       }));
+      
+      // Apply consistent rule enforcement to all countries
+      return countries.map(enforceClientCountryRules).filter(c => c.isSendingEnabled);
     }
     
     console.log('No sending countries data returned from Supabase');
@@ -84,6 +93,7 @@ export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> 
 
 /**
  * Fetches only receiving countries from Supabase
+ * Uses centralized rule enforcement
  */
 export const fetchReceivingCountriesFromApi = async (): Promise<Country[] | null> => {
   try {
@@ -103,7 +113,7 @@ export const fetchReceivingCountriesFromApi = async (): Promise<Country[] | null
     if (data && data.length > 0) {
       console.log(`Fetched ${data.length} receiving countries from Supabase`);
       
-      return data.map(country => ({
+      const countries = data.map(country => ({
         name: country.name,
         code: country.code,
         currency: country.currency,
@@ -112,6 +122,9 @@ export const fetchReceivingCountriesFromApi = async (): Promise<Country[] | null
         isReceivingEnabled: country.is_receiving_enabled,
         paymentMethods: parsePaymentMethods(country.payment_methods)
       }));
+      
+      // Apply consistent rule enforcement to all countries
+      return countries.map(enforceClientCountryRules).filter(c => c.isReceivingEnabled);
     }
     
     console.log('No receiving countries data returned from Supabase');

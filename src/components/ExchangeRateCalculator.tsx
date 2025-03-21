@@ -1,83 +1,137 @@
-
-import React from 'react';
-import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
-import InlineCalculator from '@/components/calculator/InlineCalculator';
-import FullCalculator from '@/components/calculator/FullCalculator';
-import LoadingCalculator from '@/components/calculator/LoadingCalculator';
+import React, { useState, useEffect } from 'react';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { calculateExchange } from '@/utils/exchangeRate';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useCurrencies } from '@/hooks/useCurrencies';
+import { useExchangeRate } from '@/hooks/useExchangeRate';
+import { useToast } from "@/components/ui/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
+import CurrencySelector from '@/components/calculator/CurrencySelector';
 
 interface ExchangeRateCalculatorProps {
   className?: string;
-  onContinue?: () => void;
-  inlineMode?: boolean;
 }
 
-const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ 
-  className,
-  onContinue,
-  inlineMode = false
-}) => {
-  const {
-    sendAmount,
-    setSendAmount,
-    receiveAmount,
-    sourceCurrency,
-    setSourceCurrency,
-    targetCurrency,
-    setTargetCurrency,
-    exchangeRate,
-    isProcessing,
-    authLoading,
-    countriesLoading,
-    sourceCurrencies,
-    targetCurrencies,
-    handleContinue
-  } = useExchangeRateCalculator(onContinue);
-
-  // Loading state - show skeleton UI
-  if (countriesLoading) {
-    return <LoadingCalculator className={className} />;
-  }
-
-  // In inline mode, we use a simpler layout without the header and descriptions
-  if (inlineMode) {
-    return (
-      <InlineCalculator
-        sendAmount={sendAmount}
-        setSendAmount={setSendAmount}
-        receiveAmount={receiveAmount}
-        sourceCurrency={sourceCurrency}
-        setSourceCurrency={setSourceCurrency}
-        targetCurrency={targetCurrency}
-        setTargetCurrency={setTargetCurrency}
-        exchangeRate={exchangeRate}
-        isProcessing={isProcessing}
-        authLoading={authLoading}
-        sourceCurrencies={sourceCurrencies}
-        targetCurrencies={targetCurrencies}
-        handleContinue={handleContinue}
-        className={className}
-      />
-    );
-  }
-
-  // Default full mode layout
+const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({ className }) => {
+  const [sourceAmount, setSourceAmount] = useState<number>(1);
+  const [targetAmount, setTargetAmount] = useState<number>(0);
+  const [sourceCurrency, setSourceCurrency] = useState<string>('USD');
+  const [targetCurrency, setTargetCurrency] = useState<string>('EUR');
+  const debouncedSourceAmount = useDebounce(sourceAmount, 500);
+  const { toast } = useToast()
+  
+  const { 
+    currencies: sourceCurrencies, 
+    isLoading: isLoadingSourceCurrencies 
+  } = useCurrencies({ type: 'source' });
+  
+  const { 
+    currencies: targetCurrencies, 
+    isLoading: isLoadingTargetCurrencies 
+  } = useCurrencies({ type: 'target' });
+  
+  const { 
+    exchangeRate, 
+    isLoading: isLoadingExchangeRate, 
+    error 
+  } = useExchangeRate(sourceCurrency, targetCurrency);
+  
+  const sourceCurrencyOptions = sourceCurrencies || [];
+  const targetCurrencyOptions = targetCurrencies || [];
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+  }, [error, toast]);
+  
+  useEffect(() => {
+    if (exchangeRate) {
+      setTargetAmount(calculateExchange(debouncedSourceAmount, exchangeRate));
+    }
+  }, [debouncedSourceAmount, exchangeRate]);
+  
+  const handleSourceAmountChange = (value: string) => {
+    const parsedValue = parseFloat(value);
+    if (!isNaN(parsedValue)) {
+      setSourceAmount(parsedValue);
+    } else {
+      setSourceAmount(0);
+    }
+  };
+  
+  const handleTargetAmountChange = (value: string) => {
+    const parsedValue = parseFloat(value);
+    if (!isNaN(parsedValue)) {
+      setTargetAmount(parsedValue);
+    } else {
+      setTargetAmount(0);
+    }
+  };
+  
   return (
-    <FullCalculator
-      sendAmount={sendAmount}
-      setSendAmount={setSendAmount}
-      receiveAmount={receiveAmount}
-      sourceCurrency={sourceCurrency}
-      setSourceCurrency={setSourceCurrency}
-      targetCurrency={targetCurrency}
-      setTargetCurrency={setTargetCurrency}
-      exchangeRate={exchangeRate}
-      isProcessing={isProcessing}
-      authLoading={authLoading}
-      sourceCurrencies={sourceCurrencies}
-      targetCurrencies={targetCurrencies}
-      handleContinue={handleContinue}
-      className={className}
-    />
+    <div className="glass-card p-4 rounded-xl mb-6">
+      <h2 className="text-lg font-semibold mb-4">Exchange Rate Calculator</h2>
+      
+      <div className="flex justify-between items-center gap-2 mb-4">
+        <CurrencySelector
+          label="From"
+          value={sourceCurrency}
+          onChange={setSourceCurrency}
+          options={sourceCurrencyOptions}
+          type="source" // Add this type prop
+        />
+        
+        <div className="flex flex-col space-y-1 w-1/2">
+          <Label htmlFor="sourceAmount">Amount</Label>
+          <Input
+            type="number"
+            id="sourceAmount"
+            placeholder="Enter amount"
+            value={sourceAmount.toString()}
+            onChange={(e) => handleSourceAmountChange(e.target.value)}
+            disabled={isLoadingExchangeRate}
+          />
+        </div>
+      </div>
+      
+      <div className="flex justify-between items-center gap-2 mb-4">
+        <CurrencySelector
+          label="To"
+          value={targetCurrency}
+          onChange={setTargetCurrency}
+          options={targetCurrencyOptions}
+          type="target" // Add this type prop
+        />
+        
+        <div className="flex flex-col space-y-1 w-1/2">
+          <Label htmlFor="targetAmount">Amount</Label>
+          <Input
+            type="number"
+            id="targetAmount"
+            placeholder="Enter amount"
+            value={targetAmount.toString()}
+            onChange={(e) => handleTargetAmountChange(e.target.value)}
+            disabled={isLoadingExchangeRate}
+          />
+        </div>
+      </div>
+      
+      <div className="text-center text-sm text-gray-500">
+        {isLoadingExchangeRate ? (
+          <Skeleton className="w-[200px] h-[20px] mx-auto" />
+        ) : (
+          <>
+            1 {sourceCurrency} = {exchangeRate?.toFixed(4) || '0.0000'} {targetCurrency}
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 

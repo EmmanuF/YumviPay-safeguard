@@ -8,23 +8,68 @@ interface CurrencySelectorProps {
   onChange: (value: string) => void;
   options: string[];
   label: string;
+  type?: 'source' | 'target'; // Added type prop to determine sending vs receiving
 }
 
-const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, options, label }) => {
+const CurrencySelector: React.FC<CurrencySelectorProps> = ({ 
+  value, 
+  onChange, 
+  options, 
+  label,
+  type = 'source' // Default to source currency
+}) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const { countries } = useCountries();
+  const { countries, getSendingCountries, getReceivingCountries } = useCountries();
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [countryByCurrency, setCountryByCurrency] = useState<Record<string, any>>({});
 
-  // Find the selected country by currency code
-  const getCountryByCurrency = (currencyCode: string) => {
-    return countries.find(country => country.currency === currencyCode);
-  };
-
-  // Update the selected country when value or countries change
+  // Find the appropriate country by currency code based on sending/receiving status
   useEffect(() => {
-    const country = getCountryByCurrency(value);
-    setSelectedCountry(country);
-  }, [value, countries]);
+    const loadCountriesByCurrency = async () => {
+      const currencyMap: Record<string, any> = {};
+      
+      // Use the appropriate country list based on type
+      let countryList = countries;
+      if (type === 'source') {
+        const sendingCountries = await getSendingCountries();
+        if (sendingCountries && sendingCountries.length > 0) {
+          countryList = sendingCountries;
+        }
+      } else if (type === 'target') {
+        const receivingCountries = await getReceivingCountries();
+        if (receivingCountries && receivingCountries.length > 0) {
+          countryList = receivingCountries;
+        }
+      }
+      
+      // Build a map of currency code to country
+      countryList.forEach(country => {
+        // Prioritize sending countries for source currencies
+        if (type === 'source' && country.isSendingEnabled) {
+          currencyMap[country.currency] = country;
+        } 
+        // Prioritize receiving countries for target currencies
+        else if (type === 'target' && country.isReceivingEnabled) {
+          currencyMap[country.currency] = country;
+        }
+        // Fallback - if the currency isn't mapped yet, use this country
+        else if (!currencyMap[country.currency]) {
+          currencyMap[country.currency] = country;
+        }
+      });
+      
+      setCountryByCurrency(currencyMap);
+      
+      // Update selected country based on current value
+      if (value && currencyMap[value]) {
+        setSelectedCountry(currencyMap[value]);
+      } else {
+        setSelectedCountry(null);
+      }
+    };
+    
+    loadCountriesByCurrency();
+  }, [countries, value, type, getSendingCountries, getReceivingCountries]);
 
   // Log for debugging
   useEffect(() => {
@@ -66,7 +111,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
               <div className="px-4 py-2 text-gray-500">No options available</div>
             ) : (
               options.map((option) => {
-                const country = getCountryByCurrency(option);
+                const country = countryByCurrency[option];
                 return (
                   <button
                     key={option}
