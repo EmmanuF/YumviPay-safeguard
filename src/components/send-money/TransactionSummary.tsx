@@ -35,8 +35,7 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   );
 
   // Get provider details if available
-  const methodId = selectedPaymentMethod || '';
-  const providerDetails = selectedProvider ? getProviderById(methodId, selectedProvider) : undefined;
+  const providerDetails = selectedProvider ? getProviderById(selectedProvider) : undefined;
   
   const sourceCurrency = 'USD';
   const targetCurrency = selectedCountryData?.currency || 'XAF';

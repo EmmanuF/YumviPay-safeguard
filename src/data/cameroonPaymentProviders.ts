@@ -1,5 +1,5 @@
 
-import { SmartPhone, CreditCard, BuildingBank } from "lucide-react";
+import { Smartphone, CreditCard, Building } from "lucide-react";
 
 // Define payment provider types
 export interface PaymentProvider {
@@ -91,9 +91,9 @@ export const getProviderById = (id: string): PaymentProvider | undefined => {
 // Get payment method by ID
 export const getPaymentMethodById = (id: string): { name: string; icon: any } | undefined => {
   const methods = {
-    'mobile_money': { name: 'Mobile Money', icon: SmartPhone },
+    'mobile_money': { name: 'Mobile Money', icon: Smartphone },
     'credit_card': { name: 'Credit Card', icon: CreditCard },
-    'bank_transfer': { name: 'Bank Transfer', icon: BuildingBank },
+    'bank_transfer': { name: 'Bank Transfer', icon: Building },
   };
   return methods[id as keyof typeof methods];
 };
