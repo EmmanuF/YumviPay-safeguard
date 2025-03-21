@@ -52,7 +52,7 @@ export const kadoRedirectService = {
       // Generate appropriate return URL based on platform
       let returnUrl: string;
       
-      if (isPlatform('mobile') && params.deepLinkBack) {
+      if (isPlatform('capacitor') && params.deepLinkBack) {
         // Generate a deep link for native apps
         returnUrl = deepLinkService.generateDeepLink(
           `transaction/${params.transactionId}`,
@@ -108,7 +108,7 @@ export const kadoRedirectService = {
       });
       
       // Handle redirection based on platform
-      if (isPlatform('mobile')) {
+      if (isPlatform('capacitor')) {
         // Use the device's browser to open the URL on mobile
         const { Browser } = await import('@capacitor/browser');
         await Browser.open({ url: kadoUrl.toString() });

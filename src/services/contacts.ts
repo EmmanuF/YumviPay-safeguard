@@ -14,7 +14,7 @@ export type Contact = {
 export const importContacts = async (): Promise<Contact[]> => {
   try {
     // Check if running on a mobile device
-    const isMobile = isPlatform('native');
+    const isMobile = isPlatform('capacitor');
     
     if (isMobile) {
       // On mobile, we would normally use Capacitor Contacts plugin

@@ -24,7 +24,7 @@ export const useKado = () => {
     const userRef = session?.user?.id;
     
     // Determine if we should use deep linking
-    const useDeepLink = isPlatform('mobile');
+    const useDeepLink = isPlatform('capacitor');
     
     // Construct the return URL to the transaction status page
     const returnUrl = `${window.location.origin}/transaction/${params.transactionId}`;

@@ -12,7 +12,7 @@ export class DeepLinkService {
 
   private constructor() {
     // Initialize listeners when on a native platform
-    if (isPlatform('mobile')) {
+    if (isPlatform('capacitor')) {
       this.setupListeners();
     }
   }

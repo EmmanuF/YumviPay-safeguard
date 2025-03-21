@@ -48,7 +48,7 @@ export const useDeepLinks = (onDeepLink?: (data: DeepLinkParams) => void) => {
 
   // Set up deep link handling
   useEffect(() => {
-    if (!isPlatform('mobile')) {
+    if (!isPlatform('capacitor')) {
       setIsReady(true);
       return;
     }
