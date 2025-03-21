@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Tool } from 'lucide-react';
+import { Loader2, RefreshCw, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { ensureCountryFlags } from '@/utils/repairCountryDatabase';
 
@@ -82,7 +82,7 @@ const CheckCountriesStatus = () => {
               onClick={repairCountryFlags}
               disabled={refreshing}
             >
-              {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Tool className="h-4 w-4 mr-2" />}
+              {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wrench className="h-4 w-4 mr-2" />}
               Repair Country Flags
             </Button>
           </div>
