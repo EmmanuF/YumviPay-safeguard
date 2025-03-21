@@ -19,11 +19,15 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
     }
   };
 
+  const handleSendMoney = () => {
+    navigate('/send');
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-20">
       <div className="grid md:grid-cols-2 gap-10 items-center">
         {/* Left column - Hero content */}
-        <HeroContent onGetStarted={handleGetStarted} />
+        <HeroContent onGetStarted={handleGetStarted} onSendMoney={handleSendMoney} />
         
         {/* Right column - Calculator with enhanced glass morphism */}
         <HeroCalculator />

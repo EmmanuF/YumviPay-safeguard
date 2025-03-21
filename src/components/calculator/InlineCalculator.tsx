@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CurrencySelector from '@/components/calculator/CurrencySelector';
 import AmountInput from '@/components/calculator/AmountInput';
@@ -85,7 +85,7 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           />
         </div>
         
-        <div className="mb-2">
+        <div className="mb-4">
           <RateDisplay 
             sourceCurrency={sourceCurrency} 
             targetCurrency={targetCurrency} 
@@ -101,8 +101,10 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
           disabled={authLoading || isProcessing}
           type="button"
         >
-          {authLoading || isProcessing ? 'Processing...' : 'Continue'}
-          {!authLoading && !isProcessing && <ArrowRight className="ml-2 h-5 w-5" />}
+          <div className="flex items-center justify-center">
+            <Send className="mr-2 h-5 w-5" />
+            {authLoading || isProcessing ? 'Processing...' : 'Send Money'}
+          </div>
         </Button>
       </div>
     </div>

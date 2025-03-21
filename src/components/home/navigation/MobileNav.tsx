@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { NavItem } from './types';
+import { Send } from 'lucide-react';
 
 interface MobileNavProps {
   navItems: NavItem[];
@@ -14,6 +15,16 @@ interface MobileNavProps {
 const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNavigating }) => {
   const location = useLocation();
   
+  // Add Send Money button
+  const allNavItems = [
+    ...navItems,
+    {
+      name: 'Send',
+      path: '/send',
+      icon: <Send size={20} />
+    }
+  ];
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -21,7 +32,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ navItems, handleNavigation, isNav
       transition={{ duration: 0.3, delay: 0.1 }}
       className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-400 to-primary-300 backdrop-blur-md border border-primary-300/30 shadow-sm"
     >
-      {navItems.map((item) => (
+      {allNavItems.map((item) => (
         <button
           key={item.name}
           onClick={() => handleNavigation(item.path)}
