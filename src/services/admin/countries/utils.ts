@@ -1,5 +1,5 @@
 
-import { AdminCountry } from "./types";
+import { AdminCountry, enforceCountryRules } from "./types";
 
 export const parseCountryData = (data: any[]): AdminCountry[] => {
   return data.map(country => {
@@ -12,9 +12,12 @@ export const parseCountryData = (data: any[]): AdminCountry[] => {
       console.error(`Error parsing payment methods for ${country.code}:`, e);
     }
     
-    return {
+    const parsedCountry = {
       ...country,
       payment_methods: parsedMethods
     };
+    
+    // Apply country rules to ensure correct sending/receiving flags
+    return enforceCountryRules(parsedCountry);
   });
 };

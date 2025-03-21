@@ -1,5 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
-import { AdminCountry } from "./types";
+import { AdminCountry, AFRICAN_COUNTRY_CODES, enforceCountryRules } from "./types";
 
 export const updateCountrySettings = async (
   code: string, 
@@ -13,9 +14,18 @@ export const updateCountrySettings = async (
   }
   
   try {
+    // Apply country rules before saving to database
+    let finalUpdates = { ...updates };
+    
+    // Never allow African countries to be sending countries
+    if (AFRICAN_COUNTRY_CODES.includes(code) && finalUpdates.is_sending_enabled === true) {
+      console.warn(`Prevented African country ${code} from being set as a sending country`);
+      finalUpdates.is_sending_enabled = false;
+    }
+    
     const { error } = await supabase
       .from('countries')
-      .update(updates)
+      .update(finalUpdates)
       .eq('code', code);
     
     if (error) {
@@ -67,15 +77,24 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       return false;
     }
     
+    // Apply rules before saving
+    let finalCountry = { ...country };
+    
+    // Never allow African countries to be sending countries
+    if (AFRICAN_COUNTRY_CODES.includes(country.code) && finalCountry.is_sending_enabled === true) {
+      console.warn(`Prevented African country ${country.code} from being set as a sending country`);
+      finalCountry.is_sending_enabled = false;
+    }
+    
     const countryData = {
-      code: country.code,
-      name: country.name,
-      currency: country.currency,
-      currency_symbol: country.currency_symbol,
-      flag_emoji: country.flag_emoji || null,
-      is_sending_enabled: country.is_sending_enabled !== undefined ? country.is_sending_enabled : false,
-      is_receiving_enabled: country.is_receiving_enabled !== undefined ? country.is_receiving_enabled : false,
-      payment_methods: country.payment_methods || []
+      code: finalCountry.code,
+      name: finalCountry.name,
+      currency: finalCountry.currency,
+      currency_symbol: finalCountry.currency_symbol,
+      flag_emoji: finalCountry.flag_emoji || null,
+      is_sending_enabled: finalCountry.is_sending_enabled !== undefined ? finalCountry.is_sending_enabled : false,
+      is_receiving_enabled: finalCountry.is_receiving_enabled !== undefined ? finalCountry.is_receiving_enabled : false,
+      payment_methods: finalCountry.payment_methods || []
     };
     
     const { error } = await supabase

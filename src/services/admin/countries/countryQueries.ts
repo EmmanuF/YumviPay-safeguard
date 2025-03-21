@@ -1,5 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
-import { AdminCountry } from "./types";
+import { AdminCountry, enforceCountryRules } from "./types";
 import { parseCountryData } from "./utils";
 
 export const getAdminCountries = async (): Promise<AdminCountry[]> => {
@@ -23,7 +24,17 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
       throw error;
     }
     
-    return parseCountryData(data || []);
+    // Process countries data and ensure rules are applied
+    const countries = parseCountryData(data || []);
+    
+    // Log sending and receiving countries for debugging
+    const sendingCountries = countries.filter(c => c.is_sending_enabled);
+    const receivingCountries = countries.filter(c => c.is_receiving_enabled);
+    
+    console.log(`Admin countries: ${countries.length} total, ${sendingCountries.length} sending, ${receivingCountries.length} receiving`);
+    console.log('Sending countries:', sendingCountries.map(c => c.name).join(', '));
+    
+    return countries;
   } catch (error) {
     console.error('Error in getAdminCountries:', error);
     return [];
