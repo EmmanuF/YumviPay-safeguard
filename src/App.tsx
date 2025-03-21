@@ -60,7 +60,6 @@ const App = () => {
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Home />} />
-                    <Route path="/404" element={<NotFound />} />
                     <Route path="/send" element={<SendMoney />} />
                     <Route path="/signin" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />
@@ -94,8 +93,11 @@ const App = () => {
                       <Route path="security" element={<AdminSecurity />} />
                     </Route>
                     
-                    {/* Catch-all route for 404 */}
-                    <Route path="*" element={<Navigate to="/404" replace />} />
+                    {/* 404 route - Must be placed after all other routes */}
+                    <Route path="/404" element={<NotFound />} />
+                    
+                    {/* Catch-all route - Must be last */}
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppInitializer>
               </Router>
