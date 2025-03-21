@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
-import { AdminCountry } from '@/services/admin/adminCountryService';
+import { AdminCountry, AdminPaymentMethod } from '@/services/admin/countries/types';
 import { 
   Select, 
   SelectContent, 
@@ -21,21 +21,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import PaymentMethodsList from './PaymentMethodsList';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  fees: string;
-  processingTime: string;
-}
+import { parsePaymentMethods } from '@/utils/paymentMethodUtils';
 
 interface EditPaymentMethodsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   country: AdminCountry | null;
-  onSave: (countryCode: string, methods: PaymentMethod[]) => Promise<void>;
+  onSave: (countryCode: string, methods: AdminPaymentMethod[]) => Promise<void>;
 }
 
 const PAYMENT_ICONS = [
@@ -51,11 +43,17 @@ const EditPaymentMethodsDialog: React.FC<EditPaymentMethodsDialogProps> = ({
   country,
   onSave
 }) => {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(
-    country?.payment_methods || []
-  );
+  const [paymentMethods, setPaymentMethods] = useState<AdminPaymentMethod[]>([]);
   
-  const [newMethod, setNewMethod] = useState<Partial<PaymentMethod>>({
+  // Update payment methods when country changes
+  useEffect(() => {
+    if (country) {
+      const parsedMethods = parsePaymentMethods(country.payment_methods);
+      setPaymentMethods(parsedMethods);
+    }
+  }, [country]);
+  
+  const [newMethod, setNewMethod] = useState<Partial<AdminPaymentMethod>>({
     id: '',
     name: '',
     description: '',

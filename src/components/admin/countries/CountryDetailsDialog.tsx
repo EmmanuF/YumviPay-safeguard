@@ -9,10 +9,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { AdminCountry } from '@/services/admin/adminCountryService';
+import { AdminCountry } from '@/services/admin/countries/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CountryStatusBadge from './CountryStatusBadge';
 import PaymentMethodsList from './PaymentMethodsList';
+import { parsePaymentMethods } from '@/utils/paymentMethodUtils';
 
 interface CountryDetailsDialogProps {
   open: boolean;
@@ -28,6 +29,9 @@ const CountryDetailsDialog: React.FC<CountryDetailsDialogProps> = ({
   onEditPaymentMethods
 }) => {
   if (!country) return null;
+  
+  // Parse payment methods safely
+  const parsedPaymentMethods = parsePaymentMethods(country.payment_methods);
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -84,7 +88,7 @@ const CountryDetailsDialog: React.FC<CountryDetailsDialogProps> = ({
               </Button>
             </div>
             
-            <PaymentMethodsList methods={country.payment_methods || []} />
+            <PaymentMethodsList methods={parsedPaymentMethods} />
           </TabsContent>
         </Tabs>
         

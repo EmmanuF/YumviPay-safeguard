@@ -4,22 +4,13 @@ import {
   CreditCard, 
   Smartphone, 
   Building2, 
-  Wallet,
-  CheckCircle2
+  Wallet
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  description?: string;
-  icon?: string;
-  fees?: string;
-  processingTime?: string;
-}
+import { AdminPaymentMethod } from '@/services/admin/countries/types';
 
 interface PaymentMethodsListProps {
-  methods: PaymentMethod[];
+  methods: AdminPaymentMethod[];
 }
 
 const getIcon = (iconName: string | undefined) => {
