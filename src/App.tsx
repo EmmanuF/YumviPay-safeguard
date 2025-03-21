@@ -17,7 +17,6 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Home from './pages/Home';
-import SendMoney from './pages/SendMoney';
 
 // Import admin components and routes
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
@@ -54,7 +53,6 @@ const App = () => {
                   {/* Public routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/404" element={<NotFound />} />
-                  <Route path="/send" element={<SendMoney />} />
                   
                   {/* App routes - Protected */}
                   <Route path="/app" element={<ProtectedRoute />}>
