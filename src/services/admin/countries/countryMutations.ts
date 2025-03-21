@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { AdminCountry, AFRICAN_COUNTRY_CODES, enforceCountryRules } from "./types";
+import { AdminCountry } from "./types";
 import { Json } from "@/integrations/supabase/types";
+import { canBeSendingCountry } from "@/utils/countryRules";
 
 export const updateCountrySettings = async (
   code: string, 
@@ -15,12 +15,12 @@ export const updateCountrySettings = async (
   }
   
   try {
-    // Apply country rules before saving to database
+    // Apply centralized rules before saving to database
     let finalUpdates: Record<string, any> = { ...updates };
     
     // Never allow African countries to be sending countries
-    if (AFRICAN_COUNTRY_CODES.includes(code) && finalUpdates.is_sending_enabled === true) {
-      console.warn(`Prevented African country ${code} from being set as a sending country`);
+    if (!canBeSendingCountry(code) && finalUpdates.is_sending_enabled === true) {
+      console.warn(`Prevented country ${code} from being set as a sending country (blocked by rules)`);
       finalUpdates.is_sending_enabled = false;
     }
     
@@ -88,8 +88,8 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
     let finalCountry = { ...country };
     
     // Never allow African countries to be sending countries
-    if (AFRICAN_COUNTRY_CODES.includes(country.code) && finalCountry.is_sending_enabled === true) {
-      console.warn(`Prevented African country ${country.code} from being set as a sending country`);
+    if (!canBeSendingCountry(country.code) && finalCountry.is_sending_enabled === true) {
+      console.warn(`Prevented country ${country.code} from being set as a sending country (blocked by rules)`);
       finalCountry.is_sending_enabled = false;
     }
     

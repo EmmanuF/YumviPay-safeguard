@@ -1,5 +1,6 @@
 
 import { Country, PaymentMethod } from '@/types/country';
+import { enforceCountryRules } from '@/utils/countryRules';
 
 /**
  * Parse payment methods data from various formats
@@ -24,7 +25,7 @@ export const parsePaymentMethods = (data: any): PaymentMethod[] => {
 
 /**
  * Maps country data between the API format and our application format
- * Ensures all required fields are properly set
+ * Ensures all required fields are properly set and rules enforced
  */
 export const mapApiCountryToAppCountry = (apiCountry: any): Country => {
   // Make sure we have a valid country code
@@ -40,7 +41,8 @@ export const mapApiCountryToAppCountry = (apiCountry: any): Country => {
     console.warn('Country missing code:', apiCountry.name || 'Unknown country');
   }
   
-  return {
+  // Create the country object with the correct structure for our app
+  const country: Country = {
     name: apiCountry.name || 'Unknown',
     code: code,
     currency: apiCountry.currency || '',
@@ -50,4 +52,7 @@ export const mapApiCountryToAppCountry = (apiCountry: any): Country => {
     paymentMethods: parsePaymentMethods(apiCountry.payment_methods),
     phonePrefix: apiCountry.phone_prefix || ''
   };
+  
+  // Apply the centralized country rules before returning
+  return enforceCountryRules(country);
 };

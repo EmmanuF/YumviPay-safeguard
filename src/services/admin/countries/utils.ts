@@ -1,9 +1,11 @@
 
-import { AdminCountry, AdminPaymentMethod, enforceCountryRules } from "./types";
+import { AdminCountry, AdminPaymentMethod } from "./types";
 import { Json } from "@/integrations/supabase/types";
+import { enforceCountryRules } from "@/utils/countryRules";
+import { logKeyCountriesStatus } from "@/utils/countryRules";
 
 export const parseCountryData = (data: any[]): AdminCountry[] => {
-  return data.map(country => {
+  const parsedCountries = data.map(country => {
     let parsedMethods: AdminPaymentMethod[] = [];
     
     try {
@@ -27,7 +29,12 @@ export const parseCountryData = (data: any[]): AdminCountry[] => {
       payment_methods: parsedMethods as unknown as Json 
     };
     
-    // Apply country rules to ensure correct sending/receiving flags
-    return enforceCountryRules(parsedCountry);
+    // Apply centralized country rules to ensure correct sending/receiving flags
+    return enforceCountryRules(parsedCountry) as AdminCountry;
   });
+
+  // Log status of key countries for debugging
+  logKeyCountriesStatus(parsedCountries, 'ADMIN PARSE');
+  
+  return parsedCountries;
 };

@@ -1,4 +1,9 @@
 import { Json } from "@/integrations/supabase/types";
+import { 
+  AFRICAN_COUNTRY_CODES,
+  SENDING_COUNTRIES,
+  enforceCountryRules as centralEnforceCountryRules
+} from "@/utils/countryRules";
 
 /**
  * AdminCountry type definition
@@ -25,46 +30,15 @@ export interface AdminPaymentMethod {
   processingTime: string;
 }
 
-// List of African country codes that should NEVER be sending countries
-export const AFRICAN_COUNTRY_CODES = [
-  'CM', 'GH', 'NG', 'SN', 'CI', 'BJ', 'TG', 'BF', 'ML', 'NE', 
-  'GW', 'GN', 'SL', 'LR', 'CD', 'GA', 'TD', 'CF', 'CG', 'GQ'
-];
-
-// List of countries that should ALWAYS be sending countries
-export const SENDING_COUNTRIES = [
-  // North America
-  'US', 'CA', 'MX', 'PA',
-  // Europe
-  'GB', 'FR', 'DE', 'IT', 'ES',
-  // Middle East
-  'AE', 'SA', 'QA', 'KW',
-  // Asia Pacific
-  'AU', 'JP', 'SG'
-];
+/**
+ * Re-export constants from the central utility
+ */
+export { AFRICAN_COUNTRY_CODES, SENDING_COUNTRIES };
 
 /**
- * Ensures that African countries are never marked as sending countries
- * and that designated sending countries are always marked correctly
+ * Wrapper for the central enforcement function that maintains type compatibility
+ * with the AdminCountry type
  */
 export function enforceCountryRules(country: AdminCountry): AdminCountry {
-  // If country is African, force receiving-only
-  if (AFRICAN_COUNTRY_CODES.includes(country.code)) {
-    return {
-      ...country,
-      is_sending_enabled: false,
-      is_receiving_enabled: true
-    };
-  }
-  
-  // If country is in explicit sending list, ensure it's marked as sending
-  if (SENDING_COUNTRIES.includes(country.code)) {
-    return {
-      ...country,
-      is_sending_enabled: true
-    };
-  }
-  
-  // Otherwise, leave as is
-  return country;
+  return centralEnforceCountryRules(country) as AdminCountry;
 }
