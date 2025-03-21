@@ -13,19 +13,7 @@ interface CurrencySelectorProps {
 const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, options, label }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries } = useCountries();
-  const [selectedCountry, setSelectedCountry] = useState<any>(null);
-
-  // Find the selected country by currency code
-  const getCountryByCurrency = (currencyCode: string) => {
-    return countries.find(country => country.currency === currencyCode);
-  };
-
-  // Update the selected country when value or countries change
-  useEffect(() => {
-    const country = getCountryByCurrency(value);
-    setSelectedCountry(country);
-  }, [value, countries]);
-
+  
   // Log for debugging
   useEffect(() => {
     if (options.length > 0) {
@@ -33,8 +21,28 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
     }
   }, [options, label]);
 
+  // Find the selected country by currency code
+  const getCountryByCurrency = (currencyCode: string) => {
+    return countries.find(country => country.currency === currencyCode);
+  };
+
+  const selectedCountry = getCountryByCurrency(value);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-currency-selector]')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" data-currency-selector>
       <button
         type="button"
         className="flex items-center bg-primary-50 rounded-lg px-4 py-2"
@@ -46,9 +54,14 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
               src={selectedCountry.flagUrl}
               alt={`${selectedCountry.name} flag`}
               className="w-5 h-3 object-cover rounded mr-2"
+              onError={(e) => {
+                // Fallback if image fails to load
+                (e.target as HTMLImageElement).style.display = 'none';
+                console.log(`Flag not found for ${selectedCountry.name}`);
+              }}
             />
             <span className="font-medium mr-1">{value}</span>
-            <span className="text-xs text-gray-500">({selectedCountry.name})</span>
+            <span className="text-xs text-gray-500 hidden sm:inline">({selectedCountry.name})</span>
           </div>
         ) : (
           <div className="flex items-center">
@@ -83,6 +96,10 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                           src={country.flagUrl}
                           alt={`${country.name} flag`}
                           className="w-5 h-3 object-cover rounded mr-2"
+                          onError={(e) => {
+                            // Fallback if image fails to load
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
                         />
                         <div>
                           <span className="font-medium">{option}</span>

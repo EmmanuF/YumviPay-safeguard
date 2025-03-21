@@ -1,48 +1,39 @@
 
-import { PaymentMethod } from "@/types/country";
+import { Country, PaymentMethod } from '@/types/country';
 
 /**
- * Parses payment methods from Supabase data into PaymentMethod objects
+ * Parse payment methods data from various formats
  */
-export const parsePaymentMethods = (methods: any): PaymentMethod[] => {
-  if (!methods) return [];
+export const parsePaymentMethods = (data: any): PaymentMethod[] => {
+  if (!data) return [];
   
-  // If methods is a string, try to parse it as JSON
-  if (typeof methods === 'string') {
-    try {
-      methods = JSON.parse(methods);
-    } catch (e) {
-      console.error('Error parsing payment methods:', e);
-      return [];
+  try {
+    if (Array.isArray(data)) {
+      return data;
+    } else if (typeof data === 'string') {
+      return JSON.parse(data);
+    } else if (typeof data === 'object') {
+      return Object.values(data);
     }
+  } catch (e) {
+    console.error('Error parsing payment methods:', e);
   }
   
-  // If methods is not an array, return empty array
-  if (!Array.isArray(methods)) {
-    return [];
-  }
-  
-  // Map to ensure all fields exist
-  return methods.map(method => ({
-    id: method.id || '',
-    name: method.name || '',
-    description: method.description || '',
-    icon: method.icon || 'credit-card',
-    fees: method.fees || '',
-    processingTime: method.processingTime || ''
-  }));
+  return [];
 };
 
 /**
- * Transforms payment methods object into a format compatible with Supabase
+ * Maps country data between the API format and our application format
  */
-export const formatPaymentMethodsForStorage = (methods: PaymentMethod[]): any[] => {
-  return methods.map(method => ({
-    id: method.id,
-    name: method.name,
-    description: method.description,
-    icon: method.icon,
-    fees: method.fees,
-    processingTime: method.processingTime
-  }));
+export const mapApiCountryToAppCountry = (apiCountry: any): Country => {
+  return {
+    name: apiCountry.name,
+    code: apiCountry.code,
+    currency: apiCountry.currency,
+    flagUrl: `https://flagcdn.com/w80/${apiCountry.code.toLowerCase()}.png`,
+    isSendingEnabled: apiCountry.is_sending_enabled,
+    isReceivingEnabled: apiCountry.is_receiving_enabled,
+    paymentMethods: parsePaymentMethods(apiCountry.payment_methods),
+    phonePrefix: apiCountry.phone_prefix
+  };
 };

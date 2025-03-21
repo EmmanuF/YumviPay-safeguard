@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,28 +38,26 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     });
   }, []);
 
-  // Log countries to help debug
+  // Debug country data
   useEffect(() => {
     if (countries.length > 0) {
-      console.log('🔍 CALCULATOR: All countries loaded:', countries.length);
+      // Check if we can correctly get countries by currency
+      const usdCountry = countries.find(c => c.currency === 'USD');
+      const xafCountry = countries.find(c => c.currency === 'XAF');
       
-      // Check key African countries
-      const keyCodes = ['CM', 'GH', 'NG', 'SN'];
-      console.log('🔍 CALCULATOR: Key African countries:');
-      countries
-        .filter(c => keyCodes.includes(c.code))
-        .forEach(c => {
-          console.log(`🔍 CALCULATOR: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
-        });
+      console.log('💰 Country Data Check:');
+      console.log('USD country:', usdCountry ? `${usdCountry.name} (flag: ${usdCountry.flagUrl})` : 'Not found');
+      console.log('XAF country:', xafCountry ? `${xafCountry.name} (flag: ${xafCountry.flagUrl})` : 'Not found');
       
-      // Check sending and receiving countries
-      const sendingCountries = countries.filter(c => c.isSendingEnabled);
-      const receivingCountries = countries.filter(c => c.isReceivingEnabled);
+      // Check all source currencies have corresponding countries
+      const currencyToCountryMap = new Map();
+      countries.forEach(country => {
+        if (!currencyToCountryMap.has(country.currency)) {
+          currencyToCountryMap.set(country.currency, country);
+        }
+      });
       
-      console.log('🔍 CALCULATOR: Sending countries:', sendingCountries.map(c => c.name).join(', '));
-      console.log('🔍 CALCULATOR: Receiving countries:', receivingCountries.map(c => c.name).join(', '));
-    } else {
-      console.log('🔍 CALCULATOR WARNING: No countries loaded, will use fallbacks');
+      console.log('💰 Currency to Country mappings available:', Array.from(currencyToCountryMap.keys()).join(', '));
     }
   }, [countries]);
 

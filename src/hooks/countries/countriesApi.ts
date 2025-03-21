@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Country } from '../../types/country';
-import { parsePaymentMethods } from './parseCountryData';
+import { parsePaymentMethods, mapApiCountryToAppCountry } from './parseCountryData';
 
 /**
  * Fetches countries from Supabase API
@@ -23,15 +23,7 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
     if (data && data.length > 0) {
       console.log(`Fetched ${data.length} countries from Supabase`);
       
-      return data.map(country => ({
-        name: country.name,
-        code: country.code,
-        currency: country.currency,
-        flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
-        isSendingEnabled: country.is_sending_enabled,
-        isReceivingEnabled: country.is_receiving_enabled,
-        paymentMethods: parsePaymentMethods(country.payment_methods)
-      }));
+      return data.map(country => mapApiCountryToAppCountry(country));
     }
     
     console.log('No countries data returned from Supabase');
@@ -63,15 +55,7 @@ export const fetchSendingCountriesFromApi = async (): Promise<Country[] | null> 
     if (data && data.length > 0) {
       console.log(`Fetched ${data.length} sending countries from Supabase`);
       
-      return data.map(country => ({
-        name: country.name,
-        code: country.code,
-        currency: country.currency,
-        flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
-        isSendingEnabled: country.is_sending_enabled,
-        isReceivingEnabled: country.is_receiving_enabled,
-        paymentMethods: parsePaymentMethods(country.payment_methods)
-      }));
+      return data.map(country => mapApiCountryToAppCountry(country));
     }
     
     console.log('No sending countries data returned from Supabase');
@@ -103,15 +87,7 @@ export const fetchReceivingCountriesFromApi = async (): Promise<Country[] | null
     if (data && data.length > 0) {
       console.log(`Fetched ${data.length} receiving countries from Supabase`);
       
-      return data.map(country => ({
-        name: country.name,
-        code: country.code,
-        currency: country.currency,
-        flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
-        isSendingEnabled: country.is_sending_enabled,
-        isReceivingEnabled: country.is_receiving_enabled,
-        paymentMethods: parsePaymentMethods(country.payment_methods)
-      }));
+      return data.map(country => mapApiCountryToAppCountry(country));
     }
     
     console.log('No receiving countries data returned from Supabase');
