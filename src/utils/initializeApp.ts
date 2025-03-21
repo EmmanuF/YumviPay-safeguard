@@ -1,36 +1,27 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { initializeSupabase } from '@/integrations/supabase/initializeSupabase';
 import { initializeCountries } from './initializeCountries';
+import { repairCountryDatabase } from './repairCountryDatabase';
 
 /**
- * Initialize the app
- * This function is called when the app starts
+ * Initialize the application on startup
+ * This sets up all required data and configurations
  */
 export const initializeApp = async (): Promise<void> => {
-  console.log("Initializing app...");
-  
   try {
-    // Initialize Supabase countries data
-    console.log("Loading countries data...");
+    console.log('Starting app initialization...');
+    
+    // Initialize Supabase
+    await initializeSupabase();
+    
+    // Initialize countries if empty
     await initializeCountries();
-    console.log("Countries data loaded successfully");
     
-    // Check if user is already logged in
-    console.log("Checking authentication status...");
-    const { data: { session }, error } = await supabase.auth.getSession();
+    // Repair country database to ensure consistent flags
+    await repairCountryDatabase();
     
-    if (error) {
-      console.error('Error getting auth session:', error);
-    } else if (session) {
-      console.log('User is already logged in:', session.user.email);
-    } else {
-      console.log('No active session found');
-    }
-    
-    console.log("App initialization complete");
+    console.log('App initialization complete');
   } catch (error) {
     console.error('Error during app initialization:', error);
-    // Don't throw error here to prevent app from crashing
-    // Instead log it and continue
   }
 };

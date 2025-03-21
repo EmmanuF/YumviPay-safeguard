@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, Tool } from 'lucide-react';
 import { toast } from 'sonner';
+import { ensureCountryFlags } from '@/utils/repairCountryDatabase';
 
 type CountryStatus = {
   code: string;
@@ -42,16 +43,12 @@ const CheckCountriesStatus = () => {
   const repairCountryFlags = async () => {
     try {
       setRefreshing(true);
-      toast.info('Repairing country flags...');
       
-      const { resetCountryFlags } = await import('@/utils/resetSendingCountries');
-      const { initializeSendingCountries } = await import('@/utils/initializeSendingCountries');
+      // Use our new comprehensive repair function
+      await ensureCountryFlags();
       
-      await resetCountryFlags();
-      await initializeSendingCountries();
-      
+      // Refresh the country list
       await fetchCountries();
-      toast.success('Country flags repaired successfully');
     } catch (error) {
       console.error('Error repairing country flags:', error);
       toast.error('Failed to repair country flags');
@@ -85,7 +82,7 @@ const CheckCountriesStatus = () => {
               onClick={repairCountryFlags}
               disabled={refreshing}
             >
-              {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Tool className="h-4 w-4 mr-2" />}
               Repair Country Flags
             </Button>
           </div>
