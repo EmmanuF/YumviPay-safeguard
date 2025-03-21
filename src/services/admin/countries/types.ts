@@ -1,3 +1,4 @@
+
 import { Json } from "@/integrations/supabase/types";
 import { 
   AFRICAN_COUNTRY_CODES,
@@ -7,20 +8,23 @@ import {
 
 /**
  * AdminCountry type definition
- * Used for the admin panel only
+ * Central type for admin country operations
  */
 export interface AdminCountry {
   code: string;
   name: string;
   currency: string;
   currency_symbol: string;
-  flag_emoji: string; // Changed from optional to required to match adminCountryService
+  flag_emoji: string;
   is_sending_enabled: boolean;
   is_receiving_enabled: boolean;
-  payment_methods: Json; // Changed from AdminPaymentMethod[] to Json to match Supabase expectations
+  payment_methods: Json;
+  phone_prefix?: string; // Added to match database schema
 }
 
-// Keeping this interface for frontend use, separate from database operations
+/**
+ * PaymentMethod interface for frontend use
+ */
 export interface AdminPaymentMethod {
   id: string;
   name: string;

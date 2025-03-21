@@ -1,8 +1,12 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { AdminCountry } from "./types";
 import { Json } from "@/integrations/supabase/types";
 import { canBeSendingCountry } from "@/utils/countryRules";
 
+/**
+ * Updates a country's settings with proper validation and type safety
+ */
 export const updateCountrySettings = async (
   code: string, 
   updates: Partial<AdminCountry>
@@ -19,15 +23,25 @@ export const updateCountrySettings = async (
     let finalUpdates: Record<string, any> = { ...updates };
     
     // Never allow African countries to be sending countries
-    if (!canBeSendingCountry(code) && finalUpdates.is_sending_enabled === true) {
+    if ('is_sending_enabled' in finalUpdates && 
+        finalUpdates.is_sending_enabled === true && 
+        !canBeSendingCountry(code)) {
       console.warn(`Prevented country ${code} from being set as a sending country (blocked by rules)`);
       finalUpdates.is_sending_enabled = false;
     }
     
-    // Remove payment_methods from updates if present to handle separately
-    // as it needs special JSON handling
-    if (finalUpdates.payment_methods) {
+    // Handle payment_methods separately with proper type conversion
+    if ('payment_methods' in finalUpdates) {
+      const methods = finalUpdates.payment_methods;
       delete finalUpdates.payment_methods;
+      
+      // Update payment methods separately if they exist
+      if (methods) {
+        const methodsResult = await updateCountryPaymentMethods(code, methods as any);
+        if (!methodsResult) {
+          console.error(`Failed to update payment methods for ${code}`);
+        }
+      }
     }
     
     const { error } = await supabase
@@ -49,11 +63,19 @@ export const updateCountrySettings = async (
   }
 };
 
+/**
+ * Updates a country's payment methods with proper validation
+ */
 export const updateCountryPaymentMethods = async (
   code: string,
   paymentMethods: any[]
 ): Promise<boolean> => {
   console.log(`Updating payment methods for ${code}`, paymentMethods);
+  
+  if (!code) {
+    console.error('Country code is required for payment method updates');
+    return false;
+  }
   
   if (!Array.isArray(paymentMethods)) {
     console.error('Invalid payment methods format');
@@ -66,7 +88,10 @@ export const updateCountryPaymentMethods = async (
       .update({ payment_methods: paymentMethods as Json })
       .eq('code', code);
     
-    if (error) throw error;
+    if (error) {
+      console.error(`Error updating payment methods for ${code}:`, error);
+      return false;
+    }
     
     return true;
   } catch (error) {
@@ -75,6 +100,9 @@ export const updateCountryPaymentMethods = async (
   }
 };
 
+/**
+ * Adds a new country with proper validation and type safety
+ */
 export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boolean> => {
   console.log('Adding new country:', country);
   
@@ -93,7 +121,7 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       finalCountry.is_sending_enabled = false;
     }
     
-    // Prepare country data for insertion, ensuring payment_methods is properly formatted as Json
+    // Prepare country data for insertion, ensuring payment_methods is properly formatted
     const countryData = {
       code: finalCountry.code,
       name: finalCountry.name,
@@ -109,7 +137,10 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
       .from('countries')
       .insert(countryData);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error adding country:', error);
+      return false;
+    }
     
     return true;
   } catch (error) {
@@ -118,8 +149,16 @@ export const addNewCountry = async (country: Partial<AdminCountry>): Promise<boo
   }
 };
 
+/**
+ * Deletes a country by code
+ */
 export const deleteCountry = async (code: string): Promise<boolean> => {
   console.log(`Deleting country ${code}`);
+  
+  if (!code) {
+    console.error('Country code is required for deletion');
+    return false;
+  }
   
   try {
     const { error } = await supabase
@@ -127,7 +166,10 @@ export const deleteCountry = async (code: string): Promise<boolean> => {
       .delete()
       .eq('code', code);
     
-    if (error) throw error;
+    if (error) {
+      console.error(`Error deleting country ${code}:`, error);
+      return false;
+    }
     
     return true;
   } catch (error) {

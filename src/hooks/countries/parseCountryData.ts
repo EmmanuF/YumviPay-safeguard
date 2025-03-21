@@ -25,7 +25,7 @@ export const parsePaymentMethods = (data: any): PaymentMethod[] => {
 
 /**
  * Maps country data between the API format and our application format
- * Ensures all required fields are properly set and rules enforced
+ * Uses the central enforceCountryRules function
  */
 export const mapApiCountryToAppCountry = (apiCountry: any): Country => {
   // Make sure we have a valid country code
