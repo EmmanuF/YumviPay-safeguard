@@ -1,14 +1,21 @@
 
-import { useContext } from 'react';
-import { NetworkContext } from './NetworkContext';
-import { NetworkContextType } from './types';
+import { useState, useEffect } from 'react';
 
-export const useNetwork = (): NetworkContextType => {
-  const context = useContext(NetworkContext);
-  if (context === undefined) {
-    throw new Error('useNetwork must be used within a NetworkProvider');
-  }
-  return context;
+export const useNetwork = () => {
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  return { isOnline };
 };
-
-export default useNetwork;

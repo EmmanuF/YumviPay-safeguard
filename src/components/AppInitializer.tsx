@@ -1,24 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/auth';
-import { useNetwork } from '@/contexts/network';
-import { initializeSupabase } from '@/integrations/supabase/initializeSupabase';
+import { useNetwork } from '@/contexts/network/useNetwork';
 
 const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const { isLoading: isAuthLoading } = useAuth();
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const { isOnline } = useNetwork();
 
   useEffect(() => {
     // Initialize the app when it loads
     const initApp = async () => {
       try {
-        // Initialize Supabase client
-        await initializeSupabase();
+        setIsAuthLoading(true);
         
-        // New imports for country initialization
-        const { initializeCountries } = await import('../utils/initializeCountries');
-        const { initializeSendingCountries } = await import('../utils/initializeSendingCountries');
-        const { resetCountryFlags } = await import('../utils/resetSendingCountries');
+        // Initialize the country data
+        const { initializeCountries } = await import('@/utils/initializeCountries');
+        const { initializeSendingCountries } = await import('@/utils/initializeSendingCountries');
+        const { resetCountryFlags } = await import('@/utils/resetSendingCountries');
         
         // Run country initialization functions
         await initializeCountries();
@@ -27,8 +25,12 @@ const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
         
         // Set app as initialized
         setIsInitialized(true);
+        setIsAuthLoading(false);
+        
+        console.log('App initialization complete');
       } catch (error) {
         console.error('Error initializing app:', error);
+        setIsAuthLoading(false);
       }
     };
 

@@ -1,27 +1,20 @@
+
 import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
+  Outlet
 } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'sonner';
 
 // Import components
 import AppInitializer from './components/AppInitializer';
-import PublicHome from './pages/PublicHome';
-import Pricing from './pages/Pricing';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Transactions from './pages/Transactions';
 import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-import Security from './pages/Security';
 import NotFound from './pages/NotFound';
 
 // Import admin components and routes
@@ -44,35 +37,23 @@ const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Helmet>
-        <title>Yumvi-Pay</title>
-        <meta name="description" content="Send money internationally with ease" />
-      </Helmet>
-      
       <Router>
         <Toaster />
         <AppInitializer>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<PublicHome />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/404" element={<NotFound />} />
             
             {/* App routes - Protected */}
             <Route path="/app" element={<ProtectedRoute />}>
               <Route index element={<Navigate to="/app/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="transactions" element={<Transactions />} />
               <Route path="profile" element={<Profile />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="security" element={<Security />} />
             </Route>
             
             {/* Admin routes */}
-            <Route path="/admin" element={<AdminProtectedRoute />}>
+            <Route path="/admin" element={<AdminProtectedRouteWrapper />}>
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
@@ -96,12 +77,19 @@ const App = () => {
   );
 };
 
-export default App;
-
 // Simple protected route setup
 function ProtectedRoute() {
   const isAuthenticated = localStorage.getItem('authToken'); // Example auth check
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/" />;
 }
 
-import { Outlet } from 'react-router-dom';
+// Wrapper for AdminProtectedRoute to provide children prop
+function AdminProtectedRouteWrapper() {
+  return (
+    <AdminProtectedRoute>
+      <Outlet />
+    </AdminProtectedRoute>
+  );
+}
+
+export default App;
