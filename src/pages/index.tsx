@@ -14,7 +14,7 @@ const HomePage = () => {
   const { user } = useAuth();
   
   // Determine if user is admin (example check, adjust as needed)
-  const isAdmin = user?.role === 'admin' || process.env.NODE_ENV === 'development';
+  const isAdmin = user?.email?.endsWith('@admin.com') || process.env.NODE_ENV === 'development';
 
   return (
     <PageTransition>

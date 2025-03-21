@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Database } from 'lucide-react';
 import { forceCountryRefresh } from '@/utils/forceCountryRefresh';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface AdminControlsProps {
   className?: string;
@@ -17,9 +18,17 @@ const AdminControls: React.FC<AdminControlsProps> = ({ className }) => {
   const handleRefreshCountries = async () => {
     setIsRefreshing(true);
     try {
-      await forceCountryRefresh();
+      console.log('Starting country refresh...');
+      const result = await forceCountryRefresh();
+      
+      if (result) {
+        toast.success('Countries data refreshed successfully');
+      } else {
+        toast.error('Failed to refresh countries data');
+      }
     } catch (error) {
       console.error('Error refreshing countries:', error);
+      toast.error(`Failed to refresh countries: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsRefreshing(false);
     }
@@ -38,7 +47,7 @@ const AdminControls: React.FC<AdminControlsProps> = ({ className }) => {
           onClick={handleRefreshCountries}
           disabled={isRefreshing}
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           {isRefreshing ? 'Refreshing Countries...' : 'Refresh Countries Data'}
         </Button>
         
