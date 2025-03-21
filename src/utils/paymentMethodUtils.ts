@@ -12,14 +12,28 @@ export const parsePaymentMethods = (data: Json | null | undefined): AdminPayment
   try {
     // Handle array format
     if (Array.isArray(data)) {
-      return data as AdminPaymentMethod[];
+      // Validate that each item in the array has the required properties of AdminPaymentMethod
+      return data.filter(item => 
+        typeof item === 'object' && 
+        item !== null && 
+        'id' in item && 
+        'name' in item
+      ) as AdminPaymentMethod[];
     }
     
     // Handle string format (JSON string)
     if (typeof data === 'string') {
       try {
         const parsed = JSON.parse(data);
-        return Array.isArray(parsed) ? parsed : [];
+        if (Array.isArray(parsed)) {
+          return parsed.filter(item => 
+            typeof item === 'object' && 
+            item !== null && 
+            'id' in item && 
+            'name' in item
+          ) as AdminPaymentMethod[];
+        }
+        return [];
       } catch {
         return [];
       }
@@ -28,7 +42,13 @@ export const parsePaymentMethods = (data: Json | null | undefined): AdminPayment
     // Handle object format
     if (typeof data === 'object') {
       // If it's an object with numeric keys, convert to array
-      return Object.values(data);
+      const values = Object.values(data);
+      return values.filter(item => 
+        typeof item === 'object' && 
+        item !== null && 
+        'id' in item && 
+        'name' in item
+      ) as AdminPaymentMethod[];
     }
     
     // Handle other formats
