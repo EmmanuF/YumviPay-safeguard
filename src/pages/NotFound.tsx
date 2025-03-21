@@ -4,7 +4,6 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import MobileAppLayout from '@/components/MobileAppLayout';
 import { Button } from '@/components/ui/button';
-import { Helmet } from 'react-helmet-async';
 
 const NotFound = () => {
   const location = useLocation();
@@ -18,10 +17,6 @@ const NotFound = () => {
 
   return (
     <MobileAppLayout>
-      <Helmet>
-        <title>Page Not Found | Yumvi-Pay</title>
-      </Helmet>
-      
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center px-4 py-10">
           <h1 className="text-5xl font-bold text-primary-600 mb-4">404</h1>
