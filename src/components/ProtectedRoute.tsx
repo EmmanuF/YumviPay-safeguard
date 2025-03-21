@@ -124,7 +124,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [authError, toast, location.pathname, isLoggedIn, authLoading]);
   
   // Show loading state while checking authentication
-  if (loading || isChecking) {
+  if (authLoading || isChecking) {
     return <LoadingState 
       message="Verifying authentication..." 
       submessage="Please wait while we check your login status" 
