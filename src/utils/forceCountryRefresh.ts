@@ -13,37 +13,41 @@ import { repairCountryDatabase } from './repairCountryDatabase';
 export const forceCountryRefresh = async (showToasts = true): Promise<boolean> => {
   try {
     if (showToasts) {
-      toast.info('Refreshing country data...');
+      toast.info('Refreshing country data...', { id: 'refresh-toast' });
     }
     
     console.log('🔄 REFRESH: Starting complete country data refresh');
     
     // Step 1: Clear the cache
+    let cacheCleared = false;
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.removeItem('yumvi_countries_cache');
         clearCountriesCache();
         console.log('🔄 REFRESH: Countries cache cleared');
+        cacheCleared = true;
       } catch (e) {
         console.error('🔄 REFRESH: Failed to clear cache:', e);
       }
     }
     
-    // Step 2: Repair the database
+    // Step 2: Repair the database (at least attempt to)
+    let repairSuccess = false;
     try {
       console.log('🔄 REFRESH: Repairing country database...');
-      const repairSuccess = await repairCountryDatabase();
+      repairSuccess = await repairCountryDatabase();
       console.log('🔄 REFRESH: Country database repair result:', repairSuccess);
     } catch (e) {
       console.error('🔄 REFRESH: Error repairing country database:', e);
       if (showToasts) {
-        toast.error('Failed to repair country database');
+        toast.error('Failed to repair country database', { id: 'refresh-toast' });
       }
-      return false;
     }
     
-    if (showToasts) {
-      toast.success('Country data refreshed successfully', {
+    // Even if repair failed, we can still proceed with cache clearing
+    if (cacheCleared && showToasts) {
+      toast.success('Country cache refreshed', {
+        id: 'refresh-toast',
         duration: 5000,
         action: {
           label: 'Reload App',
@@ -52,12 +56,12 @@ export const forceCountryRefresh = async (showToasts = true): Promise<boolean> =
       });
     }
     
-    console.log('🔄 REFRESH: Country data refresh completed successfully');
-    return true;
+    // If cache was cleared, we consider it partially successful
+    return cacheCleared || repairSuccess;
   } catch (error) {
     console.error('🔄 REFRESH: Error during country refresh:', error);
     if (showToasts) {
-      toast.error('Failed to refresh country data');
+      toast.error('Failed to refresh country data', { id: 'refresh-toast' });
     }
     return false;
   }

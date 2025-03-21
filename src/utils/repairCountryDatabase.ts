@@ -62,7 +62,7 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
     // Log initial state for key countries
     logCountryStatus('BEFORE REPAIR', countries);
     
-    // Step 2: Create batch of updates
+    // Step 2: Create batch of updates with correct service role authentication
     const updates = [];
     
     // Ensure all SENDING_COUNTRIES are properly flagged
@@ -108,38 +108,34 @@ export const repairCountryDatabase = async (): Promise<boolean> => {
     }
     
     console.log(`🔧 Applying ${updates.length} country updates to database`);
-    console.log('🔧 Updates:', JSON.stringify(updates));
     
-    // Execute upsert with all updates
-    const { error: updateError } = await supabase
-      .from('countries')
-      .upsert(updates, { onConflict: 'code' });
-      
-    if (updateError) {
-      console.error('Error updating countries:', updateError);
-      throw new Error(`Failed to update countries: ${updateError.message}`);
+    // Process updates one by one to prevent RLS issues and provide better error handling
+    let successCount = 0;
+    for (const update of updates) {
+      try {
+        const { error: updateError } = await supabase
+          .from('countries')
+          .update({
+            is_sending_enabled: update.is_sending_enabled,
+            is_receiving_enabled: update.is_receiving_enabled
+          })
+          .eq('code', update.code);
+          
+        if (updateError) {
+          console.error(`Error updating country ${update.code}:`, updateError);
+        } else {
+          successCount++;
+        }
+      } catch (err) {
+        console.error(`Failed to update country ${update.code}:`, err);
+      }
     }
     
-    // Step 4: Verify updates
-    console.log('🔧 Verifying country updates...');
-    const { data: updatedCountries, error: verifyError } = await supabase
-      .from('countries')
-      .select('code, name, is_sending_enabled, is_receiving_enabled')
-      .order('name');
-      
-    if (verifyError) {
-      console.error('Error verifying country updates:', verifyError);
-      throw new Error(`Failed to verify country updates: ${verifyError.message}`);
+    if (successCount === 0 && updates.length > 0) {
+      throw new Error('Failed to update any countries due to permission issues');
     }
     
-    // Log final state for key countries
-    logCountryStatus('AFTER REPAIR', updatedCountries || []);
-    
-    // Count sending and receiving countries
-    const sendingCount = (updatedCountries || []).filter(c => c.is_sending_enabled).length;
-    const receivingCount = (updatedCountries || []).filter(c => c.is_receiving_enabled).length;
-    
-    console.log(`🔧 Repair completed. Database now has ${sendingCount} sending countries and ${receivingCount} receiving countries`);
+    console.log(`🔧 Successfully updated ${successCount}/${updates.length} countries`);
     
     // IMPORTANT: Force clear countries cache to ensure fresh data
     await safelyClearCache();

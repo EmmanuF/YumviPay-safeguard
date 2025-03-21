@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Database } from 'lucide-react';
+import { RefreshCw, Database, Shield } from 'lucide-react';
 import { forceCountryRefresh } from '@/utils/forceCountryRefresh';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -19,16 +19,20 @@ const AdminControls: React.FC<AdminControlsProps> = ({ className }) => {
     setIsRefreshing(true);
     try {
       console.log('Starting country refresh...');
+      // Show immediate feedback
+      toast.loading('Refreshing country data...', { id: 'country-refresh' });
+      
       const result = await forceCountryRefresh();
       
       if (result) {
-        toast.success('Countries data refreshed successfully');
+        toast.success('Countries data refreshed successfully', { id: 'country-refresh' });
       } else {
-        toast.error('Failed to refresh countries data');
+        toast.error('Failed to refresh countries data', { id: 'country-refresh' });
       }
     } catch (error) {
       console.error('Error refreshing countries:', error);
-      toast.error(`Failed to refresh countries: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to refresh: ${error instanceof Error ? error.message : 'Unknown error'}`, 
+        { id: 'country-refresh' });
     } finally {
       setIsRefreshing(false);
     }
@@ -59,6 +63,16 @@ const AdminControls: React.FC<AdminControlsProps> = ({ className }) => {
         >
           <Database className="h-4 w-4 mr-2" />
           Check Countries Status
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full justify-start text-amber-600"
+          onClick={() => navigate('/admin/countries')}
+        >
+          <Shield className="h-4 w-4 mr-2" />
+          Manage Countries
         </Button>
       </CardContent>
     </Card>
