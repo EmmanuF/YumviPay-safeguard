@@ -5,6 +5,7 @@ import { useNetwork } from '@/contexts/network';
 import { initializeSupabase } from '@/integrations/supabase/initializeSupabase';
 import { initializeApp } from '@/utils/initializeApp';
 import { toast } from 'sonner';
+import { clearCountriesCache } from '@/hooks/countries/countriesCache';
 
 const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -21,6 +22,13 @@ const AppInitializer: React.FC<React.PropsWithChildren> = ({ children }) => {
         setInitError(null);
         
         console.log('Starting app initialization...');
+        
+        // Always clear cache first to ensure fresh data
+        try {
+          clearCountriesCache();
+        } catch (e) {
+          console.warn('Failed to clear cache during initialization:', e);
+        }
         
         // Initialize Supabase client
         await initializeSupabase();
