@@ -106,8 +106,9 @@ const FullCalculator: React.FC<FullCalculatorProps> = ({
         
         <Button
           onClick={handleContinue}
-          className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl"
+          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           size="lg"
+          variant="default"
         >
           <div className="flex items-center justify-center">
             <Send className="mr-2 h-5 w-5" />

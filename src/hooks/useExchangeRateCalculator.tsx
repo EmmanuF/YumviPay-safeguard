@@ -59,6 +59,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       
       console.log('🔍 CALCULATOR: Sending countries:', sendingCountries.map(c => c.name).join(', '));
       console.log('🔍 CALCULATOR: Receiving countries:', receivingCountries.map(c => c.name).join(', '));
+    } else {
+      console.log('🔍 CALCULATOR WARNING: No countries loaded, will use fallbacks');
     }
   }, [countries]);
 

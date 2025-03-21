@@ -14,6 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
+    /* Adjusted primary color for better visibility */
     --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
 
@@ -107,4 +108,15 @@
 
 .gradient-card {
   @apply bg-gradient-to-br from-white to-background;
+}
+
+/* 
+ * Adding new utility classes for button visibility 
+ */
+.btn-primary-visible {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary-visible {
+  @apply bg-purple-600 text-white hover:bg-purple-700;
 }

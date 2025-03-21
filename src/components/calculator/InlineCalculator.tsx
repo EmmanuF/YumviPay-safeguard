@@ -111,9 +111,10 @@ const InlineCalculator: React.FC<InlineCalculatorProps> = ({
         
         <Button
           onClick={onContinueClick}
-          className="w-full bg-primary-500 hover:bg-primary-600 py-3 rounded-xl"
+          className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl"
           size="lg"
           type="button"
+          variant="default"
         >
           <div className="flex items-center justify-center">
             <Send className="mr-2 h-5 w-5" />
