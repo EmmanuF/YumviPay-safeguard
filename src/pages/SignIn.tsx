@@ -15,12 +15,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
 import { BiometricService } from '@/services/biometric';
+import { AlertCircle } from 'lucide-react';
+import { useNetwork } from '@/contexts/network';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -30,10 +32,11 @@ const formSchema = z.object({
 const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const { signIn } = useAuth();
+  const { isOnline } = useNetwork();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,13 +47,31 @@ const SignIn = () => {
   });
 
   useEffect(() => {
-    // Check if biometric login is available (e.g., via local storage)
+    // Check if biometric login is available
     const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
     setShowBiometricLogin(biometricAvailable);
+    
+    // Clear any previous errors when component mounts
+    setAuthError(null);
   }, []);
+
+  // Reset auth error if network status changes
+  useEffect(() => {
+    if (isOnline) {
+      setAuthError(null);
+    }
+  }, [isOnline]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
+    setAuthError(null);
+    
+    if (!isOnline) {
+      setAuthError("You appear to be offline. Please check your internet connection and try again.");
+      setIsSubmitting(false);
+      return;
+    }
+    
     try {
       await signIn(values.email, values.password);
       
@@ -67,17 +88,24 @@ const SignIn = () => {
         // Non-critical error, so we don't need to show it to the user
       }
       
-      toast({
-        title: "Login successful",
-        description: "You have successfully logged in.",
+      toast.success("Login successful", {
+        description: "You have successfully logged in."
       });
+      
       const redirectTo = location.state?.redirectTo || "/";
       navigate(redirectTo);
     } catch (error: any) {
-      toast({
-        title: "Authentication Failed",
-        description: error.message || "Invalid credentials. Please try again.",
-        variant: "destructive",
+      console.error("Sign in error:", error);
+      
+      // Set appropriate error message based on error type
+      if (!navigator.onLine || error.message?.includes('Failed to fetch')) {
+        setAuthError("Unable to reach authentication servers. Please check your internet connection and try again.");
+      } else {
+        setAuthError(error.message || "Invalid credentials. Please try again.");
+      }
+      
+      toast.error("Authentication Failed", {
+        description: error.message || "Invalid credentials. Please try again."
       });
     } finally {
       setIsSubmitting(false);
@@ -89,18 +117,22 @@ const SignIn = () => {
     setIsSubmitting(true);
     signIn(credentials.username, credentials.password)
       .then(() => {
-        toast({
-          title: "Biometric Login Successful",
-          description: "You have successfully logged in using biometrics.",
+        toast.success("Biometric Login Successful", {
+          description: "You have successfully logged in using biometrics."
         });
         const redirectTo = location.state?.redirectTo || "/";
         navigate(redirectTo);
       })
       .catch((error) => {
-        toast({
-          title: "Authentication Failed",
-          description: error.message || "Invalid credentials. Please try again.",
-          variant: "destructive",
+        console.error("Biometric auth error:", error);
+        setAuthError(
+          !navigator.onLine 
+            ? "Unable to reach authentication servers. Please check your internet connection."
+            : (error.message || "Authentication failed. Please try using password login.")
+        );
+        
+        toast.error("Authentication Failed", {
+          description: error.message || "Authentication failed. Please try using password login."
         });
       })
       .finally(() => {
@@ -119,6 +151,20 @@ const SignIn = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
+            {!isOnline && (
+              <div className="mb-4 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800 flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                <span>You appear to be offline. Sign in requires an internet connection.</span>
+              </div>
+            )}
+            
+            {authError && (
+              <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-800 flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                <span>{authError}</span>
+              </div>
+            )}
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -147,7 +193,12 @@ const SignIn = () => {
                     </FormItem>
                   )}
                 />
-                <Button disabled={isSubmitting} className="w-full" size="lg">
+                <Button 
+                  disabled={isSubmitting || (!isOnline && !form.formState.isValid)} 
+                  className="w-full btn-primary-visible" 
+                  size="lg"
+                  type="submit"
+                >
                   {isSubmitting ? "Signing In..." : "Sign In"}
                 </Button>
               </form>
