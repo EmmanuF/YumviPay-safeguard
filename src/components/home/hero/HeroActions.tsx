@@ -1,49 +1,48 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Download } from 'lucide-react';
+import { ArrowRight, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HeroActionsProps {
   onGetStarted: () => void;
 }
 
 const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  
+  const handleSendMoney = () => {
+    console.log('Send money button clicked');
+    navigate('/send');
+  };
+
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+      className="flex flex-wrap gap-4 mt-8"
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-wrap gap-4 mb-8"
+      transition={{ delay: 0.3 }}
     >
-      <Button
+      <Button 
         onClick={onGetStarted}
-        className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl transition-all duration-300 text-base shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30"
+        className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30 px-6 py-6 rounded-xl text-base"
         size="lg"
       >
-        <motion.span
-          className="flex items-center"
-          whileHover={{ x: 4 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        >
-          Get Started
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </motion.span>
+        Get Started
+        <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
       
-      <Button
-        variant="outline"
-        className="border-secondary-500 text-slate-500 hover:bg-secondary-500/20 shadow-sm"
+      <Button 
+        onClick={handleSendMoney}
+        variant="secondary"
+        className="bg-secondary-500 text-white hover:bg-secondary-600 shadow-lg shadow-secondary-500/20 px-6 py-6 rounded-xl text-base"
         size="lg"
       >
-        <motion.span
-          className="flex items-center"
-          whileHover={{ y: -2 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        >
-          <Download className="mr-2 h-5 w-5" />
-          Download App
-        </motion.span>
+        Send Money
+        <Send className="ml-2 h-5 w-5" />
       </Button>
     </motion.div>
   );
