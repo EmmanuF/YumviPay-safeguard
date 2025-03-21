@@ -14,16 +14,39 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries } = useCountries();
   
-  // Log for debugging
+  // Debug countries and currency mapping
   useEffect(() => {
-    if (options.length > 0) {
-      console.log(`${label} options:`, options);
+    if (countries.length > 0 && options.length > 0) {
+      console.log(`CurrencySelector (${label}): ${options.length} options available`);
+      
+      // Check if we can find countries for each currency
+      const currencyMap = new Map();
+      options.forEach(currencyCode => {
+        const country = countries.find(c => c.currency === currencyCode);
+        currencyMap.set(currencyCode, country ? country.name : null);
+      });
+      
+      console.log(`CurrencySelector (${label}): Currency to country mapping:`, 
+        Object.fromEntries(currencyMap.entries()));
+      
+      // Check specifically for the selected currency
+      const selectedCountry = countries.find(c => c.currency === value);
+      console.log(`CurrencySelector (${label}): Selected currency ${value} maps to:`, 
+        selectedCountry ? `${selectedCountry.name} (flag: ${selectedCountry.flagUrl})` : 'Not found');
     }
-  }, [options, label]);
+  }, [countries, options, value, label]);
 
-  // Find the selected country by currency code
+  // Find the selected country by currency code - improved version
   const getCountryByCurrency = (currencyCode: string) => {
-    return countries.find(country => country.currency === currencyCode);
+    if (!currencyCode || !countries || countries.length === 0) return null;
+    
+    // Try to find exact match first
+    const exactMatch = countries.find(country => country.currency === currencyCode);
+    if (exactMatch) return exactMatch;
+    
+    // If no exact match, try case-insensitive match as fallback
+    return countries.find(country => 
+      country.currency.toLowerCase() === currencyCode.toLowerCase());
   };
 
   const selectedCountry = getCountryByCurrency(value);
@@ -48,16 +71,16 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
         className="flex items-center bg-primary-50 rounded-lg px-4 py-2"
         onClick={() => setShowDropdown(!showDropdown)}
       >
-        {selectedCountry ? (
+        {value && selectedCountry ? (
           <div className="flex items-center">
             <img 
-              src={selectedCountry.flagUrl}
+              src={selectedCountry.flagUrl} 
               alt={`${selectedCountry.name} flag`}
               className="w-5 h-3 object-cover rounded mr-2"
               onError={(e) => {
                 // Fallback if image fails to load
+                console.log(`Flag not found for ${selectedCountry.name} (${value})`);
                 (e.target as HTMLImageElement).style.display = 'none';
-                console.log(`Flag not found for ${selectedCountry.name}`);
               }}
             />
             <span className="font-medium mr-1">{value}</span>
@@ -98,6 +121,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                           className="w-5 h-3 object-cover rounded mr-2"
                           onError={(e) => {
                             // Fallback if image fails to load
+                            console.log(`Flag not found for ${country.name} (${option})`);
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
@@ -116,8 +140,6 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                 );
               })
             )}
-            {/* Add an empty div with padding to create extra space at the bottom */}
-            <div className="h-4"></div>
           </div>
         </div>
       )}
