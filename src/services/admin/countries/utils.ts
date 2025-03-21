@@ -1,15 +1,9 @@
 
-import { AdminCountry, AdminPaymentMethod } from "./types";
+import { AdminCountry, AdminPaymentMethod, enforceCountryRules } from "./types";
 import { Json } from "@/integrations/supabase/types";
-import { enforceCountryRules } from "@/utils/countryRules";
-import { logKeyCountriesStatus } from "@/utils/countryRules";
 
-/**
- * Parse raw country data from database into AdminCountry objects
- * with proper type handling
- */
 export const parseCountryData = (data: any[]): AdminCountry[] => {
-  const parsedCountries = data.map(country => {
+  return data.map(country => {
     let parsedMethods: AdminPaymentMethod[] = [];
     
     try {
@@ -25,25 +19,15 @@ export const parseCountryData = (data: any[]): AdminCountry[] => {
       console.error(`Error parsing payment methods for ${country.code}:`, e);
     }
     
-    // Create a properly typed AdminCountry object
+    // Ensure the flag_emoji is never null or undefined for type compatibility
     const parsedCountry: AdminCountry = {
-      code: country.code,
-      name: country.name,
-      currency: country.currency || '',
-      currency_symbol: country.currency_symbol || '',
-      flag_emoji: country.flag_emoji || '🌐',
-      is_sending_enabled: Boolean(country.is_sending_enabled),
-      is_receiving_enabled: Boolean(country.is_receiving_enabled),
-      payment_methods: parsedMethods as unknown as Json,
-      phone_prefix: country.phone_prefix
+      ...country,
+      flag_emoji: country.flag_emoji || '🌐', // Provide a default if missing
+      // Use a type assertion to safely convert to Json type
+      payment_methods: parsedMethods as unknown as Json 
     };
     
-    // Apply centralized country rules to ensure correct sending/receiving flags
+    // Apply country rules to ensure correct sending/receiving flags
     return enforceCountryRules(parsedCountry);
   });
-
-  // Log status for debugging
-  logKeyCountriesStatus(parsedCountries, 'ADMIN PARSE');
-  
-  return parsedCountries;
 };

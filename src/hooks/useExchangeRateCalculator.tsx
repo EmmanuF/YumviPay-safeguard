@@ -39,41 +39,28 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     });
   }, []);
 
-  // Debug country data
+  // Log countries to help debug
   useEffect(() => {
     if (countries.length > 0) {
-      // Check if we can correctly get countries by currency
-      const usdCountry = countries.find(c => c.currency === 'USD' && c.isSendingEnabled) || 
-                         countries.find(c => c.currency === 'USD');
-      const xafCountry = countries.find(c => c.currency === 'XAF' && c.isReceivingEnabled) || 
-                         countries.find(c => c.currency === 'XAF');
+      console.log('🔍 CALCULATOR: All countries loaded:', countries.length);
       
-      console.log('💰 Country Data Check:');
-      console.log('USD country:', usdCountry ? `${usdCountry.name} (flag: ${usdCountry.flagUrl})` : 'Not found');
-      console.log('XAF country:', xafCountry ? `${xafCountry.name} (flag: ${xafCountry.flagUrl})` : 'Not found');
+      // Check key African countries
+      const keyCodes = ['CM', 'GH', 'NG', 'SN'];
+      console.log('🔍 CALCULATOR: Key African countries:');
+      countries
+        .filter(c => keyCodes.includes(c.code))
+        .forEach(c => {
+          console.log(`🔍 CALCULATOR: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+        });
       
-      // Create a more intelligent currency to country map that prefers sending or receiving countries
-      const sourceCurrencyMap = new Map();
-      const targetCurrencyMap = new Map();
+      // Check sending and receiving countries
+      const sendingCountries = countries.filter(c => c.isSendingEnabled);
+      const receivingCountries = countries.filter(c => c.isReceivingEnabled);
       
-      countries.forEach(country => {
-        // For source currencies, prioritize sending-enabled countries
-        if (country.isSendingEnabled && !sourceCurrencyMap.has(country.currency)) {
-          sourceCurrencyMap.set(country.currency, country);
-        } else if (!sourceCurrencyMap.has(country.currency)) {
-          sourceCurrencyMap.set(country.currency, country);
-        }
-        
-        // For target currencies, prioritize receiving-enabled countries
-        if (country.isReceivingEnabled && !targetCurrencyMap.has(country.currency)) {
-          targetCurrencyMap.set(country.currency, country);
-        } else if (!targetCurrencyMap.has(country.currency)) {
-          targetCurrencyMap.set(country.currency, country);
-        }
-      });
-      
-      console.log('💰 Source Currency mappings available:', Array.from(sourceCurrencyMap.keys()).join(', '));
-      console.log('💰 Target Currency mappings available:', Array.from(targetCurrencyMap.keys()).join(', '));
+      console.log('🔍 CALCULATOR: Sending countries:', sendingCountries.map(c => c.name).join(', '));
+      console.log('🔍 CALCULATOR: Receiving countries:', receivingCountries.map(c => c.name).join(', '));
+    } else {
+      console.log('🔍 CALCULATOR WARNING: No countries loaded, will use fallbacks');
     }
   }, [countries]);
 
@@ -84,25 +71,25 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       return ['USD', 'EUR', 'GBP', 'CAD']; // Default currencies when countries not loaded
     }
     
-    // First get all countries that are sending-enabled
     const sendingCountries = countries.filter(country => country.isSendingEnabled);
-    
-    // Log for debugging
-    console.log('🔍 CALCULATOR CURRENCIES: Found sending countries:', 
+    console.log('🔍 CALCULATOR CURRENCIES: Source currencies from countries:', 
                 sendingCountries.map(c => `${c.name} (${c.currency})`).join(', '));
     
-    // Get unique currencies from sending countries
-    let currencies = Array.from(new Set(sendingCountries.map(country => country.currency)));
+    // Additional check for African countries that shouldn't be in sending list
+    const africanCodes = ['CM', 'GH', 'NG', 'SN'];
+    const africanSendingCountries = sendingCountries.filter(c => africanCodes.includes(c.code));
+    
+    if (africanSendingCountries.length > 0) {
+      console.log('🔍 CALCULATOR ERROR: African countries incorrectly marked as sending:', 
+                  africanSendingCountries.map(c => `${c.name} (isSendingEnabled=${c.isSendingEnabled})`).join(', '));
+    }
     
     // Ensure we always have some source currencies even if none are configured correctly
+    let currencies = Array.from(new Set(sendingCountries.map(country => country.currency)));
+    
     if (currencies.length === 0) {
       console.log('🔍 CALCULATOR: No sending countries found, using default currencies');
       currencies = ['USD', 'EUR', 'GBP', 'CAD']; // Fallback if no sending countries
-    }
-    
-    // Make sure USD is always first if it exists
-    if (currencies.includes('USD')) {
-      currencies = ['USD', ...currencies.filter(c => c !== 'USD')];
     }
     
     console.log('🔍 CALCULATOR CURRENCIES: Final source currencies:', currencies.join(', '));
@@ -125,11 +112,6 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     if (currencies.length === 0) {
       console.log('🔍 CALCULATOR: No receiving countries found, using XAF as default');
       currencies = ['XAF', 'NGN', 'GHS']; // Fallback to African currencies
-    }
-    
-    // Make sure XAF is always first if it exists (for Cameroon)
-    if (currencies.includes('XAF')) {
-      currencies = ['XAF', ...currencies.filter(c => c !== 'XAF')];
     }
     
     console.log('🔍 CALCULATOR CURRENCIES: Final target currencies:', currencies.join(', '));

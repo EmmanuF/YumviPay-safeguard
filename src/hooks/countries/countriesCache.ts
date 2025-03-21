@@ -2,8 +2,7 @@
 import { Country } from '../../types/country';
 
 const CACHE_KEY = 'yumvi_countries_cache';
-// Reduce cache expiry to 30 seconds during development to prevent stale data
-const CACHE_EXPIRY = 30 * 1000; // 30 seconds in milliseconds
+const CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 interface CachedData {
   countries: Country[];
@@ -15,33 +14,13 @@ interface CachedData {
  */
 export const getCachedCountries = (): Country[] | null => {
   try {
-    if (typeof localStorage === 'undefined') {
-      console.log('🔍 CACHE: localStorage not available, skipping cache');
-      return null;
-    }
-    
     const cachedDataStr = localStorage.getItem(CACHE_KEY);
     if (!cachedDataStr) {
       console.log('🔍 CACHE: No countries cache found');
       return null;
     }
     
-    let cachedData: CachedData;
-    try {
-      cachedData = JSON.parse(cachedDataStr);
-    } catch (e) {
-      console.error('🔍 CACHE: Invalid cache data format, clearing cache', e);
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    
-    // Validate cache structure
-    if (!cachedData || !Array.isArray(cachedData.countries) || cachedData.countries.length === 0) {
-      console.error('🔍 CACHE: Invalid or empty countries data structure, clearing cache');
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    
+    const cachedData: CachedData = JSON.parse(cachedDataStr);
     const now = Date.now();
     
     // Check if cache is expired
@@ -51,29 +30,20 @@ export const getCachedCountries = (): Country[] | null => {
       return null;
     }
     
-    // Verify that the cache has sending countries
-    const sendingCountries = cachedData.countries.filter(c => c.isSendingEnabled);
-    if (sendingCountries.length === 0) {
-      console.warn('🔍 CACHE: No sending countries found in cache - invalid data, clearing cache');
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
+    console.log('🔍 CACHE: Using cached countries data');
     
-    console.log(`🔍 CACHE: Using cached countries data (${cachedData.countries.length} countries)`);
-    console.log(`🔍 CACHE: Found ${sendingCountries.length} sending countries in cache`);
-    if (sendingCountries.length > 0) {
-      console.log('🔍 CACHE: First 3 sending countries:', sendingCountries.slice(0, 3).map(c => `${c.name} (${c.code})`).join(', '));
-    }
+    // Debug African countries specifically
+    const africanCountries = cachedData.countries.filter(c => 
+      ['CM', 'GH', 'NG', 'SN', 'CI'].includes(c.code));
+    
+    console.log('🔍 CACHE: African countries sending status:');
+    africanCountries.forEach(c => {
+      console.log(`🔍 CACHE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+    });
     
     return cachedData.countries;
   } catch (error) {
     console.error('Error reading countries cache:', error);
-    // If there's an error, clear the cache and return null
-    try {
-      localStorage.removeItem(CACHE_KEY);
-    } catch (e) {
-      console.error('Failed to clear cache after error:', e);
-    }
     return null;
   }
 };
@@ -82,33 +52,18 @@ export const getCachedCountries = (): Country[] | null => {
  * Update countries cache with new data
  */
 export const updateCountriesCache = (countries: Country[]): void => {
-  if (!countries || !Array.isArray(countries)) {
-    console.error('🔍 CACHE UPDATE: Invalid countries data, not caching', countries);
-    return;
-  }
-  
-  if (countries.length === 0) {
-    console.warn('🔍 CACHE UPDATE: Empty countries array, not caching');
-    return;
-  }
-  
-  // Verify that we have sending countries before caching
-  const sendingCountries = countries.filter(c => c.isSendingEnabled);
-  if (sendingCountries.length === 0) {
-    console.error('🔍 CACHE UPDATE: No sending countries found in data, not caching');
-    return;
-  }
-  
   try {
-    if (typeof localStorage === 'undefined') {
-      console.log('🔍 CACHE UPDATE: localStorage not available, skipping cache update');
-      return;
-    }
-    
     // Debug before caching
-    console.log(`🔍 CACHE UPDATE: Caching ${countries.length} countries`);
-    console.log(`🔍 CACHE UPDATE: Caching ${sendingCountries.length} sending countries`);
-    console.log('🔍 CACHE UPDATE: First 3 sending countries:', sendingCountries.slice(0, 3).map(c => `${c.name} (${c.code})`).join(', '));
+    console.log('🔍 CACHE UPDATE: Before caching countries');
+    
+    // Debug African countries specifically
+    const africanCountries = countries.filter(c => 
+      ['CM', 'GH', 'NG', 'SN', 'CI'].includes(c.code));
+    
+    console.log('🔍 CACHE UPDATE: African countries sending status:');
+    africanCountries.forEach(c => {
+      console.log(`🔍 CACHE UPDATE: ${c.name} (${c.code}): isSendingEnabled=${c.isSendingEnabled}, isReceivingEnabled=${c.isReceivingEnabled}`);
+    });
     
     const cacheData: CachedData = {
       countries,
@@ -116,7 +71,7 @@ export const updateCountriesCache = (countries: Country[]): void => {
     };
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    console.log(`🔍 CACHE UPDATE: Successfully cached ${countries.length} countries`);
+    console.log(`🔍 CACHE UPDATE: Updated countries cache with ${countries.length} countries`);
   } catch (error) {
     console.error('Error updating countries cache:', error);
   }
@@ -127,13 +82,8 @@ export const updateCountriesCache = (countries: Country[]): void => {
  */
 export const clearCountriesCache = (): void => {
   try {
-    if (typeof localStorage === 'undefined') {
-      console.log('🔍 CACHE: localStorage not available, cannot clear cache');
-      return;
-    }
-    
     localStorage.removeItem(CACHE_KEY);
-    console.log('🔍 CACHE: Countries cache cleared successfully');
+    console.log('🔍 CACHE: Countries cache cleared');
   } catch (error) {
     console.error('Error clearing countries cache:', error);
   }

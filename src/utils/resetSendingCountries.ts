@@ -1,10 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  SENDING_COUNTRIES, 
-  AFRICAN_COUNTRY_CODES,
-  logKeyCountriesStatus
-} from '@/utils/countryRules';
+import { SENDING_COUNTRIES, AFRICAN_COUNTRY_CODES } from '@/services/admin/countries/types';
 
 /**
  * Reset all sending and receiving flags to their correct values
@@ -27,7 +23,6 @@ export const resetCountryFlags = async (): Promise<void> => {
     }
     
     console.log(`Found ${countries.length} countries to check`);
-    logKeyCountriesStatus(countries, 'RESET BEFORE');
     
     // Process each country
     for (const country of countries) {
@@ -71,15 +66,6 @@ export const resetCountryFlags = async (): Promise<void> => {
           console.log(`Successfully reset ${country.name} (${country.code})`);
         }
       }
-    }
-    
-    // Get updated countries to verify changes
-    const { data: updatedCountries } = await supabase
-      .from('countries')
-      .select('code, name, is_sending_enabled, is_receiving_enabled');
-      
-    if (updatedCountries && updatedCountries.length > 0) {
-      logKeyCountriesStatus(updatedCountries, 'RESET AFTER');
     }
     
     console.log('Country reset completed');

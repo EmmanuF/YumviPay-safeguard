@@ -10,12 +10,10 @@ export const initializeSupabase = async (): Promise<void> => {
     
     if (error) {
       console.error('Error connecting to Supabase:', error);
-      throw error;
     } else {
       console.log('Successfully connected to Supabase');
     }
   } catch (error) {
     console.error('Error initializing Supabase:', error);
-    // Don't throw here, let the app continue even if Supabase is unreachable
   }
 };

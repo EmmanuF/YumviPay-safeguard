@@ -66,8 +66,9 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
     return "An unexpected error occurred";
   };
 
-  // If loading or not initialized, show loading state
-  if (isLoading || !isInitialized) {
+  // Show loading state if necessary
+  // Set a maximum loading time of 10 seconds to prevent infinite loading
+  if (isLoading && !isInitialized) {
     return <LoadingState 
       message="Preparing your transaction..." 
       submessage="Please wait while we fetch your data"
@@ -101,7 +102,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
     );
   }
 
-  // Render normal send money flow
+  // Render normal send money flow once we have the initial data
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-gray-50">

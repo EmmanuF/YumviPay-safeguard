@@ -1,58 +1,48 @@
 
-import { Country, PaymentMethod } from '@/types/country';
-import { enforceCountryRules } from '@/utils/countryRules';
+import { PaymentMethod } from "@/types/country";
 
 /**
- * Parse payment methods data from various formats
+ * Parses payment methods from Supabase data into PaymentMethod objects
  */
-export const parsePaymentMethods = (data: any): PaymentMethod[] => {
-  if (!data) return [];
+export const parsePaymentMethods = (methods: any): PaymentMethod[] => {
+  if (!methods) return [];
   
-  try {
-    if (Array.isArray(data)) {
-      return data;
-    } else if (typeof data === 'string') {
-      return JSON.parse(data);
-    } else if (typeof data === 'object') {
-      return Object.values(data);
+  // If methods is a string, try to parse it as JSON
+  if (typeof methods === 'string') {
+    try {
+      methods = JSON.parse(methods);
+    } catch (e) {
+      console.error('Error parsing payment methods:', e);
+      return [];
     }
-  } catch (e) {
-    console.error('Error parsing payment methods:', e);
   }
   
-  return [];
+  // If methods is not an array, return empty array
+  if (!Array.isArray(methods)) {
+    return [];
+  }
+  
+  // Map to ensure all fields exist
+  return methods.map(method => ({
+    id: method.id || '',
+    name: method.name || '',
+    description: method.description || '',
+    icon: method.icon || 'credit-card',
+    fees: method.fees || '',
+    processingTime: method.processingTime || ''
+  }));
 };
 
 /**
- * Maps country data between the API format and our application format
- * Uses the central enforceCountryRules function
+ * Transforms payment methods object into a format compatible with Supabase
  */
-export const mapApiCountryToAppCountry = (apiCountry: any): Country => {
-  // Make sure we have a valid country code
-  const code = apiCountry.code?.toUpperCase() || '';
-  
-  // Create the flag URL using the country code
-  const flagUrl = code ? 
-    `https://flagcdn.com/w80/${code.toLowerCase()}.png` : 
-    '';
-  
-  // Log any issues with the country data for debugging
-  if (!code) {
-    console.warn('Country missing code:', apiCountry.name || 'Unknown country');
-  }
-  
-  // Create the country object with the correct structure for our app
-  const country: Country = {
-    name: apiCountry.name || 'Unknown',
-    code: code,
-    currency: apiCountry.currency || '',
-    flagUrl: flagUrl,
-    isSendingEnabled: apiCountry.is_sending_enabled === true,
-    isReceivingEnabled: apiCountry.is_receiving_enabled === true,
-    paymentMethods: parsePaymentMethods(apiCountry.payment_methods),
-    phonePrefix: apiCountry.phone_prefix || ''
-  };
-  
-  // Apply the centralized country rules before returning
-  return enforceCountryRules(country);
+export const formatPaymentMethodsForStorage = (methods: PaymentMethod[]): any[] => {
+  return methods.map(method => ({
+    id: method.id,
+    name: method.name,
+    description: method.description,
+    icon: method.icon,
+    fees: method.fees,
+    processingTime: method.processingTime
+  }));
 };

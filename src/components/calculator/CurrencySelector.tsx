@@ -13,97 +13,42 @@ interface CurrencySelectorProps {
 const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, options, label }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries } = useCountries();
-  
-  // Debug countries and currency mapping
-  useEffect(() => {
-    if (countries.length > 0 && options.length > 0) {
-      console.log(`CurrencySelector (${label}): ${options.length} options available`);
-      
-      // Check if we can find countries for each currency
-      const currencyMap = new Map();
-      options.forEach(currencyCode => {
-        // Find ALL countries with this currency (there might be multiple)
-        const matchingCountries = countries.filter(c => c.currency === currencyCode);
-        
-        // Prefer sending countries for source currency selector
-        const preferredCountry = label.toLowerCase().includes('source') 
-          ? matchingCountries.find(c => c.isSendingEnabled) || matchingCountries[0]
-          : matchingCountries[0];
-          
-        currencyMap.set(currencyCode, preferredCountry ? preferredCountry.name : null);
-      });
-      
-      console.log(`CurrencySelector (${label}): Currency to country mapping:`, 
-        Object.fromEntries(currencyMap.entries()));
-      
-      // Check specifically for the selected currency
-      const selectedCountry = getCountryByCurrency(value);
-      console.log(`CurrencySelector (${label}): Selected currency ${value} maps to:`, 
-        selectedCountry ? `${selectedCountry.name} (flag: ${selectedCountry.flagUrl})` : 'Not found');
-    }
-  }, [countries, options, value, label]);
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
 
-  // Find the selected country by currency code - improved version with sending/receiving preference
+  // Find the selected country by currency code
   const getCountryByCurrency = (currencyCode: string) => {
-    if (!currencyCode || !countries || countries.length === 0) return null;
-    
-    // Get all countries with this currency
-    const matchingCountries = countries.filter(country => 
-      country.currency === currencyCode
-    );
-    
-    if (matchingCountries.length === 0) {
-      // No exact match, try case-insensitive search as fallback
-      return countries.find(country => 
-        country.currency.toLowerCase() === currencyCode.toLowerCase());
-    }
-    
-    // Choose the appropriate country based on context
-    if (label.toLowerCase().includes('source')) {
-      // For source currencies, prefer countries that are sending-enabled
-      return matchingCountries.find(c => c.isSendingEnabled) || matchingCountries[0];
-    } else {
-      // For target currencies, prefer countries that are receiving-enabled
-      return matchingCountries.find(c => c.isReceivingEnabled) || matchingCountries[0];
-    }
+    return countries.find(country => country.currency === currencyCode);
   };
 
-  const selectedCountry = getCountryByCurrency(value);
-
-  // Close dropdown when clicking outside
+  // Update the selected country when value or countries change
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-currency-selector]')) {
-        setShowDropdown(false);
-      }
-    };
+    const country = getCountryByCurrency(value);
+    setSelectedCountry(country);
+  }, [value, countries]);
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  // Log for debugging
+  useEffect(() => {
+    if (options.length > 0) {
+      console.log(`${label} options:`, options);
+    }
+  }, [options, label]);
 
   return (
-    <div className="relative" data-currency-selector>
+    <div className="relative">
       <button
         type="button"
         className="flex items-center bg-primary-50 rounded-lg px-4 py-2"
         onClick={() => setShowDropdown(!showDropdown)}
       >
-        {value && selectedCountry ? (
+        {selectedCountry ? (
           <div className="flex items-center">
             <img 
-              src={selectedCountry.flagUrl} 
+              src={selectedCountry.flagUrl}
               alt={`${selectedCountry.name} flag`}
               className="w-5 h-3 object-cover rounded mr-2"
-              onError={(e) => {
-                // Fallback if image fails to load
-                console.log(`Flag not found for ${selectedCountry.name} (${value})`);
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
             />
             <span className="font-medium mr-1">{value}</span>
-            <span className="text-xs text-gray-500 hidden sm:inline">({selectedCountry.name})</span>
+            <span className="text-xs text-gray-500">({selectedCountry.name})</span>
           </div>
         ) : (
           <div className="flex items-center">
@@ -138,11 +83,6 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                           src={country.flagUrl}
                           alt={`${country.name} flag`}
                           className="w-5 h-3 object-cover rounded mr-2"
-                          onError={(e) => {
-                            // Fallback if image fails to load
-                            console.log(`Flag not found for ${country.name} (${option})`);
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
                         />
                         <div>
                           <span className="font-medium">{option}</span>
@@ -159,6 +99,8 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                 );
               })
             )}
+            {/* Add an empty div with padding to create extra space at the bottom */}
+            <div className="h-4"></div>
           </div>
         </div>
       )}

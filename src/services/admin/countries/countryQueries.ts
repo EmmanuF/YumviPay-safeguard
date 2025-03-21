@@ -1,18 +1,14 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { AdminCountry } from "./types";
+import { AdminCountry, enforceCountryRules } from "./types";
 import { parseCountryData } from "./utils";
 
-/**
- * Fetches all countries from the database
- * with proper error handling and timeout
- */
 export const getAdminCountries = async (): Promise<AdminCountry[]> => {
   console.log('Fetching admin countries list...');
   
   try {
     // Add timeout to prevent infinite loading
-    const timeoutPromise = new Promise<{data: null, error: Error}>((_, reject) => {
+    const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout')), 10000);
     });
 
@@ -21,14 +17,14 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
       .select('*')
       .order('name');
 
-    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
     
     if (error) {
       console.error('Error fetching countries:', error);
       throw error;
     }
     
-    // Process countries data with proper parsing and rule enforcement
+    // Process countries data and ensure rules are applied
     const countries = parseCountryData(data || []);
     
     // Log sending and receiving countries for debugging
@@ -36,10 +32,7 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
     const receivingCountries = countries.filter(c => c.is_receiving_enabled);
     
     console.log(`Admin countries: ${countries.length} total, ${sendingCountries.length} sending, ${receivingCountries.length} receiving`);
-    
-    if (sendingCountries.length === 0) {
-      console.warn('No sending countries found. This might indicate an issue with country rules enforcement');
-    }
+    console.log('Sending countries:', sendingCountries.map(c => c.name).join(', '));
     
     return countries;
   } catch (error) {
@@ -48,20 +41,11 @@ export const getAdminCountries = async (): Promise<AdminCountry[]> => {
   }
 };
 
-/**
- * Fetches a single country by code
- * with proper error handling and timeout
- */
 export const getCountryByCode = async (code: string): Promise<AdminCountry | null> => {
   console.log(`Fetching country with code ${code}`);
   
-  if (!code) {
-    console.error('Invalid country code provided');
-    return null;
-  }
-  
   try {
-    const timeoutPromise = new Promise<{data: null, error: Error}>((_, reject) => {
+    const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout')), 5000);
     });
 
@@ -71,15 +55,11 @@ export const getCountryByCode = async (code: string): Promise<AdminCountry | nul
       .eq('code', code)
       .single();
 
-    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
     
-    if (error) {
-      console.error(`Error fetching country ${code}:`, error);
-      return null;
-    }
+    if (error) throw error;
     
     if (data) {
-      // Parse the country data with proper type handling
       const parsedCountry = parseCountryData([data])[0];
       return parsedCountry;
     }
