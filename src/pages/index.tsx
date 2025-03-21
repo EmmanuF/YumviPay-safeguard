@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import PageTransition from '@/components/PageTransition';
 import HomeActions from '@/components/home/HomeActions';
 import QuickSend from '@/components/home/QuickSend';
@@ -10,8 +10,11 @@ import AdminControls from '@/components/admin/AdminControls';
 import { useAuth } from '@/contexts/AuthContext';
 
 const HomePage = () => {
-  const router = useRouter();
-  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Determine if user is admin (example check, adjust as needed)
+  const isAdmin = user?.role === 'admin' || process.env.NODE_ENV === 'development';
 
   return (
     <PageTransition>

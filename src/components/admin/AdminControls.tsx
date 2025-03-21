@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Database } from 'lucide-react';
 import { forceCountryRefresh } from '@/utils/forceCountryRefresh';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminControlsProps {
   className?: string;
 }
 
 const AdminControls: React.FC<AdminControlsProps> = ({ className }) => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const handleRefreshCountries = async () => {
@@ -46,7 +46,7 @@ const AdminControls: React.FC<AdminControlsProps> = ({ className }) => {
           variant="outline" 
           size="sm" 
           className="w-full justify-start"
-          onClick={() => router.push('/admin/check-countries-status')}
+          onClick={() => navigate('/admin/countries-status')}
         >
           <Database className="h-4 w-4 mr-2" />
           Check Countries Status
