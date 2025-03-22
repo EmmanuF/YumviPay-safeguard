@@ -27,19 +27,51 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Memoize currency lists to reduce re-calculation
-  const sourceCurrencies = useMemo(() => 
-    Array.from(new Set(
+  const sourceCurrencies = useMemo(() => {
+    if (!countries || countries.length === 0) {
+      console.log("No countries available for source currencies");
+      return [];
+    }
+    
+    const currencies = Array.from(new Set(
       countries
         .filter(country => country.isSendingEnabled)
         .map(country => country.currency)
-    )), [countries]);
+    ));
+    
+    console.log("Source currencies generated:", currencies.length);
+    
+    // Always include USD for testing if no currencies are found
+    if (currencies.length === 0) {
+      console.log("No sending countries found, adding USD as default");
+      return ['USD'];
+    }
+    
+    return currencies;
+  }, [countries]);
   
-  const targetCurrencies = useMemo(() => 
-    Array.from(new Set(
+  const targetCurrencies = useMemo(() => {
+    if (!countries || countries.length === 0) {
+      console.log("No countries available for target currencies");
+      return [];
+    }
+    
+    const currencies = Array.from(new Set(
       countries
         .filter(country => country.isReceivingEnabled)
         .map(country => country.currency)
-    )), [countries]);
+    ));
+    
+    console.log("Target currencies generated:", currencies.length);
+    
+    // Always include XAF for testing if no currencies are found
+    if (currencies.length === 0) {
+      console.log("No receiving countries found, adding XAF as default");
+      return ['XAF'];
+    }
+    
+    return currencies;
+  }, [countries]);
 
   useEffect(() => {
     const calculateRate = () => {

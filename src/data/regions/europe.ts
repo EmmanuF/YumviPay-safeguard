@@ -1,4 +1,5 @@
-import { Country } from '../../types/country';
+
+import { Country } from '../types/country';
 
 export const europeanCountries: Country[] = [
   {
@@ -6,183 +7,89 @@ export const europeanCountries: Country[] = [
     code: 'GB',
     flagUrl: 'https://flagcdn.com/gb.svg',
     currency: 'GBP',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'credit_card',
-        name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or Amex',
-        icon: 'credit-card',
-        fees: '2.5%',
-        processingTime: 'Instant',
-      },
-      {
-        id: 'bank_transfer',
-        name: 'Bank Transfer',
-        description: 'Direct transfer from your UK bank account',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-    ],
-  },
-  {
-    name: 'Germany',
-    code: 'DE',
-    flagUrl: 'https://flagcdn.com/de.svg',
-    currency: 'EUR',
-    isSendingEnabled: true,
-    isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'sepa',
-        name: 'SEPA Transfer',
-        description: 'Send via the Single Euro Payments Area',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-      {
-        id: 'credit_card',
-        name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or American Express',
-        icon: 'credit-card',
-        fees: '2.5%',
-        processingTime: 'Instant',
-      },
-    ],
+    paymentMethods: [],
   },
   {
     name: 'France',
     code: 'FR',
     flagUrl: 'https://flagcdn.com/fr.svg',
     currency: 'EUR',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'sepa',
-        name: 'SEPA Transfer',
-        description: 'Send via the Single Euro Payments Area',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-    ],
+    paymentMethods: [],
   },
   {
-    name: 'Spain',
-    code: 'ES',
-    flagUrl: 'https://flagcdn.com/es.svg',
+    name: 'Germany',
+    code: 'DE',
+    flagUrl: 'https://flagcdn.com/de.svg',
     currency: 'EUR',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'sepa',
-        name: 'SEPA Transfer',
-        description: 'Send via the Single Euro Payments Area',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-      {
-        id: 'credit_card',
-        name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or Amex',
-        icon: 'credit-card',
-        fees: '2.5%',
-        processingTime: 'Instant',
-      },
-    ],
+    paymentMethods: [],
   },
   {
     name: 'Italy',
     code: 'IT',
     flagUrl: 'https://flagcdn.com/it.svg',
     currency: 'EUR',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'sepa',
-        name: 'SEPA Transfer',
-        description: 'Send via the Single Euro Payments Area',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-    ],
+    paymentMethods: [],
+  },
+  {
+    name: 'Spain',
+    code: 'ES',
+    flagUrl: 'https://flagcdn.com/es.svg',
+    currency: 'EUR',
+    isSendingEnabled: true, // Enabled for sending
+    isReceivingEnabled: false,
+    paymentMethods: [],
   },
   {
     name: 'Netherlands',
     code: 'NL',
     flagUrl: 'https://flagcdn.com/nl.svg',
     currency: 'EUR',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'sepa',
-        name: 'SEPA Transfer',
-        description: 'Send via the Single Euro Payments Area',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-      {
-        id: 'credit_card',
-        name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or Amex',
-        icon: 'credit-card',
-        fees: '2.5%',
-        processingTime: 'Instant',
-      },
-    ],
+    paymentMethods: [],
   },
   {
     name: 'Belgium',
     code: 'BE',
     flagUrl: 'https://flagcdn.com/be.svg',
     currency: 'EUR',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'sepa',
-        name: 'SEPA Transfer',
-        description: 'Send via the Single Euro Payments Area',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-    ],
+    paymentMethods: [],
   },
   {
     name: 'Switzerland',
     code: 'CH',
     flagUrl: 'https://flagcdn.com/ch.svg',
     currency: 'CHF',
-    isSendingEnabled: true,
+    isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
-    paymentMethods: [
-      {
-        id: 'bank_transfer',
-        name: 'Bank Transfer',
-        description: 'Direct transfer from your Swiss bank account',
-        icon: 'bank',
-        fees: '0.5%',
-        processingTime: '1-2 business days',
-      },
-      {
-        id: 'credit_card',
-        name: 'Credit Card',
-        description: 'Pay with Visa, Mastercard, or Amex',
-        icon: 'credit-card',
-        fees: '2.5%',
-        processingTime: 'Instant',
-      },
-    ],
+    paymentMethods: [],
+  },
+  {
+    name: 'Sweden',
+    code: 'SE',
+    flagUrl: 'https://flagcdn.com/se.svg',
+    currency: 'SEK',
+    isSendingEnabled: true, // Enabled for sending
+    isReceivingEnabled: false,
+    paymentMethods: [],
+  },
+  {
+    name: 'Norway',
+    code: 'NO',
+    flagUrl: 'https://flagcdn.com/no.svg',
+    currency: 'NOK',
+    isSendingEnabled: true, // Enabled for sending
+    isReceivingEnabled: false,
+    paymentMethods: [],
   },
 ];

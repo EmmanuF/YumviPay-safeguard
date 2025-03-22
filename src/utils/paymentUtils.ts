@@ -1,4 +1,11 @@
+
 import { getProvidersByMethod, getRecommendedProviders } from '@/data/cameroonPaymentProviders';
+
+// Utility function to normalize method IDs (handle both dash and underscore formats)
+const normalizeMethodId = (methodId: string): string => {
+  // Convert dashes to underscores for consistent processing
+  return methodId.replace(/-/g, '_');
+};
 
 // Initialize payment data when country is selected
 export const initializePaymentData = (
@@ -36,13 +43,22 @@ export const initializeProviderSelection = (
 ) => {
   const { paymentMethod, selectedProvider } = transactionData;
   
+  console.log(`DEBUG - initializeProviderSelection called with:`, {
+    paymentMethod,
+    selectedProvider,
+    countryCode
+  });
+  
   // Check if we need to initialize a provider
   if (paymentMethod && !selectedProvider) {
     // Get all providers for this payment method
     const providers = getProviderOptions(paymentMethod, countryCode);
     
+    console.log(`DEBUG - Provider options for ${paymentMethod}:`, providers);
+    
     // Get recommended providers
     const recommended = getRecommendedProviders(countryCode);
+    console.log(`DEBUG - Recommended providers:`, recommended);
     
     if (providers && providers.length > 0) {
       // Find a recommended provider first
@@ -53,6 +69,8 @@ export const initializeProviderSelection = (
       
       console.log('Setting default provider for', paymentMethod, ':', provider.id);
       updateTransactionData({ selectedProvider: provider.id });
+    } else {
+      console.log(`DEBUG - No providers found for method ${paymentMethod}`);
     }
   }
 };
@@ -62,7 +80,7 @@ export const getProviderOptions = (methodId: string, countryCode: string) => {
   console.log(`DEBUG - getProviderOptions called with methodId: "${methodId}", countryCode: "${countryCode}"`);
   
   // Normalize methodId to handle both dash and underscore formats
-  const normalizedMethodId = methodId.replace(/-/g, '_');
+  const normalizedMethodId = normalizeMethodId(methodId);
   console.log(`DEBUG - Normalized methodId: "${normalizedMethodId}"`);
   
   const providers = getProvidersByMethod(normalizedMethodId);
@@ -97,8 +115,12 @@ export const calculateTransactionFee = (
     orange_money: 0.012, // 1.2%
   };
   
+  // Normalize IDs before lookup
+  const normalizedMethodId = normalizeMethodId(paymentMethod);
+  const normalizedProviderId = normalizeMethodId(providerId);
+  
   // Get the fee rate based on payment method or provider
-  const feeRate = feeRates[providerId] || feeRates[paymentMethod] || 0.012;
+  const feeRate = feeRates[normalizedProviderId] || feeRates[normalizedMethodId] || 0.012;
   
   // Calculate fee
   return amount * feeRate;
@@ -116,5 +138,9 @@ export const getEstimatedDeliveryTime = (
     orange_money: 'Instant',
   };
   
-  return deliveryTimes[providerId] || deliveryTimes[paymentMethod] || 'Instant';
+  // Normalize IDs before lookup
+  const normalizedMethodId = normalizeMethodId(paymentMethod);
+  const normalizedProviderId = normalizeMethodId(providerId);
+  
+  return deliveryTimes[normalizedProviderId] || deliveryTimes[normalizedMethodId] || 'Instant';
 };

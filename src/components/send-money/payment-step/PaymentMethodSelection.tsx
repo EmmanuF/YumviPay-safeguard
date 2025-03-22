@@ -30,11 +30,20 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   const comingSoonProviders = ['yoomee_money', 'afriland', 'ecobank'];
   const comingSoonMethods = ['bank_transfer'];
   
+  // Normalize method IDs for consistent comparison
+  const normalizeId = (id: string) => id.replace(/-/g, '_');
+  
   const handleMethodSelect = (method: string, provider: string) => {
     console.log(`DEBUG - handleMethodSelect called with method: "${method}", provider: "${provider}"`);
     
-    if (comingSoonMethods.includes(method)) {
-      console.log(`DEBUG - Method "${method}" is marked as coming soon`);
+    // Normalize the method and provider for consistent comparison
+    const normalizedMethod = normalizeId(method);
+    const normalizedProvider = normalizeId(provider);
+    
+    console.log(`DEBUG - Normalized values: method="${normalizedMethod}", provider="${normalizedProvider}"`);
+    
+    if (comingSoonMethods.includes(normalizedMethod)) {
+      console.log(`DEBUG - Method "${normalizedMethod}" is marked as coming soon`);
       toast({
         title: "Coming Soon",
         description: "This payment method will be available soon. Please select Mobile Money for now.",
@@ -43,8 +52,8 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
       return;
     }
     
-    if (comingSoonProviders.includes(provider)) {
-      console.log(`DEBUG - Provider "${provider}" is marked as coming soon`);
+    if (comingSoonProviders.includes(normalizedProvider)) {
+      console.log(`DEBUG - Provider "${normalizedProvider}" is marked as coming soon`);
       toast({
         title: "Coming Soon",
         description: "This payment provider will be available soon. Please select MTN Mobile Money or Orange Money.",
