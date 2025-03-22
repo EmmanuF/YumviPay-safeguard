@@ -1,5 +1,4 @@
-
-import { Country } from '../types/country';
+import { Country } from '../../types/country';
 
 export const northAmericanCountries: Country[] = [
   {
