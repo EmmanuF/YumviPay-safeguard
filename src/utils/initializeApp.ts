@@ -11,9 +11,13 @@ export const initializeApp = async (): Promise<void> => {
   console.log("Initializing app...");
   
   try {
-    // Clear the countries cache to ensure fresh data
-    console.log("Clearing countries cache to ensure fresh data...");
-    clearCountriesCache();
+    // Only clear cache in development to ensure fresh data
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Development mode detected, clearing countries cache...");
+      clearCountriesCache();
+    } else {
+      console.log("Production mode, keeping existing cache if valid");
+    }
     
     // Initialize Supabase countries data
     console.log("Loading countries data...");

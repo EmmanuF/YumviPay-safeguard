@@ -10,6 +10,7 @@ export const northAmericanCountries: Country[] = [
     isSendingEnabled: true, // Explicitly enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+1'
   },
   {
     name: 'Canada',
@@ -19,6 +20,7 @@ export const northAmericanCountries: Country[] = [
     isSendingEnabled: true, // Explicitly enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+1'
   },
   {
     name: 'Mexico',
@@ -28,5 +30,6 @@ export const northAmericanCountries: Country[] = [
     isSendingEnabled: true, // Explicitly enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+52'
   },
 ];

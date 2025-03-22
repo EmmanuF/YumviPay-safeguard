@@ -5,6 +5,28 @@ const CACHE_KEY = 'countries_data';
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
+ * Validate that countries data contains sending-enabled countries
+ */
+const validateCountriesData = (data: Country[]): boolean => {
+  if (!Array.isArray(data) || data.length === 0) {
+    console.log('❌ Countries data validation failed: Empty or invalid data');
+    return false;
+  }
+  
+  // Check if there are sending-enabled countries
+  const sendingCountries = data.filter(country => country.isSendingEnabled);
+  
+  // Validate that we have at least one sending country
+  if (sendingCountries.length === 0) {
+    console.log('❌ Countries data validation failed: No sending-enabled countries found');
+    return false;
+  }
+  
+  console.log(`✅ Countries data validation passed: Found ${sendingCountries.length} sending countries`);
+  return true;
+};
+
+/**
  * Get countries data from cache if available and valid
  */
 export const getCachedCountries = (): Country[] | null => {
@@ -24,8 +46,14 @@ export const getCachedCountries = (): Country[] | null => {
     const { data, timestamp } = JSON.parse(cachedData);
     const isExpired = Date.now() - timestamp > CACHE_EXPIRY;
     
-    // Return data if not expired
+    // Return data if not expired and valid
     if (!isExpired && Array.isArray(data) && data.length > 0) {
+      // Validate that cached data contains sending countries
+      if (!validateCountriesData(data)) {
+        console.log('⚠️ Cached countries data invalid - missing sending countries');
+        return null;
+      }
+      
       console.log(`🗄️ Using cached countries data, entries: ${data.length}`);
       console.log(`🔢 Cached sending countries: ${data.filter(c => c.isSendingEnabled).length}`);
       console.log(`🔢 Cached receiving countries: ${data.filter(c => c.isReceivingEnabled).length}`);
@@ -60,6 +88,22 @@ export const updateCountriesCache = (data: Country[]): void => {
     if (!data || !Array.isArray(data) || data.length === 0) {
       console.warn('⚠️ Attempted to cache empty or invalid countries data');
       return;
+    }
+    
+    // Validate data before caching
+    if (!validateCountriesData(data)) {
+      console.warn('⚠️ Attempted to cache invalid countries data (no sending countries)');
+      console.log('⚙️ Enhancing data before caching to include sending countries');
+      
+      // Enhance the data to include sending countries
+      const enhancedData = [...data];
+      enhancedData.forEach(country => {
+        if (['US', 'CA', 'GB', 'CM'].includes(country.code)) {
+          country.isSendingEnabled = true;
+          console.log(`🔄 Setting ${country.name} as sending-enabled for cache`);
+        }
+      });
+      data = enhancedData;
     }
     
     console.log(`📊 Caching countries stats - Total: ${data.length}, Sending: ${data.filter(c => c.isSendingEnabled).length}, Receiving: ${data.filter(c => c.isReceivingEnabled).length}`);

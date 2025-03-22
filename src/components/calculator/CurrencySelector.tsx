@@ -33,6 +33,27 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       console.log(`🔍 Selected country for currency "${value}":`, country || "Not found");
       if (country) {
         console.log(`🏳️ Flag URL for selected country:`, country.flagUrl);
+      } else {
+        // If country not found, look for a hardcoded fallback
+        const fallbackMap: {[key: string]: {code: string, name: string}} = {
+          'USD': { code: 'us', name: 'United States' },
+          'EUR': { code: 'eu', name: 'European Union' },
+          'GBP': { code: 'gb', name: 'United Kingdom' },
+          'XAF': { code: 'cm', name: 'Cameroon' },
+          'NGN': { code: 'ng', name: 'Nigeria' },
+          'KES': { code: 'ke', name: 'Kenya' }
+        };
+        
+        if (fallbackMap[value]) {
+          const fallback = fallbackMap[value];
+          setSelectedCountry({
+            name: fallback.name,
+            code: fallback.code.toUpperCase(),
+            currency: value,
+            flagUrl: `https://flagcdn.com/w80/${fallback.code.toLowerCase()}.png`
+          });
+          console.log(`🔍 Using fallback country for currency "${value}":`, fallback.name);
+        }
       }
     } else {
       console.log(`⚠️ No countries available to find currency "${value}"`);
@@ -67,7 +88,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       console.log(`🔍 Generated ${availableCurrencies.length} currencies for ${label} dropdown`);
     }
     
-    // If still no currencies available, add USD or XAF as fallbacks
+    // If still no currencies available, add fallbacks
     if (availableCurrencies.length === 0) {
       console.log(`⚠️ No currencies available for ${label}, adding fallbacks`);
       
@@ -89,10 +110,35 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   const renderCurrencyOption = (currency: string) => {
     const country = countries.find(c => c.currency === currency);
     
+    // Fallback country data if not found in countries array
+    const fallbackMap: {[key: string]: {code: string, name: string}} = {
+      'USD': { code: 'us', name: 'United States' },
+      'EUR': { code: 'eu', name: 'European Union' },
+      'GBP': { code: 'gb', name: 'United Kingdom' },
+      'XAF': { code: 'cm', name: 'Cameroon' },
+      'NGN': { code: 'ng', name: 'Nigeria' },
+      'KES': { code: 'ke', name: 'Kenya' }
+    };
+    
+    // Use either the real country or a fallback
+    let displayCountry: any;
+    let flagUrl: string;
+    
     if (country) {
       console.log(`🏳️ Currency option ${currency} - Found country: ${country.name} with flag: ${country.flagUrl}`);
+      displayCountry = country;
+      flagUrl = country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
+    } else if (fallbackMap[currency]) {
+      console.log(`⚠️ Currency option ${currency} - Using fallback country: ${fallbackMap[currency].name}`);
+      displayCountry = {
+        name: fallbackMap[currency].name,
+        code: fallbackMap[currency].code.toUpperCase()
+      };
+      flagUrl = `https://flagcdn.com/w80/${fallbackMap[currency].code.toLowerCase()}.png`;
     } else {
-      console.log(`⚠️ Currency option ${currency} - No country found`);
+      console.log(`⚠️ Currency option ${currency} - No country found, using generic`);
+      displayCountry = { name: currency, code: 'XX' };
+      flagUrl = 'https://via.placeholder.com/40x30?text=?';
     }
     
     return (
@@ -106,20 +152,20 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
           setShowDropdown(false);
         }}
       >
-        {country ? (
+        {displayCountry ? (
           <>
             <img 
-              src={country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`}
-              alt={`${country.name} flag`}
+              src={flagUrl}
+              alt={`${displayCountry.name} flag`}
               className="w-5 h-3 object-cover rounded mr-2"
               onError={(e) => {
-                console.error(`❌ Flag image load error for ${country.code}:`, e);
+                console.error(`❌ Flag image load error for ${displayCountry.code}:`, e);
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40x30?text=?';
               }}
             />
             <div>
               <span className="font-medium">{currency}</span>
-              <span className="text-xs text-gray-500 ml-2">({country.name})</span>
+              <span className="text-xs text-gray-500 ml-2">({displayCountry.name})</span>
             </div>
           </>
         ) : (

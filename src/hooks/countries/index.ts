@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Country, PaymentMethod } from '../../types/country';
 import { countries as mockCountries } from '../../data/countries';
@@ -6,13 +7,70 @@ import { getCachedCountries, updateCountriesCache, clearCountriesCache } from '.
 import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCountriesFromApi } from './countriesApi';
 
 /**
+ * Ensure North American countries are marked as sending-enabled
+ */
+const ensureSendingCountriesEnabled = (data: Country[]): Country[] => {
+  const enhancedData = [...data];
+  let changesMade = false;
+  
+  // Countries that should always be sending-enabled
+  const sendingCountryCodes = ['US', 'CA', 'GB', 'CM'];
+  
+  enhancedData.forEach(country => {
+    if (sendingCountryCodes.includes(country.code) && !country.isSendingEnabled) {
+      country.isSendingEnabled = true;
+      console.log(`🔄 Setting ${country.name} as sending-enabled`);
+      changesMade = true;
+    }
+  });
+  
+  // If no sending countries exist at all, enable key countries
+  const hasSendingCountries = enhancedData.some(c => c.isSendingEnabled);
+  if (!hasSendingCountries) {
+    enhancedData.forEach(country => {
+      if (sendingCountryCodes.includes(country.code)) {
+        country.isSendingEnabled = true;
+        console.log(`🔄 Setting ${country.name} as sending-enabled (fallback)`);
+        changesMade = true;
+      }
+    });
+  }
+  
+  // Add any missing key countries
+  sendingCountryCodes.forEach(code => {
+    const exists = enhancedData.some(c => c.code === code);
+    if (!exists) {
+      // Add country if it's missing
+      let mockCountry = mockCountries.find(c => c.code === code);
+      if (mockCountry) {
+        const newCountry = {
+          ...mockCountry,
+          isSendingEnabled: true,
+          flagUrl: mockCountry.flagUrl || `https://flagcdn.com/w80/${code.toLowerCase()}.png`
+        };
+        enhancedData.push(newCountry);
+        console.log(`➕ Adding missing sending country: ${newCountry.name}`);
+        changesMade = true;
+      }
+    }
+  });
+  
+  // For logging purposes, count sending countries after enhancement
+  const sendingCountriesCount = enhancedData.filter(c => c.isSendingEnabled).length;
+  console.log(`📤 Enhanced sending countries count: ${sendingCountriesCount}, changes made: ${changesMade}`);
+  
+  return enhancedData;
+};
+
+/**
  * Custom hook for managing countries data
  */
 export function useCountries() {
   console.log("🔄 useCountries hook initializing");
-  const [countries, setCountries] = useState<Country[]>(getCachedCountries() || []);
-  const [isLoading, setIsLoading] = useState(countries.length === 0);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [forceRefresh, setForceRefresh] = useState(0);
   const { isOffline } = useNetwork();
 
   // Debug log countries
@@ -47,48 +105,39 @@ export function useCountries() {
     }
   }, [countries]);
 
+  // Refresh countries data
+  const refreshCountriesData = () => {
+    console.log("🔄 Manually refreshing countries data");
+    clearCountriesCache();
+    setForceRefresh(prev => prev + 1);
+  };
+
   useEffect(() => {
     const loadCountries = async () => {
       try {
         console.log('🔄 Loading countries data...');
+        setIsLoading(true);
         
-        // Check if we already have countries loaded
-        if (countries.length > 0) {
-          console.log('✅ Countries already loaded, count:', countries.length);
-          
-          // Check if we have sending countries
-          const sendingCountries = countries.filter(c => c.isSendingEnabled);
-          if (sendingCountries.length === 0) {
-            console.log('⚠️ No sending countries found in loaded data, forcing refresh');
-            clearCountriesCache();
-          } else {
-            console.log(`📤 Found ${sendingCountries.length} sending countries in loaded data`);
-            setIsLoading(false);
-            return;
-          }
-        }
-        
-        // Return cached data if it exists and is still valid
+        // Check if we have cached data and if it's valid
         const cachedData = getCachedCountries();
         if (cachedData && cachedData.length > 0) {
           console.log('🗄️ Using cached countries data from localStorage', cachedData.length);
           
-          // Check sending countries in cached data
-          const sendingCountries = cachedData.filter(c => c.isSendingEnabled);
-          console.log(`📤 Sending countries in cache: ${sendingCountries.length}`);
+          // Ensure the cached data has sending countries enabled
+          const enhancedCachedData = ensureSendingCountriesEnabled(cachedData);
           
-          if (sendingCountries.length === 0) {
-            console.log('⚠️ No sending countries in cached data, fetching fresh data');
-            clearCountriesCache();
-          } else {
-            setCountries(cachedData);
-            setIsLoading(false);
-            return;
+          // Update cache if modifications were made
+          if (JSON.stringify(enhancedCachedData) !== JSON.stringify(cachedData)) {
+            console.log('🔄 Updating cache with enhanced countries data');
+            updateCountriesCache(enhancedCachedData);
           }
+          
+          setCountries(enhancedCachedData);
+          setIsLoading(false);
+          return;
         }
         
         console.log('🚫 No valid cached countries data, fetching new data...');
-        setIsLoading(true);
         
         let finalData: Country[] = [];
         
@@ -102,10 +151,13 @@ export function useCountries() {
             console.log(`📤 API sending countries: ${apiData.filter(c => c.isSendingEnabled).length}`);
             
             // Fix any missing flagUrl values
-            finalData = apiData.map(country => ({
+            let processedApiData = apiData.map(country => ({
               ...country,
               flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
             }));
+            
+            // Ensure API data has sending countries enabled
+            finalData = ensureSendingCountriesEnabled(processedApiData);
             
             // Update cache with API data
             updateCountriesCache(finalData);
@@ -120,53 +172,21 @@ export function useCountries() {
           console.log('📵 Offline mode detected, using mock data');
         }
         
-        // Ensure mock data has sending countries
+        // Using mock data as fallback
         console.log('🧪 Using mock country data, entries:', mockCountries.length);
         
-        // Make sure North American countries are sending-enabled
-        const enhancedMockData = [...mockCountries];
-        
-        // Explicitly set these countries as sending-enabled
-        enhancedMockData.forEach(country => {
-          if (['US', 'CA', 'GB', 'CM'].includes(country.code)) {
-            country.isSendingEnabled = true;
-            console.log(`🔄 Setting ${country.name} as sending-enabled`);
-          }
-        });
-        
-        // Verify we have sending countries
-        const hasSendingCountries = enhancedMockData.some(c => c.isSendingEnabled);
-        console.log(`📤 Mock data has sending countries: ${hasSendingCountries}`);
-        
-        // If still no sending countries, force add USA
-        if (!hasSendingCountries) {
-          console.log('⚠️ No sending countries in mock data, adding USA');
-          enhancedMockData.unshift({
-            name: 'United States',
-            code: 'US',
-            flagUrl: 'https://flagcdn.com/w80/us.png',
-            currency: 'USD',
-            isSendingEnabled: true,
-            isReceivingEnabled: false,
-            paymentMethods: []
-          });
-        }
-        
-        // Ensure all mock countries have proper flag URLs
-        finalData = enhancedMockData.map(country => ({
+        // Process mock data
+        let processedMockData = mockCountries.map(country => ({
           ...country,
           flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
         }));
         
-        // Log sending countries from final data
-        const sendingCountriesFinal = finalData.filter(c => c.isSendingEnabled);
-        console.log(`📤 Final sending countries count: ${sendingCountriesFinal.length}`);
-        console.log('📤 Final sending countries:', sendingCountriesFinal.map(c => c.name));
+        // Ensure mock data has sending countries enabled
+        finalData = ensureSendingCountriesEnabled(processedMockData);
         
         // Update cache with enhanced mock data
         updateCountriesCache(finalData);
         setCountries(finalData);
-        
         setIsLoading(false);
       } catch (err) {
         console.error('❌ Error in loadCountries:', err);
@@ -174,29 +194,21 @@ export function useCountries() {
         
         // Still try to use mock data in case of error
         console.log('⚠️ Error occurred, falling back to mock data');
-        const fallbackData = mockCountries.map(country => {
-          // Make sure key countries are sending-enabled even in fallback
-          if (['US', 'CA', 'GB', 'CM'].includes(country.code)) {
-            return {
-              ...country,
-              isSendingEnabled: true,
-              flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
-            };
-          }
-          return {
-            ...country,
-            flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
-          };
-        });
+        const fallbackData = mockCountries.map(country => ({
+          ...country,
+          flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+        }));
         
-        setCountries(fallbackData);
+        // Ensure fallback data has sending countries enabled
+        const enhancedFallbackData = ensureSendingCountriesEnabled(fallbackData);
+        setCountries(enhancedFallbackData);
         setIsLoading(false);
       }
     };
 
     // Load countries data
     loadCountries();
-  }, [isOffline]);
+  }, [isOffline, forceRefresh]);
 
   const getCountryByCode = useMemo(() => 
     (code: string): Country | undefined => {
@@ -287,6 +299,7 @@ export function useCountries() {
     getCountryByCode,
     getSendingCountries,
     getReceivingCountries,
+    refreshCountriesData, // Expose this so we can refresh countries from other components
   };
 }
 
