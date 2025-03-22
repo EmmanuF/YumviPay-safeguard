@@ -2,7 +2,7 @@
 @layer utilities {
   /* Enhanced glass card effects with depth and more pronounced visuals */
   .glass-card {
-    @apply bg-secondary-50/90 backdrop-blur-xl border border-white/40 shadow-lg;
+    @apply bg-secondary-50/90 border border-white/40 shadow-lg;
     box-shadow: 
       0 10px 30px rgba(110, 54, 229, 0.08),
       0 6px 12px rgba(110, 54, 229, 0.06),
@@ -18,12 +18,12 @@
   }
   
   .glass-dark {
-    @apply bg-gray-900/80 backdrop-blur-lg border border-gray-800/30 shadow-lg;
+    @apply bg-gray-900/80 border border-gray-800/30 shadow-lg;
   }
   
-  /* Enhanced glass effects with better visual separation and depth */
+  /* Enhanced glass effects with better visual separation and depth - removed backdrop blur */
   .glass-effect {
-    @apply bg-white/80 backdrop-blur-sm border border-white/40;
+    @apply bg-white border border-white/40;
     box-shadow: 
       0 10px 40px -5px rgba(110, 54, 229, 0.12),
       0 6px 16px -8px rgba(110, 54, 229, 0.08),
@@ -31,15 +31,15 @@
   }
 
   .dark .glass-effect {
-    @apply bg-gray-900/70 backdrop-blur-sm border border-gray-800/30;
+    @apply bg-gray-900/90 border border-gray-800/30;
     box-shadow: 
       0 10px 40px -5px rgba(0, 0, 0, 0.35),
       0 6px 16px -8px rgba(0, 0, 0, 0.2);
   }
   
-  /* Improved glass cards with enhanced depth and light refraction */
+  /* Improved glass cards with enhanced depth and light refraction - removed backdrop blur */
   .glass-card-elevated {
-    @apply glass-card;
+    @apply bg-secondary-50/95 border border-white/40 shadow-lg;
     box-shadow: 
       0 15px 35px -10px rgba(110, 54, 229, 0.15), 
       0 8px 15px -8px rgba(110, 54, 229, 0.1),
@@ -54,25 +54,34 @@
       0 0 0 1px rgba(255, 255, 255, 0.05) inset;
   }
 
-  /* New glass morphism variations with different intensities but reduced blur */
+  /* New glass morphism variations with different intensities but no blur */
   .glass-soft {
-    @apply bg-white/60 backdrop-blur-[2px] border border-white/30;
+    @apply bg-white/95 border border-white/30;
     box-shadow: 0 4px 12px -4px rgba(110, 54, 229, 0.1);
   }
 
   .glass-medium {
-    @apply bg-white/70 backdrop-blur-[3px] border border-white/40;
+    @apply bg-white/98 border border-white/40;
     box-shadow: 
       0 8px 16px -4px rgba(110, 54, 229, 0.12),
       inset 0 1px 1px rgba(255, 255, 255, 0.5);
   }
 
   .glass-strong {
-    @apply bg-white/80 backdrop-blur-[4px] border border-white/50;
+    @apply bg-white border border-white/50;
     box-shadow: 
       0 12px 24px -6px rgba(110, 54, 229, 0.15),
       0 6px 12px -6px rgba(110, 54, 229, 0.1),
       inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  }
+  
+  /* Dropdown solid backgrounds */
+  .dropdown-bg {
+    @apply bg-white border border-gray-200 shadow-lg;
+  }
+  
+  .dropdown-item-hover {
+    @apply hover:bg-gray-50 transition-colors;
   }
 }
 

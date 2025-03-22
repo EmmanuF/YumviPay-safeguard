@@ -178,8 +178,21 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
     );
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.currency-dropdown-container')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative currency-dropdown-container">
       <button
         type="button"
         className="flex items-center bg-primary-50 rounded-lg px-4 py-2 w-full justify-between"
@@ -209,7 +222,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       </button>
       
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-10 max-h-60 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 max-h-60 overflow-hidden border border-gray-200">
           <div className="overflow-y-auto max-h-[15rem] overscroll-contain">
             {renderCurrencyOptions()}
           </div>
