@@ -129,7 +129,7 @@ const HeroCalculator: React.FC = () => {
       
       <motion.div
         variants={itemVariants}
-        className="relative z-10 bg-white/90 rounded-2xl shadow-lg"
+        className="relative z-10 bg-white rounded-2xl shadow-lg"
         whileHover={{ 
           scale: 1.01, 
           transition: { duration: 0.3 } 
