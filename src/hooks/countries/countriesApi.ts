@@ -19,6 +19,7 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
     if (data && data.length > 0) {
       console.log(`📥 fetchCountriesFromApi: Retrieved ${data.length} countries from Supabase`);
       console.log(`🔢 fetchCountriesFromApi: Sending countries count: ${data.filter(c => c.is_sending_enabled).length}`);
+      console.log(`🔢 fetchCountriesFromApi: Receiving countries count: ${data.filter(c => c.is_receiving_enabled).length}`);
       
       const countries = data.map(country => ({
         name: country.name,
@@ -33,6 +34,7 @@ export const fetchCountriesFromApi = async (): Promise<Country[] | null> => {
       
       console.log(`✅ fetchCountriesFromApi: Transformed ${countries.length} countries`);
       console.log(`🔢 fetchCountriesFromApi: Transformed sending countries: ${countries.filter(c => c.isSendingEnabled).length}`);
+      console.log(`🔢 fetchCountriesFromApi: Transformed receiving countries: ${countries.filter(c => c.isReceivingEnabled).length}`);
       return countries;
     }
     
@@ -130,7 +132,7 @@ const getDefaultPhonePrefix = (countryCode: string): string => {
     'US': '+1', 'CA': '+1', 'GB': '+44', 'CM': '+237', 'FR': '+33', 'DE': '+49',
     'IT': '+39', 'ES': '+34', 'NL': '+31', 'BE': '+32', 'CH': '+41', 'SE': '+46',
     'NO': '+47', 'AU': '+61', 'JP': '+81', 'SG': '+65', 'NZ': '+64', 'AE': '+971',
-    'QA': '+974', 'SA': '+966', 'KE': '+254', 'ZA': '+27', 'NG': '+234',
+    'QA': '+974', 'SA': '+966', 'KE': '+254', 'ZA': '+27', 'NG': '+234', 'GH': '+233',
     'IE': '+353', 'DK': '+45', 'FI': '+358', 'PT': '+351', 'KR': '+82',
     'MY': '+60', 'HK': '+852', 'CR': '+506', 'PA': '+507'
   };

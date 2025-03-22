@@ -3,7 +3,7 @@ import { Country } from '../../types/country';
 import { countries as mockCountries } from '../../data/countries';
 import { getCachedCountries, updateCountriesCache } from './countriesCache';
 import { fetchCountriesFromApi } from './countriesApi';
-import { ensureSendingCountriesEnabled, processCountryData } from './enhanceCountriesData';
+import { ensureSendingCountriesEnabled, ensureReceivingCountriesEnabled, processCountryData } from './enhanceCountriesData';
 
 /**
  * Load countries data with cache management and fallbacks
@@ -25,14 +25,16 @@ export const loadCountriesData = async (
       
       // Ensure the cached data has sending countries enabled
       const enhancedCachedData = ensureSendingCountriesEnabled(cachedData);
+      // Also ensure African receiving countries are enabled
+      const finalCachedData = ensureReceivingCountriesEnabled(enhancedCachedData);
       
       // Update cache if modifications were made
-      if (JSON.stringify(enhancedCachedData) !== JSON.stringify(cachedData)) {
+      if (JSON.stringify(finalCachedData) !== JSON.stringify(cachedData)) {
         console.log('🔄 Updating cache with enhanced countries data');
-        updateCountriesCache(enhancedCachedData);
+        updateCountriesCache(finalCachedData);
       }
       
-      setCountries(enhancedCachedData);
+      setCountries(finalCachedData);
       setIsLoading(false);
       return;
     }
@@ -49,10 +51,14 @@ export const loadCountriesData = async (
       if (apiData && apiData.length > 0) {
         console.log('✅ Successfully fetched countries from API:', apiData.length);
         console.log(`📤 API sending countries: ${apiData.filter(c => c.isSendingEnabled).length}`);
+        console.log(`📥 API receiving countries: ${apiData.filter(c => c.isReceivingEnabled).length}`);
         
         // Process and enhance the API data
         const processedApiData = processCountryData(apiData);
-        finalData = ensureSendingCountriesEnabled(processedApiData);
+        // First ensure sending countries
+        const withSendingCountries = ensureSendingCountriesEnabled(processedApiData);
+        // Then ensure African receiving countries
+        finalData = ensureReceivingCountriesEnabled(withSendingCountries);
         
         // Update cache with API data
         updateCountriesCache(finalData);
@@ -72,7 +78,10 @@ export const loadCountriesData = async (
     
     // Process and enhance the mock data
     const processedMockData = processCountryData(mockCountries);
-    finalData = ensureSendingCountriesEnabled(processedMockData);
+    // First ensure sending countries
+    const withSendingCountries = ensureSendingCountriesEnabled(processedMockData);
+    // Then ensure African receiving countries
+    finalData = ensureReceivingCountriesEnabled(withSendingCountries);
     
     // Update cache with enhanced mock data
     updateCountriesCache(finalData);
@@ -85,8 +94,9 @@ export const loadCountriesData = async (
     // Still try to use mock data in case of error
     console.log('⚠️ Error occurred, falling back to mock data');
     const fallbackData = processCountryData(mockCountries);
-    const enhancedFallbackData = ensureSendingCountriesEnabled(fallbackData);
-    setCountries(enhancedFallbackData);
+    const withSendingCountries = ensureSendingCountriesEnabled(fallbackData);
+    const finalFallbackData = ensureReceivingCountriesEnabled(withSendingCountries);
+    setCountries(finalFallbackData);
     setIsLoading(false);
   }
 };
