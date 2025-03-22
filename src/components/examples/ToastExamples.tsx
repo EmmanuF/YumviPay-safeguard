@@ -108,7 +108,6 @@ export function ToastExamples() {
   const showRetryToast = () => {
     toast.interactive("Connection Failed", {
       description: "Unable to connect to the server, please try again",
-      variant: "interactive",
       actions: {
         primary: {
           label: "Retry",
@@ -121,9 +120,8 @@ export function ToastExamples() {
         secondary: {
           label: "Dismiss",
           onClick: () => {
-            toast({
-              description: "You can try again later",
-              variant: "info"
+            toast.info("Dismissed", {
+              description: "You can try again later"
             });
           }
         }

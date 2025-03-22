@@ -14,7 +14,7 @@ function genId() {
 export function toast({ ...props }: Toast) {
   const id = genId()
 
-  const update = (props: ToasterToast) =>
+  const update = (props: Partial<Toast>) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
