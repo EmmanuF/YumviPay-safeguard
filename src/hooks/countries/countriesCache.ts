@@ -9,6 +9,12 @@ const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
  */
 export const getCachedCountries = (): Country[] | null => {
   try {
+    // In mobile contexts, we need to check if localStorage is available
+    if (typeof localStorage === 'undefined') {
+      console.log('localStorage not available');
+      return null;
+    }
+
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (!cachedData) {
       console.log('No countries data in cache');
@@ -30,7 +36,9 @@ export const getCachedCountries = (): Country[] | null => {
     console.error('Error reading countries from cache:', e);
     // Clear potentially corrupted cache
     try {
-      localStorage.removeItem(CACHE_KEY);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(CACHE_KEY);
+      }
     } catch (clearError) {}
     return null;
   }
@@ -41,6 +49,12 @@ export const getCachedCountries = (): Country[] | null => {
  */
 export const updateCountriesCache = (data: Country[]): void => {
   try {
+    // Check if localStorage is available
+    if (typeof localStorage === 'undefined') {
+      console.log('localStorage not available for caching countries');
+      return;
+    }
+
     if (!data || !Array.isArray(data) || data.length === 0) {
       console.warn('Attempted to cache empty or invalid countries data');
       return;
@@ -63,8 +77,10 @@ export const updateCountriesCache = (data: Country[]): void => {
  */
 export const clearCountriesCache = (): void => {
   try {
-    localStorage.removeItem(CACHE_KEY);
-    console.log('Countries cache cleared');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(CACHE_KEY);
+      console.log('Countries cache cleared');
+    }
   } catch (e) {
     console.error('Error clearing countries cache:', e);
   }

@@ -38,7 +38,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
   
   // Get provider details if available
   const methodId = isBankAccount ? 'bank_transfer' : 'mobile_money';
-  const providerDetails = providerId ? getProviderById(methodId, providerId) : undefined;
+  const providerDetails = providerId ? getProviderById(providerId) : undefined;
   
   // Validate on change
   useEffect(() => {

@@ -26,9 +26,13 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 
   // Find the selected country by currency code
   useEffect(() => {
-    const country = countries.find(country => country.currency === value);
-    setSelectedCountry(country);
-    console.log("Selected country for currency", value, ":", country);
+    if (countries && countries.length > 0) {
+      const country = countries.find(country => country.currency === value);
+      setSelectedCountry(country);
+      console.log("Selected country for currency", value, ":", country);
+    } else {
+      console.log("No countries available to find currency", value);
+    }
   }, [value, countries]);
 
   return (

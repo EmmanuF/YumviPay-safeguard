@@ -35,7 +35,7 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
     <div className="grid grid-cols-2 gap-3">
       {options.map((option) => {
         // Get enhanced provider data
-        const providerDetails = methodId ? getProviderById(methodId, option.id) : undefined;
+        const providerDetails = getProviderById(option.id);
         const isPopular = providerDetails?.popularityScore && providerDetails.popularityScore >= 4;
         
         return (
