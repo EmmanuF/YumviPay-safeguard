@@ -15,7 +15,6 @@ type NetworkContextType = {
   pendingOperationsCount: number;
   isSyncing: boolean;
   offlineSince: Date | null;
-  lastOnlineAt: Date | null;
 };
 
 interface NetworkProviderProps {
@@ -61,20 +60,10 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
   useEffect(() => {
     const loadOfflineMode = async () => {
       try {
-        // Use localStorage as a fallback if Capacitor Preferences isn't available
-        let storedValue = null;
-        
-        try {
-          const { Preferences } = await import('@capacitor/preferences');
-          const { value } = await Preferences.get({ key: 'offlineModeActive' });
-          storedValue = value;
-        } catch (error) {
-          // Fallback to localStorage if Capacitor isn't available
-          storedValue = localStorage.getItem('offlineModeActive');
-        }
-        
-        if (storedValue) {
-          setOfflineModeActive(storedValue === 'true');
+        const { Preferences } = await import('@capacitor/preferences');
+        const { value } = await Preferences.get({ key: 'offlineModeActive' });
+        if (value) {
+          setOfflineModeActive(value === 'true');
         }
       } catch (error) {
         console.error('Failed to load offline mode status:', error);
@@ -91,17 +80,11 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
   useEffect(() => {
     const saveOfflineMode = async () => {
       try {
-        // Try to use Capacitor Preferences, but fall back to localStorage
-        try {
-          const { Preferences } = await import('@capacitor/preferences');
-          await Preferences.set({
-            key: 'offlineModeActive',
-            value: offlineModeActive.toString(),
-          });
-        } catch (error) {
-          // Fall back to localStorage
-          localStorage.setItem('offlineModeActive', offlineModeActive.toString());
-        }
+        const { Preferences } = await import('@capacitor/preferences');
+        await Preferences.set({
+          key: 'offlineModeActive',
+          value: offlineModeActive.toString(),
+        });
       } catch (error) {
         console.error('Failed to save offline mode status:', error);
       }
@@ -225,8 +208,7 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
       lastSyncTime,
       pendingOperationsCount,
       isSyncing,
-      offlineSince,
-      lastOnlineAt
+      offlineSince
     }}>
       {children}
     </NetworkContext.Provider>

@@ -35,8 +35,8 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
     <div className="grid grid-cols-2 gap-3">
       {options.map((option) => {
         // Get enhanced provider data
-        const providerDetails = methodId ? getProviderById(option.id) : undefined;
-        const isPopular = providerDetails?.isRecommended || false;
+        const providerDetails = methodId ? getProviderById(methodId, option.id) : undefined;
+        const isPopular = providerDetails?.popularityScore && providerDetails.popularityScore >= 4;
         
         return (
           <motion.div
@@ -72,10 +72,10 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
               {t(`payment.${option.id}`) || option.name}
             </div>
             
-            {providerDetails && (
+            {providerDetails?.processingTime && (
               <div className="mt-1 text-xs text-gray-500 flex items-center justify-center">
                 <Shield className="h-3 w-3 mr-1 text-green-500" />
-                {methodId === 'mobile_money' ? 'Instant Transfer' : '1-2 Business Days'}
+                {providerDetails.processingTime}
               </div>
             )}
           </motion.div>

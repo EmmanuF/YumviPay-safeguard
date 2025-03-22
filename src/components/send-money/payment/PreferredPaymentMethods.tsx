@@ -49,7 +49,8 @@ const PreferredPaymentMethods: React.FC<PreferredPaymentMethodsProps> = ({
           const provider = providers.find(p => p.id === method.providerId);
           if (!provider) return null;
           
-          const providerData = getProviderById(method.providerId);
+          const providerData = method.methodId === 'mobile_money' ? 
+            getProviderById(method.methodId, method.providerId) : undefined;
           
           return (
             <div 

@@ -30,7 +30,7 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
   const comingSoonProviders = ['yoomee_money', 'afriland', 'ecobank'];
   const comingSoonMethods = ['bank_transfer'];
   
-  const handleMethodSelect = (method: string) => {
+  const handleMethodSelect = (method: string, provider: string) => {
     if (comingSoonMethods.includes(method)) {
       toast({
         title: "Coming Soon",
@@ -40,12 +40,6 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
       return;
     }
     
-    updateTransactionData({
-      paymentMethod: method
-    });
-  };
-  
-  const handleProviderSelect = (provider: string) => {
     if (comingSoonProviders.includes(provider)) {
       toast({
         title: "Coming Soon",
@@ -54,8 +48,9 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
       });
       return;
     }
-    
+
     updateTransactionData({
+      paymentMethod: method,
       selectedProvider: provider
     });
   };
@@ -76,10 +71,9 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
       <Card className="overflow-hidden mb-4">
         <CountryPaymentMethods
           countryCode={transactionData.recipientCountry || 'CM'}
-          selectedMethod={transactionData.paymentMethod || ''}
-          selectedProvider={transactionData.selectedProvider || ''}
-          onSelectMethod={handleMethodSelect}
-          onSelectProvider={handleProviderSelect}
+          selectedPaymentMethod={transactionData.paymentMethod}
+          selectedProvider={transactionData.selectedProvider}
+          onSelect={handleMethodSelect}
         />
       </Card>
       

@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/home/Navigation';
@@ -12,24 +11,9 @@ import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 import MobileAppLayout from '@/components/MobileAppLayout';
-import { initializeApp } from '@/utils/initializeApp';
 
 const Home = () => {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Initialize the app when the Home component mounts
-    const init = async () => {
-      try {
-        await initializeApp();
-        console.log('App initialized successfully from Home page');
-      } catch (error) {
-        console.error('Failed to initialize app from Home page:', error);
-      }
-    };
-    
-    init();
-  }, []);
   
   const containerVariants = {
     hidden: { opacity: 0 },
