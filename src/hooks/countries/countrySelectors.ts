@@ -1,6 +1,6 @@
 
 import { Country } from '../../types/country';
-import { mockCountries } from '../../data/countries';
+import { countries as mockCountries } from '../../data/countries';
 import { fetchSendingCountriesFromApi, fetchReceivingCountriesFromApi } from './countriesApi';
 
 /**
