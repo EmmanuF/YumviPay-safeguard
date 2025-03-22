@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { initializeCountries } from './initializeCountries';
+import { clearCountriesCache } from '@/hooks/countries/countriesCache';
 
 /**
  * Initialize the app
@@ -10,6 +11,18 @@ export const initializeApp = async (): Promise<void> => {
   console.log("Initializing app...");
   
   try {
+    // Check if countries cache needs to be refreshed
+    const cacheTimestamp = localStorage.getItem('countries_cache_timestamp');
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    
+    // Clear countries cache if it's older than an hour or doesn't exist
+    if (!cacheTimestamp || (now - parseInt(cacheTimestamp)) > oneHour) {
+      console.log("Clearing countries cache for fresh data...");
+      clearCountriesCache();
+      localStorage.setItem('countries_cache_timestamp', now.toString());
+    }
+    
     // Initialize Supabase countries data
     console.log("Loading countries data...");
     await initializeCountries();

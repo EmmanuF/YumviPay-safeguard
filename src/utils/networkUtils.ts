@@ -103,7 +103,7 @@ export const configureNetwork = (options: {
   }
 };
 
-// Helper function to retry network requests
+// Helper function to retry network requests with backoff
 export const retryWithBackoff = async <T>(
   fn: () => Promise<T>,
   maxRetries: number = _maxNetworkRetries,
@@ -169,15 +169,26 @@ export const waitForNetwork = (timeout = 30000): Promise<boolean> => {
 // Hook to use in components that need to track network status
 export const useNetworkStatus = () => {
   // Import React and useEffect only inside function components
-  const { useEffect } = require('react');
-  const { useNetwork } = require('@/contexts/NetworkContext');
-  
-  const { isOffline, offlineModeActive, addPausedRequest, lastOnlineAt } = useNetwork();
-  
-  // Update the offline status whenever it changes
-  useEffect(() => {
-    updateNetworkStatus(isOffline, offlineModeActive, addPausedRequest, lastOnlineAt);
-  }, [isOffline, offlineModeActive, addPausedRequest, lastOnlineAt]);
-  
-  return { isOffline, offlineModeActive, addPausedRequest, retryWithBackoff, waitForNetwork };
+  try {
+    const { useEffect } = require('react');
+    const { useNetwork } = require('@/contexts/NetworkContext');
+    
+    const { isOffline, offlineModeActive, addPausedRequest, lastOnlineAt } = useNetwork();
+    
+    // Update the offline status whenever it changes
+    useEffect(() => {
+      updateNetworkStatus(isOffline, offlineModeActive, addPausedRequest, lastOnlineAt);
+    }, [isOffline, offlineModeActive, addPausedRequest, lastOnlineAt]);
+    
+    return { isOffline, offlineModeActive, addPausedRequest, retryWithBackoff, waitForNetwork };
+  } catch (error) {
+    console.error('Error in useNetworkStatus hook:', error);
+    return { 
+      isOffline: false, 
+      offlineModeActive: false, 
+      addPausedRequest: () => Promise.resolve(),
+      retryWithBackoff,
+      waitForNetwork
+    };
+  }
 };

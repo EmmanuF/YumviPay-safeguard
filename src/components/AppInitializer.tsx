@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { PushNotificationService } from '@/services/push/pushNotificationService';
 import { isPlatform } from '@/utils/platformUtils';
+import { initializeApp } from '@/utils/initializeApp';
 
 /**
  * Component to initialize app-wide services
@@ -9,7 +10,16 @@ import { isPlatform } from '@/utils/platformUtils';
  */
 const AppInitializer = () => {
   useEffect(() => {
-    const initializeApp = async () => {
+    const initializeAppServices = async () => {
+      // Initialize core app data
+      try {
+        console.log('Initializing app from AppInitializer...');
+        await initializeApp();
+        console.log('App initialized successfully from AppInitializer');
+      } catch (error) {
+        console.error('Error initializing app from AppInitializer:', error);
+      }
+      
       // Initialize native features only if running on a capacitor platform
       if (isPlatform('capacitor')) {
         console.log('Initializing native app features...');
@@ -27,7 +37,7 @@ const AppInitializer = () => {
       }
     };
     
-    initializeApp();
+    initializeAppServices();
     
     // Clean up on unmount
     return () => {

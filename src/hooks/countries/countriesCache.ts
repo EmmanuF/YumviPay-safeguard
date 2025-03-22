@@ -21,9 +21,13 @@ export const getCachedCountries = (): Country[] | null => {
       return data;
     }
     
+    // If expired or invalid data, clear the cache
+    clearCountriesCache();
     return null;
   } catch (e) {
     console.error('Error reading countries from cache:', e);
+    // If there's an error, clear the cache to ensure we get fresh data
+    clearCountriesCache();
     return null;
   }
 };
@@ -33,12 +37,18 @@ export const getCachedCountries = (): Country[] | null => {
  */
 export const updateCountriesCache = (data: Country[]): void => {
   try {
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn('Attempted to cache empty countries data. Not caching.');
+      return;
+    }
+    
     const cacheData = {
       data,
       timestamp: Date.now()
     };
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+    console.log(`Cached ${data.length} countries`);
   } catch (e) {
     console.error('Error updating countries cache:', e);
   }
@@ -50,6 +60,7 @@ export const updateCountriesCache = (data: Country[]): void => {
 export const clearCountriesCache = (): void => {
   try {
     localStorage.removeItem(CACHE_KEY);
+    console.log('Countries cache cleared');
   } catch (e) {
     console.error('Error clearing countries cache:', e);
   }
@@ -60,5 +71,6 @@ export const clearCountriesCache = (): void => {
  */
 export const forceRefreshCountriesCache = (): void => {
   clearCountriesCache();
-  window.location.reload();
+  // Don't reload the page, just clear the cache
+  console.log('Countries cache forcefully cleared, next data request will fetch fresh data');
 };
