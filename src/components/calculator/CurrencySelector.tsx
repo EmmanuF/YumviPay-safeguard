@@ -182,7 +182,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
     <div className="relative">
       <button
         type="button"
-        className="flex items-center bg-primary-50 rounded-lg px-4 py-2 w-full justify-between"
+        className="flex items-center bg-white border border-gray-200 shadow-sm rounded-lg px-4 py-2 w-full justify-between hover:bg-gray-50 transition-all duration-200"
         onClick={() => setShowDropdown(!showDropdown)}
       >
         {selectedCountry ? (
@@ -209,7 +209,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       </button>
       
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-10 max-h-60 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-10 max-h-60 overflow-hidden border border-gray-200">
           <div className="overflow-y-auto max-h-[15rem] overscroll-contain">
             {renderCurrencyOptions()}
           </div>
