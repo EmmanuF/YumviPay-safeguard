@@ -120,7 +120,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                   description={method.description}
                   icon={method.id === 'mobile_money' ? <span className="text-primary-500">📱</span> : <span className="text-primary-500">🏦</span>}
                   options={providers}
-                  selectedProvider={selectedProvider}
+                  selectedOption={selectedProvider}
                   onOptionSelect={onSelectProvider}
                   isSelected={selectedMethod === method.id}
                   onClick={() => onSelectMethod(method.id)}
