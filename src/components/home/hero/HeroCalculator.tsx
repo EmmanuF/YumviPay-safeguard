@@ -41,7 +41,7 @@ const HeroCalculator: React.FC = () => {
       {/* Enhanced background elements with gradients */}
       <motion.div
         variants={itemVariants}
-        className="absolute inset-0 bg-gradient-to-br from-primary-100/40 to-secondary-100/30 rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-70 backdrop-blur-sm"
+        className="absolute inset-0 bg-gradient-to-br from-primary-100/40 to-secondary-100/30 rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-70"
       />
       <motion.div 
         variants={itemVariants}
@@ -129,11 +129,10 @@ const HeroCalculator: React.FC = () => {
       
       <motion.div
         variants={itemVariants}
-        className="relative z-10 glass-strong rounded-2xl transform"
+        className="relative z-10 bg-white/90 rounded-2xl shadow-lg"
         whileHover={{ 
-          scale: 1.02, 
-          rotate: shouldUseComplexAnimations ? [-1, 1, 0] : 0, 
-          transition: { duration: 0.5 } 
+          scale: 1.01, 
+          transition: { duration: 0.3 } 
         }}
       >
         <ExchangeRateCalculator />
