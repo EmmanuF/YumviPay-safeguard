@@ -10,7 +10,11 @@ export const ensureSendingCountriesEnabled = (data: Country[]): Country[] => {
   let changesMade = false;
   
   // Countries that should always be sending-enabled
-  const sendingCountryCodes = ['US', 'CA', 'GB', 'CM'];
+  const sendingCountryCodes = [
+    'US', 'CA', 'GB', 'CM', 'FR', 'DE', 'IT', 'ES', 'NL', 'BE', 'CH', 'SE', 'NO',
+    'AU', 'JP', 'SG', 'NZ', 'AE', 'QA', 'SA', 'KR', 'MY', 'HK',
+    'KE', 'ZA', 'IE', 'DK', 'FI', 'PT', 'CR', 'PA'
+  ];
   
   enhancedData.forEach(country => {
     if (sendingCountryCodes.includes(country.code) && !country.isSendingEnabled) {
@@ -64,6 +68,23 @@ export const ensureSendingCountriesEnabled = (data: Country[]): Country[] => {
 export const processCountryData = (countries: Country[]): Country[] => {
   return countries.map(country => ({
     ...country,
-    flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+    flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
+    phonePrefix: country.phonePrefix || getDefaultPhonePrefix(country.code)
   }));
+};
+
+/**
+ * Get default phone prefix for a country if not specified
+ */
+const getDefaultPhonePrefix = (countryCode: string): string => {
+  const prefixMap: {[key: string]: string} = {
+    'US': '+1', 'CA': '+1', 'GB': '+44', 'CM': '+237', 'FR': '+33', 'DE': '+49',
+    'IT': '+39', 'ES': '+34', 'NL': '+31', 'BE': '+32', 'CH': '+41', 'SE': '+46',
+    'NO': '+47', 'AU': '+61', 'JP': '+81', 'SG': '+65', 'NZ': '+64', 'AE': '+971',
+    'QA': '+974', 'SA': '+966', 'KE': '+254', 'ZA': '+27', 'NG': '+234',
+    'IE': '+353', 'DK': '+45', 'FI': '+358', 'PT': '+351', 'KR': '+82',
+    'MY': '+60', 'HK': '+852', 'CR': '+506', 'PA': '+507'
+  };
+  
+  return prefixMap[countryCode] || '+0';
 };

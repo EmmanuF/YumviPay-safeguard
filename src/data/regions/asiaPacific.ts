@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const asiaPacificCountries: Country[] = [
@@ -26,6 +27,7 @@ export const asiaPacificCountries: Country[] = [
         processingTime: '1-2 business days',
       },
     ],
+    phonePrefix: '+61'
   },
   {
     name: 'Japan',
@@ -52,6 +54,7 @@ export const asiaPacificCountries: Country[] = [
         processingTime: '1-2 business days',
       },
     ],
+    phonePrefix: '+81'
   },
   {
     name: 'Singapore',
@@ -78,6 +81,7 @@ export const asiaPacificCountries: Country[] = [
         processingTime: '1-2 business days',
       },
     ],
+    phonePrefix: '+65'
   },
   {
     name: 'New Zealand',
@@ -104,6 +108,7 @@ export const asiaPacificCountries: Country[] = [
         processingTime: '1-2 business days',
       },
     ],
+    phonePrefix: '+64'
   },
   {
     name: 'United Arab Emirates',
@@ -122,6 +127,7 @@ export const asiaPacificCountries: Country[] = [
         processingTime: 'Instant',
       },
     ],
+    phonePrefix: '+971'
   },
   {
     name: 'Qatar',
@@ -140,6 +146,7 @@ export const asiaPacificCountries: Country[] = [
         processingTime: 'Instant',
       },
     ],
+    phonePrefix: '+974'
   },
   {
     name: 'Saudi Arabia',
@@ -158,5 +165,63 @@ export const asiaPacificCountries: Country[] = [
         processingTime: 'Instant',
       },
     ],
+    phonePrefix: '+966'
+  },
+  {
+    name: 'South Korea',
+    code: 'KR',
+    flagUrl: 'https://flagcdn.com/kr.svg',
+    currency: 'KRW',
+    isSendingEnabled: true, // Adding South Korea as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+    ],
+    phonePrefix: '+82'
+  },
+  {
+    name: 'Malaysia',
+    code: 'MY',
+    flagUrl: 'https://flagcdn.com/my.svg',
+    currency: 'MYR',
+    isSendingEnabled: true, // Adding Malaysia as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+    ],
+    phonePrefix: '+60'
+  },
+  {
+    name: 'Hong Kong',
+    code: 'HK',
+    flagUrl: 'https://flagcdn.com/hk.svg',
+    currency: 'HKD',
+    isSendingEnabled: true, // Adding Hong Kong as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [
+      {
+        id: 'credit_card',
+        name: 'Credit Card',
+        description: 'Pay with Visa or Mastercard',
+        icon: 'credit-card',
+        fees: '2.5%',
+        processingTime: 'Instant',
+      },
+    ],
+    phonePrefix: '+852'
   },
 ];

@@ -32,4 +32,24 @@ export const northAmericanCountries: Country[] = [
     paymentMethods: [],
     phonePrefix: '+52'
   },
+  {
+    name: 'Costa Rica',
+    code: 'CR',
+    flagUrl: 'https://flagcdn.com/cr.svg', 
+    currency: 'CRC',
+    isSendingEnabled: true, // Adding Costa Rica as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [],
+    phonePrefix: '+506'
+  },
+  {
+    name: 'Panama',
+    code: 'PA',
+    flagUrl: 'https://flagcdn.com/pa.svg',
+    currency: 'PAB',
+    isSendingEnabled: true, // Adding Panama as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [],
+    phonePrefix: '+507'
+  },
 ];

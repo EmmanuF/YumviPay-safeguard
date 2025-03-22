@@ -1,4 +1,3 @@
-
 import { Country } from '../../../types/country';
 
 export const southernAfricanCountries: Country[] = [
@@ -7,7 +6,7 @@ export const southernAfricanCountries: Country[] = [
     code: 'ZA',
     flagUrl: 'https://flagcdn.com/za.svg',
     currency: 'ZAR',
-    isSendingEnabled: false, // Changed from true to false
+    isSendingEnabled: true,
     isReceivingEnabled: true,
     paymentMethods: [
       {
@@ -19,6 +18,7 @@ export const southernAfricanCountries: Country[] = [
         processingTime: '1-2 business days',
       },
     ],
+    phonePrefix: '+27'
   },
   {
     name: 'Angola',

@@ -1,4 +1,3 @@
-
 import { Country } from '../../../types/country';
 
 export const eastAfricanCountries: Country[] = [
@@ -7,7 +6,7 @@ export const eastAfricanCountries: Country[] = [
     code: 'KE',
     flagUrl: 'https://flagcdn.com/ke.svg',
     currency: 'KES',
-    isSendingEnabled: false, // Changed from true to false
+    isSendingEnabled: true,
     isReceivingEnabled: true,
     paymentMethods: [
       {
@@ -27,6 +26,7 @@ export const eastAfricanCountries: Country[] = [
         processingTime: '1-2 business days',
       },
     ],
+    phonePrefix: '+254'
   },
   {
     name: 'Uganda',

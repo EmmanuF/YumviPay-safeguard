@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const europeanCountries: Country[] = [
@@ -9,6 +10,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+44'
   },
   {
     name: 'France',
@@ -18,6 +20,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+33'
   },
   {
     name: 'Germany',
@@ -27,6 +30,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+49'
   },
   {
     name: 'Italy',
@@ -36,6 +40,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+39'
   },
   {
     name: 'Spain',
@@ -45,6 +50,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+34'
   },
   {
     name: 'Netherlands',
@@ -54,6 +60,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+31'
   },
   {
     name: 'Belgium',
@@ -63,6 +70,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+32'
   },
   {
     name: 'Switzerland',
@@ -72,6 +80,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+41'
   },
   {
     name: 'Sweden',
@@ -81,6 +90,7 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+46'
   },
   {
     name: 'Norway',
@@ -90,5 +100,46 @@ export const europeanCountries: Country[] = [
     isSendingEnabled: true, // Enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
+    phonePrefix: '+47'
+  },
+  {
+    name: 'Ireland',
+    code: 'IE',
+    flagUrl: 'https://flagcdn.com/ie.svg',
+    currency: 'EUR',
+    isSendingEnabled: true, // Adding Ireland as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [],
+    phonePrefix: '+353'
+  },
+  {
+    name: 'Denmark',
+    code: 'DK',
+    flagUrl: 'https://flagcdn.com/dk.svg',
+    currency: 'DKK',
+    isSendingEnabled: true, // Adding Denmark as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [],
+    phonePrefix: '+45'
+  },
+  {
+    name: 'Finland',
+    code: 'FI',
+    flagUrl: 'https://flagcdn.com/fi.svg',
+    currency: 'EUR',
+    isSendingEnabled: true, // Adding Finland as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [],
+    phonePrefix: '+358'
+  },
+  {
+    name: 'Portugal',
+    code: 'PT',
+    flagUrl: 'https://flagcdn.com/pt.svg',
+    currency: 'EUR',
+    isSendingEnabled: true, // Adding Portugal as a sending country
+    isReceivingEnabled: false,
+    paymentMethods: [],
+    phonePrefix: '+351'
   },
 ];
