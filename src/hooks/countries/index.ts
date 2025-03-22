@@ -33,7 +33,8 @@ export const useCountries = () => {
           isSendingEnabled: country.is_sending_enabled,
           isReceivingEnabled: country.is_receiving_enabled,
           paymentMethods: parsePaymentMethods(country.payment_methods),
-          phonePrefix: country.phone_prefix || getDefaultPhonePrefix(country.code)
+          // Use the getDefaultPhonePrefix function since phone_prefix doesn't exist in the DB
+          phonePrefix: getDefaultPhonePrefix(country.code)
         }));
 
         // Enhance the data to ensure sending countries are properly set
