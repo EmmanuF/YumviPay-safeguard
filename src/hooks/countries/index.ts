@@ -11,45 +11,86 @@ import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCoun
  */
 export function useCountries() {
   const [countries, setCountries] = useState<Country[]>(getCachedCountries() || []);
-  const [isLoading, setIsLoading] = useState(!getCachedCountries());
+  const [isLoading, setIsLoading] = useState(countries.length === 0);
   const [error, setError] = useState<Error | null>(null);
   const { isOffline } = useNetwork();
+
+  // Debug log countries
+  useEffect(() => {
+    console.log(`Countries loaded: ${countries.length}`);
+    if (countries.length > 0) {
+      console.log('Sample country data:', countries[0]);
+    }
+  }, [countries]);
 
   useEffect(() => {
     const loadCountries = async () => {
       try {
         // Return cached data if it exists and is still valid
         const cachedData = getCachedCountries();
-        if (cachedData) {
+        if (cachedData && cachedData.length > 0) {
+          console.log('Using cached countries data from localStorage', cachedData.length);
           setCountries(cachedData);
           setIsLoading(false);
           return;
         }
         
+        console.log('No valid cached countries data, fetching new data...');
         setIsLoading(true);
+        
+        let finalData: Country[] = [];
         
         if (!isOffline) {
           // Try to fetch from Supabase if online
+          console.log('Fetching countries from API...');
           const apiData = await fetchCountriesFromApi();
           
-          if (apiData) {
-            updateCountriesCache(apiData);
-            setCountries(apiData);
+          if (apiData && apiData.length > 0) {
+            console.log('Successfully fetched countries from API:', apiData.length);
+            // Fix any missing flagUrl values
+            finalData = apiData.map(country => ({
+              ...country,
+              flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+            }));
+            
+            // Update cache with API data
+            updateCountriesCache(finalData);
+            setCountries(finalData);
             setIsLoading(false);
+            console.log('Countries set from API data');
             return;
+          } else {
+            console.log('API returned no data, falling back to mock data');
           }
+        } else {
+          console.log('Offline mode detected, using mock data');
         }
         
         // Use mock data if offline or API error
-        console.log('Using mock country data due to offline status or API error');
-        setCountries(mockCountries);
+        console.log('Using mock country data, entries:', mockCountries.length);
+        // Ensure all mock countries have proper flag URLs
+        finalData = mockCountries.map(country => ({
+          ...country,
+          flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+        }));
         
-        // Update cache
-        updateCountriesCache(mockCountries);
+        // Update cache with mock data
+        updateCountriesCache(finalData);
+        setCountries(finalData);
         
         setIsLoading(false);
       } catch (err) {
+        console.error('Error in loadCountries:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch countries'));
+        
+        // Still try to use mock data in case of error
+        console.log('Error occurred, falling back to mock data');
+        const fallbackData = mockCountries.map(country => ({
+          ...country,
+          flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+        }));
+        
+        setCountries(fallbackData);
         setIsLoading(false);
       }
     };
@@ -58,7 +99,20 @@ export function useCountries() {
   }, [isOffline]);
 
   const getCountryByCode = useMemo(() => 
-    (code: string) => countries.find(country => country.code === code),
+    (code: string): Country | undefined => {
+      const country = countries.find(country => country.code === code);
+      if (!country && code === 'CM') {
+        // Special handling for Cameroon which is our default country
+        const cameroon = mockCountries.find(c => c.code === 'CM');
+        if (cameroon) {
+          return {
+            ...cameroon,
+            flagUrl: cameroon.flagUrl || 'https://flagcdn.com/w80/cm.png'
+          };
+        }
+      }
+      return country;
+    },
     [countries]
   );
 

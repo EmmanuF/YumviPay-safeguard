@@ -7,8 +7,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCountries } from '@/hooks/useCountries';
 import { getProviderOptions } from '@/utils/paymentUtils';
-import { Clock, AlertCircle } from 'lucide-react';
+import { Clock, AlertCircle, CreditCard, Smartphone, Building } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
@@ -27,6 +28,13 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
   const [activeTab, setActiveTab] = useState<string>('mobile_money');
   const country = getCountryByCode(countryCode);
   
+  console.log("CountryPaymentMethods - Received props:", { 
+    countryCode, 
+    selectedPaymentMethod, 
+    selectedProvider 
+  });
+  console.log("Country found:", country);
+  
   // Set initial active tab based on available payment methods
   useEffect(() => {
     if (country?.paymentMethods && country.paymentMethods.length > 0) {
@@ -40,6 +48,9 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
   }, [country, selectedPaymentMethod]);
 
   if (!country) return <div>Country not found</div>;
+  if (!country.paymentMethods || country.paymentMethods.length === 0) {
+    return <div>No payment methods available for this country</div>;
+  }
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -56,6 +67,20 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     }
   };
 
+  // Get icon component based on icon name
+  const getIconComponent = (iconName: string) => {
+    switch (iconName?.toLowerCase()) {
+      case 'smartphone':
+        return <Smartphone className="h-6 w-6 text-primary-500" />;
+      case 'credit-card':
+        return <CreditCard className="h-6 w-6 text-primary-500" />;
+      case 'bank':
+        return <Building className="h-6 w-6 text-primary-500" />;
+      default:
+        return <Smartphone className="h-6 w-6 text-primary-500" />;
+    }
+  };
+
   // Check if method is coming soon
   const isMethodComingSoon = (methodId: string) => {
     return methodId === 'bank_transfer';
@@ -68,6 +93,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
 
   const renderPaymentMethodContent = (methodId: string) => {
     const providers = getProviderOptions(methodId, countryCode);
+    console.log(`Providers for ${methodId}:`, providers);
     
     if (!providers || providers.length === 0) {
       return <p className="text-sm text-muted-foreground py-2">No providers available</p>;

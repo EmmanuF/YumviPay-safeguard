@@ -14,6 +14,7 @@ interface PaymentMethodCardProps {
   options?: Array<{
     id: string;
     name: string;
+    logoUrl?: string;
   }>;
   countryCode?: string;
   selectedOption?: string;

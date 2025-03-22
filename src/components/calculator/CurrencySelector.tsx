@@ -10,28 +10,38 @@ interface CurrencySelectorProps {
   label: string;
 }
 
-const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, options, label }) => {
+const CurrencySelector: React.FC<CurrencySelectorProps> = ({ 
+  value, 
+  onChange, 
+  options, 
+  label 
+}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { countries, isLoading } = useCountries();
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
+
+  console.log("CurrencySelector - countries:", countries.length);
+  console.log("CurrencySelector - value:", value);
+  console.log("CurrencySelector - options:", options);
 
   // Find the selected country by currency code
   useEffect(() => {
     const country = countries.find(country => country.currency === value);
     setSelectedCountry(country);
+    console.log("Selected country for currency", value, ":", country);
   }, [value, countries]);
 
   return (
     <div className="relative">
       <button
         type="button"
-        className="flex items-center bg-primary-50 rounded-lg px-4 py-2"
+        className="flex items-center bg-primary-50 rounded-lg px-4 py-2 w-full justify-between"
         onClick={() => setShowDropdown(!showDropdown)}
       >
         {selectedCountry ? (
           <div className="flex items-center">
             <img 
-              src={selectedCountry.flagUrl}
+              src={selectedCountry.flagUrl || `https://flagcdn.com/w80/${selectedCountry.code.toLowerCase()}.png`}
               alt={`${selectedCountry.name} flag`}
               className="w-5 h-3 object-cover rounded mr-2"
             />
@@ -70,7 +80,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ value, onChange, op
                     {country ? (
                       <>
                         <img 
-                          src={country.flagUrl}
+                          src={country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`}
                           alt={`${country.name} flag`}
                           className="w-5 h-3 object-cover rounded mr-2"
                         />

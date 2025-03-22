@@ -10,20 +10,28 @@ const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 export const getCachedCountries = (): Country[] | null => {
   try {
     const cachedData = localStorage.getItem(CACHE_KEY);
-    if (!cachedData) return null;
+    if (!cachedData) {
+      console.log('No countries data in cache');
+      return null;
+    }
     
     const { data, timestamp } = JSON.parse(cachedData);
     const isExpired = Date.now() - timestamp > CACHE_EXPIRY;
     
     // Return data if not expired
     if (!isExpired && Array.isArray(data) && data.length > 0) {
-      console.log('Using cached countries data');
+      console.log('Using cached countries data, entries:', data.length);
       return data;
     }
     
+    console.log('Countries cache expired or invalid');
     return null;
   } catch (e) {
     console.error('Error reading countries from cache:', e);
+    // Clear potentially corrupted cache
+    try {
+      localStorage.removeItem(CACHE_KEY);
+    } catch (clearError) {}
     return null;
   }
 };
@@ -33,12 +41,18 @@ export const getCachedCountries = (): Country[] | null => {
  */
 export const updateCountriesCache = (data: Country[]): void => {
   try {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.warn('Attempted to cache empty or invalid countries data');
+      return;
+    }
+    
     const cacheData = {
       data,
       timestamp: Date.now()
     };
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+    console.log(`Updated countries cache with ${data.length} entries`);
   } catch (e) {
     console.error('Error updating countries cache:', e);
   }
@@ -50,6 +64,7 @@ export const updateCountriesCache = (data: Country[]): void => {
 export const clearCountriesCache = (): void => {
   try {
     localStorage.removeItem(CACHE_KEY);
+    console.log('Countries cache cleared');
   } catch (e) {
     console.error('Error clearing countries cache:', e);
   }
@@ -60,5 +75,6 @@ export const clearCountriesCache = (): void => {
  */
 export const forceRefreshCountriesCache = (): void => {
   clearCountriesCache();
+  console.log('Forcing page reload to refresh countries data');
   window.location.reload();
 };
