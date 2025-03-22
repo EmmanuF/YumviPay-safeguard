@@ -46,9 +46,18 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const comingSoonProviders = ['yoomee_money', 'afriland', 'ecobank'];
   const comingSoonMethods = ['bank_transfer'];
   
+  // Debug logging for component state
+  useEffect(() => {
+    console.log("PaymentStep rendering with transaction data:", transactionData);
+    console.log("Payment method:", transactionData.paymentMethod);
+    console.log("Selected provider:", transactionData.selectedProvider);
+    console.log("Details confirmed:", isDetailsConfirmed);
+  }, [transactionData, isDetailsConfirmed]);
+  
   useEffect(() => {
     if (transactionData.recipientCountry) {
       const country = getCountryByCode(transactionData.recipientCountry);
+      console.log("Selected country found:", country);
       setSelectedCountry(country);
     }
   }, [transactionData.recipientCountry, getCountryByCode]);
@@ -64,6 +73,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   };
 
   const handleConfirmationChange = (checked: boolean) => {
+    console.log("Confirmation changed to:", checked);
     setIsDetailsConfirmed(checked);
     if (checked) {
       setShowConfirmationError(false);
@@ -71,6 +81,12 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   };
 
   const handleContinue = async () => {
+    console.log("Continue clicked with state:", {
+      paymentMethod: transactionData.paymentMethod,
+      selectedProvider: transactionData.selectedProvider,
+      isDetailsConfirmed
+    });
+    
     // Validate the payment selection
     const validationResult = validatePaymentSelection(
       transactionData.paymentMethod,
@@ -81,6 +97,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     );
     
     if (!validationResult.isValid) {
+      console.log("Validation failed:", validationResult);
+      
       if (validationResult.errorToast) {
         toast(validationResult.errorToast);
       }
@@ -107,6 +125,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       });
     }
     
+    // Force accept even if details aren't fully confirmed
+    console.log("Validation passed, proceeding to next step");
     onNext();
   };
 

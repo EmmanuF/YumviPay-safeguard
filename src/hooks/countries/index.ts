@@ -95,11 +95,22 @@ export function useCountries() {
       }
     };
 
-    loadCountries();
+    // Force refresh countries data if empty
+    if (countries.length === 0) {
+      localStorage.removeItem('countries');
+      loadCountries();
+    } else {
+      loadCountries();
+    }
   }, [isOffline]);
 
   const getCountryByCode = useMemo(() => 
     (code: string): Country | undefined => {
+      if (!code) {
+        console.error('getCountryByCode called with empty code');
+        return undefined;
+      }
+      
       const country = countries.find(country => country.code === code);
       if (!country && code === 'CM') {
         // Special handling for Cameroon which is our default country

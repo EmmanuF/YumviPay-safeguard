@@ -6,14 +6,14 @@ interface ValidationStatusIndicatorProps {
   isValid: boolean;
   hasInput: boolean;
   message: string | null;
-  isBankAccount: boolean;
+  isBankAccount?: boolean;
 }
 
 const ValidationStatusIndicator: React.FC<ValidationStatusIndicatorProps> = ({
   isValid,
   hasInput,
   message,
-  isBankAccount
+  isBankAccount = false
 }) => {
   return (
     <>

@@ -33,7 +33,7 @@ const FormatHelpPopover: React.FC<FormatHelpPopoverProps> = ({ providerId, isBan
               ? "MTN mobile numbers in Cameroon start with +237 followed by a 9-digit number starting with 6. Common MTN prefixes are 67, 68, 65, or 66."
               : "Orange mobile numbers in Cameroon start with +237 followed by a 9-digit number starting with 6. Common Orange prefixes are 69, 65, or 66."}
         </p>
-        {providerDetails.instructions && (
+        {providerDetails.instructions && Array.isArray(providerDetails.instructions) && providerDetails.instructions.length > 0 && (
           <div>
             <h5 className="text-sm font-medium mb-1">Tips:</h5>
             <ul className="list-disc pl-5 text-xs text-gray-700">

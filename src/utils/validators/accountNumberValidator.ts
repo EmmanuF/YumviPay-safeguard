@@ -16,6 +16,14 @@ export const validateCameroonMobileNumber = (
   number: string, 
   providerId?: string
 ): ValidationResult => {
+  // Allow empty values initially to prevent errors on first render
+  if (!number || number.trim() === '') {
+    return {
+      isValid: false,
+      message: null
+    };
+  }
+  
   const cleanedNumber = number.replace(/\s/g, '').replace(/^\+237/, '').replace(/^237/, '');
   
   // Check basic format first - must be 9 digits starting with 6
@@ -75,6 +83,14 @@ export const validateCameroonMobileNumber = (
  * Validates bank account numbers
  */
 export const validateBankAccount = (accountNumber: string, countryCode: string): ValidationResult => {
+  // Allow empty values initially to prevent errors on first render
+  if (!accountNumber || accountNumber.trim() === '') {
+    return {
+      isValid: false,
+      message: null
+    };
+  }
+  
   const cleanedNumber = accountNumber.replace(/\s/g, '');
   
   if (cleanedNumber.length < 8 || cleanedNumber.length > 24) {
@@ -102,7 +118,7 @@ export const validateAccountNumber = (
   if (accountNumber.trim() === '') {
     return {
       isValid: false,
-      message: 'Account number is required'
+      message: null // Don't show error initially
     };
   }
   

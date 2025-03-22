@@ -10,6 +10,7 @@ import { getProviderOptions } from '@/utils/paymentUtils';
 import { Clock, AlertCircle, CreditCard, Smartphone, Building } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
+import { useToast } from '@/components/ui/use-toast';
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
@@ -27,6 +28,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
   const { getCountryByCode } = useCountries();
   const [activeTab, setActiveTab] = useState<string>('mobile_money');
   const country = getCountryByCode(countryCode);
+  const { toast } = useToast();
   
   console.log("CountryPaymentMethods - Received props:", { 
     countryCode, 
@@ -47,16 +49,24 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     }
   }, [country, selectedPaymentMethod]);
 
-  if (!country) return <div>Country not found</div>;
+  if (!country) {
+    console.error("Country not found for code:", countryCode);
+    return <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">Country data not found</div>;
+  }
+  
   if (!country.paymentMethods || country.paymentMethods.length === 0) {
-    return <div>No payment methods available for this country</div>;
+    console.error("No payment methods available for country:", countryCode);
+    return <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">No payment methods available for this country</div>;
   }
 
   const handleTabChange = (value: string) => {
+    console.log("Tab changed to:", value);
     setActiveTab(value);
     
     // Get the first provider for this payment method
     const providers = getProviderOptions(value, countryCode);
+    console.log("Available providers:", providers);
+    
     if (providers && providers.length > 0) {
       // For bank_transfer, don't select any provider as it's coming soon
       if (value === 'bank_transfer') {
@@ -64,6 +74,13 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
         return;
       }
       onSelect(value, providers[0].id);
+    } else {
+      console.error("No providers found for payment method:", value);
+      toast({
+        title: "Provider Error",
+        description: "No payment providers available for this method. Please try another option.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -140,6 +157,10 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                       src={provider.logoUrl} 
                       alt={provider.name} 
                       className={`h-6 w-6 object-contain ${comingSoon ? "opacity-50" : ""}`} 
+                      onError={(e) => {
+                        console.error(`Failed to load image for provider: ${provider.name}`);
+                        e.currentTarget.src = 'https://via.placeholder.com/24';
+                      }}
                     />
                   </div>
                 )}
