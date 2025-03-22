@@ -68,10 +68,8 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 rounded-xl 
-                     text-left focus:outline-none focus:ring-2 focus:ring-primary-300 
-                     bg-white border border-gray-200 shadow-sm hover:bg-gray-50 
-                     transition-all duration-200"
+          className="glass-effect w-full flex items-center justify-between px-4 py-3 rounded-xl 
+                     text-left focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all"
         >
           {value && selectedCountry ? (
             <div className="flex items-center">
@@ -100,10 +98,10 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute z-50 mt-1 w-full rounded-xl bg-white border border-gray-200 
+              className="absolute z-50 mt-1 w-full rounded-xl glass-effect border border-gray-200 
                          shadow-lg max-h-60 overflow-hidden"
             >
-              <div className="sticky top-0 bg-white p-2 border-b border-gray-100 z-10">
+              <div className="sticky top-0 bg-white/90 backdrop-blur-sm p-2 border-b border-gray-100 z-10">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
