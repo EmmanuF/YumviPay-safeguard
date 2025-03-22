@@ -33,6 +33,15 @@ const ExchangeRateCalculator: React.FC<ExchangeRateCalculatorProps> = ({
     handleContinue
   } = useExchangeRateCalculator(onContinue);
 
+  // Add debug logging
+  React.useEffect(() => {
+    console.log("💰 ExchangeRateCalculator - Currencies Debug:", {
+      sourceCurrencies,
+      targetCurrencies,
+      countriesLoading
+    });
+  }, [sourceCurrencies, targetCurrencies, countriesLoading]);
+
   // Loading state - show skeleton UI
   if (countriesLoading) {
     return <LoadingCalculator className={className} />;

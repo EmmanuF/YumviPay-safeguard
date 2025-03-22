@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { initializeCountries } from './initializeCountries';
+import { clearCountriesCache } from '@/hooks/countries/countriesCache';
 
 /**
  * Initialize the app
@@ -10,6 +11,10 @@ export const initializeApp = async (): Promise<void> => {
   console.log("Initializing app...");
   
   try {
+    // Clear the countries cache to ensure fresh data
+    console.log("Clearing countries cache to ensure fresh data...");
+    clearCountriesCache();
+    
     // Initialize Supabase countries data
     console.log("Loading countries data...");
     await initializeCountries();

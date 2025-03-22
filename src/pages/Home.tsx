@@ -11,6 +11,7 @@ import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 import MobileAppLayout from '@/components/MobileAppLayout';
+import DebugTools from '@/components/home/DebugTools';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -74,6 +75,9 @@ const Home = () => {
           </div>
         </div>
       </PageTransition>
+      
+      {/* Add debug tools */}
+      <DebugTools />
     </MobileAppLayout>
   );
 };
