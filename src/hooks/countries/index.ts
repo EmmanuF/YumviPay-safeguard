@@ -10,6 +10,7 @@ import { fetchCountriesFromApi, fetchSendingCountriesFromApi, fetchReceivingCoun
  * Custom hook for managing countries data
  */
 export function useCountries() {
+  console.log("🔄 useCountries hook initializing");
   const [countries, setCountries] = useState<Country[]>(getCachedCountries() || []);
   const [isLoading, setIsLoading] = useState(countries.length === 0);
   const [error, setError] = useState<Error | null>(null);
@@ -17,31 +18,31 @@ export function useCountries() {
 
   // Debug log countries
   useEffect(() => {
-    console.log(`Countries loaded: ${countries.length}`);
+    console.log(`📊 Countries loaded: ${countries.length}`);
     if (countries.length > 0) {
-      console.log('Sample country data:', countries[0]);
+      console.log('📋 Sample country data:', countries[0]);
       
       // Check sending countries specifically
       const sendingCountries = countries.filter(c => c.isSendingEnabled);
-      console.log(`Sending countries: ${sendingCountries.length}`);
+      console.log(`📤 Sending countries: ${sendingCountries.length}`);
       if (sendingCountries.length > 0) {
-        console.log('Sample sending country:', sendingCountries[0]);
+        console.log('📤 Sample sending country:', sendingCountries[0]);
       } else {
-        console.log('No sending countries found!');
+        console.log('⚠️ No sending countries found!');
       }
       
       // DEBUG: Log Cameroon data specifically to check payment method IDs
       const cameroon = countries.find(c => c.code === 'CM');
       if (cameroon) {
-        console.log('DEBUG - Cameroon country data:', cameroon);
-        console.log('DEBUG - Cameroon payment methods:', cameroon.paymentMethods);
+        console.log('🇨🇲 DEBUG - Cameroon country data:', cameroon);
+        console.log('🇨🇲 DEBUG - Cameroon payment methods:', cameroon.paymentMethods);
         if (cameroon.paymentMethods && cameroon.paymentMethods.length > 0) {
           cameroon.paymentMethods.forEach(method => {
-            console.log(`DEBUG - Payment method ID format: "${method.id}" (${typeof method.id})`);
+            console.log(`🇨🇲 DEBUG - Payment method ID format: "${method.id}" (${typeof method.id})`);
           });
         }
       } else {
-        console.log('DEBUG - Cameroon data not found in countries list');
+        console.log('🇨🇲 DEBUG - Cameroon data not found in countries list');
       }
     }
   }, [countries]);
@@ -49,18 +50,19 @@ export function useCountries() {
   useEffect(() => {
     const loadCountries = async () => {
       try {
-        console.log('Loading countries data...');
+        console.log('🔄 Loading countries data...');
         
         // Check if we already have countries loaded
         if (countries.length > 0) {
-          console.log('Countries already loaded, count:', countries.length);
+          console.log('✅ Countries already loaded, count:', countries.length);
           
           // Check if we have sending countries
           const sendingCountries = countries.filter(c => c.isSendingEnabled);
           if (sendingCountries.length === 0) {
-            console.log('No sending countries found in loaded data, forcing refresh');
+            console.log('⚠️ No sending countries found in loaded data, forcing refresh');
             clearCountriesCache();
           } else {
+            console.log(`📤 Found ${sendingCountries.length} sending countries in loaded data`);
             setIsLoading(false);
             return;
           }
@@ -69,29 +71,31 @@ export function useCountries() {
         // Return cached data if it exists and is still valid
         const cachedData = getCachedCountries();
         if (cachedData && cachedData.length > 0) {
-          console.log('Using cached countries data from localStorage', cachedData.length);
+          console.log('🗄️ Using cached countries data from localStorage', cachedData.length);
           
           // Check sending countries in cached data
           const sendingCountries = cachedData.filter(c => c.isSendingEnabled);
-          console.log(`Sending countries in cache: ${sendingCountries.length}`);
+          console.log(`📤 Sending countries in cache: ${sendingCountries.length}`);
           
           setCountries(cachedData);
           setIsLoading(false);
           return;
         }
         
-        console.log('No valid cached countries data, fetching new data...');
+        console.log('🚫 No valid cached countries data, fetching new data...');
         setIsLoading(true);
         
         let finalData: Country[] = [];
         
         if (!isOffline) {
           // Try to fetch from Supabase if online
-          console.log('Fetching countries from API...');
+          console.log('🌐 Fetching countries from API...');
           const apiData = await fetchCountriesFromApi();
           
           if (apiData && apiData.length > 0) {
-            console.log('Successfully fetched countries from API:', apiData.length);
+            console.log('✅ Successfully fetched countries from API:', apiData.length);
+            console.log(`📤 API sending countries: ${apiData.filter(c => c.isSendingEnabled).length}`);
+            
             // Fix any missing flagUrl values
             finalData = apiData.map(country => ({
               ...country,
@@ -102,24 +106,24 @@ export function useCountries() {
             updateCountriesCache(finalData);
             setCountries(finalData);
             setIsLoading(false);
-            console.log('Countries set from API data');
+            console.log('✅ Countries set from API data');
             return;
           } else {
-            console.log('API returned no data, falling back to mock data');
+            console.log('⚠️ API returned no data, falling back to mock data');
           }
         } else {
-          console.log('Offline mode detected, using mock data');
+          console.log('📵 Offline mode detected, using mock data');
         }
         
         // Make sure some countries are sending-enabled in the mock data
-        console.log('Using mock country data, entries:', mockCountries.length);
+        console.log('🧪 Using mock country data, entries:', mockCountries.length);
         
         // Add United States as a sending country if not already present
         let enhancedMockData = [...mockCountries];
         const hasUSA = mockCountries.some(c => c.code === 'US');
         
         if (!hasUSA) {
-          console.log('Adding United States as a sending country');
+          console.log('🇺🇸 Adding United States as a sending country');
           enhancedMockData.unshift({
             name: 'United States',
             code: 'US',
@@ -134,7 +138,7 @@ export function useCountries() {
         // Make sure we have at least one sending country
         const hasSendingCountry = enhancedMockData.some(c => c.isSendingEnabled);
         if (!hasSendingCountry) {
-          console.log('No sending countries found, setting United Kingdom as a sending country');
+          console.log('🇬🇧 No sending countries found, setting United Kingdom as a sending country');
           enhancedMockData = enhancedMockData.map(country => 
             country.code === 'GB' ? { ...country, isSendingEnabled: true } : country
           );
@@ -152,11 +156,11 @@ export function useCountries() {
         
         setIsLoading(false);
       } catch (err) {
-        console.error('Error in loadCountries:', err);
+        console.error('❌ Error in loadCountries:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch countries'));
         
         // Still try to use mock data in case of error
-        console.log('Error occurred, falling back to mock data');
+        console.log('⚠️ Error occurred, falling back to mock data');
         const fallbackData = mockCountries.map(country => ({
           ...country,
           flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`

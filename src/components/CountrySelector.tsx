@@ -17,17 +17,23 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
   onChange,
   type
 }) => {
+  console.log(`🔄 CountrySelector - Rendering with type: "${type}", value: "${value}"`);
+  
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { countries, isLoading } = useCountries();
   
   // Filter countries based on type (send/receive) and search term
   const filteredCountries = countries
-    ?.filter(country => 
-      type === 'receive' ? country.isReceivingEnabled : country.isSendingEnabled)
+    ?.filter(country => {
+      const isEligible = type === 'receive' ? country.isReceivingEnabled : country.isSendingEnabled;
+      return isEligible;
+    })
     .filter(country => 
       country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       country.code.toLowerCase().includes(searchTerm.toLowerCase()));
+  
+  console.log(`📊 CountrySelector - ${type} filtered countries count:`, filteredCountries?.length || 0);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -43,12 +49,14 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
   }, []);
 
   const handleCountrySelect = (countryCode: string) => {
+    console.log(`🖱️ Country selected: ${countryCode}`);
     onChange(countryCode);
     setIsOpen(false);
     setSearchTerm('');
   };
 
   const selectedCountry = countries?.find(country => country.code === value);
+  console.log(`🔍 CountrySelector - Selected country:`, selectedCountry);
   
   return (
     <div className="w-full mb-4" data-dropdown>
@@ -69,6 +77,10 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
                 src={selectedCountry.flagUrl} 
                 alt={selectedCountry.name} 
                 className="w-6 h-4 object-cover rounded mr-2"
+                onError={(e) => {
+                  console.error(`❌ Selected country flag load error:`, e);
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40x30?text=?';
+                }}
               />
               <span>{selectedCountry.name}</span>
             </div>
@@ -128,6 +140,10 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
                         src={country.flagUrl} 
                         alt={country.name} 
                         className="w-6 h-4 object-cover rounded mr-2"
+                        onError={(e) => {
+                          console.error(`❌ Country list flag load error for ${country.code}:`, e);
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40x30?text=?';
+                        }}
                       />
                       <span>{country.name}</span>
                     </button>

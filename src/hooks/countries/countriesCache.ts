@@ -11,13 +11,13 @@ export const getCachedCountries = (): Country[] | null => {
   try {
     // In mobile contexts, we need to check if localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.log('localStorage not available');
+      console.log('📱 localStorage not available');
       return null;
     }
 
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (!cachedData) {
-      console.log('No countries data in cache');
+      console.log('🔍 No countries data in cache');
       return null;
     }
     
@@ -26,14 +26,16 @@ export const getCachedCountries = (): Country[] | null => {
     
     // Return data if not expired
     if (!isExpired && Array.isArray(data) && data.length > 0) {
-      console.log('Using cached countries data, entries:', data.length);
+      console.log(`🗄️ Using cached countries data, entries: ${data.length}`);
+      console.log(`🔢 Cached sending countries: ${data.filter(c => c.isSendingEnabled).length}`);
+      console.log(`🔢 Cached receiving countries: ${data.filter(c => c.isReceivingEnabled).length}`);
       return data;
     }
     
-    console.log('Countries cache expired or invalid');
+    console.log('⏰ Countries cache expired or invalid');
     return null;
   } catch (e) {
-    console.error('Error reading countries from cache:', e);
+    console.error('❌ Error reading countries from cache:', e);
     // Clear potentially corrupted cache
     try {
       if (typeof localStorage !== 'undefined') {
@@ -51,14 +53,16 @@ export const updateCountriesCache = (data: Country[]): void => {
   try {
     // Check if localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.log('localStorage not available for caching countries');
+      console.log('📱 localStorage not available for caching countries');
       return;
     }
 
     if (!data || !Array.isArray(data) || data.length === 0) {
-      console.warn('Attempted to cache empty or invalid countries data');
+      console.warn('⚠️ Attempted to cache empty or invalid countries data');
       return;
     }
+    
+    console.log(`📊 Caching countries stats - Total: ${data.length}, Sending: ${data.filter(c => c.isSendingEnabled).length}, Receiving: ${data.filter(c => c.isReceivingEnabled).length}`);
     
     const cacheData = {
       data,
@@ -66,9 +70,9 @@ export const updateCountriesCache = (data: Country[]): void => {
     };
     
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    console.log(`Updated countries cache with ${data.length} entries`);
+    console.log(`✅ Updated countries cache with ${data.length} entries`);
   } catch (e) {
-    console.error('Error updating countries cache:', e);
+    console.error('❌ Error updating countries cache:', e);
   }
 };
 
@@ -79,10 +83,10 @@ export const clearCountriesCache = (): void => {
   try {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(CACHE_KEY);
-      console.log('Countries cache cleared');
+      console.log('🧹 Countries cache cleared');
     }
   } catch (e) {
-    console.error('Error clearing countries cache:', e);
+    console.error('❌ Error clearing countries cache:', e);
   }
 };
 
@@ -91,6 +95,6 @@ export const clearCountriesCache = (): void => {
  */
 export const forceRefreshCountriesCache = (): void => {
   clearCountriesCache();
-  console.log('Forcing page reload to refresh countries data');
+  console.log('🔄 Forcing page reload to refresh countries data');
   window.location.reload();
 };

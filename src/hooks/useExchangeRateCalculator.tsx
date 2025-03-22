@@ -16,6 +16,8 @@ export interface ExchangeRateCalculatorState {
 }
 
 export const useExchangeRateCalculator = (onContinue?: () => void) => {
+  console.log("🔄 useExchangeRateCalculator initializing");
+  
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuth();
   const { countries, isLoading: countriesLoading } = useCountries();
@@ -28,22 +30,30 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
 
   // Memoize currency lists to reduce re-calculation
   const sourceCurrencies = useMemo(() => {
+    console.log("🔍 Calculating source currencies");
+    
     if (!countries || countries.length === 0) {
-      console.log("No countries available for source currencies");
+      console.log("⚠️ No countries available for source currencies");
       return [];
     }
     
+    const sendingCountries = countries.filter(country => country.isSendingEnabled);
+    console.log(`📤 Found ${sendingCountries.length} sending countries for source currencies`);
+    
+    if (sendingCountries.length > 0) {
+      console.log("📋 Sample sending country:", sendingCountries[0]);
+    }
+    
     const currencies = Array.from(new Set(
-      countries
-        .filter(country => country.isSendingEnabled)
-        .map(country => country.currency)
+      sendingCountries.map(country => country.currency)
     ));
     
-    console.log("Source currencies generated:", currencies.length);
+    console.log("📊 Source currencies generated:", currencies.length);
+    console.log("📋 Available source currencies:", currencies);
     
     // Always include USD for testing if no currencies are found
     if (currencies.length === 0) {
-      console.log("No sending countries found, adding USD as default");
+      console.log("⚠️ No sending countries found, adding USD as default");
       return ['USD'];
     }
     
@@ -51,22 +61,30 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
   }, [countries]);
   
   const targetCurrencies = useMemo(() => {
+    console.log("🔍 Calculating target currencies");
+    
     if (!countries || countries.length === 0) {
-      console.log("No countries available for target currencies");
+      console.log("⚠️ No countries available for target currencies");
       return [];
     }
     
+    const receivingCountries = countries.filter(country => country.isReceivingEnabled);
+    console.log(`📥 Found ${receivingCountries.length} receiving countries for target currencies`);
+    
+    if (receivingCountries.length > 0) {
+      console.log("📋 Sample receiving country:", receivingCountries[0]);
+    }
+    
     const currencies = Array.from(new Set(
-      countries
-        .filter(country => country.isReceivingEnabled)
-        .map(country => country.currency)
+      receivingCountries.map(country => country.currency)
     ));
     
-    console.log("Target currencies generated:", currencies.length);
+    console.log("📊 Target currencies generated:", currencies.length);
+    console.log("📋 Available target currencies:", currencies);
     
     // Always include XAF for testing if no currencies are found
     if (currencies.length === 0) {
-      console.log("No receiving countries found, adding XAF as default");
+      console.log("⚠️ No receiving countries found, adding XAF as default");
       return ['XAF'];
     }
     
@@ -81,6 +99,9 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
       
       const amount = parseFloat(sendAmount) || 0;
       setReceiveAmount((amount * rate).toLocaleString());
+      
+      console.log(`💱 Exchange rate calculated: 1 ${sourceCurrency} = ${rate} ${targetCurrency}`);
+      console.log(`💰 For amount ${sendAmount} ${sourceCurrency} → ${(amount * rate).toLocaleString()} ${targetCurrency}`);
     };
     
     calculateRate();
