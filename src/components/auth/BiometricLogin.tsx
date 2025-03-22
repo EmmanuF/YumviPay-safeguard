@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint } from 'lucide-react';
 import { useBiometricAuth } from '@/services/biometric';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/toast/use-toast';
 
 interface BiometricLoginProps {
   onSuccess: (credentials: { username: string; password: string }) => void;

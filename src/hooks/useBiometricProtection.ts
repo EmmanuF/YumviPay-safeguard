@@ -1,7 +1,6 @@
-
 import { useState, useCallback } from 'react';
 import { BiometricService } from '@/services/biometric';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/toast/use-toast';
 
 interface UseBiometricProtectionOptions {
   onSuccess?: () => void;

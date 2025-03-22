@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Bell, BellOff } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/toast/use-toast';
 
 interface NotificationToggleProps {
   isActive: boolean;
