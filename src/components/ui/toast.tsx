@@ -37,6 +37,8 @@ const toastVariants = cva(
           "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300",
         warning: 
           "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-300",
+        interactive: 
+          "border bg-background text-foreground p-0 pr-0 flex flex-col items-stretch space-x-0 overflow-hidden",
       },
     },
     defaultVariants: {
@@ -117,6 +119,45 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
+// New component for toast header
+const ToastHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center justify-between p-6", className)}
+    {...props}
+  />
+))
+ToastHeader.displayName = "ToastHeader"
+
+// New component for toast content
+const ToastContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("px-6 pb-6", className)}
+    {...props}
+  />
+))
+ToastContent.displayName = "ToastContent"
+
+// New component for toast footer
+const ToastFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center justify-between p-4 bg-muted/50 border-t", className)}
+    {...props}
+  />
+))
+ToastFooter.displayName = "ToastFooter"
+
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
@@ -131,4 +172,7 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  ToastHeader,
+  ToastContent,
+  ToastFooter,
 }

@@ -2,12 +2,44 @@
 import * as React from "react"
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
+export type ToastVariant = "default" | "destructive" | "success" | "info" | "warning" | "interactive"
+
+export interface ToastProgress {
+  value: number
+  max?: number
+  showValue?: boolean
+  className?: string
+  status?: 'indeterminate' | 'success' | 'error' | 'warning' | 'info'
+}
+
+export interface ToastActions {
+  primary?: {
+    label: string
+    onClick: () => void
+    className?: string
+  }
+  secondary?: {
+    label: string
+    onClick: () => void
+    className?: string
+  }
+}
+
 export type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  variant?: "default" | "destructive" | "success" | "info" | "warning"
+  variant?: ToastVariant
+  // New interactive properties
+  progress?: ToastProgress
+  actions?: ToastActions
+  custom?: React.ReactNode
+  autoClose?: boolean
+  duration?: number
+  animation?: string
+  onDismiss?: () => void
+  footer?: React.ReactNode
 }
 
 export interface State {
@@ -42,4 +74,3 @@ export type Action =
     }
 
 export type Toast = Omit<ToasterToast, "id">
-

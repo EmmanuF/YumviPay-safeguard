@@ -1,3 +1,5 @@
 
 /* Import base theme styles */
 @import './styles/theme.css';
+@import './styles/animations.css';
+@import './styles/effects.css';

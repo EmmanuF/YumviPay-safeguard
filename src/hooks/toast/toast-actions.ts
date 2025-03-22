@@ -54,3 +54,38 @@ toast.warning = (title: string, props?: Omit<Toast, "title" | "variant">) =>
 toast.error = (title: string, props?: Omit<Toast, "title" | "variant">) => 
   toast({ title, ...props, variant: "destructive" });
 
+// New interactive toast methods
+toast.progress = (
+  title: string,
+  progress: Toast["progress"],
+  props?: Omit<Toast, "title" | "variant" | "progress">
+) => 
+  toast({ 
+    title, 
+    progress, 
+    ...props, 
+    variant: "interactive",
+    autoClose: false 
+  });
+
+toast.interactive = (
+  title: string,
+  props?: Omit<Toast, "title" | "variant">
+) => 
+  toast({ 
+    title, 
+    ...props, 
+    variant: "interactive",
+    autoClose: false 
+  });
+
+// Update progress value for an existing toast
+toast.updateProgress = (id: string, value: number) => {
+  dispatch({
+    type: "UPDATE_TOAST",
+    toast: { 
+      id, 
+      progress: { value }
+    },
+  });
+};
