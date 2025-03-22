@@ -83,6 +83,11 @@
   .dropdown-item-hover {
     @apply hover:bg-gray-50 transition-colors;
   }
+
+  /* Define the bg-white/98 class */
+  .bg-white\/98 {
+    background-color: rgba(255, 255, 255, 0.98);
+  }
 }
 
 /* Enhanced neomorphic effects */
