@@ -48,17 +48,23 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   
   // Debug logging for component state
   useEffect(() => {
-    console.log("PaymentStep rendering with transaction data:", transactionData);
-    console.log("Payment method:", transactionData.paymentMethod);
-    console.log("Selected provider:", transactionData.selectedProvider);
-    console.log("Details confirmed:", isDetailsConfirmed);
+    console.log("DEBUG - PaymentStep render with transaction data:", JSON.stringify(transactionData, null, 2));
+    console.log("DEBUG - Selected payment method:", transactionData.paymentMethod);
+    console.log("DEBUG - Selected provider:", transactionData.selectedProvider);
+    console.log("DEBUG - Recipient country:", transactionData.recipientCountry);
+    console.log("DEBUG - Details confirmed:", isDetailsConfirmed);
   }, [transactionData, isDetailsConfirmed]);
   
   useEffect(() => {
     if (transactionData.recipientCountry) {
       const country = getCountryByCode(transactionData.recipientCountry);
-      console.log("Selected country found:", country);
+      console.log("DEBUG - Country lookup result:", country);
+      if (country) {
+        console.log("DEBUG - Country payment methods:", country.paymentMethods);
+      }
       setSelectedCountry(country);
+    } else {
+      console.log("DEBUG - No recipient country in transaction data");
     }
   }, [transactionData.recipientCountry, getCountryByCode]);
 

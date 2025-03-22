@@ -34,13 +34,24 @@ export const usePaymentStep = ({ transactionData, updateTransactionData }: UsePa
   const [isInitialized, setIsInitialized] = useState(false);
   const [savePreference, setSavePreference] = useState(transactionData.savePaymentPreference || false);
   
+  console.log("DEBUG - usePaymentStep - Initial transaction data:", JSON.stringify(transactionData, null, 2));
+  
   const countryCode = transactionData.targetCountry || 
                      (countries.find(country => country.currency === transactionData.targetCurrency)?.code || 'CM');
   
+  console.log(`DEBUG - usePaymentStep - Resolved country code: "${countryCode}"`);
+  
   const selectedCountry = getCountryByCode(countryCode);
+  console.log("DEBUG - usePaymentStep - Selected country:", selectedCountry);
   
   // Initialize country data
   useEffect(() => {
+    console.log("DEBUG - usePaymentStep - Initializing payment data:", {
+      countryCode,
+      isInitialized,
+      isLoading
+    });
+    
     const initialized = initializePaymentData(
       countryCode, 
       transactionData, 
@@ -50,12 +61,21 @@ export const usePaymentStep = ({ transactionData, updateTransactionData }: UsePa
     );
     
     if (initialized) {
+      console.log("DEBUG - usePaymentStep - Payment data initialized successfully");
       setIsInitialized(true);
+    } else {
+      console.log("DEBUG - usePaymentStep - Payment data initialization skipped");
     }
   }, [countryCode, transactionData.targetCountry, updateTransactionData, isInitialized, isLoading]);
 
   // Initialize provider selection
   useEffect(() => {
+    console.log("DEBUG - usePaymentStep - Initializing provider selection:", {
+      paymentMethod: transactionData.paymentMethod,
+      countryCode,
+      selectedProvider: transactionData.selectedProvider
+    });
+    
     initializeProviderSelection(
       transactionData,
       countryCode,

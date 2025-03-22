@@ -1,4 +1,3 @@
-
 import { Smartphone, CreditCard, Building } from "lucide-react";
 
 // Define payment provider types
@@ -95,30 +94,62 @@ export const bankTransferProviders: PaymentProvider[] = [
 
 // Get all providers for a payment method
 export const getProvidersByMethod = (methodId: string): PaymentProvider[] => {
-  switch (methodId) {
+  console.log(`DEBUG - getProvidersByMethod called with ID: "${methodId}"`);
+  
+  // Normalize the method ID to handle both dash and underscore formats
+  const normalizedId = methodId.replace(/-/g, '_');
+  console.log(`DEBUG - Normalized method ID: "${normalizedId}"`);
+  
+  let providers: PaymentProvider[] = [];
+  
+  switch (normalizedId) {
     case 'mobile_money_mtn':
     case 'mtn_mobile_money':
-      return mtnMobileMoneyProviders;
+      console.log('DEBUG - Returning MTN providers');
+      providers = mtnMobileMoneyProviders;
+      break;
     case 'mobile_money_orange':
     case 'orange_money':
-      return orangeMoneyProviders;
+      console.log('DEBUG - Returning Orange providers');
+      providers = orangeMoneyProviders;
+      break;
     case 'bank_transfer':
-      return bankTransferProviders;
+      console.log('DEBUG - Returning bank transfer providers');
+      providers = bankTransferProviders;
+      break;
     case 'mobile_money':
-      return [...mtnMobileMoneyProviders, ...orangeMoneyProviders];
+      console.log('DEBUG - Returning all mobile money providers');
+      providers = [...mtnMobileMoneyProviders, ...orangeMoneyProviders];
+      break;
     default:
-      return [];
+      console.log(`DEBUG - No providers found for method ID: "${normalizedId}"`);
+      providers = [];
   }
+  
+  console.log(`DEBUG - Returning ${providers.length} providers:`, providers);
+  return providers;
 };
 
 // Get provider by ID
 export const getProviderById = (methodId: string): PaymentProvider | undefined => {
+  console.log(`DEBUG - getProviderById called with ID: "${methodId}"`);
+  
+  // Normalize the ID to handle both dash and underscore formats
+  const normalizedId = methodId.replace(/-/g, '_');
+  console.log(`DEBUG - Normalized provider ID: "${normalizedId}"`);
+  
   const allProviders = [
     ...mtnMobileMoneyProviders,
     ...orangeMoneyProviders,
     ...bankTransferProviders,
   ];
-  return allProviders.find(provider => provider.id === methodId);
+  
+  const provider = allProviders.find(provider => 
+    provider.id === normalizedId || provider.id === methodId
+  );
+  
+  console.log(`DEBUG - Provider found:`, provider);
+  return provider;
 };
 
 // Get payment method by ID

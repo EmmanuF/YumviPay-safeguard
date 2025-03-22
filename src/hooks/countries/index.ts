@@ -20,6 +20,20 @@ export function useCountries() {
     console.log(`Countries loaded: ${countries.length}`);
     if (countries.length > 0) {
       console.log('Sample country data:', countries[0]);
+      
+      // DEBUG: Log Cameroon data specifically to check payment method IDs
+      const cameroon = countries.find(c => c.code === 'CM');
+      if (cameroon) {
+        console.log('DEBUG - Cameroon country data:', cameroon);
+        console.log('DEBUG - Cameroon payment methods:', cameroon.paymentMethods);
+        if (cameroon.paymentMethods && cameroon.paymentMethods.length > 0) {
+          cameroon.paymentMethods.forEach(method => {
+            console.log(`DEBUG - Payment method ID format: "${method.id}" (${typeof method.id})`);
+          });
+        }
+      } else {
+        console.log('DEBUG - Cameroon data not found in countries list');
+      }
     }
   }, [countries]);
 

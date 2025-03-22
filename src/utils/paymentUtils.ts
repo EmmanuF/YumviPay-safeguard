@@ -59,10 +59,17 @@ export const initializeProviderSelection = (
 
 // Get provider options for a payment method and country
 export const getProviderOptions = (methodId: string, countryCode: string) => {
-  const providers = getProvidersByMethod(methodId);
+  console.log(`DEBUG - getProviderOptions called with methodId: "${methodId}", countryCode: "${countryCode}"`);
+  
+  // Normalize methodId to handle both dash and underscore formats
+  const normalizedMethodId = methodId.replace(/-/g, '_');
+  console.log(`DEBUG - Normalized methodId: "${normalizedMethodId}"`);
+  
+  const providers = getProvidersByMethod(normalizedMethodId);
+  console.log(`DEBUG - Raw providers returned:`, providers);
   
   // Map to format needed by components
-  return providers
+  const result = providers
     .filter(provider => provider.isAvailable) // Only include available providers
     .map(provider => ({
       id: provider.id,
@@ -71,6 +78,9 @@ export const getProviderOptions = (methodId: string, countryCode: string) => {
       description: provider.description,
       isRecommended: provider.isRecommended,
     }));
+    
+  console.log(`DEBUG - Formatted provider options:`, result);
+  return result;
 };
 
 // Calculate transaction fee based on amount, payment method and provider

@@ -22,7 +22,7 @@ export const validatePaymentSelection = (
   comingSoonMethods: string[],
   comingSoonProviders: string[]
 ): ValidationResult => {
-  console.log("Validating payment selection:", {
+  console.log("DEBUG - validatePaymentSelection - Input parameters:", {
     paymentMethod,
     selectedProvider,
     isDetailsConfirmed,
@@ -32,7 +32,7 @@ export const validatePaymentSelection = (
 
   // Check if we have a payment method selected
   if (!paymentMethod) {
-    console.log("No payment method selected");
+    console.log("DEBUG - No payment method selected");
     return {
       isValid: false,
       errorToast: {
@@ -45,7 +45,7 @@ export const validatePaymentSelection = (
 
   // Check if the selected method is coming soon
   if (comingSoonMethods.includes(paymentMethod)) {
-    console.log("Selected payment method is coming soon");
+    console.log(`DEBUG - Selected payment method "${paymentMethod}" is coming soon`);
     return {
       isValid: false,
       errorToast: {
@@ -58,7 +58,7 @@ export const validatePaymentSelection = (
 
   // Check if we have a provider selected
   if (!selectedProvider) {
-    console.log("No provider selected");
+    console.log("DEBUG - No provider selected");
     return {
       isValid: false,
       errorToast: {
@@ -71,7 +71,7 @@ export const validatePaymentSelection = (
 
   // Check if the selected provider is coming soon
   if (comingSoonProviders.includes(selectedProvider)) {
-    console.log("Selected provider is coming soon");
+    console.log(`DEBUG - Selected provider "${selectedProvider}" is coming soon`);
     return {
       isValid: false,
       errorToast: {
@@ -84,7 +84,7 @@ export const validatePaymentSelection = (
 
   // Check if the user has confirmed the details
   if (!isDetailsConfirmed) {
-    console.log("Details not confirmed");
+    console.log("DEBUG - Details not confirmed");
     return {
       isValid: false,
       errorToast: {
@@ -96,7 +96,7 @@ export const validatePaymentSelection = (
   }
 
   // All checks passed, the payment selection is valid
-  console.log("Validation passed");
+  console.log("DEBUG - Validation passed");
   return { isValid: true };
 };
 
