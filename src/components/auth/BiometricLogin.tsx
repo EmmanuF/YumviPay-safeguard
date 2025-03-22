@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint } from 'lucide-react';
@@ -26,26 +27,23 @@ const BiometricLogin: React.FC<BiometricLoginProps> = ({ onSuccess }) => {
         if (credentials) {
           onSuccess(credentials);
         } else {
-          toast({
-            title: "No stored credentials",
-            description: "Please login with your username and password first",
-            variant: "destructive",
-          });
+          toast.warning(
+            "No stored credentials",
+            { description: "Please login with your username and password first" }
+          );
         }
       } else {
-        toast({
-          title: "Authentication failed",
-          description: "Biometric verification was unsuccessful",
-          variant: "destructive",
-        });
+        toast.error(
+          "Authentication failed",
+          { description: "Biometric verification was unsuccessful" }
+        );
       }
     } catch (error) {
       console.error('Error during biometric login:', error);
-      toast({
-        title: "Authentication error",
-        description: "An error occurred during biometric authentication",
-        variant: "destructive",
-      });
+      toast.error(
+        "Authentication error",
+        { description: "An error occurred during biometric authentication" }
+      );
     } finally {
       setAuthenticating(false);
     }

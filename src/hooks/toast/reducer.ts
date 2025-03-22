@@ -1,6 +1,7 @@
 
 import { State, Action, actionTypes } from "./types"
 
+const TOAST_LIMIT = 5
 const TOAST_REMOVE_DELAY = 1000000
 
 // Track toast timeouts so we can cancel them
@@ -90,6 +91,3 @@ export const reducer = (state: State, action: Action): State => {
       }
   }
 }
-
-// Constants
-export const TOAST_LIMIT = 1

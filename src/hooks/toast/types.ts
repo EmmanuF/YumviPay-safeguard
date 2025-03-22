@@ -7,6 +7,7 @@ export type ToasterToast = ToastProps & {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  variant?: "default" | "destructive" | "success" | "info" | "warning"
 }
 
 export interface State {
@@ -41,3 +42,4 @@ export type Action =
     }
 
 export type Toast = Omit<ToasterToast, "id">
+

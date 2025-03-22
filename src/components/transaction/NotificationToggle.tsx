@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Bell, BellOff } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -24,10 +25,10 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({
     onChange(checked);
     
     if (checked) {
-      toast({
-        title: "Notifications enabled",
-        description: `You'll receive updates about this ${entityType}`,
-      });
+      toast.success(
+        "Notifications enabled",
+        { description: `You'll receive updates about this ${entityType}` }
+      );
       
       // Demo: Show a notification immediately
       setTimeout(() => {
@@ -39,10 +40,10 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({
         });
       }, 1000);
     } else {
-      toast({
-        title: "Notifications disabled",
-        description: `You won't receive updates about this ${entityType}`,
-      });
+      toast.info(
+        "Notifications disabled",
+        { description: `You won't receive updates about this ${entityType}` }
+      );
     }
   };
   

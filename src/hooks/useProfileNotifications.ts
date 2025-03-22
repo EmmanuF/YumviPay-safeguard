@@ -15,16 +15,15 @@ export const useProfileNotifications = () => {
     const success = await updateNotificationSetting(key, checked);
     
     if (success) {
-      toast({
-        title: "Settings Updated",
-        description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${checked ? 'enabled' : 'disabled'}`
-      });
+      toast.success(
+        "Settings Updated", 
+        { description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${checked ? 'enabled' : 'disabled'}` }
+      );
     } else {
-      toast({
-        title: "Error",
-        description: "Failed to update notification settings",
-        variant: "destructive"
-      });
+      toast.error(
+        "Error", 
+        { description: "Failed to update notification settings" }
+      );
     }
   };
   
@@ -32,16 +31,15 @@ export const useProfileNotifications = () => {
     const success = await resetNotificationSettings();
     
     if (success) {
-      toast({
-        title: "Reset Complete",
-        description: "Notification settings have been reset to defaults"
-      });
+      toast.success(
+        "Reset Complete", 
+        { description: "Notification settings have been reset to defaults" }
+      );
     } else {
-      toast({
-        title: "Error",
-        description: "Failed to reset notification settings",
-        variant: "destructive"
-      });
+      toast.error(
+        "Error", 
+        { description: "Failed to reset notification settings" }
+      );
     }
   };
 

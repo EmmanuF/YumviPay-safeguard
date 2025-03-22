@@ -42,14 +42,15 @@ export function toast({ ...props }: Toast) {
 }
 
 // Add variant convenience methods
-toast.info = (title: string, props?: Omit<Toast, "title">) => 
-  toast({ title, ...props, variant: "default" });
+toast.info = (title: string, props?: Omit<Toast, "title" | "variant">) => 
+  toast({ title, ...props, variant: "info" });
 
-toast.success = (title: string, props?: Omit<Toast, "title">) => 
-  toast({ title, ...props, variant: "default" });
+toast.success = (title: string, props?: Omit<Toast, "title" | "variant">) => 
+  toast({ title, ...props, variant: "success" });
 
-toast.warning = (title: string, props?: Omit<Toast, "title">) => 
-  toast({ title, ...props, variant: "default" });
+toast.warning = (title: string, props?: Omit<Toast, "title" | "variant">) => 
+  toast({ title, ...props, variant: "warning" });
 
-toast.error = (title: string, props?: Omit<Toast, "title">) => 
+toast.error = (title: string, props?: Omit<Toast, "title" | "variant">) => 
   toast({ title, ...props, variant: "destructive" });
+
