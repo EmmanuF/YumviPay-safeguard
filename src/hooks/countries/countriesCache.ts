@@ -91,10 +91,10 @@ export const clearCountriesCache = (): void => {
 };
 
 /**
- * Force refresh countries data
+ * Force refresh countries data - now just clears cache without reloading
  */
 export const forceRefreshCountriesCache = (): void => {
   clearCountriesCache();
-  console.log('🔄 Forcing page reload to refresh countries data');
-  window.location.reload();
+  console.log('🔄 Countries cache cleared, page reload is now manual');
+  // Removed automatic page reload to prevent blank page
 };
