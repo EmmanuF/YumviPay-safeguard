@@ -46,17 +46,21 @@ const DebugTools: React.FC = () => {
     e.stopPropagation(); // Stop event propagation
     
     try {
-      // Trigger a refresh of the countries data
-      refreshCountriesData();
-      
-      // Show success message
-      toast({
-        title: "Countries Data Refreshed",
-        description: "The countries data is being refreshed with fresh data.",
-        variant: "default",
-      });
-      
-      console.log("🔄 Countries data refresh triggered manually via debug tool");
+      if (refreshCountriesData) {
+        // Trigger a refresh of the countries data
+        refreshCountriesData();
+        
+        // Show success message
+        toast({
+          title: "Countries Data Refreshed",
+          description: "The countries data is being refreshed with fresh data.",
+          variant: "default",
+        });
+        
+        console.log("🔄 Countries data refresh triggered manually via debug tool");
+      } else {
+        throw new Error("Refresh function not available");
+      }
     } catch (error) {
       console.error("Error refreshing countries data:", error);
       toast({
