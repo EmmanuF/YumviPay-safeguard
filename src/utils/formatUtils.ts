@@ -34,3 +34,26 @@ export const formatCurrency = (amount: string | number | undefined, currency: st
     currency: currency
   }).format(numAmount);
 };
+
+/**
+ * Format a number with commas
+ * @param value - The value to format
+ * @returns Formatted number string
+ */
+export const formatNumberWithCommas = (value: string | number): string => {
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (isNaN(parsed)) return '0';
+    return parsed.toLocaleString();
+  }
+  return value.toLocaleString();
+};
+
+/**
+ * Clean a numeric string by removing commas
+ * @param value - The string to clean
+ * @returns Cleaned numeric string
+ */
+export const cleanNumericString = (value: string): string => {
+  return value.replace(/,/g, '');
+};
