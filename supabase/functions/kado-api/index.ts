@@ -3,14 +3,39 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 // Constants
 const KADO_API_URL = 'https://api.kado.money/v1';
-const KADO_API_KEY = Deno.env.get('KADO_API_KEY') ?? '';
-const KADO_API_SECRET = Deno.env.get('KADO_API_SECRET') ?? '';
+const KADO_API_KEY = Deno.env.get('KADO_API_PUBLIC_KEY') ?? '';
+const KADO_API_SECRET = Deno.env.get('KADO_API_PRIVATE_KEY') ?? '';
 
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+};
+
+/**
+ * Generate HMAC signature for Kado API authentication
+ * @param path API path
+ * @param timestamp Request timestamp
+ * @param method HTTP method
+ * @param body Request body for POST/PUT requests
+ * @returns HMAC signature string
+ */
+const generateSignature = (path: string, timestamp: string, method: string, body?: string): string => {
+  const encoder = new TextEncoder();
+  const secret = encoder.encode(KADO_API_SECRET);
+  
+  // Create message string to sign
+  const message = method.toUpperCase() + path + timestamp + (body ? JSON.stringify(body) : '');
+  
+  // Create HMAC signature
+  const hmac = new Deno.HmacSha256(secret);
+  hmac.update(encoder.encode(message));
+  const signature = Array.from(new Uint8Array(hmac.digest()))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  
+  return signature;
 };
 
 // Request handler
@@ -36,7 +61,7 @@ serve(async (req) => {
     if (!KADO_API_KEY || !KADO_API_SECRET) {
       console.error('Kado API keys not configured');
       return new Response(JSON.stringify({ 
-        error: 'API keys not configured. Please add KADO_API_KEY and KADO_API_SECRET to your environment variables.' 
+        error: 'API keys not configured. Please add KADO_API_PUBLIC_KEY and KADO_API_PRIVATE_KEY to your environment variables.' 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -54,16 +79,23 @@ serve(async (req) => {
     }
 
     // Construct full URL
-    const url = `${KADO_API_URL}/${endpoint.startsWith('/') ? endpoint.substring(1) : endpoint}`;
+    const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${KADO_API_URL}${path}`;
     
     console.log(`Making ${method} request to Kado API: ${url}`);
+    
+    // Generate timestamp for auth
+    const timestamp = new Date().toISOString();
+    
+    // Generate signature for auth
+    const signature = generateSignature(path, timestamp, method, method !== 'GET' ? data : undefined);
     
     // Set up authentication headers
     const headers = {
       'Content-Type': 'application/json',
       'X-API-Key': KADO_API_KEY,
-      // For actual implementation, you would generate the proper auth header
-      // For example: 'Authorization': `Bearer ${generateKadoAuthToken(KADO_API_SECRET)}`
+      'X-Timestamp': timestamp,
+      'X-Signature': signature,
     };
     
     // Make the request to Kado API

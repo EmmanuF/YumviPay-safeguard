@@ -5,14 +5,15 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 // Constants
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const KADO_API_KEY = Deno.env.get('KADO_API_KEY') ?? '';
+const KADO_API_KEY = Deno.env.get('KADO_API_PUBLIC_KEY') ?? '';
+const KADO_API_SECRET = Deno.env.get('KADO_API_PRIVATE_KEY') ?? '';
 
 // Request handler
 serve(async (req) => {
   // CORS headers
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-signature, x-timestamp',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   };
 
@@ -33,16 +34,42 @@ serve(async (req) => {
       });
     }
 
-    // Parse request body
-    const body = await req.json();
+    // Get the request body as text and JSON
+    const bodyText = await req.text();
+    const body = JSON.parse(bodyText);
     
-    // Validate Kado API key (in a real implementation, this would be a proper signature verification)
-    const apiKey = req.headers.get('x-api-key');
-    if (!KADO_API_KEY || apiKey !== KADO_API_KEY) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // Verify webhook signature (in a real implementation)
+    const timestamp = req.headers.get('x-timestamp');
+    const signature = req.headers.get('x-signature');
+    
+    if (KADO_API_SECRET && timestamp && signature) {
+      // Compute expected signature
+      const encoder = new TextEncoder();
+      const secret = encoder.encode(KADO_API_SECRET);
+      const message = timestamp + bodyText;
+      
+      const hmac = new Deno.HmacSha256(secret);
+      hmac.update(encoder.encode(message));
+      const expectedSignature = Array.from(new Uint8Array(hmac.digest()))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      
+      if (signature !== expectedSignature) {
+        console.error('Invalid webhook signature');
+        return new Response(JSON.stringify({ error: 'Invalid signature' }), { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    } else {
+      // For development environments, we might accept requests without signatures
+      const apiKey = req.headers.get('x-api-key');
+      if (!KADO_API_KEY || apiKey !== KADO_API_KEY) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Initialize Supabase client
@@ -56,6 +83,8 @@ serve(async (req) => {
       });
     }
 
+    console.log('Processing webhook for transaction:', body.transaction_id, 'with status:', body.status);
+
     // Update transaction status in database
     const { error } = await supabase
       .from('transactions')
@@ -64,15 +93,23 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
         ...(body.status === 'completed' && { completed_at: new Date().toISOString() }),
         ...(body.status === 'failed' && { failure_reason: body.reason }),
+        webhook_data: body // Store the full webhook data for reference
       })
       .eq('id', body.transaction_id);
 
     if (error) {
+      console.error('Error updating transaction:', error);
       throw error;
     }
 
+    // If transaction is completed, we can trigger notifications or other follow-up actions
+    if (body.status === 'completed') {
+      console.log('Transaction completed, sending confirmation notifications');
+      // Here we would call notification services, etc.
+    }
+
     // Return success response
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, message: 'Webhook processed successfully' }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
