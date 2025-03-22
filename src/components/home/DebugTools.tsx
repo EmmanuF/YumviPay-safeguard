@@ -1,11 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { clearCountriesCache } from '@/hooks/countries/countriesCache';
-import { Info } from 'lucide-react';
+import { Info, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useCountries } from '@/hooks/useCountries';
 
 const DebugTools: React.FC = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { countries } = useCountries();
+  
   // Only show in development
   if (process.env.NODE_ENV !== 'development') {
     return null;
@@ -37,21 +41,59 @@ const DebugTools: React.FC = () => {
     }
   };
 
+  // Calculate some useful debug stats
+  const sendingCountries = countries.filter(c => c.isSendingEnabled);
+  const receivingCountries = countries.filter(c => c.isReceivingEnabled);
+
   return (
     <div className="fixed bottom-20 right-4 z-50">
-      <div className="bg-gray-800 text-white rounded-lg shadow-lg p-3 text-xs">
-        <div className="flex items-center mb-2">
-          <Info className="h-4 w-4 mr-1" />
-          <span>Debug Tools</span>
-        </div>
-        <Button 
-          variant="destructive" 
-          size="sm" 
-          onClick={handleClearCache}
-          className="text-xs"
+      <div className="bg-gray-800 text-white rounded-lg shadow-lg overflow-hidden">
+        <div 
+          className="flex items-center justify-between p-3 cursor-pointer"
+          onClick={() => setIsExpanded(!isExpanded)}
         >
-          Clear Countries Cache
-        </Button>
+          <div className="flex items-center">
+            <Info className="h-4 w-4 mr-1" />
+            <span className="text-xs">Debug Tools</span>
+          </div>
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronUp className="h-4 w-4" />
+          )}
+        </div>
+        
+        {isExpanded && (
+          <div className="px-3 pb-3 text-xs">
+            <div className="mb-2">
+              <p>Countries: {countries.length}</p>
+              <p>Sending: {sendingCountries.length}</p>
+              <p>Receiving: {receivingCountries.length}</p>
+              
+              {sendingCountries.length > 0 && (
+                <div className="mt-1">
+                  <p>Sending countries:</p>
+                  <ul className="text-xs ml-2 mt-1 text-gray-300">
+                    {sendingCountries.slice(0, 3).map(c => (
+                      <li key={c.code}>{c.name} ({c.currency})</li>
+                    ))}
+                    {sendingCountries.length > 3 && <li>...and {sendingCountries.length - 3} more</li>}
+                  </ul>
+                </div>
+              )}
+            </div>
+            
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={handleClearCache}
+              className="text-xs flex items-center w-full"
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              Clear Countries Cache
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

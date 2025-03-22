@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Country, PaymentMethod } from '../../types/country';
 import { countries as mockCountries } from '../../data/countries';
@@ -27,6 +26,7 @@ export function useCountries() {
       console.log(`📤 Sending countries: ${sendingCountries.length}`);
       if (sendingCountries.length > 0) {
         console.log('📤 Sample sending country:', sendingCountries[0]);
+        console.log('📤 All sending countries:', sendingCountries.map(c => c.name));
       } else {
         console.log('⚠️ No sending countries found!');
       }
@@ -77,9 +77,14 @@ export function useCountries() {
           const sendingCountries = cachedData.filter(c => c.isSendingEnabled);
           console.log(`📤 Sending countries in cache: ${sendingCountries.length}`);
           
-          setCountries(cachedData);
-          setIsLoading(false);
-          return;
+          if (sendingCountries.length === 0) {
+            console.log('⚠️ No sending countries in cached data, fetching fresh data');
+            clearCountriesCache();
+          } else {
+            setCountries(cachedData);
+            setIsLoading(false);
+            return;
+          }
         }
         
         console.log('🚫 No valid cached countries data, fetching new data...');
@@ -115,15 +120,27 @@ export function useCountries() {
           console.log('📵 Offline mode detected, using mock data');
         }
         
-        // Make sure some countries are sending-enabled in the mock data
+        // Ensure mock data has sending countries
         console.log('🧪 Using mock country data, entries:', mockCountries.length);
         
-        // Add United States as a sending country if not already present
-        let enhancedMockData = [...mockCountries];
-        const hasUSA = mockCountries.some(c => c.code === 'US');
+        // Make sure North American countries are sending-enabled
+        const enhancedMockData = [...mockCountries];
         
-        if (!hasUSA) {
-          console.log('🇺🇸 Adding United States as a sending country');
+        // Explicitly set these countries as sending-enabled
+        enhancedMockData.forEach(country => {
+          if (['US', 'CA', 'GB', 'CM'].includes(country.code)) {
+            country.isSendingEnabled = true;
+            console.log(`🔄 Setting ${country.name} as sending-enabled`);
+          }
+        });
+        
+        // Verify we have sending countries
+        const hasSendingCountries = enhancedMockData.some(c => c.isSendingEnabled);
+        console.log(`📤 Mock data has sending countries: ${hasSendingCountries}`);
+        
+        // If still no sending countries, force add USA
+        if (!hasSendingCountries) {
+          console.log('⚠️ No sending countries in mock data, adding USA');
           enhancedMockData.unshift({
             name: 'United States',
             code: 'US',
@@ -135,22 +152,18 @@ export function useCountries() {
           });
         }
         
-        // Make sure we have at least one sending country
-        const hasSendingCountry = enhancedMockData.some(c => c.isSendingEnabled);
-        if (!hasSendingCountry) {
-          console.log('🇬🇧 No sending countries found, setting United Kingdom as a sending country');
-          enhancedMockData = enhancedMockData.map(country => 
-            country.code === 'GB' ? { ...country, isSendingEnabled: true } : country
-          );
-        }
-        
         // Ensure all mock countries have proper flag URLs
         finalData = enhancedMockData.map(country => ({
           ...country,
           flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
         }));
         
-        // Update cache with mock data
+        // Log sending countries from final data
+        const sendingCountriesFinal = finalData.filter(c => c.isSendingEnabled);
+        console.log(`📤 Final sending countries count: ${sendingCountriesFinal.length}`);
+        console.log('📤 Final sending countries:', sendingCountriesFinal.map(c => c.name));
+        
+        // Update cache with enhanced mock data
         updateCountriesCache(finalData);
         setCountries(finalData);
         
@@ -161,10 +174,20 @@ export function useCountries() {
         
         // Still try to use mock data in case of error
         console.log('⚠️ Error occurred, falling back to mock data');
-        const fallbackData = mockCountries.map(country => ({
-          ...country,
-          flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
-        }));
+        const fallbackData = mockCountries.map(country => {
+          // Make sure key countries are sending-enabled even in fallback
+          if (['US', 'CA', 'GB', 'CM'].includes(country.code)) {
+            return {
+              ...country,
+              isSendingEnabled: true,
+              flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+            };
+          }
+          return {
+            ...country,
+            flagUrl: country.flagUrl || `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`
+          };
+        });
         
         setCountries(fallbackData);
         setIsLoading(false);

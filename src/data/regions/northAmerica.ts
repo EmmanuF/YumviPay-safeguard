@@ -1,3 +1,4 @@
+
 import { Country } from '../../types/country';
 
 export const northAmericanCountries: Country[] = [
@@ -6,7 +7,7 @@ export const northAmericanCountries: Country[] = [
     code: 'US',
     flagUrl: 'https://flagcdn.com/us.svg',
     currency: 'USD',
-    isSendingEnabled: true, // Enabled for sending
+    isSendingEnabled: true, // Explicitly enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
   },
@@ -15,7 +16,7 @@ export const northAmericanCountries: Country[] = [
     code: 'CA',
     flagUrl: 'https://flagcdn.com/ca.svg',
     currency: 'CAD',
-    isSendingEnabled: true, // Enabled for sending
+    isSendingEnabled: true, // Explicitly enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
   },
@@ -24,7 +25,7 @@ export const northAmericanCountries: Country[] = [
     code: 'MX',
     flagUrl: 'https://flagcdn.com/mx.svg',
     currency: 'MXN',
-    isSendingEnabled: true, // Enabled for sending
+    isSendingEnabled: true, // Explicitly enabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
   },

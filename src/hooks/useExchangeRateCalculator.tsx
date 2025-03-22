@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,8 +32,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     console.log("🔍 Calculating source currencies");
     
     if (!countries || countries.length === 0) {
-      console.log("⚠️ No countries available for source currencies");
-      return [];
+      console.log("⚠️ No countries available for source currencies, using fallbacks");
+      return ['USD', 'EUR', 'GBP'];
     }
     
     const sendingCountries = countries.filter(country => country.isSendingEnabled);
@@ -42,6 +41,7 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     
     if (sendingCountries.length > 0) {
       console.log("📋 Sample sending country:", sendingCountries[0]);
+      console.log("📋 All sending countries:", sendingCountries.map(c => c.name));
     }
     
     const currencies = Array.from(new Set(
@@ -53,8 +53,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     
     // Always include USD for testing if no currencies are found
     if (currencies.length === 0) {
-      console.log("⚠️ No sending countries found, adding USD as default");
-      return ['USD'];
+      console.log("⚠️ No sending countries found, adding USD, EUR, GBP as defaults");
+      return ['USD', 'EUR', 'GBP'];
     }
     
     return currencies;
@@ -64,8 +64,8 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     console.log("🔍 Calculating target currencies");
     
     if (!countries || countries.length === 0) {
-      console.log("⚠️ No countries available for target currencies");
-      return [];
+      console.log("⚠️ No countries available for target currencies, using fallbacks");
+      return ['XAF', 'NGN', 'KES'];
     }
     
     const receivingCountries = countries.filter(country => country.isReceivingEnabled);
@@ -84,12 +84,28 @@ export const useExchangeRateCalculator = (onContinue?: () => void) => {
     
     // Always include XAF for testing if no currencies are found
     if (currencies.length === 0) {
-      console.log("⚠️ No receiving countries found, adding XAF as default");
-      return ['XAF'];
+      console.log("⚠️ No receiving countries found, adding XAF, NGN, KES as defaults");
+      return ['XAF', 'NGN', 'KES'];
     }
     
     return currencies;
   }, [countries]);
+
+  // Update source currency if it's not in the available currencies
+  useEffect(() => {
+    if (sourceCurrencies.length > 0 && !sourceCurrencies.includes(sourceCurrency)) {
+      console.log(`⚠️ Current source currency ${sourceCurrency} not in available currencies, resetting to ${sourceCurrencies[0]}`);
+      setSourceCurrency(sourceCurrencies[0]);
+    }
+  }, [sourceCurrencies, sourceCurrency]);
+
+  // Update target currency if it's not in the available currencies
+  useEffect(() => {
+    if (targetCurrencies.length > 0 && !targetCurrencies.includes(targetCurrency)) {
+      console.log(`⚠️ Current target currency ${targetCurrency} not in available currencies, resetting to ${targetCurrencies[0]}`);
+      setTargetCurrency(targetCurrencies[0]);
+    }
+  }, [targetCurrencies, targetCurrency]);
 
   useEffect(() => {
     const calculateRate = () => {

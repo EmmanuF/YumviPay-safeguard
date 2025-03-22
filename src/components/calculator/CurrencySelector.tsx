@@ -46,26 +46,43 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       return <div className="text-center p-4">Loading currencies...</div>;
     }
     
-    if (!options || options.length === 0) {
+    // Determine which currencies to display based on source/target
+    let availableCurrencies: string[] = [];
+    
+    if (options && options.length > 0) {
+      availableCurrencies = options;
+      console.log(`🔍 Using provided options for ${label} dropdown:`, availableCurrencies);
+    } else {
       // If no options are passed, use all available currencies from countries that are enabled
-      const availableCurrencies = Array.from(new Set(
-        countries
-          .filter(c => label.includes("Source") ? c.isSendingEnabled : c.isReceivingEnabled)
-          .map(c => c.currency)
+      const filteredCountries = label.includes("Source") 
+        ? countries.filter(c => c.isSendingEnabled) 
+        : countries.filter(c => c.isReceivingEnabled);
+      
+      console.log(`📊 Filtered ${filteredCountries.length} countries for ${label}`);
+      
+      availableCurrencies = Array.from(new Set(
+        filteredCountries.map(c => c.currency)
       ));
       
       console.log(`🔍 Generated ${availableCurrencies.length} currencies for ${label} dropdown`);
-      console.log(`📋 Available currencies:`, availableCurrencies);
-      
-      if (availableCurrencies.length === 0) {
-        console.log(`⚠️ No currencies available for ${label}`);
-        return <div className="text-center p-4">No currencies available</div>;
-      }
-      
-      return availableCurrencies.map((currency) => renderCurrencyOption(currency));
     }
     
-    return options.map((option) => renderCurrencyOption(option));
+    // If still no currencies available, add USD or XAF as fallbacks
+    if (availableCurrencies.length === 0) {
+      console.log(`⚠️ No currencies available for ${label}, adding fallbacks`);
+      
+      if (label.includes("Source")) {
+        availableCurrencies = ['USD', 'EUR', 'GBP'];
+        console.log(`➕ Added fallback source currencies: ${availableCurrencies}`);
+      } else {
+        availableCurrencies = ['XAF', 'NGN', 'KES'];
+        console.log(`➕ Added fallback target currencies: ${availableCurrencies}`);
+      }
+    }
+    
+    console.log(`📋 Final available currencies for ${label}:`, availableCurrencies);
+    
+    return availableCurrencies.map((currency) => renderCurrencyOption(currency));
   };
 
   // Render a single currency option with country information
