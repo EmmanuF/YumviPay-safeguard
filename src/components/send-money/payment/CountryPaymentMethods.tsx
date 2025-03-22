@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { getAvailableMethods } from '@/data/cameroonPaymentProviders';
-import { PaymentMethodCard } from '@/components/PaymentMethodCard';
+import PaymentMethodCard from '@/components/PaymentMethodCard';
 import { getProviderOptions } from '@/utils/paymentUtils';
 import PaymentLoadingState from './PaymentLoadingState';
 import { Shield, AlertTriangle } from 'lucide-react';
@@ -121,7 +121,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                   description={method.description}
                   providerOptions={providers}
                   selectedProvider={selectedProvider}
-                  onSelectProvider={onSelectProvider}
+                  onOptionSelect={onSelectProvider}
                   isSelected={selectedMethod === method.id}
                   onSelect={() => onSelectMethod(method.id)}
                 />
