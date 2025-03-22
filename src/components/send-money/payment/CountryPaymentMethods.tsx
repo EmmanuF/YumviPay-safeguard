@@ -116,14 +116,14 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                 transition={{ duration: 0.3 }}
               >
                 <PaymentMethodCard
-                  id={method.id}
-                  title={method.name}
+                  name={method.name}
                   description={method.description}
-                  providerOptions={providers}
-                  selectedProvider={selectedProvider}
+                  icon={method.id === 'mobile_money' ? <span className="text-primary-500">📱</span> : <span className="text-primary-500">🏦</span>}
+                  options={providers}
+                  selectedOption={selectedProvider}
                   onOptionSelect={onSelectProvider}
                   isSelected={selectedMethod === method.id}
-                  onSelect={() => onSelectMethod(method.id)}
+                  onClick={() => onSelectMethod(method.id)}
                 />
               </motion.div>
             )}
