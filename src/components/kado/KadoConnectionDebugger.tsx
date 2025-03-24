@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { useKado } from '@/services/kado/useKado';
 import { kadoApiService } from '@/services/kado/kadoApiService';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import KadoApiStatusMonitor from './KadoApiStatusMonitor';
 
 const KadoConnectionDebugger = () => {
   const { checkApiConnection } = useKado();
@@ -215,31 +217,39 @@ const KadoConnectionDebugger = () => {
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {!apiKeysInfo.publicKey || !apiKeysInfo.privateKey ? (
-          <Alert variant="destructive" className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300">
-            <AlertTriangle className="h-5 w-5" />
-            <AlertTitle>API Keys Not Configured</AlertTitle>
-            <AlertDescription>
-              {!apiKeysInfo.publicKey && !apiKeysInfo.privateKey 
-                ? "Both Kado API public and private keys are missing. Please add them to the Supabase Edge Function secrets."
-                : !apiKeysInfo.publicKey 
-                  ? "Kado API public key is missing. Please add it to the Supabase Edge Function secrets."
-                  : "Kado API private key is missing. Please add it to the Supabase Edge Function secrets."
-              }
-            </AlertDescription>
-            <div className="mt-2">
-              <a 
-                href="https://supabase.com/dashboard/project/bccjymakoczdswgflctv/settings/functions" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-sm font-medium text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-200"
-              >
-                Go to Supabase Edge Function Secrets
-                <ExternalLink className="ml-1 h-3 w-3" />
-              </a>
-            </div>
-          </Alert>
-        ) : null}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2">
+            {!apiKeysInfo.publicKey || !apiKeysInfo.privateKey ? (
+              <Alert variant="warning" className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300">
+                <AlertTriangle className="h-5 w-5" />
+                <AlertTitle>API Keys Not Configured</AlertTitle>
+                <AlertDescription>
+                  {!apiKeysInfo.publicKey && !apiKeysInfo.privateKey 
+                    ? "Both Kado API public and private keys are missing. Please add them to the Supabase Edge Function secrets."
+                    : !apiKeysInfo.publicKey 
+                      ? "Kado API public key is missing. Please add it to the Supabase Edge Function secrets."
+                      : "Kado API private key is missing. Please add it to the Supabase Edge Function secrets."
+                  }
+                </AlertDescription>
+                <div className="mt-2">
+                  <a 
+                    href="https://supabase.com/dashboard/project/bccjymakoczdswgflctv/settings/functions" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-sm font-medium text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-200"
+                  >
+                    Go to Supabase Edge Function Secrets
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </a>
+                </div>
+              </Alert>
+            ) : null}
+          </div>
+          
+          <div className="md:col-span-1">
+            <KadoApiStatusMonitor />
+          </div>
+        </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-2">
@@ -249,7 +259,7 @@ const KadoConnectionDebugger = () => {
           
           <TabsContent value="basic" className="space-y-4">
             {result && (
-              <Alert variant={result.connected ? "default" : "destructive"}>
+              <Alert variant={result.connected ? "success" : "destructive"}>
                 <div className="flex items-start gap-2">
                   {result.connected ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
                   <div>
@@ -435,6 +445,37 @@ const KadoConnectionDebugger = () => {
                 <Card>
                   <CardHeader className="py-3">
                     <CardTitle className="text-sm flex items-center gap-2">
+                      Direct Domain Access Test
+                      <Badge variant={diagnosticData.domainPingTest?.success ? "success" : "destructive"} className="text-xs">
+                        {diagnosticData.domainPingTest?.success ? "Connected" : "Failed"}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="py-2">
+                    {diagnosticData.domainPingTest?.success ? (
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="text-muted-foreground">Status Code</div>
+                        <div>{diagnosticData.domainPingTest?.status}</div>
+                        <div className="text-muted-foreground">Status Text</div>
+                        <div>{diagnosticData.domainPingTest?.statusText}</div>
+                        <div className="text-muted-foreground">URL</div>
+                        <div className="text-xs break-all">{diagnosticData.domainPingTest?.url}</div>
+                      </div>
+                    ) : (
+                      <Alert variant="destructive">
+                        <AlertTitle>Domain Access Test Failed</AlertTitle>
+                        <AlertDescription>
+                          {diagnosticData.domainPingTest?.error || 
+                           `Status: ${diagnosticData.domainPingTest?.status}, ${diagnosticData.domainPingTest?.statusText}`}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       Full Ping API Test
                       <Badge variant={diagnosticData.fullPingTest?.success ? "success" : "destructive"} className="text-xs">
                         {diagnosticData.fullPingTest?.success ? "Success" : "Failed"}
@@ -475,6 +516,46 @@ const KadoConnectionDebugger = () => {
                     )}
                   </CardContent>
                 </Card>
+                
+                {/* Add a new section to display alternative endpoint test results */}
+                {diagnosticData.exploratoryTests && diagnosticData.exploratoryTests.length > 0 && (
+                  <Card>
+                    <CardHeader className="py-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        Alternative Endpoints Test
+                        <Badge 
+                          variant={diagnosticData.exploratoryTests.some(test => test.success) ? "success" : "destructive"} 
+                          className="text-xs"
+                        >
+                          {diagnosticData.exploratoryTests.some(test => test.success) ? 
+                            `${diagnosticData.exploratoryTests.filter(test => test.success).length} successful` : 
+                            "All failed"}
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="py-2">
+                      <div className="space-y-2">
+                        {diagnosticData.exploratoryTests.map((test, index) => (
+                          <div key={index} className="flex items-start gap-2 py-1 border-b border-dashed border-muted last:border-0">
+                            {test.success ? 
+                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" /> : 
+                              <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                            }
+                            <div>
+                              <div className="font-medium text-sm">{test.endpoint || '/'}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {test.success ? 
+                                  `Status: ${test.status} - Response: ${test.responsePreview}` : 
+                                  `Error: ${test.error || 'Unknown error'}`
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </TabsContent>
@@ -502,16 +583,6 @@ const KadoConnectionDebugger = () => {
             {isChecking ? 'Running Diagnostics...' : 'Run Advanced Diagnostics'}
           </Button>
         )}
-        
-        <Button 
-          variant="outline" 
-          onClick={checkApiKeysConfigured}
-          disabled={isChecking}
-          size="sm"
-          className="ml-auto"
-        >
-          Refresh API Key Status
-        </Button>
       </CardFooter>
     </Card>
   );

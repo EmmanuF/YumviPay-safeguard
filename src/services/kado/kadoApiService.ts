@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { createNetworkError, handleNetworkError } from '@/utils/errorHandling';
@@ -96,6 +97,46 @@ export const kadoApiService = {
   },
   
   /**
+   * Check if API keys are configured in Supabase Edge Functions
+   * @returns Promise with API keys status
+   */
+  checkApiKeys: async () => {
+    try {
+      console.log('Checking if Kado API keys are configured...');
+      
+      const { data: secretsData, error: secretsError } = await supabase.functions.invoke('kado-api', {
+        body: { endpoint: 'check-secrets' }
+      });
+      
+      if (secretsError) {
+        console.error('Error checking API keys:', secretsError);
+        return { 
+          publicKeyConfigured: false, 
+          privateKeyConfigured: false,
+          error: secretsError.message,
+          lastChecked: new Date().toISOString()
+        };
+      }
+      
+      console.log('API keys check response:', secretsData);
+      
+      return {
+        publicKeyConfigured: secretsData?.publicKeyConfigured || false,
+        privateKeyConfigured: secretsData?.privateKeyConfigured || false,
+        lastChecked: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error checking API keys configuration:', error);
+      return { 
+        publicKeyConfigured: false, 
+        privateKeyConfigured: false,
+        error: error instanceof Error ? error.message : String(error),
+        lastChecked: new Date().toISOString()
+      };
+    }
+  },
+  
+  /**
    * Check Kado API connection status
    * @returns Promise with connection status
    */
@@ -104,32 +145,14 @@ export const kadoApiService = {
       console.log('Checking Kado API connection...');
       
       // First check if API keys are configured
-      const { data: secretsData, error: secretsError } = await supabase.functions.invoke('kado-api', {
-        body: { endpoint: 'check-secrets' }
-      });
+      const apiKeysStatus = await kadoApiService.checkApiKeys();
       
-      if (secretsError) {
-        console.error('Error checking API keys:', secretsError);
+      if (!apiKeysStatus.publicKeyConfigured || !apiKeysStatus.privateKeyConfigured) {
+        console.error('API keys not properly configured');
         return { 
           connected: false, 
-          message: `Failed to check API keys: ${secretsError.message}`,
-          error: secretsError
-        };
-      }
-      
-      console.log('API keys check response:', secretsData);
-      
-      const publicKeyConfigured = secretsData?.publicKeyConfigured || false;
-      const privateKeyConfigured = secretsData?.privateKeyConfigured || false;
-      
-      if (!publicKeyConfigured || !privateKeyConfigured) {
-        const missingKeys = [];
-        if (!publicKeyConfigured) missingKeys.push('KADO_API_PUBLIC_KEY');
-        if (!privateKeyConfigured) missingKeys.push('KADO_API_PRIVATE_KEY');
-        
-        return { 
-          connected: false, 
-          message: `Kado API keys not configured in Supabase Edge Functions: Missing ${missingKeys.join(', ')}`
+          message: `Kado API keys not configured in Supabase Edge Functions: Missing ${!apiKeysStatus.publicKeyConfigured ? 'Public Key' : ''}${!apiKeysStatus.publicKeyConfigured && !apiKeysStatus.privateKeyConfigured ? ' and ' : ''}${!apiKeysStatus.privateKeyConfigured ? 'Private Key' : ''}`,
+          apiKeysStatus
         };
       }
       
