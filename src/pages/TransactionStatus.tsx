@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTransactionById, Transaction } from '@/services/transactions';
@@ -14,6 +15,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
+
+// Utility function to safely parse a number
+const safeParseNumber = (value: string | number | undefined): number => {
+  if (value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  return parseFloat(value) || 0;
+};
+
+// Max time to wait for transaction loading in milliseconds
+const TRANSACTION_LOADING_TIMEOUT = 15000; // 15 seconds
 
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
