@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { kadoRedirectService } from './kadoRedirectService';
@@ -7,7 +8,7 @@ import { kadoApiService } from './kadoApiService';
 import { KadoRedirectParams } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { isPlatform } from '@/utils/platformUtils';
-import { useToast } from '@/hooks/use-toast';
+import { toast as uiToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
 
 /**
@@ -15,7 +16,6 @@ import { toast } from 'sonner';
  */
 export const useKado = () => {
   const navigate = useNavigate();
-  const { toast: uiToast } = useToast();
   const [isApiConnected, setIsApiConnected] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionCheckInProgress, setConnectionCheckInProgress] = useState(false);
@@ -113,10 +113,11 @@ export const useKado = () => {
       
       if (!connected) {
         console.error('API connection check failed before redirect');
-        toast({
-          title: "API Connection Error",
-          description: "Could not connect to payment provider API. Please try again later.",
-          variant: "destructive"
+        
+        // Use shadcn toast with correct API
+        uiToast({
+          variant: "destructive",
+          description: "Could not connect to payment provider API. Please try again later."
         });
         
         // Also use sonner toast for better visibility
@@ -141,10 +142,11 @@ export const useKado = () => {
       navigate(`/transaction/${params.transactionId}`);
     } catch (error) {
       console.error('Error redirecting to Kado:', error);
-      toast({
-        title: "Redirect Error",
-        description: "Failed to connect to payment provider. Please try again.",
-        variant: "destructive"
+      
+      // Use shadcn toast with correct API
+      uiToast({
+        variant: "destructive",
+        description: "Failed to connect to payment provider. Please try again."
       });
       
       // Also use sonner toast for better visibility
