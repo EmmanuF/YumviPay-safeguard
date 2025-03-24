@@ -142,7 +142,7 @@ const KadoConnectionDebugger = () => {
       
       <CardContent className="space-y-4">
         {!apiKeysInfo.publicKey || !apiKeysInfo.privateKey ? (
-          <Alert variant="warning" className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300">
+          <Alert variant="destructive" className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300">
             <AlertTriangle className="h-5 w-5" />
             <AlertTitle>API Keys Not Configured</AlertTitle>
             <AlertDescription>
