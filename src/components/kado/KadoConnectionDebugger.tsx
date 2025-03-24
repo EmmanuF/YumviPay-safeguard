@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, ArrowRight, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowRight, RefreshCw, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useKado } from '@/services/kado/useKado';
 import { kadoApiService } from '@/services/kado/kadoApiService';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +21,10 @@ const KadoConnectionDebugger = () => {
     error?: any;
   }>(null);
   const [logs, setLogs] = useState<string[]>([]);
+  const [apiKeysInfo, setApiKeysInfo] = useState<{
+    publicKey: boolean;
+    privateKey: boolean;
+  }>({ publicKey: false, privateKey: false });
 
   const addLog = (message: string) => {
     setLogs(prev => [...prev, `${new Date().toISOString()} - ${message}`]);
@@ -29,17 +34,50 @@ const KadoConnectionDebugger = () => {
     setLogs([]);
   };
 
+  // Check if API keys are configured in Supabase
+  const checkApiKeysConfigured = async () => {
+    try {
+      addLog('Checking if API keys are configured...');
+      
+      const { data: secretsData, error: secretsError } = await supabase.functions.invoke('kado-api', {
+        body: { endpoint: 'check-secrets' }
+      });
+      
+      if (secretsError) {
+        addLog(`Error checking API keys: ${secretsError.message}`);
+        return { publicKey: false, privateKey: false };
+      }
+      
+      const publicKeyConfigured = secretsData?.publicKeyConfigured || false;
+      const privateKeyConfigured = secretsData?.privateKeyConfigured || false;
+      
+      addLog(`API keys status - Public key: ${publicKeyConfigured ? 'Configured' : 'Missing'}, Private key: ${privateKeyConfigured ? 'Configured' : 'Missing'}`);
+      
+      setApiKeysInfo({
+        publicKey: publicKeyConfigured,
+        privateKey: privateKeyConfigured
+      });
+      
+      return { publicKeyConfigured, privateKeyConfigured };
+    } catch (error) {
+      addLog(`Error checking API keys configuration: ${error instanceof Error ? error.message : String(error)}`);
+      return { publicKey: false, privateKey: false };
+    }
+  };
+
   const handleCheckConnection = async () => {
     try {
       setIsChecking(true);
       addLog('Starting API connection check...');
+      
+      // Check if API keys are configured
+      await checkApiKeysConfigured();
       
       // First, try a direct API call to help with debugging
       try {
         addLog('Trying direct POST request to kado-api edge function...');
         
         const { data: directResponse, error: directError } = await supabase.functions.invoke('kado-api', {
-          method: 'POST',
           body: { endpoint: 'ping', method: 'GET' }
         });
         
@@ -103,6 +141,32 @@ const KadoConnectionDebugger = () => {
       </CardHeader>
       
       <CardContent className="space-y-4">
+        {!apiKeysInfo.publicKey || !apiKeysInfo.privateKey ? (
+          <Alert variant="warning" className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertTitle>API Keys Not Configured</AlertTitle>
+            <AlertDescription>
+              {!apiKeysInfo.publicKey && !apiKeysInfo.privateKey 
+                ? "Both Kado API public and private keys are missing. Please add them to the Supabase Edge Function secrets."
+                : !apiKeysInfo.publicKey 
+                  ? "Kado API public key is missing. Please add it to the Supabase Edge Function secrets."
+                  : "Kado API private key is missing. Please add it to the Supabase Edge Function secrets."
+              }
+            </AlertDescription>
+            <div className="mt-2">
+              <a 
+                href="https://supabase.com/dashboard/project/bccjymakoczdswgflctv/settings/functions" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm font-medium text-amber-800 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-200"
+              >
+                Go to Supabase Edge Function Secrets
+                <ExternalLink className="ml-1 h-3 w-3" />
+              </a>
+            </div>
+          </Alert>
+        ) : null}
+        
         {result && (
           <Alert variant={result.connected ? "default" : "destructive"}>
             <div className="flex items-start gap-2">

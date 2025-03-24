@@ -18,27 +18,27 @@ export const kadoApiService = {
     try {
       console.log(`Calling Kado API: ${endpoint} with method ${method}`);
       
-      // For simple GET endpoints like 'ping', we can use a direct GET request
+      // For simple GET endpoints like 'ping', we can use a direct POST request with method=GET
       // This simplifies debugging and reduces potential points of failure
       if (method === 'GET' && (endpoint === 'ping' || endpoint === '/ping')) {
-        console.log('Using direct GET request for ping endpoint');
+        console.log('Using direct POST request for ping endpoint');
         const { data: response, error } = await supabase.functions.invoke('kado-api', {
-          method: 'POST',  // Changed to POST instead of using queryParams
           body: { endpoint: 'ping', method: 'GET' } // Pass the endpoint in the body
         });
         
         if (error) {
-          console.error('Error calling Kado API via GET:', error);
+          console.error('Error calling Kado API via direct request:', error);
           throw createNetworkError(
             `Failed to connect to Kado API: ${error.message}`,
             'server-error'
           );
         }
         
+        console.log('Direct ping response:', response);
         return response;
       }
       
-      // For all other endpoints, use the standard POST method
+      // For all other endpoints, use the standard method
       const { data: response, error } = await supabase.functions.invoke('kado-api', {
         body: { endpoint, method, data }
       });
@@ -56,7 +56,7 @@ export const kadoApiService = {
       if (response && response.error) {
         console.error('Error response from Kado API:', response.error);
         throw createNetworkError(
-          response.message || 'Error from Kado API',
+          response.error.message || 'Error from Kado API',
           'server-error',
           response.status
         );
