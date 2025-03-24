@@ -58,6 +58,7 @@ export function handleNetworkError(error: any): NetworkError {
   
   // Handle Supabase Edge Function errors
   if (error.message && error.message.includes('Edge Function returned a non-2xx status code')) {
+    // This likely means the edge function encountered an error
     return createNetworkError(
       'Error connecting to Kado API service. Please check your Supabase Edge Function logs.',
       'server-error'
@@ -72,6 +73,14 @@ export function handleNetworkError(error: any): NetworkError {
     return createNetworkError(
       'Kado API keys not configured. Please add required API keys to Supabase Edge Function secrets.',
       'authentication-error'
+    );
+  }
+  
+  // Handle specific Supabase edge function errors with more meaningful messages
+  if (error.error && error.error === 'Internal server error') {
+    return createNetworkError(
+      'Supabase Edge Function encountered an error. Please check the logs for details.',
+      'server-error'
     );
   }
   

@@ -176,15 +176,23 @@ serve(async (req) => {
     
     // Try pinging the Kado API (special case for ping)
     if (endpoint === 'ping' || endpoint === '/ping') {
-      // For ping, we'll return a success even if we can't connect to the real API
-      // This allows testing the edge function without a valid Kado API
+      // For ping, we'll handle connection errors gracefully to improve debugging
       try {
         // Make the request to Kado API
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const response = await fetch(url, {
           method,
           headers,
           body: method !== 'GET' && data ? JSON.stringify(data) : undefined,
+          signal: controller.signal
+        }).catch(err => {
+          console.error('Fetch error:', err);
+          throw new Error('Fetch failed: ' + (err.message || 'Unknown error'));
         });
+        
+        clearTimeout(timeoutId);
         
         console.log(`Kado API ping response status: ${response.status}`);
         
@@ -193,7 +201,10 @@ serve(async (req) => {
           const responseData = await response.json();
           console.log('Kado API ping response data:', JSON.stringify(responseData));
           
-          return new Response(JSON.stringify(responseData), {
+          return new Response(JSON.stringify({
+            ping: "success",
+            ...responseData
+          }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -222,7 +233,7 @@ serve(async (req) => {
         return new Response(JSON.stringify({
           ping: "partial_success",
           message: "Edge function running but couldn't connect to Kado API",
-          error: pingError.message
+          error: pingError instanceof Error ? pingError.message : String(pingError)
         }), {
           status: 200, // Return 200 OK even though we couldn't connect to Kado API
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -230,81 +241,86 @@ serve(async (req) => {
       }
     }
     
-    // For non-ping endpoints, make the request to Kado API
-    let response;
+    // For non-ping endpoints, make the request to Kado API with better error handling
     try {
-      response = await fetch(url, {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(url, {
         method,
         headers,
         body: method !== 'GET' && data ? JSON.stringify(data) : undefined,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      console.log(`Kado API response status: ${response.status}`);
+      
+      // For non-OK responses, log headers and response details
+      if (!response.ok) {
+        console.error(`Kado API error (${response.status}):`);
+        const responseHeaders = Object.fromEntries([...response.headers.entries()]);
+        console.error('Response headers:', JSON.stringify(responseHeaders));
+        
+        const responseText = await response.text();
+        console.error('Response body:', responseText);
+        
+        try {
+          const responseData = JSON.parse(responseText);
+          return new Response(JSON.stringify({ 
+            error: 'Error from Kado API', 
+            status: response.status,
+            details: responseData 
+          }), {
+            status: response.status, // Return the actual status from Kado API
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } catch (parseError) {
+          return new Response(JSON.stringify({ 
+            error: 'Error from Kado API', 
+            status: response.status,
+            details: responseText 
+          }), {
+            status: response.status, // Return the actual status from Kado API
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+      
+      // Parse JSON response
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch (parseError) {
+        console.error('Error parsing Kado API response:', parseError);
+        const responseText = await response.text();
+        return new Response(JSON.stringify({ 
+          error: 'Invalid JSON in Kado API response',
+          responseText
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      console.log('Kado API response data:', JSON.stringify(responseData));
+      
+      // Return success response with CORS headers
+      return new Response(JSON.stringify(responseData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (fetchError) {
       console.error('Network error fetching from Kado API:', fetchError);
       return new Response(JSON.stringify({ 
         error: 'Network error connecting to Kado API',
-        details: fetchError.message
+        details: fetchError instanceof Error ? fetchError.message : String(fetchError)
       }), {
-        status: 500,
+        status: 502, // Bad Gateway is appropriate for upstream service failures
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    
-    console.log(`Kado API response status: ${response.status}`);
-    
-    // For non-OK responses, log headers and response details
-    if (!response.ok) {
-      console.error(`Kado API error (${response.status}):`);
-      const responseHeaders = Object.fromEntries([...response.headers.entries()]);
-      console.error('Response headers:', JSON.stringify(responseHeaders));
-      
-      const responseText = await response.text();
-      console.error('Response body:', responseText);
-      
-      try {
-        const responseData = JSON.parse(responseText);
-        return new Response(JSON.stringify({ 
-          error: 'Error from Kado API', 
-          status: response.status,
-          details: responseData 
-        }), {
-          status: response.status, // Return the actual status from Kado API
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      } catch (parseError) {
-        return new Response(JSON.stringify({ 
-          error: 'Error from Kado API', 
-          status: response.status,
-          details: responseText 
-        }), {
-          status: response.status, // Return the actual status from Kado API
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
-    
-    // Parse JSON response
-    let responseData;
-    try {
-      responseData = await response.json();
-    } catch (parseError) {
-      console.error('Error parsing Kado API response:', parseError);
-      const responseText = await response.text();
-      return new Response(JSON.stringify({ 
-        error: 'Invalid JSON in Kado API response',
-        responseText
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    
-    console.log('Kado API response data:', JSON.stringify(responseData));
-    
-    // Return success response with CORS headers
-    return new Response(JSON.stringify(responseData), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error processing request:', error);
     

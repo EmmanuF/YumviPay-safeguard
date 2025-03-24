@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { createNetworkError } from '@/utils/errorHandling';
+import { createNetworkError, handleNetworkError } from '@/utils/errorHandling';
 
 /**
  * Service to handle Kado API integration
@@ -25,12 +25,21 @@ export const kadoApiService = {
       
       if (error) {
         console.error('Error calling Kado API:', error);
+        console.log('Error details:', JSON.stringify(error, null, 2));
         
         // Check if it's an API keys not configured error
         if (error.message && error.message.includes('API keys not configured')) {
           throw createNetworkError(
             'Kado API keys not configured in Supabase Edge Functions', 
             'authentication-error'
+          );
+        }
+        
+        // Check for timeout errors
+        if (error.message && error.message.includes('AbortError')) {
+          throw createNetworkError(
+            'Connection to Kado API timed out. Please try again later.',
+            'timeout-error'
           );
         }
         
@@ -41,6 +50,7 @@ export const kadoApiService = {
         );
       }
       
+      // Check if response contains an error
       if (response && response.error) {
         console.error('Error response from Kado API:', response.error);
         throw createNetworkError(
@@ -51,7 +61,7 @@ export const kadoApiService = {
       }
       
       // Special handling for ping endpoint to check for API key issues
-      if (endpoint === 'ping' && response.ping === 'partial_success') {
+      if (endpoint === 'ping' && response && response.ping === 'partial_success') {
         console.warn('Partial success from ping endpoint:', response);
         // Still return the response but with a warning about the partial success
         console.log('Edge function running but could not connect to Kado API');
@@ -60,11 +70,10 @@ export const kadoApiService = {
       return response;
     } catch (error) {
       console.error('Error calling Kado API:', error);
-      toast({
-        title: "API Error",
-        description: "Could not connect to Kado API. Please try again later.",
-        variant: "destructive"
-      });
+      
+      // Don't show toast here - let the calling function decide how to handle the error
+      // This allows for more targeted error handling in different contexts
+      
       throw error;
     }
   },
@@ -86,7 +95,8 @@ export const kadoApiService = {
         console.error('Error checking API keys:', secretsError);
         return { 
           connected: false, 
-          message: `Failed to check API keys: ${secretsError.message}`
+          message: `Failed to check API keys: ${secretsError.message}`,
+          error: secretsError
         };
       }
       
@@ -94,9 +104,13 @@ export const kadoApiService = {
       const privateKeyConfigured = secretsData?.privateKeyConfigured || false;
       
       if (!publicKeyConfigured || !privateKeyConfigured) {
+        const missingKeys = [];
+        if (!publicKeyConfigured) missingKeys.push('KADO_API_PUBLIC_KEY');
+        if (!privateKeyConfigured) missingKeys.push('KADO_API_PRIVATE_KEY');
+        
         return { 
           connected: false, 
-          message: 'Kado API keys not configured in Supabase Edge Functions'
+          message: `Kado API keys not configured in Supabase Edge Functions: Missing ${missingKeys.join(', ')}`
         };
       }
       
@@ -104,27 +118,46 @@ export const kadoApiService = {
       const response = await kadoApiService.callKadoApi('ping', 'GET');
       console.log('Kado API connection response:', response);
       
+      // Handle different ping responses
+      if (!response) {
+        return {
+          connected: false,
+          message: 'Empty response from Kado API ping'
+        };
+      }
+      
       // Handle partial success from ping
       if (response.ping === 'partial_success') {
         return {
           connected: true,
-          message: 'Edge function running but could not connect to Kado API: ' + response.message
+          message: `Edge function running but could not connect to Kado API: ${response.message || 'Unknown error'}`
         };
       }
       
+      // Handle successful ping
       return { 
         connected: true, 
         message: 'Successfully connected to Kado API' 
       };
     } catch (error) {
       console.error('Kado API connection check failed:', error);
-      const errorMessage = error instanceof Error 
-        ? `Failed to connect to Kado API: ${error.message}`
-        : 'Failed to connect to Kado API';
+      
+      // Format error message based on the error type
+      let errorMessage = 'Failed to connect to Kado API';
+      
+      if (error instanceof Error) {
+        errorMessage += `: ${error.message}`;
+        
+        // Add more context for edge function errors
+        if (error.message.includes('Edge Function returned a non-2xx status code')) {
+          errorMessage = 'Failed to connect to Kado API: Edge Function returned a non-2xx status code. Please check the Edge Function logs.';
+        }
+      }
       
       return { 
         connected: false, 
-        message: errorMessage
+        message: errorMessage,
+        error
       };
     }
   },
