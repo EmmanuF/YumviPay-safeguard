@@ -76,7 +76,7 @@ const CTASection = () => {
                 
                 <Button
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:text-white font-medium"
+                  className="border-white border-2 bg-white/10 text-white hover:bg-white hover:text-primary-600 font-semibold transition-colors"
                   size="lg"
                   onClick={() => navigate('/support/contact')}
                 >
