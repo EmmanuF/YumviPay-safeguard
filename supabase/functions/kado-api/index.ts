@@ -58,15 +58,6 @@ serve(async (req) => {
     console.log(`Request method: ${req.method}`);
     console.log(`Request URL: ${req.url}`);
     
-    // Verify request is POST
-    if (req.method !== 'POST') {
-      console.error('Method not allowed:', req.method);
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-        status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     // Check if API keys are configured
     if (!KADO_API_KEY || !KADO_API_SECRET) {
       console.error('Kado API keys not configured');
@@ -78,11 +69,31 @@ serve(async (req) => {
       });
     }
 
-    // Parse request body
-    const reqBody = await req.json();
-    console.log('Request body:', JSON.stringify(reqBody));
-    
-    const { endpoint, method = 'GET', data } = reqBody;
+    // Parse request body - Accept both POST and GET methods
+    let endpoint, method, data;
+
+    if (req.method === 'POST') {
+      // For POST requests, parse the JSON body
+      const reqBody = await req.json();
+      console.log('Request body:', JSON.stringify(reqBody));
+      
+      endpoint = reqBody.endpoint;
+      method = reqBody.method || 'GET';
+      data = reqBody.data;
+    } else if (req.method === 'GET') {
+      // For GET requests, parse the URL search params
+      const url = new URL(req.url);
+      endpoint = url.searchParams.get('endpoint') || 'ping';
+      method = 'GET';
+      data = null;
+      
+      console.log(`GET request with endpoint: ${endpoint}`);
+    } else {
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     if (!endpoint) {
       console.error('Missing endpoint in request');

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import { useKado } from '@/services/kado/useKado';
 import { kadoApiService } from '@/services/kado/kadoApiService';
+import { supabase } from '@/integrations/supabase/client';
 
 const KadoConnectionDebugger = () => {
   const { checkApiConnection } = useKado();
@@ -17,6 +18,7 @@ const KadoConnectionDebugger = () => {
     message: string;
     timestamp: string;
     details?: any;
+    error?: any;
   }>(null);
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -33,18 +35,40 @@ const KadoConnectionDebugger = () => {
       setIsChecking(true);
       addLog('Starting API connection check...');
       
-      // Direct call to avoid unnecessary wrapping
-      const rawResult = await kadoApiService.callKadoApi('ping', 'GET');
-      addLog(`Raw API response: ${JSON.stringify(rawResult)}`);
+      // First, try a direct API call to help with debugging
+      try {
+        addLog('Trying direct GET request to kado-api edge function...');
+        
+        const { data: directResponse, error: directError } = await supabase.functions.invoke('kado-api', {
+          method: 'GET',
+          queryParams: { endpoint: 'ping' }
+        });
+        
+        if (directError) {
+          addLog(`Direct API call error: ${directError.message}`);
+          throw new Error(`Edge Function returned a non-2xx status code: ${directError.message}`);
+        }
+        
+        addLog(`Direct API response: ${JSON.stringify(directResponse)}`);
+      } catch (directCallError) {
+        addLog(`Connection check error: ${directCallError instanceof Error ? directCallError.message : String(directCallError)}`);
+      }
       
-      // Standard check via the hook
+      // Then try the standard way through our service
+      try {
+        const standardResponse = await kadoApiService.callKadoApi('ping', 'GET');
+        addLog(`Standard API response: ${JSON.stringify(standardResponse)}`);
+      } catch (standardCallError) {
+        addLog(`Standard API call error: ${standardCallError instanceof Error ? standardCallError.message : String(standardCallError)}`);
+      }
+      
+      // Finally use the higher-level function from the hook
       const result = await checkApiConnection();
       addLog(`Connection check result: ${JSON.stringify(result)}`);
       
       setResult({
         ...result,
-        timestamp: new Date().toISOString(),
-        details: rawResult
+        timestamp: new Date().toISOString()
       });
       
       addLog(`Connection check completed: ${result.connected ? 'SUCCESS' : 'FAILED'}`);
@@ -56,6 +80,7 @@ const KadoConnectionDebugger = () => {
         connected: false,
         message: error instanceof Error ? error.message : 'Unknown error occurred',
         timestamp: new Date().toISOString(),
+        error: error
       });
     } finally {
       setIsChecking(false);
@@ -119,6 +144,18 @@ const KadoConnectionDebugger = () => {
               <h3 className="text-sm font-medium mb-2">Raw Response Details</h3>
               <pre className="text-xs bg-muted/30 p-3 rounded overflow-x-auto">
                 {JSON.stringify(result.details, null, 2)}
+              </pre>
+            </div>
+          </>
+        )}
+        
+        {result?.error && (
+          <>
+            <Separator />
+            <div>
+              <h3 className="text-sm font-medium mb-2 text-destructive">Error Details</h3>
+              <pre className="text-xs bg-destructive/10 text-destructive p-3 rounded overflow-x-auto">
+                {JSON.stringify(result.error, null, 2)}
               </pre>
             </div>
           </>
