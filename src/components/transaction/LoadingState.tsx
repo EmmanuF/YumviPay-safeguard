@@ -21,6 +21,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
 }) => {
   const [showTimeout, setShowTimeout] = useState(false);
   const [timeoutElapsed, setTimeoutElapsed] = useState(0);
+  const [dots, setDots] = useState('');
   
   useEffect(() => {
     // If there's an error message, show timeout view immediately
@@ -39,11 +40,22 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       setTimeoutElapsed(prev => prev + 1);
     }, 1000);
     
+    // Animate the dots for better user experience
+    const dotsTimer = setInterval(() => {
+      setDots(prev => {
+        if (prev.length >= 3) return '';
+        return prev + '.';
+      });
+    }, 400);
+    
     return () => {
       clearTimeout(timer);
       clearInterval(elapsedTimer);
+      clearInterval(dotsTimer);
     };
   }, [timeout, errorMessage]);
+  
+  const fullMessage = `${message}${dots}`;
   
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4 bg-background">
@@ -81,7 +93,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         ) : (
           <>
             <Loader2 className="h-12 w-12 text-primary mx-auto animate-spin" />
-            <p className="mt-4 text-foreground font-medium">{message}</p>
+            <p className="mt-4 text-foreground font-medium">{fullMessage}</p>
             {submessage && <p className="mt-2 text-muted-foreground text-sm">{submessage}</p>}
           </>
         )}

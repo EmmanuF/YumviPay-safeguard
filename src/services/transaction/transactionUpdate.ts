@@ -7,18 +7,18 @@ import { isOffline, addPausedRequest } from "@/utils/networkUtils";
 export const simulateKadoWebhook = async (transactionId: string): Promise<void> => {
   console.log(`Simulating Kado webhook for transaction: ${transactionId}`);
   
-  // Wait for 3 seconds to simulate external API call
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  // Wait for 1 second to simulate external API call (reduced from 3 seconds)
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
   try {
     // Set the transaction to 'processing' first
     await updateTransactionStatus(transactionId, 'processing');
     
-    // After another delay, complete the transaction
+    // After another shorter delay, complete the transaction (reduced from 5 seconds to 2 seconds)
     setTimeout(async () => {
       try {
-        // 90% chance of success, 10% chance of failure
-        const success = Math.random() < 0.9;
+        // 95% chance of success, 5% chance of failure (increased success rate)
+        const success = Math.random() < 0.95;
         
         if (success) {
           await updateTransactionStatus(
@@ -42,7 +42,7 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<void> 
       } catch (error) {
         console.error(`Error updating transaction ${transactionId} in second phase:`, error);
       }
-    }, 5000);
+    }, 2000);
   } catch (error) {
     console.error(`Error initiating webhook simulation for ${transactionId}:`, error);
   }

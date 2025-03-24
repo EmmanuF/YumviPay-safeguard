@@ -34,6 +34,7 @@ const TransactionStatus = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   
   const {
     sendingNotification,
@@ -47,15 +48,63 @@ const TransactionStatus = () => {
     handleSendSmsNotification
   } = useTransactionReceipt(transaction);
 
-  useEffect(() => {
-    const fetchTransactionDetails = async () => {
-      setLoading(true);
+  const fetchTransactionDetails = async () => {
+    if (!id) {
+      setLoading(false);
+      setError("No transaction ID provided");
+      return;
+    }
+    
+    try {
+      console.log(`Fetching transaction details for ID: ${id}, retry attempt: ${retryCount}`);
+      const fetchedTransaction = await getTransactionById(id);
       
-      if (!id) {
-        setLoading(false);
-        setError("No transaction ID provided");
-        return;
+      console.log(`Transaction fetched successfully:`, fetchedTransaction);
+      setTransaction(fetchedTransaction);
+      
+      if (fetchedTransaction && fetchedTransaction.status === 'completed') {
+        const amount = safeParseNumber(fetchedTransaction.amount);
+          
+        addNotification({
+          title: "Transfer Successful",
+          message: `Your transfer of $${amount} to ${fetchedTransaction.recipientName} was successful.`,
+          type: 'success',
+          transactionId: fetchedTransaction.id
+        });
+        
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          setRefreshInterval(null);
+        }
       }
+      
+      setLoading(false);
+      setError(null);
+      
+    } catch (error) {
+      console.error('Error fetching transaction:', error);
+      setError(error instanceof Error ? error.message : "Failed to load transaction data");
+      setLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setRetryCount(prev => prev + 1);
+    
+    // Clear any existing timeout
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+      setLoadingTimeout(null);
+    }
+    
+    fetchTransactionDetails();
+  };
+
+  useEffect(() => {
+    const startFetchWithTimeout = () => {
+      setLoading(true);
       
       const timeout = setTimeout(() => {
         console.error(`Transaction loading timed out after ${TRANSACTION_LOADING_TIMEOUT}ms for ID: ${id}`);
@@ -65,50 +114,18 @@ const TransactionStatus = () => {
       
       setLoadingTimeout(timeout);
       
-      try {
-        console.log(`Fetching transaction details for ID: ${id}`);
-        const fetchedTransaction = await getTransactionById(id);
-        
-        clearTimeout(timeout);
-        setLoadingTimeout(null);
-        
-        console.log(`Transaction fetched successfully:`, fetchedTransaction);
-        setTransaction(fetchedTransaction);
-        
-        if (fetchedTransaction && fetchedTransaction.status === 'completed') {
-          const amount = safeParseNumber(fetchedTransaction.amount);
-            
-          addNotification({
-            title: "Transfer Successful",
-            message: `Your transfer of $${amount} to ${fetchedTransaction.recipientName} was successful.`,
-            type: 'success',
-            transactionId: fetchedTransaction.id
-          });
-          
-          if (refreshInterval) {
-            clearInterval(refreshInterval);
-            setRefreshInterval(null);
-          }
-        }
-      } catch (error) {
-        clearTimeout(timeout);
-        setLoadingTimeout(null);
-        
-        console.error('Error fetching transaction:', error);
-        setError(error instanceof Error ? error.message : "Failed to load transaction data");
-      } finally {
-        setLoading(false);
-      }
+      fetchTransactionDetails();
     };
 
-    fetchTransactionDetails();
+    startFetchWithTimeout();
     
+    // Set up polling for pending/processing transactions
     if (transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
       if (!refreshInterval) {
         console.log(`Setting up refresh interval for transaction ${id}`);
         const interval = window.setInterval(() => {
           fetchTransactionDetails();
-        }, 5000);
+        }, 3000); // Poll every 3 seconds (reduced from 5 seconds)
         
         setRefreshInterval(interval);
       }
@@ -122,7 +139,7 @@ const TransactionStatus = () => {
         clearInterval(refreshInterval);
       }
     };
-  }, [id, addNotification, refreshInterval, transaction?.status, setRefreshInterval]);
+  }, [id, refreshInterval, transaction?.status]);
 
   const handleGoHome = () => {
     navigate('/');
@@ -132,7 +149,10 @@ const TransactionStatus = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <TransactionStatusHeader />
-        <LoadingState />
+        <LoadingState 
+          retryAction={retryCount < 3 ? handleRetry : undefined}
+          submessage={retryCount > 0 ? `Retry attempt ${retryCount}/3...` : undefined}
+        />
         <BottomNavigation />
       </div>
     );
@@ -159,14 +179,26 @@ const TransactionStatus = () => {
               <p className="mb-4 text-sm text-muted-foreground">
                 This could be due to network issues or the transaction may not exist. Please try again later.
               </p>
-              <Button 
-                variant="default" 
-                className="w-full" 
-                onClick={handleGoHome}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
+              <div className="space-y-2">
+                {retryCount < 3 && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={handleRetry}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Retry
+                  </Button>
+                )}
+                <Button 
+                  variant="default" 
+                  className="w-full" 
+                  onClick={handleGoHome}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Home
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -179,7 +211,7 @@ const TransactionStatus = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <TransactionStatusHeader />
-        <TransactionNotFound />
+        <TransactionNotFound onRetry={handleRetry} />
         <BottomNavigation />
       </div>
     );

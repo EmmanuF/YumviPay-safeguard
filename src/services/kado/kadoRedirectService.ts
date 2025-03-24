@@ -106,10 +106,11 @@ export const kadoRedirectService = {
       });
       
       // Simulate a delay to represent the user going to Kado and completing the process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Reduced from 2000ms to 1000ms to make the process faster
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       try {
-        // Simulate the Kado webhook response
+        // Simulate the Kado webhook response - avoid long delay
         console.log(`Simulating webhook for transaction ${params.transactionId}`);
         await simulateKadoWebhook(params.transactionId);
       } catch (webhookError) {
@@ -134,7 +135,7 @@ export const kadoRedirectService = {
       if (params.transactionId) {
         try {
           const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
-          await updateTransactionStatus(params.transactionId, 'processing', {
+          await updateTransactionStatus(params.transactionId, 'failed', {
             failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
           });
         } catch (updateError) {
