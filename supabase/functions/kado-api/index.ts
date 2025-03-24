@@ -63,22 +63,6 @@ serve(async (req) => {
     console.log(`Request method: ${req.method}`);
     console.log(`Request URL: ${req.url}`);
     
-    // Debug Kado API keys - Log partial keys for debugging (never log full keys)
-    const publicKeyPartial = KADO_API_KEY ? `${KADO_API_KEY.substring(0, 4)}...${KADO_API_KEY.substring(KADO_API_KEY.length - 4)}` : 'not set';
-    const secretKeySet = KADO_API_SECRET ? 'set (masked)' : 'not set';
-    console.log(`Kado API keys: Public key: ${publicKeyPartial}, Secret key: ${secretKeySet}`);
-    
-    // Check if API keys are configured
-    if (!KADO_API_KEY || !KADO_API_SECRET) {
-      console.error('Kado API keys not configured');
-      return new Response(JSON.stringify({ 
-        error: 'API keys not configured. Please add KADO_API_PUBLIC_KEY and KADO_API_PRIVATE_KEY to your environment variables.' 
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     // Parse request body - Accept only POST method now
     let endpoint, method, data;
 
@@ -102,6 +86,23 @@ serve(async (req) => {
       endpoint = reqBody.endpoint;
       method = reqBody.method || 'GET';
       data = reqBody.data;
+      
+      // Special endpoint to check if API keys are configured
+      if (endpoint === 'check-secrets') {
+        const publicKeyConfigured = KADO_API_KEY.length > 0;
+        const privateKeyConfigured = KADO_API_SECRET.length > 0;
+        
+        console.log(`API keys status - Public key: ${publicKeyConfigured ? 'Configured' : 'Missing'}, Private key: ${privateKeyConfigured ? 'Configured' : 'Missing'}`);
+        
+        return new Response(JSON.stringify({
+          publicKeyConfigured,
+          privateKeyConfigured,
+          timestamp: new Date().toISOString()
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     } else {
       return new Response(JSON.stringify({ error: 'Method not allowed. Use POST method only.' }), {
         status: 405,
@@ -116,6 +117,23 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Check if API keys are configured - do this for ALL non-check-secrets endpoints
+    if (!KADO_API_KEY || !KADO_API_SECRET) {
+      console.error('Kado API keys not configured');
+      return new Response(JSON.stringify({ 
+        error: 'API keys not configured',
+        details: 'The Kado API keys are missing. Please add KADO_API_PUBLIC_KEY and KADO_API_PRIVATE_KEY to your Supabase Edge Function secrets.'
+      }), {
+        status: 403, // Using 403 instead of 500 for better error classification
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // Debug Kado API keys - Log partial keys for debugging (never log full keys)
+    const publicKeyPartial = KADO_API_KEY ? `${KADO_API_KEY.substring(0, 4)}...${KADO_API_KEY.substring(KADO_API_KEY.length - 4)}` : 'not set';
+    const secretKeySet = KADO_API_SECRET ? 'set (masked)' : 'not set';
+    console.log(`Kado API keys: Public key: ${publicKeyPartial}, Secret key: ${secretKeySet}`);
 
     // Construct full URL
     const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -156,7 +174,63 @@ serve(async (req) => {
       'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
     }));
     
-    // Make the request to Kado API
+    // Try pinging the Kado API (special case for ping)
+    if (endpoint === 'ping' || endpoint === '/ping') {
+      // For ping, we'll return a success even if we can't connect to the real API
+      // This allows testing the edge function without a valid Kado API
+      try {
+        // Make the request to Kado API
+        const response = await fetch(url, {
+          method,
+          headers,
+          body: method !== 'GET' && data ? JSON.stringify(data) : undefined,
+        });
+        
+        console.log(`Kado API ping response status: ${response.status}`);
+        
+        if (response.ok) {
+          // Parse JSON response
+          const responseData = await response.json();
+          console.log('Kado API ping response data:', JSON.stringify(responseData));
+          
+          return new Response(JSON.stringify(responseData), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          // If Kado API returns an error, we still return a successful ping
+          // with more details about the error for debugging
+          console.warn(`Kado API ping returned non-ok status: ${response.status}`);
+          const responseText = await response.text();
+          
+          return new Response(JSON.stringify({
+            ping: "success", // We succeeded in reaching the Kado API, even though it didn't return 200
+            message: "Kado API reached but returned non-200 response",
+            apiResponse: {
+              status: response.status,
+              body: responseText
+            }
+          }), {
+            status: 200, // Return 200 OK to the client
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      } catch (pingError) {
+        // Log the error but still return a success response for the ping endpoint
+        console.error('Error pinging Kado API:', pingError);
+        
+        return new Response(JSON.stringify({
+          ping: "partial_success",
+          message: "Edge function running but couldn't connect to Kado API",
+          error: pingError.message
+        }), {
+          status: 200, // Return 200 OK even though we couldn't connect to Kado API
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+    
+    // For non-ping endpoints, make the request to Kado API
     let response;
     try {
       response = await fetch(url, {

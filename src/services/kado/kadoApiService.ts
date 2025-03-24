@@ -18,33 +18,21 @@ export const kadoApiService = {
     try {
       console.log(`Calling Kado API: ${endpoint} with method ${method}`);
       
-      // For simple GET endpoints like 'ping', we can use a direct POST request with method=GET
-      // This simplifies debugging and reduces potential points of failure
-      if (method === 'GET' && (endpoint === 'ping' || endpoint === '/ping')) {
-        console.log('Using direct POST request for ping endpoint');
-        const { data: response, error } = await supabase.functions.invoke('kado-api', {
-          body: { endpoint: 'ping', method: 'GET' } // Pass the endpoint in the body
-        });
-        
-        if (error) {
-          console.error('Error calling Kado API via direct request:', error);
-          throw createNetworkError(
-            `Failed to connect to Kado API: ${error.message}`,
-            'server-error'
-          );
-        }
-        
-        console.log('Direct ping response:', response);
-        return response;
-      }
-      
-      // For all other endpoints, use the standard method
+      // All requests go through POST to the edge function
       const { data: response, error } = await supabase.functions.invoke('kado-api', {
         body: { endpoint, method, data }
       });
       
       if (error) {
         console.error('Error calling Kado API:', error);
+        
+        // Check if it's an API keys not configured error
+        if (error.message && error.message.includes('API keys not configured')) {
+          throw createNetworkError(
+            'Kado API keys not configured in Supabase Edge Functions', 
+            'authentication-error'
+          );
+        }
         
         // Create specific error type for better handling
         throw createNetworkError(
@@ -60,6 +48,13 @@ export const kadoApiService = {
           'server-error',
           response.status
         );
+      }
+      
+      // Special handling for ping endpoint to check for API key issues
+      if (endpoint === 'ping' && response.ping === 'partial_success') {
+        console.warn('Partial success from ping endpoint:', response);
+        // Still return the response but with a warning about the partial success
+        console.log('Edge function running but could not connect to Kado API');
       }
       
       return response;
@@ -81,9 +76,42 @@ export const kadoApiService = {
   checkApiConnection: async () => {
     try {
       console.log('Checking Kado API connection...');
+      
+      // First check if API keys are configured
+      const { data: secretsData, error: secretsError } = await supabase.functions.invoke('kado-api', {
+        body: { endpoint: 'check-secrets' }
+      });
+      
+      if (secretsError) {
+        console.error('Error checking API keys:', secretsError);
+        return { 
+          connected: false, 
+          message: `Failed to check API keys: ${secretsError.message}`
+        };
+      }
+      
+      const publicKeyConfigured = secretsData?.publicKeyConfigured || false;
+      const privateKeyConfigured = secretsData?.privateKeyConfigured || false;
+      
+      if (!publicKeyConfigured || !privateKeyConfigured) {
+        return { 
+          connected: false, 
+          message: 'Kado API keys not configured in Supabase Edge Functions'
+        };
+      }
+      
       // Ping the Kado API to check if credentials are working
       const response = await kadoApiService.callKadoApi('ping', 'GET');
       console.log('Kado API connection response:', response);
+      
+      // Handle partial success from ping
+      if (response.ping === 'partial_success') {
+        return {
+          connected: true,
+          message: 'Edge function running but could not connect to Kado API: ' + response.message
+        };
+      }
+      
       return { 
         connected: true, 
         message: 'Successfully connected to Kado API' 

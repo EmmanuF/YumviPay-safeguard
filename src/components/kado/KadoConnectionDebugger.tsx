@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -24,7 +24,8 @@ const KadoConnectionDebugger = () => {
   const [apiKeysInfo, setApiKeysInfo] = useState<{
     publicKey: boolean;
     privateKey: boolean;
-  }>({ publicKey: false, privateKey: false });
+    lastChecked: string | null;
+  }>({ publicKey: false, privateKey: false, lastChecked: null });
 
   const addLog = (message: string) => {
     setLogs(prev => [...prev, `${new Date().toISOString()} - ${message}`]);
@@ -33,6 +34,11 @@ const KadoConnectionDebugger = () => {
   const clearLogs = () => {
     setLogs([]);
   };
+
+  // Check if API keys are configured in Supabase on component mount
+  useEffect(() => {
+    checkApiKeysConfigured();
+  }, []);
 
   // Check if API keys are configured in Supabase
   const checkApiKeysConfigured = async () => {
@@ -45,6 +51,11 @@ const KadoConnectionDebugger = () => {
       
       if (secretsError) {
         addLog(`Error checking API keys: ${secretsError.message}`);
+        setApiKeysInfo({ 
+          publicKey: false, 
+          privateKey: false, 
+          lastChecked: new Date().toISOString() 
+        });
         return { publicKey: false, privateKey: false };
       }
       
@@ -55,12 +66,18 @@ const KadoConnectionDebugger = () => {
       
       setApiKeysInfo({
         publicKey: publicKeyConfigured,
-        privateKey: privateKeyConfigured
+        privateKey: privateKeyConfigured,
+        lastChecked: new Date().toISOString()
       });
       
-      return { publicKeyConfigured, privateKeyConfigured };
+      return { publicKey: publicKeyConfigured, privateKey: privateKeyConfigured };
     } catch (error) {
       addLog(`Error checking API keys configuration: ${error instanceof Error ? error.message : String(error)}`);
+      setApiKeysInfo({ 
+        publicKey: false, 
+        privateKey: false, 
+        lastChecked: new Date().toISOString() 
+      });
       return { publicKey: false, privateKey: false };
     }
   };
@@ -68,10 +85,23 @@ const KadoConnectionDebugger = () => {
   const handleCheckConnection = async () => {
     try {
       setIsChecking(true);
+      clearLogs();
       addLog('Starting API connection check...');
       
       // Check if API keys are configured
       await checkApiKeysConfigured();
+      
+      // If keys aren't configured, don't continue with other tests
+      if (!apiKeysInfo.publicKey || !apiKeysInfo.privateKey) {
+        addLog(`API keys are not properly configured. Cannot proceed with connection test.`);
+        setResult({
+          connected: false,
+          message: 'API keys are not properly configured in Supabase Edge Functions.',
+          timestamp: new Date().toISOString(),
+          error: { message: 'Missing API keys' }
+        });
+        return;
+      }
       
       // First, try a direct API call to help with debugging
       try {
@@ -225,7 +255,7 @@ const KadoConnectionDebugger = () => {
         )}
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="flex flex-wrap gap-2">
         <Button 
           onClick={handleCheckConnection} 
           disabled={isChecking}
@@ -233,6 +263,16 @@ const KadoConnectionDebugger = () => {
         >
           {isChecking ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
           {isChecking ? 'Checking Connection...' : 'Check Connection'}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          onClick={checkApiKeysConfigured}
+          disabled={isChecking}
+          size="sm"
+          className="ml-auto"
+        >
+          Refresh API Key Status
         </Button>
       </CardFooter>
     </Card>

@@ -56,6 +56,25 @@ export function handleNetworkError(error: any): NetworkError {
     );
   }
   
+  // Handle Supabase Edge Function errors
+  if (error.message && error.message.includes('Edge Function returned a non-2xx status code')) {
+    return createNetworkError(
+      'Error connecting to Kado API service. Please check your Supabase Edge Function logs.',
+      'server-error'
+    );
+  }
+  
+  // Handle API key configuration errors
+  if (error.message && (
+    error.message.includes('API keys not configured') || 
+    error.message.includes('Missing API keys')
+  )) {
+    return createNetworkError(
+      'Kado API keys not configured. Please add required API keys to Supabase Edge Function secrets.',
+      'authentication-error'
+    );
+  }
+  
   if (error.response) {
     const status = error.response.status;
     
