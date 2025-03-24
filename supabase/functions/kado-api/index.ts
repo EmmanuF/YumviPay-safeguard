@@ -138,10 +138,16 @@ const handleDiagnostics = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     
-    const response = await fetch(KADO_API_URL, {
-      method: 'HEAD',
+    // Use a more reliable URL to test network connectivity
+    // Sometimes api.kado.money might have restrictions
+    const testNetworkUrl = 'https://httpbin.org/get';
+    logInfo(`Testing basic network connectivity to ${testNetworkUrl}`);
+    
+    const response = await fetch(testNetworkUrl, {
+      method: 'GET',
       signal: controller.signal,
     }).catch(error => {
+      logError(`Network test fetch error: ${error.message}`);
       return { ok: false, status: 0, statusText: error.message };
     });
     
@@ -151,8 +157,12 @@ const handleDiagnostics = async () => {
       success: response.ok,
       status: response.status,
       statusText: response.statusText,
+      url: testNetworkUrl
     };
+    
+    logInfo(`Network test result: ${response.ok ? 'SUCCESS' : 'FAILED'} with status ${response.status}`);
   } catch (error) {
+    logError('Error in network connectivity test', error);
     diagnosticResults.networkTest = {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -176,11 +186,14 @@ const handleDiagnostics = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
     
     const pingUrl = `${KADO_API_URL}${testPath}`;
+    logInfo(`Performing full ping test to ${pingUrl}`);
+    
     const response = await fetch(pingUrl, {
       method: 'GET',
       headers,
       signal: controller.signal,
     }).catch(error => {
+      logError(`Ping test fetch error: ${error.message}`);
       return { 
         ok: false, 
         status: 0, 
@@ -196,13 +209,16 @@ const handleDiagnostics = async () => {
     
     try {
       responseText = await response.text();
+      logInfo(`Ping response text: ${responseText}`);
       try {
         responseData = JSON.parse(responseText);
       } catch (e) {
+        logError(`Error parsing response JSON: ${e.message}`);
         // Leave responseData as null if parsing fails
       }
     } catch (e) {
-      responseText = `Error getting response text: ${e.message}`;
+      logError(`Error getting response text: ${e.message}`);
+      responseText = `Error getting response text: ${e instanceof Error ? e.message : String(e)}`;
     }
     
     diagnosticResults.fullPingTest = {
@@ -221,10 +237,14 @@ const handleDiagnostics = async () => {
         }
       }
     };
+    
+    logInfo(`Ping test result: ${response.ok ? 'SUCCESS' : 'FAILED'} with status ${response.status}`);
   } catch (error) {
+    logError('Error in full ping test', error);
     diagnosticResults.fullPingTest = {
       success: false,
       error: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack : undefined
     };
   }
   
@@ -259,7 +279,7 @@ serve(async (req) => {
         logError('Error parsing request body', parseError);
         return new Response(JSON.stringify({ 
           error: 'Invalid JSON in request body',
-          details: parseError.message
+          details: parseError instanceof Error ? parseError.message : String(parseError)
         }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -356,7 +376,7 @@ serve(async (req) => {
       logError('Error generating signature', signError);
       return new Response(JSON.stringify({ 
         error: 'Failed to generate authentication signature',
-        details: signError.message
+        details: signError instanceof Error ? signError.message : String(signError)
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -437,7 +457,7 @@ serve(async (req) => {
             ping: "error",
             message: "Error connecting to Kado API",
             error: pingError instanceof Error ? pingError.message : String(pingError),
-            errorType: pingError.name,
+            errorType: pingError instanceof Error ? pingError.name : typeof pingError,
             timestamp: new Date().toISOString()
           }), {
             status: 200, // Return 200 for consistency
@@ -507,8 +527,8 @@ serve(async (req) => {
       // Enhanced error information
       const errorDetails = {
         message: fetchError instanceof Error ? fetchError.message : String(fetchError),
-        name: fetchError.name,
-        isAbortError: fetchError.name === 'AbortError',
+        name: fetchError instanceof Error ? fetchError.name : typeof fetchError,
+        isAbortError: fetchError instanceof Error && fetchError.name === 'AbortError',
         isTypeError: fetchError instanceof TypeError,
         stack: fetchError instanceof Error ? fetchError.stack : undefined
       };
