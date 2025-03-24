@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NetworkProvider } from '@/contexts/NetworkContext';
 import { LocaleProvider } from '@/contexts/LocaleContext';
@@ -103,6 +104,7 @@ function App() {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Toaster />
+                <SonnerToaster position="top-center" richColors closeButton />
               </BrowserRouter>
             </HelmetProvider>
           </NotificationProvider>

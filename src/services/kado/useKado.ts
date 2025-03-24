@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { kadoRedirectService } from './kadoRedirectService';
 import { kadoWebhookService } from './kadoWebhookService';
@@ -9,30 +8,86 @@ import { KadoRedirectParams } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { isPlatform } from '@/utils/platformUtils';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 /**
  * Hook to use Kado services with navigation
  */
 export const useKado = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const [isApiConnected, setIsApiConnected] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionCheckInProgress, setConnectionCheckInProgress] = useState(false);
   
   // Check API connection on mount
   useEffect(() => {
     const checkConnection = async () => {
+      if (connectionCheckInProgress) return;
+      
       try {
+        setConnectionCheckInProgress(true);
+        console.log('Checking Kado API connection on mount...');
         const { connected } = await kadoApiService.checkApiConnection();
+        console.log('Kado API connection check result:', connected);
         setIsApiConnected(connected);
       } catch (error) {
         console.error('Failed to check Kado API connection:', error);
         setIsApiConnected(false);
+      } finally {
+        setConnectionCheckInProgress(false);
       }
     };
     
     checkConnection();
   }, []);
+  
+  /**
+   * Check API connection with better error handling
+   */
+  const checkApiConnection = useCallback(async () => {
+    if (connectionCheckInProgress) {
+      console.log('Connection check already in progress, waiting...');
+      // Wait for the ongoing check to complete
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (!connectionCheckInProgress) {
+            clearInterval(interval);
+            resolve(null);
+          }
+        }, 100);
+      });
+      
+      // Return the current connection state if we already know it
+      if (isApiConnected !== null) {
+        return { 
+          connected: isApiConnected, 
+          message: isApiConnected ? 'Connected to Kado API' : 'Not connected to Kado API' 
+        };
+      }
+    }
+    
+    try {
+      setConnectionCheckInProgress(true);
+      console.log('Checking Kado API connection...');
+      
+      // Try to ping the Kado API
+      const response = await kadoApiService.checkApiConnection();
+      setIsApiConnected(response.connected);
+      
+      console.log('Kado API connection check result:', response.connected);
+      return response;
+    } catch (error) {
+      console.error('Failed to check Kado API connection:', error);
+      setIsApiConnected(false);
+      return { 
+        connected: false, 
+        message: 'Failed to connect to Kado API: ' + (error instanceof Error ? error.message : String(error))
+      };
+    } finally {
+      setConnectionCheckInProgress(false);
+    }
+  }, [connectionCheckInProgress, isApiConnected]);
   
   /**
    * Redirect to Kado for payment and return to transaction status page
@@ -53,20 +108,26 @@ export const useKado = () => {
       const returnUrl = `${window.location.origin}/transaction/${params.transactionId}`;
       
       // Check if API is connected before proceeding
-      if (!isApiConnected) {
-        const { connected } = await kadoApiService.checkApiConnection();
+      console.log('Checking API connection before redirect...');
+      const { connected } = await checkApiConnection();
+      
+      if (!connected) {
+        console.error('API connection check failed before redirect');
+        toast({
+          title: "API Connection Error",
+          description: "Could not connect to payment provider API. Please try again later.",
+          variant: "destructive"
+        });
         
-        if (!connected) {
-          toast({
-            title: "API Connection Error",
-            description: "Could not connect to payment provider API. Please try again later.",
-            variant: "destructive"
-          });
-          throw new Error("Could not connect to Kado API");
-        }
+        // Also use sonner toast for better visibility
+        toast.error("API Error", {
+          description: "Could not connect to Kado API. Please try again later.",
+        });
+        
+        throw new Error("Could not connect to Kado API");
       }
       
-      console.log('Redirecting to Kado with params:', { ...params, returnUrl, userRef });
+      console.log('API connection successful, redirecting to Kado with params:', { ...params, returnUrl, userRef });
       
       // Redirect to Kado
       await kadoRedirectService.redirectToKado({
@@ -85,6 +146,13 @@ export const useKado = () => {
         description: "Failed to connect to payment provider. Please try again.",
         variant: "destructive"
       });
+      
+      // Also use sonner toast for better visibility
+      toast.error("API Error", {
+        description: "Could not connect to Kado API. Please try again later.",
+      });
+      
+      throw error; // Re-throw the error to be handled by the caller
     } finally {
       setIsLoading(false);
     }
@@ -160,6 +228,7 @@ export const useKado = () => {
   return {
     isApiConnected,
     isLoading,
+    checkApiConnection,
     ...kadoRedirectService,
     ...kadoWebhookService,
     ...kadoKycService,
