@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,12 +37,10 @@ const KadoConnectionDebugger = () => {
     setLogs([]);
   };
 
-  // Check if API keys are configured in Supabase on component mount
   useEffect(() => {
     checkApiKeysConfigured();
   }, []);
 
-  // Check if API keys are configured in Supabase
   const checkApiKeysConfigured = async () => {
     try {
       addLog('Checking if API keys are configured...');
@@ -102,7 +99,6 @@ const KadoConnectionDebugger = () => {
       setDiagnosticData(data);
       addLog('Diagnostics completed successfully');
       
-      // Update API keys info based on diagnostic data
       if (data?.apiKeys) {
         setApiKeysInfo({
           publicKey: data.apiKeys.publicKeyConfigured,
@@ -127,10 +123,8 @@ const KadoConnectionDebugger = () => {
       clearLogs();
       addLog('Starting API connection check...');
       
-      // Check if API keys are configured
       await checkApiKeysConfigured();
       
-      // If keys aren't configured, don't continue with other tests
       if (!apiKeysInfo.publicKey || !apiKeysInfo.privateKey) {
         addLog(`API keys are not properly configured. Cannot proceed with connection test.`);
         setResult({
@@ -142,7 +136,6 @@ const KadoConnectionDebugger = () => {
         return;
       }
       
-      // First, try a direct API call to help with debugging
       try {
         addLog('Trying direct POST request to kado-api edge function...');
         
@@ -156,11 +149,24 @@ const KadoConnectionDebugger = () => {
         }
         
         addLog(`Direct API response: ${JSON.stringify(directResponse)}`);
+        
+        if (directResponse?.simulatedResponse) {
+          addLog(`NOTE: Received simulated ping response - the actual /ping endpoint returned ${directResponse.originalStatus}`);
+          
+          setResult({
+            connected: true,
+            message: directResponse.message || "Connected to Kado API server (simulated response)",
+            timestamp: new Date().toISOString(),
+            details: directResponse
+          });
+          
+          addLog(`Connection check completed: SUCCESS (simulated)`);
+          return;
+        }
       } catch (directCallError) {
         addLog(`Connection check error: ${directCallError instanceof Error ? directCallError.message : String(directCallError)}`);
       }
       
-      // Then try the standard way through our service
       try {
         const standardResponse = await kadoApiService.callKadoApi('ping', 'GET');
         addLog(`Standard API response: ${JSON.stringify(standardResponse)}`);
@@ -168,7 +174,6 @@ const KadoConnectionDebugger = () => {
         addLog(`Standard API call error: ${standardCallError instanceof Error ? standardCallError.message : String(standardCallError)}`);
       }
       
-      // Finally use the higher-level function from the hook
       const result = await checkApiConnection();
       addLog(`Connection check result: ${JSON.stringify(result)}`);
       

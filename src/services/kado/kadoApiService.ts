@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { createNetworkError, handleNetworkError } from '@/utils/errorHandling';
@@ -163,6 +162,37 @@ export const kadoApiService = {
               diagnostics: diagnosticData
             };
           }
+          
+          // If diagnostics show direct domain accessibility but ping fails, 
+          // it's likely the specific ping endpoint doesn't exist
+          if (diagnosticData && diagnosticData.domainPingTest?.success && !diagnosticData.fullPingTest?.success) {
+            if (diagnosticData.fullPingTest?.status === 404) {
+              // If we can reach the domain but the ping endpoint returns 404, consider it a success
+              // This means the API is up but doesn't have a ping endpoint
+              console.log('API domain is reachable but ping endpoint returns 404, considering it a partial success');
+              return {
+                connected: true,
+                message: 'Successfully connected to Kado API server (the /ping endpoint doesn\'t exist but the server is responding)',
+                partialSuccess: true,
+                diagnostics: diagnosticData
+              };
+            }
+          }
+          
+          // If we have exploratory tests with successful endpoints, use that as an indicator of success
+          if (diagnosticData?.exploratoryTests) {
+            const successfulEndpoints = diagnosticData.exploratoryTests.filter(test => test.success);
+            if (successfulEndpoints.length > 0) {
+              const endpointsList = successfulEndpoints.map(e => e.endpoint).join(', ');
+              console.log(`Found ${successfulEndpoints.length} working alternative endpoints: ${endpointsList}`);
+              return {
+                connected: true,
+                message: `Successfully connected to Kado API using alternative endpoints (${endpointsList})`,
+                partialSuccess: true,
+                diagnostics: diagnosticData
+              };
+            }
+          }
         }
       } catch (diagError) {
         console.error('Error running diagnostics:', diagError);
@@ -172,6 +202,17 @@ export const kadoApiService = {
       console.log('Pinging Kado API...');
       const response = await kadoApiService.callKadoApi('ping', 'GET');
       console.log('Kado API connection response:', response);
+      
+      // Check for simulated response (when ping endpoint returns 404)
+      if (response?.simulatedResponse) {
+        console.log('Received simulated ping response:', response);
+        return {
+          connected: true,
+          message: response.message || 'Connected to Kado API server (simulated response)',
+          partialSuccess: true,
+          responseData: response
+        };
+      }
       
       // Handle different ping responses
       if (!response) {
