@@ -6,6 +6,7 @@ import { isPlatform } from '@/utils/platformUtils';
 import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
 import { simulateKadoWebhook } from '../transaction';
+import { addOfflineTransaction } from '../transaction/transactionStore';
 
 /**
  * Service to handle redirecting to Kado for KYC and payment processing
@@ -18,6 +19,8 @@ export const kadoRedirectService = {
    */
   redirectToKado: async (params: KadoRedirectParams): Promise<void> => {
     try {
+      console.log('kadoRedirectService.redirectToKado called with params:', params);
+      
       // Get user ID if authenticated to use as userRef
       const { data: { session } } = await supabase.auth.getSession();
       let userRef = params.userRef;
@@ -62,6 +65,25 @@ export const kadoRedirectService = {
         returnUrl = params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`;
       }
       
+      // Create a transaction object to store locally
+      const transaction = {
+        id: params.transactionId,
+        amount: params.amount,
+        recipientName: params.recipientName,
+        recipientContact: params.recipientContact,
+        country: params.country,
+        paymentMethod: params.paymentMethod,
+        provider: params.paymentMethod === 'mobile_money' ? 'MTN Mobile Money' : 'Bank Transfer',
+        status: 'pending' as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        estimatedDelivery: 'Processing',
+        totalAmount: params.amount
+      };
+      
+      // Add to offline storage
+      addOfflineTransaction(transaction);
+      
       // In a real app, this would construct a URL to Kado's payment page
       // Include userRef parameter for KYC tracking
       const kadoUrl = `https://kado.com/pay?amount=${params.amount}&recipient=${encodeURIComponent(params.recipientName)}&country=${params.country}&payment_method=${params.paymentMethod}&transaction_id=${params.transactionId}&return_url=${encodeURIComponent(returnUrl)}&user_ref=${userRef || 'guest'}`;
@@ -81,9 +103,11 @@ export const kadoRedirectService = {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Simulate the Kado webhook response
+      console.log(`Simulating webhook for transaction ${params.transactionId}`);
       await simulateKadoWebhook(params.transactionId);
       
       // Return - in a real app, Kado would redirect back to the returnUrl
+      console.log('Kado redirect process completed');
       return;
     } catch (error) {
       console.error('Error redirecting to Kado:', error);

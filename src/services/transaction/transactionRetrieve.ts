@@ -2,6 +2,7 @@
 // Fix async/Promise issues with the transaction retrieval service
 import { Transaction } from "@/types/transaction";
 import { getStoredTransactions } from "./transactionStore";
+import { toast } from 'sonner';
 
 // Get transaction by ID
 export const getTransactionById = async (id: string): Promise<Transaction> => {
@@ -15,6 +16,32 @@ export const getTransactionById = async (id: string): Promise<Transaction> => {
     
     if (!transaction) {
       console.error(`Transaction with ID ${id} not found in stored transactions`);
+      
+      // Check if the ID might be a transaction we just created
+      // This is a fallback for transactions that might not be in storage yet
+      if (localStorage.getItem(`transaction_${id}`)) {
+        try {
+          const tempTransaction = JSON.parse(localStorage.getItem(`transaction_${id}`) || '');
+          console.log(`Found transaction in localStorage with key transaction_${id}`, tempTransaction);
+          
+          // Convert the temporary transaction to a proper Transaction object
+          return {
+            id: tempTransaction.transactionId || id,
+            amount: tempTransaction.amount || '0',
+            recipientName: tempTransaction.recipientName || 'Unknown',
+            recipientContact: tempTransaction.recipientContact || '',
+            country: tempTransaction.country || 'Unknown',
+            status: tempTransaction.status || 'pending',
+            createdAt: new Date(tempTransaction.createdAt || Date.now()),
+            updatedAt: new Date(tempTransaction.updatedAt || Date.now()),
+            estimatedDelivery: 'Processing',
+            totalAmount: tempTransaction.amount || '0'
+          };
+        } catch (parseError) {
+          console.error(`Error parsing temporary transaction ${id}:`, parseError);
+        }
+      }
+      
       throw new Error(`Transaction with ID ${id} not found`);
     }
     
@@ -22,6 +49,12 @@ export const getTransactionById = async (id: string): Promise<Transaction> => {
     return transaction;
   } catch (error) {
     console.error(`Error retrieving transaction ${id}:`, error);
+    
+    // Display a toast for user feedback
+    toast.error("Transaction Error", {
+      description: `Could not retrieve transaction details. Please try again.`,
+    });
+    
     throw error;
   }
 };

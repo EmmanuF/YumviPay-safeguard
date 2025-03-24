@@ -107,8 +107,19 @@ export const setOfflineTransactions = (transactions: Transaction[]): void => {
 // Add a transaction to offline storage
 export const addOfflineTransaction = (transaction: Transaction): void => {
   const transactions = getOfflineTransactions();
-  transactions.push(transaction);
+  
+  // Check if the transaction already exists
+  const existingIndex = transactions.findIndex(t => t.id === transaction.id);
+  if (existingIndex >= 0) {
+    // Update existing transaction
+    transactions[existingIndex] = {...transaction};
+  } else {
+    // Add new transaction
+    transactions.push(transaction);
+  }
+  
   setOfflineTransactions(transactions);
+  console.log(`Transaction ${transaction.id} added/updated in offline storage`);
 };
 
 // Update a transaction in offline storage
@@ -119,6 +130,10 @@ export const updateOfflineTransaction = (transaction: Transaction): void => {
   if (index >= 0) {
     transactions[index] = transaction;
     setOfflineTransactions(transactions);
+    console.log(`Transaction ${transaction.id} updated in offline storage`);
+  } else {
+    // If not found, add it
+    addOfflineTransaction(transaction);
   }
 };
 
@@ -132,12 +147,28 @@ export const clearTransactionsStore = (): void => {
 const getMockTransactions = (): Transaction[] => {
   // Generate a transaction with the ID from the URL if possible
   const currentPath = window.location.pathname;
-  const transactionIdMatch = currentPath.match(/\/transaction\/([A-Z0-9]+)/i);
+  const transactionIdMatch = currentPath.match(/\/transaction\/([A-Z0-9-]+)/i);
   const currentTransactionId = transactionIdMatch ? transactionIdMatch[1] : null;
+  
+  console.log(`Current transaction ID from URL: ${currentTransactionId || 'none'}`);
   
   const now = new Date();
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
+  
+  // Check also for pending transaction data in localStorage
+  let pendingTransactionData = null;
+  if (currentTransactionId) {
+    try {
+      const storedTxData = localStorage.getItem(`transaction_${currentTransactionId}`);
+      if (storedTxData) {
+        pendingTransactionData = JSON.parse(storedTxData);
+        console.log(`Found pending transaction data for ${currentTransactionId}:`, pendingTransactionData);
+      }
+    } catch (e) {
+      console.error(`Error parsing pending transaction data for ${currentTransactionId}:`, e);
+    }
+  }
   
   // Generate some mock transactions
   const mockTransactions: Transaction[] = [
@@ -187,26 +218,52 @@ const getMockTransactions = (): Transaction[] => {
   // If we have a transaction ID from the URL, add it as a mock transaction
   if (currentTransactionId) {
     console.log(`Adding mock transaction for current ID: ${currentTransactionId}`);
-    mockTransactions.push({
-      id: currentTransactionId,
-      amount: '75.00',
-      currency: 'USD',
-      fee: '0.00',
-      recipientId: 'RCP789',
-      recipientName: 'William Johnson',
-      recipientContact: '+237634567890',
-      recipientCountry: 'Cameroon',
-      recipientCountryCode: 'CM',
-      paymentMethod: 'mobile_money',
-      provider: 'MTN Mobile Money',
-      country: 'Cameroon',
-      status: 'processing',
-      createdAt: now,
-      updatedAt: now,
-      estimatedDelivery: '1-5 minutes',
-      totalAmount: '75.00',
-      date: now.toISOString().split('T')[0]
-    });
+    
+    // Use any pending transaction data if available
+    if (pendingTransactionData) {
+      mockTransactions.push({
+        id: currentTransactionId,
+        amount: pendingTransactionData.amount || '75.00',
+        currency: pendingTransactionData.sourceCurrency || 'USD',
+        fee: '0.00',
+        recipientId: 'RCP789',
+        recipientName: pendingTransactionData.recipientName || 'William Johnson',
+        recipientContact: pendingTransactionData.recipientContact || '+237634567890',
+        recipientCountry: pendingTransactionData.country || 'Cameroon',
+        recipientCountryCode: pendingTransactionData.countryCode || 'CM',
+        paymentMethod: pendingTransactionData.paymentMethod || 'mobile_money',
+        provider: pendingTransactionData.selectedProvider || 'MTN Mobile Money',
+        country: pendingTransactionData.country || 'Cameroon',
+        status: pendingTransactionData.status || 'processing',
+        createdAt: pendingTransactionData.createdAt ? new Date(pendingTransactionData.createdAt) : now,
+        updatedAt: now,
+        estimatedDelivery: '1-5 minutes',
+        totalAmount: pendingTransactionData.amount || '75.00',
+        date: now.toISOString().split('T')[0]
+      });
+    } else {
+      // Just create a generic mock transaction with the current ID
+      mockTransactions.push({
+        id: currentTransactionId,
+        amount: '75.00',
+        currency: 'USD',
+        fee: '0.00',
+        recipientId: 'RCP789',
+        recipientName: 'William Johnson',
+        recipientContact: '+237634567890',
+        recipientCountry: 'Cameroon',
+        recipientCountryCode: 'CM',
+        paymentMethod: 'mobile_money',
+        provider: 'MTN Mobile Money',
+        country: 'Cameroon',
+        status: 'processing',
+        createdAt: now,
+        updatedAt: now,
+        estimatedDelivery: '1-5 minutes',
+        totalAmount: '75.00',
+        date: now.toISOString().split('T')[0]
+      });
+    }
   }
   
   return mockTransactions;
