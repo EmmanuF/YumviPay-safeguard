@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,11 +36,11 @@ const KadoConnectionDebugger = () => {
       
       // First, try a direct API call to help with debugging
       try {
-        addLog('Trying direct GET request to kado-api edge function...');
+        addLog('Trying direct POST request to kado-api edge function...');
         
         const { data: directResponse, error: directError } = await supabase.functions.invoke('kado-api', {
-          method: 'GET',
-          queryParams: { endpoint: 'ping' }
+          method: 'POST',
+          body: { endpoint: 'ping', method: 'GET' }
         });
         
         if (directError) {

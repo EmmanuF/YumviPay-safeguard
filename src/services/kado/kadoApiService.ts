@@ -23,8 +23,8 @@ export const kadoApiService = {
       if (method === 'GET' && (endpoint === 'ping' || endpoint === '/ping')) {
         console.log('Using direct GET request for ping endpoint');
         const { data: response, error } = await supabase.functions.invoke('kado-api', {
-          method: 'GET',
-          queryParams: { endpoint: 'ping' }
+          method: 'POST',  // Changed to POST instead of using queryParams
+          body: { endpoint: 'ping', method: 'GET' } // Pass the endpoint in the body
         });
         
         if (error) {

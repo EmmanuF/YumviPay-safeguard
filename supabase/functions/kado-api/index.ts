@@ -69,7 +69,7 @@ serve(async (req) => {
       });
     }
 
-    // Parse request body - Accept both POST and GET methods
+    // Parse request body - Accept both POST method only now
     let endpoint, method, data;
 
     if (req.method === 'POST') {
@@ -80,16 +80,8 @@ serve(async (req) => {
       endpoint = reqBody.endpoint;
       method = reqBody.method || 'GET';
       data = reqBody.data;
-    } else if (req.method === 'GET') {
-      // For GET requests, parse the URL search params
-      const url = new URL(req.url);
-      endpoint = url.searchParams.get('endpoint') || 'ping';
-      method = 'GET';
-      data = null;
-      
-      console.log(`GET request with endpoint: ${endpoint}`);
     } else {
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      return new Response(JSON.stringify({ error: 'Method not allowed. Use POST method only.' }), {
         status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
