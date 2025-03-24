@@ -17,6 +17,7 @@ export const kadoApiService = {
   callKadoApi: async (endpoint: string, method: string = 'GET', data?: any) => {
     try {
       console.log(`Calling Kado API: ${endpoint} with method ${method}`);
+      console.log('Request data:', data ? JSON.stringify(data, null, 2) : 'No data');
       
       // All requests go through POST to the edge function
       const { data: response, error } = await supabase.functions.invoke('kado-api', {
@@ -31,7 +32,10 @@ export const kadoApiService = {
         if (error.message && error.message.includes('API keys not configured')) {
           throw createNetworkError(
             'Kado API keys not configured in Supabase Edge Functions', 
-            'authentication-error'
+            'authentication-error',
+            undefined,
+            undefined,
+            { originalError: error }
           );
         }
         
@@ -39,23 +43,34 @@ export const kadoApiService = {
         if (error.message && error.message.includes('AbortError')) {
           throw createNetworkError(
             'Connection to Kado API timed out. Please try again later.',
-            'timeout-error'
+            'timeout-error',
+            undefined,
+            undefined,
+            { originalError: error }
           );
         }
         
         // Create specific error type for better handling
         throw createNetworkError(
           error.message || 'Failed to connect to Kado API',
-          'server-error'
+          'server-error',
+          undefined,
+          undefined,
+          { originalError: error }
         );
       }
+      
+      console.log('Kado API response:', JSON.stringify(response, null, 2));
       
       // Check if response contains an error from our Edge Function
       if (response && response.error) {
         console.error('Error response from Edge Function:', response.error);
         throw createNetworkError(
           response.error.message || 'Error from Kado API',
-          'server-error'
+          'server-error',
+          undefined,
+          undefined,
+          response.error
         );
       }
       
@@ -66,7 +81,10 @@ export const kadoApiService = {
         if (response && response.ping === 'error') {
           throw createNetworkError(
             response.message || 'Error from ping endpoint',
-            'server-error'
+            'server-error',
+            undefined,
+            undefined,
+            response
           );
         }
       }
@@ -100,6 +118,8 @@ export const kadoApiService = {
         };
       }
       
+      console.log('API keys check response:', secretsData);
+      
       const publicKeyConfigured = secretsData?.publicKeyConfigured || false;
       const privateKeyConfigured = secretsData?.privateKeyConfigured || false;
       
@@ -114,7 +134,42 @@ export const kadoApiService = {
         };
       }
       
+      try {
+        // Run diagnostics before pinging to get detailed insights
+        console.log('Running diagnostics before ping...');
+        const { data: diagnosticData, error: diagnosticError } = await supabase.functions.invoke('kado-api', {
+          body: { endpoint: 'diagnostics' }
+        });
+        
+        if (diagnosticError) {
+          console.error('Diagnostics error:', diagnosticError);
+        } else {
+          console.log('Diagnostics results:', diagnosticData);
+          
+          // If diagnostics show network issues, return detailed information
+          if (diagnosticData && !diagnosticData.networkTest?.success) {
+            return {
+              connected: false,
+              message: `Cannot connect to Kado API: ${diagnosticData.networkTest?.error || diagnosticData.networkTest?.statusText || 'Network test failed'}`,
+              diagnostics: diagnosticData
+            };
+          }
+          
+          // If diagnostics show HMAC issues, return detailed information
+          if (diagnosticData && !diagnosticData.hmacTest?.success) {
+            return {
+              connected: false,
+              message: `HMAC signature generation failed: ${diagnosticData.hmacTest?.error || 'Unknown HMAC error'}`,
+              diagnostics: diagnosticData
+            };
+          }
+        }
+      } catch (diagError) {
+        console.error('Error running diagnostics:', diagError);
+      }
+      
       // Ping the Kado API to check if credentials are working
+      console.log('Pinging Kado API...');
       const response = await kadoApiService.callKadoApi('ping', 'GET');
       console.log('Kado API connection response:', response);
       
@@ -126,10 +181,40 @@ export const kadoApiService = {
         };
       }
       
+      // If we have response.status, use it to determine connection success
+      if (response.status) {
+        const isSuccess = response.status >= 200 && response.status < 300;
+        return {
+          connected: isSuccess,
+          message: isSuccess 
+            ? (response.message || 'Successfully connected to Kado API')
+            : `Failed to connect to Kado API: ${response.statusText || response.message || `Status code ${response.status}`}`,
+          statusCode: response.status,
+          responseData: response
+        };
+      }
+      
+      // Handle ping response format
+      if (response.ping === 'success') {
+        return { 
+          connected: true, 
+          message: response.message || 'Successfully connected to Kado API',
+          responseData: response
+        };
+      } else if (response.ping === 'error') {
+        return {
+          connected: false,
+          message: response.message || 'Error connecting to Kado API',
+          error: response.error,
+          responseData: response
+        };
+      }
+      
       // Handle successful ping
       return { 
         connected: true, 
-        message: response.message || 'Successfully connected to Kado API' 
+        message: response.message || 'Successfully connected to Kado API',
+        responseData: response
       };
     } catch (error) {
       console.error('Kado API connection check failed:', error);
@@ -156,7 +241,10 @@ export const kadoApiService = {
    */
   getPaymentMethods: async (countryCode: string) => {
     try {
-      return await kadoApiService.callKadoApi(`payment-methods/${countryCode}`, 'GET');
+      console.log(`Fetching payment methods for ${countryCode}...`);
+      const response = await kadoApiService.callKadoApi(`payment-methods/${countryCode}`, 'GET');
+      console.log(`Payment methods response:`, response);
+      return response;
     } catch (error) {
       console.error(`Error fetching payment methods for ${countryCode}:`, error);
       return { paymentMethods: [] };
@@ -170,10 +258,38 @@ export const kadoApiService = {
    */
   getKycRequirements: async (countryCode: string) => {
     try {
-      return await kadoApiService.callKadoApi(`kyc-requirements/${countryCode}`, 'GET');
+      console.log(`Fetching KYC requirements for ${countryCode}...`);
+      const response = await kadoApiService.callKadoApi(`kyc-requirements/${countryCode}`, 'GET');
+      console.log(`KYC requirements response:`, response);
+      return response;
     } catch (error) {
       console.error(`Error fetching KYC requirements for ${countryCode}:`, error);
       return { requirements: [] };
+    }
+  },
+  
+  /**
+   * Run detailed diagnostics on the Kado API connection
+   * @returns Promise with diagnostic results
+   */
+  runDiagnostics: async () => {
+    try {
+      console.log('Running detailed Kado API diagnostics...');
+      
+      const { data, error } = await supabase.functions.invoke('kado-api', {
+        body: { endpoint: 'diagnostics' }
+      });
+      
+      if (error) {
+        console.error('Diagnostics error:', error);
+        throw error;
+      }
+      
+      console.log('Diagnostics completed:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to run diagnostics:', error);
+      throw error;
     }
   }
 };

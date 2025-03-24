@@ -6,12 +6,14 @@ export type NetworkErrorType =
   | 'timeout-error'
   | 'server-error'
   | 'authentication-error'
+  | 'api-error'
   | 'unknown-error';
 
 export interface NetworkError extends Error {
   type: NetworkErrorType;
   status?: number;
   retry?: () => Promise<any>;
+  details?: any;
 }
 
 export function isNetworkError(error: any): error is NetworkError {
@@ -25,12 +27,14 @@ export function createNetworkError(
   message: string, 
   type: NetworkErrorType = 'unknown-error', 
   status?: number,
-  retry?: () => Promise<any>
+  retry?: () => Promise<any>,
+  details?: any
 ): NetworkError {
   const error = new Error(message) as NetworkError;
   error.type = type;
   if (status) error.status = status;
   if (retry) error.retry = retry;
+  if (details) error.details = details;
   return error;
 }
 
@@ -56,38 +60,90 @@ export function handleNetworkError(error: any): NetworkError {
     );
   }
   
-  // Handle Edge Function errors with better user-facing messages
+  // Enhanced error handling for Edge Functions
   if (error.message && error.message.includes('Edge Function returned a non-2xx status code')) {
+    // Extract more details if available
+    const statusMatch = error.message.match(/status code: (\d+)/);
+    const status = statusMatch ? parseInt(statusMatch[1]) : undefined;
+    
+    // Try to extract any additional details from the error
+    let details = {};
+    try {
+      if (error.error && typeof error.error === 'string' && error.error.startsWith('{')) {
+        details = JSON.parse(error.error);
+      } else if (error.data && typeof error.data === 'object') {
+        details = error.data;
+      }
+    } catch (e) {
+      // Ignore JSON parse errors
+    }
+    
     return createNetworkError(
-      'Error connecting to Kado API service. Please check the Supabase Edge Function logs.',
-      'server-error'
+      'Error connecting to Kado API service. Please check the Supabase Edge Function logs for more details.',
+      'server-error',
+      status,
+      undefined,
+      details
     );
   }
   
-  // Handle API key configuration errors
+  // Handle API key configuration errors with more details
   if (error.message && (
     error.message.includes('API keys not configured') || 
     error.message.includes('Missing API keys')
   )) {
     return createNetworkError(
       'Kado API keys not configured. Please add required API keys to Supabase Edge Function secrets.',
-      'authentication-error'
+      'authentication-error',
+      undefined,
+      undefined,
+      { 
+        missingKeys: error.message.includes('KADO_API_PUBLIC_KEY') ? ['KADO_API_PUBLIC_KEY'] : 
+                    error.message.includes('KADO_API_PRIVATE_KEY') ? ['KADO_API_PRIVATE_KEY'] : 
+                    ['KADO_API_PUBLIC_KEY', 'KADO_API_PRIVATE_KEY'],
+        source: 'edge-function'
+      }
     );
   }
   
-  // Handle JSON parse errors
+  // Handle JSON parse errors with more diagnostic information
   if (error.name === 'SyntaxError' && error.message.includes('Unexpected token')) {
     return createNetworkError(
       'Invalid response format from server. This may indicate an issue with the API or Edge Function.',
-      'server-error'
+      'server-error',
+      undefined,
+      undefined,
+      {
+        parseError: error.message,
+        position: error.message.match(/position (\d+)/) ? error.message.match(/position (\d+)/)[1] : 'unknown',
+        responseSample: error.responseText ? error.responseText.substring(0, 100) + '...' : 'unavailable'
+      }
     );
   }
   
-  // Handle specific Supabase edge function errors
+  // Handle specific Supabase edge function errors with better diagnostics
   if (error.error && error.error === 'Internal server error') {
     return createNetworkError(
       'Supabase Edge Function encountered an error. Please check the logs for details.',
-      'server-error'
+      'server-error',
+      500,
+      undefined,
+      {
+        source: 'supabase-edge-function',
+        message: error.message || 'No additional details available'
+      }
+    );
+  }
+  
+  // Handle specific Kado API errors
+  if (error.kadoError || (error.data && error.data.kadoError)) {
+    const kadoError = error.kadoError || error.data.kadoError;
+    return createNetworkError(
+      kadoError.message || 'Kado API returned an error.',
+      'api-error',
+      kadoError.status || undefined,
+      undefined,
+      kadoError
     );
   }
   
@@ -98,7 +154,9 @@ export function handleNetworkError(error: any): NetworkError {
       return createNetworkError(
         'Server error. Please try again later.',
         'server-error',
-        status
+        status,
+        undefined,
+        error.response.data
       );
     }
     
@@ -106,20 +164,27 @@ export function handleNetworkError(error: any): NetworkError {
       return createNetworkError(
         'Authentication error. Please log in again.',
         'authentication-error',
-        status
+        status,
+        undefined,
+        error.response.data
       );
     }
     
     return createNetworkError(
       error.response.data?.message || 'An unexpected error occurred.',
       'unknown-error',
-      status
+      status,
+      undefined,
+      error.response.data
     );
   }
   
   return createNetworkError(
     'Network error. Please check your connection and try again.',
-    'unknown-error'
+    'unknown-error',
+    undefined,
+    undefined,
+    { originalError: typeof error === 'object' ? { ...error } : error }
   );
 }
 
@@ -143,6 +208,8 @@ function getErrorTitle(type: NetworkErrorType): string {
       return 'Server Error';
     case 'authentication-error':
       return 'Authentication Error';
+    case 'api-error':
+      return 'API Error';
     case 'unknown-error':
     default:
       return 'Error';

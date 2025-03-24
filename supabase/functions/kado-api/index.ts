@@ -14,6 +14,30 @@ const corsHeaders = {
 };
 
 /**
+ * Enhanced logging function to standardize log format and capture detailed info
+ */
+const logInfo = (message: string, data?: any) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] INFO: ${message}`);
+  if (data) {
+    console.log(`[${timestamp}] DATA: ${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`);
+  }
+};
+
+const logError = (message: string, error?: any) => {
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] ERROR: ${message}`);
+  if (error) {
+    if (error instanceof Error) {
+      console.error(`[${timestamp}] ERROR DETAILS: ${error.message}`);
+      console.error(`[${timestamp}] STACK: ${error.stack}`);
+    } else {
+      console.error(`[${timestamp}] ERROR DATA: ${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`);
+    }
+  }
+};
+
+/**
  * Generate HMAC signature for Kado API authentication
  * @param path API path
  * @param timestamp Request timestamp
@@ -23,6 +47,12 @@ const corsHeaders = {
  */
 const generateSignature = (path: string, timestamp: string, method: string, body?: any): string => {
   try {
+    logInfo(`Generating signature for ${method} ${path}`, { 
+      timestamp, 
+      hasBody: !!body,
+      bodyType: body ? typeof body : 'undefined'
+    });
+    
     const encoder = new TextEncoder();
     const secret = encoder.encode(KADO_API_SECRET);
     
@@ -32,6 +62,8 @@ const generateSignature = (path: string, timestamp: string, method: string, body
       message += JSON.stringify(body);
     }
     
+    logInfo(`Signature message created`, { messageLength: message.length });
+    
     // Create HMAC signature
     const hmac = new Deno.HmacSha256(secret);
     hmac.update(encoder.encode(message));
@@ -39,19 +71,157 @@ const generateSignature = (path: string, timestamp: string, method: string, body
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
     
-    console.log(`Generated signature for ${method} ${path}`);
+    logInfo(`Signature generated successfully`, { signaturePreview: signature.substring(0, 10) + '...' });
     return signature;
   } catch (error) {
-    console.error('Error generating signature:', error);
-    throw new Error(`Failed to generate signature: ${error.message}`);
+    logError('Error generating signature', error);
+    throw new Error(`Failed to generate signature: ${error instanceof Error ? error.message : String(error)}`);
   }
+};
+
+/**
+ * New diagnostic endpoint that tests different aspects of the edge function
+ */
+const handleDiagnostics = async () => {
+  const diagnosticResults = {
+    timestamp: new Date().toISOString(),
+    environment: {
+      denoVersion: Deno.version.deno,
+      v8Version: Deno.version.v8,
+      typescriptVersion: Deno.version.typescript,
+    },
+    apiKeys: {
+      publicKeyConfigured: KADO_API_KEY.length > 0,
+      publicKeyPreview: KADO_API_KEY ? `${KADO_API_KEY.substring(0, 4)}...${KADO_API_KEY.substring(KADO_API_KEY.length - 4)}` : 'not set',
+      privateKeyConfigured: KADO_API_SECRET.length > 0,
+      privateKeyPreview: KADO_API_SECRET ? 'set (masked)' : 'not set',
+    },
+    hmacTest: null as any,
+    networkTest: null as any,
+    fullPingTest: null as any,
+  };
+  
+  // Test HMAC signature generation
+  try {
+    const testTimestamp = new Date().toISOString();
+    const testPath = '/test-path';
+    const signature = generateSignature(testPath, testTimestamp, 'GET');
+    diagnosticResults.hmacTest = {
+      success: true,
+      signatureLength: signature.length,
+      signaturePreview: signature.substring(0, 10) + '...',
+    };
+  } catch (error) {
+    diagnosticResults.hmacTest = {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+  
+  // Test basic network connectivity (without authentication)
+  try {
+    // Test if we can reach the Kado domain without auth (just a HEAD request)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(KADO_API_URL, {
+      method: 'HEAD',
+      signal: controller.signal,
+    }).catch(error => {
+      return { ok: false, status: 0, statusText: error.message };
+    });
+    
+    clearTimeout(timeoutId);
+    
+    diagnosticResults.networkTest = {
+      success: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+    };
+  } catch (error) {
+    diagnosticResults.networkTest = {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+  
+  // Test a full ping request with authentication
+  try {
+    const testPath = '/ping';
+    const timestamp = new Date().toISOString();
+    const signature = generateSignature(testPath, timestamp, 'GET');
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-API-Key': KADO_API_KEY,
+      'X-Timestamp': timestamp,
+      'X-Signature': signature,
+    };
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    const pingUrl = `${KADO_API_URL}${testPath}`;
+    const response = await fetch(pingUrl, {
+      method: 'GET',
+      headers,
+      signal: controller.signal,
+    }).catch(error => {
+      return { 
+        ok: false, 
+        status: 0, 
+        statusText: error.message,
+        responseText: `Error: ${error.message}`
+      };
+    });
+    
+    clearTimeout(timeoutId);
+    
+    let responseText = '';
+    let responseData = null;
+    
+    try {
+      responseText = await response.text();
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        // Leave responseData as null if parsing fails
+      }
+    } catch (e) {
+      responseText = `Error getting response text: ${e.message}`;
+    }
+    
+    diagnosticResults.fullPingTest = {
+      success: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      responseText: responseText,
+      responseData: responseData,
+      requestDetails: {
+        url: pingUrl,
+        headers: {
+          'Content-Type': headers['Content-Type'],
+          'X-API-Key': `${headers['X-API-Key'].substring(0, 4)}...${headers['X-API-Key'].substring(headers['X-API-Key'].length - 4)}`,
+          'X-Timestamp': headers['X-Timestamp'],
+          'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
+        }
+      }
+    };
+  } catch (error) {
+    diagnosticResults.fullPingTest = {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+  
+  return diagnosticResults;
 };
 
 // Request handler
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('Handling CORS preflight request');
+    logInfo('Handling CORS preflight request');
     return new Response(null, {
       status: 204,
       headers: corsHeaders,
@@ -60,8 +230,7 @@ serve(async (req) => {
 
   try {
     // Log request details
-    console.log(`Request method: ${req.method}`);
-    console.log(`Request URL: ${req.url}`);
+    logInfo(`Request method: ${req.method}`, { url: req.url });
     
     // Parse request body - Accept only POST method now
     let endpoint, method, data;
@@ -71,9 +240,9 @@ serve(async (req) => {
       let reqBody;
       try {
         reqBody = await req.json();
-        console.log('Request body:', JSON.stringify(reqBody));
+        logInfo('Request body received', reqBody);
       } catch (parseError) {
-        console.error('Error parsing request body:', parseError);
+        logError('Error parsing request body', parseError);
         return new Response(JSON.stringify({ 
           error: 'Invalid JSON in request body',
           details: parseError.message
@@ -87,12 +256,29 @@ serve(async (req) => {
       method = reqBody.method || 'GET';
       data = reqBody.data;
       
+      // New diagnostic endpoint that returns detailed information
+      if (endpoint === 'diagnostics') {
+        logInfo('Running full diagnostics');
+        const diagnosticResults = await handleDiagnostics();
+        logInfo('Diagnostics completed', diagnosticResults);
+        
+        return new Response(JSON.stringify(diagnosticResults), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       // Special endpoint to check if API keys are configured
       if (endpoint === 'check-secrets') {
         const publicKeyConfigured = KADO_API_KEY.length > 0;
         const privateKeyConfigured = KADO_API_SECRET.length > 0;
         
-        console.log(`API keys status - Public key: ${publicKeyConfigured ? 'Configured' : 'Missing'}, Private key: ${privateKeyConfigured ? 'Configured' : 'Missing'}`);
+        logInfo(`API keys status`, { 
+          publicKeyConfigured, 
+          privateKeyConfigured,
+          publicKeyLength: KADO_API_KEY.length,
+          privateKeyLength: KADO_API_SECRET.length
+        });
         
         return new Response(JSON.stringify({
           publicKeyConfigured,
@@ -104,6 +290,7 @@ serve(async (req) => {
         });
       }
     } else {
+      logError('Method not allowed', { method: req.method });
       return new Response(JSON.stringify({ error: 'Method not allowed. Use POST method only.' }), {
         status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -111,7 +298,7 @@ serve(async (req) => {
     }
     
     if (!endpoint) {
-      console.error('Missing endpoint in request');
+      logError('Missing endpoint in request');
       return new Response(JSON.stringify({ error: 'Endpoint is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -120,7 +307,10 @@ serve(async (req) => {
 
     // Check if API keys are configured - do this for ALL non-check-secrets endpoints
     if (!KADO_API_KEY || !KADO_API_SECRET) {
-      console.error('Kado API keys not configured');
+      logError('Kado API keys not configured', {
+        publicKeySet: !!KADO_API_KEY,
+        privateKeySet: !!KADO_API_SECRET
+      });
       return new Response(JSON.stringify({ 
         error: 'API keys not configured',
         details: 'The Kado API keys are missing. Please add KADO_API_PUBLIC_KEY and KADO_API_PRIVATE_KEY to your Supabase Edge Function secrets.'
@@ -133,13 +323,13 @@ serve(async (req) => {
     // Debug Kado API keys - Log partial keys for debugging (never log full keys)
     const publicKeyPartial = KADO_API_KEY ? `${KADO_API_KEY.substring(0, 4)}...${KADO_API_KEY.substring(KADO_API_KEY.length - 4)}` : 'not set';
     const secretKeySet = KADO_API_SECRET ? 'set (masked)' : 'not set';
-    console.log(`Kado API keys: Public key: ${publicKeyPartial}, Secret key: ${secretKeySet}`);
+    logInfo(`Kado API keys configured`, { publicKeyPartial, secretKeySet });
 
     // Construct full URL
     const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${KADO_API_URL}${path}`;
     
-    console.log(`Making ${method} request to Kado API: ${url}`);
+    logInfo(`Making ${method} request to Kado API`, { url });
     
     // Generate timestamp for auth
     const timestamp = new Date().toISOString();
@@ -149,7 +339,7 @@ serve(async (req) => {
     try {
       signature = generateSignature(path, timestamp, method, method !== 'GET' ? data : undefined);
     } catch (signError) {
-      console.error('Error generating signature:', signError);
+      logError('Error generating signature', signError);
       return new Response(JSON.stringify({ 
         error: 'Failed to generate authentication signature',
         details: signError.message
@@ -167,32 +357,85 @@ serve(async (req) => {
       'X-Signature': signature,
     };
     
-    console.log('Request headers:', JSON.stringify({
+    logInfo('Request headers prepared', {
       'Content-Type': headers['Content-Type'],
       'X-API-Key': `${headers['X-API-Key'].substring(0, 4)}...${headers['X-API-Key'].substring(headers['X-API-Key'].length - 4)}`,
       'X-Timestamp': headers['X-Timestamp'],
       'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
-    }));
+    });
     
     // Handle ping endpoint specially
     if (endpoint === 'ping' || endpoint === '/ping') {
       try {
-        // For ping endpoint, always return a success response
-        // This helps with initial connection debugging
-        return new Response(JSON.stringify({
-          ping: "success",
-          message: "Ping endpoint is working",
-          timestamp: new Date().toISOString()
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      } catch (pingError) {
-        console.error('Error handling ping endpoint:', pingError);
+        // For enhanced diagnostic info, let's actually call the Kado API ping endpoint
+        // This can help detect if there are issues with the Kado API itself
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          
+          logInfo('Attempting real ping to Kado API', { url });
+          
+          // Make the request to the Kado API
+          const response = await fetch(url, {
+            method: 'GET',
+            headers,
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          logInfo(`Kado API ping response received`, { 
+            status: response.status, 
+            statusText: response.statusText 
+          });
+          
+          // Parse the response
+          const responseText = await response.text();
+          logInfo('Ping response text', { responseText });
+          
+          let responseData;
+          try {
+            responseData = JSON.parse(responseText);
+            logInfo('Parsed ping response', responseData);
+          } catch (parseError) {
+            logError('Error parsing ping response', parseError);
+            responseData = { text: responseText };
+          }
+          
+          // Return the actual response from Kado
+          return new Response(JSON.stringify({
+            ping: response.ok ? "success" : "error",
+            message: response.ok ? "Successfully connected to Kado API" : "Error connecting to Kado API",
+            status: response.status,
+            kadoResponse: responseData,
+            timestamp: new Date().toISOString()
+          }), {
+            status: 200, // Always return 200 to frontend
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+          
+        } catch (pingError) {
+          logError('Error calling Kado ping endpoint', pingError);
+          
+          // If the real ping fails, still return a 200 response to the frontend
+          // but include detailed error information
+          return new Response(JSON.stringify({
+            ping: "error",
+            message: "Error connecting to Kado API",
+            error: pingError instanceof Error ? pingError.message : String(pingError),
+            errorType: pingError.name,
+            timestamp: new Date().toISOString()
+          }), {
+            status: 200, // Return 200 for consistency
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      } catch (pingHandlerError) {
+        logError('Error in ping request handler', pingHandlerError);
         return new Response(JSON.stringify({
           ping: "error",
           message: "Error handling ping request",
-          error: pingError instanceof Error ? pingError.message : String(pingError),
+          error: pingHandlerError instanceof Error ? pingHandlerError.message : String(pingHandlerError),
           timestamp: new Date().toISOString()
         }), {
           status: 200, // Still return 200 for front-end compatibility
@@ -207,6 +450,11 @@ serve(async (req) => {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       // Make the request to the Kado API
+      logInfo(`Making request to ${url}`, { 
+        method, 
+        hasBody: method !== 'GET' && !!data
+      });
+      
       const response = await fetch(url, {
         method,
         headers,
@@ -216,17 +464,21 @@ serve(async (req) => {
       
       clearTimeout(timeoutId);
       
-      console.log(`Kado API response status: ${response.status}`);
+      logInfo(`Kado API response received`, { 
+        status: response.status, 
+        statusText: response.statusText 
+      });
       
       // Parse the response
       const responseText = await response.text();
-      console.log('Response text:', responseText);
+      logInfo('Response text received', { responseText });
       
       let responseData;
       try {
         responseData = JSON.parse(responseText);
+        logInfo('Parsed response data', responseData);
       } catch (parseError) {
-        console.error('Error parsing response:', parseError);
+        logError('Error parsing response', parseError);
         responseData = { text: responseText };
       }
       
@@ -236,11 +488,22 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (fetchError) {
-      console.error('Error fetching from API:', fetchError);
+      logError('Error fetching from API', fetchError);
+      
+      // Enhanced error information
+      const errorDetails = {
+        message: fetchError instanceof Error ? fetchError.message : String(fetchError),
+        name: fetchError.name,
+        isAbortError: fetchError.name === 'AbortError',
+        isTypeError: fetchError instanceof TypeError,
+        stack: fetchError instanceof Error ? fetchError.stack : undefined
+      };
+      
+      logInfo('Error details', errorDetails);
       
       return new Response(JSON.stringify({
         error: 'Error connecting to Kado API',
-        message: fetchError instanceof Error ? fetchError.message : String(fetchError),
+        details: errorDetails,
         timestamp: new Date().toISOString()
       }), {
         status: 200, // Always return 200 to frontend to avoid edge function errors
@@ -248,11 +511,12 @@ serve(async (req) => {
       });
     }
   } catch (error) {
-    console.error('Unhandled error in edge function:', error);
+    logError('Unhandled error in edge function', error);
     
     return new Response(JSON.stringify({
       error: 'Unhandled error in edge function',
       message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
       timestamp: new Date().toISOString()
     }), {
       status: 200, // Always return 200 to frontend to avoid edge function errors
