@@ -12,17 +12,17 @@ const HeroTrustIndicators: React.FC = () => {
     >
       <div className="flex">
         <img 
-          src="https://randomuser.me/api/portraits/men/77.jpg" 
+          src="https://randomuser.me/api/portraits/men/25.jpg" 
           alt="User" 
           className="w-10 h-10 rounded-full border-2 border-white shadow-md"
         />
         <img 
-          src="https://randomuser.me/api/portraits/women/79.jpg" 
+          src="https://randomuser.me/api/portraits/women/67.jpg" 
           alt="User" 
           className="w-10 h-10 rounded-full border-2 border-white shadow-md -ml-2"
         />
         <img 
-          src="https://randomuser.me/api/portraits/men/68.jpg" 
+          src="https://randomuser.me/api/portraits/women/90.jpg" 
           alt="User" 
           className="w-10 h-10 rounded-full border-2 border-white shadow-md -ml-2"
         />
