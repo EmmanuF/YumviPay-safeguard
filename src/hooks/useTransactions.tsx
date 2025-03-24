@@ -20,9 +20,15 @@ export const useTransactions = () => {
 
   // Initialize transactions if needed
   useEffect(() => {
-    initializeTransactions().catch(error => {
-      console.error('Failed to initialize transactions:', error);
-    });
+    const init = async () => {
+      try {
+        await initializeTransactions();
+      } catch (error) {
+        console.error('Failed to initialize transactions:', error);
+      }
+    };
+    
+    init();
   }, []);
 
   // Load transactions
@@ -53,7 +59,7 @@ export const useTransactions = () => {
     return await getTransactionById(id);
   };
 
-  // Get recent transactions - removed the limit parameter since the implementation doesn't use it
+  // Get recent transactions
   const getRecentTransactions = async () => {
     return await getRecentTxs();
   };

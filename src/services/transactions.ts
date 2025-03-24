@@ -1,31 +1,42 @@
 
-// This file is maintained for backward compatibility
-// It re-exports everything from the new files to ensure existing imports work
+import { getTransactionById as getTransaction, getAllTransactions, getRecentTransactions } from './transaction';
+import { Transaction } from '@/types/transaction';
 
-import { Transaction, TransactionStatus } from "@/types/transaction";
-import {
-  createTransaction,
-  getTransactionById,
-  getAllTransactions,
-  getRecentTransactions,
-  updateTransactionStatus,
-  simulateKadoWebhook,
-  initializeTransactions
-} from "@/services/transaction";
+// This file serves as a compatibility layer for legacy code that might still use
+// the old transactions service syntax. It redirects all requests to the new transaction service.
 
-// Re-export types
-export type { Transaction, TransactionStatus };
-
-// Re-export functions
-export {
-  createTransaction,
-  getTransactionById,
-  getAllTransactions,
-  getRecentTransactions,
-  updateTransactionStatus,
-  simulateKadoWebhook,
-  initializeTransactions
+/**
+ * Get a transaction by ID
+ */
+export const getTransactionById = async (id: string): Promise<Transaction> => {
+  try {
+    return await getTransaction(id);
+  } catch (error) {
+    console.error(`Error retrieving transaction ${id}:`, error);
+    throw error;
+  }
 };
 
-// Initialize transactions on import but don't block
-initializeTransactions().catch(err => console.error('Error initializing transactions:', err));
+/**
+ * Get all transactions
+ */
+export const getTransactions = async (): Promise<Transaction[]> => {
+  try {
+    return await getAllTransactions();
+  } catch (error) {
+    console.error('Error retrieving transactions:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get recent transactions
+ */
+export const getRecentTransactionsLegacy = async (): Promise<Transaction[]> => {
+  try {
+    return await getRecentTransactions();
+  } catch (error) {
+    console.error('Error retrieving recent transactions:', error);
+    throw error;
+  }
+};
