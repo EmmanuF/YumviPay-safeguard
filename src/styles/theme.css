@@ -30,7 +30,7 @@
     --destructive-foreground: 0 0% 100%; /* White (#FFFFFF) */
 
     --border: 260 33% 90%; /* Light violet-gray border */
-    --input: 0 0% 96%; /* Soft Gray (#F5F5F5) for inputs */
+    --input: 0 0% 96%; /* Soft Gray (#F5F5F5) for inputs - updated from lavender */
     --ring: 277 100% 25%; /* Deep Indigo (#4B0082) */
 
     --radius: 1rem;

@@ -18,7 +18,7 @@ const AmountInput: React.FC<AmountInputProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`bg-secondary-100 rounded-xl p-4 ${className}`}>
+    <div className={`bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 transition-colors ${className}`}>
       <label className="text-sm text-gray-600 mb-1 block">{label}</label>
       <div className="flex">
         {readOnly ? (
@@ -28,7 +28,7 @@ const AmountInput: React.FC<AmountInputProps> = ({
             type="text"
             value={value}
             onChange={(e) => onChange && onChange(e.target.value)}
-            className="border-0 text-xl font-medium bg-transparent flex-1 focus-visible:ring-0"
+            className="border-0 text-xl font-medium bg-transparent flex-1 focus-visible:ring-2 focus-visible:ring-indigo-500"
           />
         )}
       </div>
