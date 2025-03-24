@@ -41,16 +41,16 @@ const HeroCalculator: React.FC = () => {
       {/* Enhanced background elements with gradients */}
       <motion.div
         variants={itemVariants}
-        className="absolute inset-0 bg-gradient-to-br from-primary-100/40 to-secondary-100/30 rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-70"
+        className="absolute inset-0 bg-gradient-to-br from-indigo-100/40 to-secondary-100/30 rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-70"
       />
       <motion.div 
         variants={itemVariants}
-        className="absolute inset-0 bg-gradient-to-tr from-yellow-200/20 to-primary-200/20 rounded-2xl transform -rotate-1 scale-[1.01] opacity-60"
+        className="absolute inset-0 bg-gradient-to-tr from-indigo-50/20 to-secondary-200/20 rounded-2xl transform -rotate-1 scale-[1.01] opacity-60"
       />
       
       {/* Decorative elements */}
       <motion.div 
-        className="absolute -top-6 -left-6 w-12 h-12 bg-yellow-300 rounded-full opacity-70 z-0"
+        className="absolute -top-6 -left-6 w-12 h-12 bg-indigo-300 rounded-full opacity-70 z-0"
         animate={{ 
           y: [0, -8, 0],
           scale: [1, 1.05, 1],
@@ -78,7 +78,7 @@ const HeroCalculator: React.FC = () => {
       />
       
       <motion.div 
-        className="absolute -bottom-4 -right-4 w-16 h-16 bg-primary-300 rounded-full opacity-70 z-0"
+        className="absolute -bottom-4 -right-4 w-16 h-16 bg-secondary-300 rounded-full opacity-70 z-0"
         animate={{ 
           y: [0, 8, 0],
           scale: [1, 1.1, 1],
@@ -106,7 +106,7 @@ const HeroCalculator: React.FC = () => {
               ease: "easeInOut"
             }}
           >
-            <Sparkles className="text-yellow-400 h-6 w-6" />
+            <Sparkles className="text-primary-400 h-6 w-6" />
           </motion.div>
           
           <motion.div
@@ -122,7 +122,7 @@ const HeroCalculator: React.FC = () => {
               ease: "easeInOut"
             }}
           >
-            <TrendingUp className="text-primary-500 h-5 w-5" />
+            <TrendingUp className="text-indigo-500 h-5 w-5" />
           </motion.div>
         </>
       )}
@@ -143,8 +143,8 @@ const HeroCalculator: React.FC = () => {
           animate={{ y: [0, 4, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <span className="group-hover:text-primary-600 transition-colors">See more rates</span>
-          <ChevronDown size={14} className="group-hover:text-primary-600 transition-colors" />
+          <span className="group-hover:text-indigo-600 transition-colors">See more rates</span>
+          <ChevronDown size={14} className="group-hover:text-indigo-600 transition-colors" />
         </motion.div>
       </motion.div>
     </motion.div>

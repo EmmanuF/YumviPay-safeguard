@@ -35,19 +35,19 @@ const Home = () => {
     <MobileAppLayout>
       <PageTransition>
         <div className="min-h-screen">
-          {/* Purple header with cleaner styling */}
+          {/* Indigo header with cleaner styling */}
           <div className="relative overflow-hidden">
-            {/* Purple header base layer */}
+            {/* Indigo header base layer */}
             <div className="absolute top-0 left-0 right-0 z-20">
               {/* Top solid section */}
-              <div className="h-20 bg-primary-600"></div>
+              <div className="h-20 bg-indigo-600"></div>
               
               {/* Additional bottom layer for smoother transition */}
-              <div className="h-4 bg-primary-400 transform origin-top-right"></div>
+              <div className="h-4 bg-indigo-500 transform origin-top-right"></div>
             </div>
             
-            {/* Yellow background section */}
-            <div className="bg-gradient-to-b from-[#FFDD33] to-[#FFF176]/80 pt-24 relative z-10">
+            {/* Light background section instead of yellow */}
+            <div className="bg-gradient-to-b from-muted to-white pt-24 relative z-10 hero-bg">
               <div className="pt-8">
                 <Navigation onGetStarted={handleGetStarted} />
                 <Hero onGetStarted={handleGetStarted} />
@@ -55,8 +55,8 @@ const Home = () => {
             </div>
           </div>
           
-          {/* Rest of the sections with neutral/light/purple background */}
-          <div className="bg-gradient-to-b from-primary-50 to-white">
+          {/* Rest of the sections with neutral/light background */}
+          <div className="bg-gradient-to-b from-white to-muted/50">
             <div className="container mx-auto px-4 pb-24">
               <motion.div
                 variants={containerVariants}

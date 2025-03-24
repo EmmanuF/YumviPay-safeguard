@@ -5,14 +5,14 @@
 
 @layer base {
   :root {
-    --background: 277 100% 25%; /* Deep Indigo (#4B0082) */
-    --foreground: 0 0% 100%; /* White (#FFFFFF) */
+    --background: 0 0% 100%; /* White (#FFFFFF) - clean look */
+    --foreground: 0 0% 20%; /* Dark gray for text (#333333) */
 
-    --card: 277 100% 25%; /* Deep Indigo (#4B0082) */
-    --card-foreground: 0 0% 100%; /* White (#FFFFFF) */
+    --card: 0 0% 100%; /* White (#FFFFFF) */
+    --card-foreground: 277 100% 25%; /* Deep Indigo (#4B0082) */
 
-    --popover: 277 100% 25%; /* Deep Indigo (#4B0082) */
-    --popover-foreground: 0 0% 100%; /* White (#FFFFFF) */
+    --popover: 0 0% 100%; /* White (#FFFFFF) */
+    --popover-foreground: 277 100% 25%; /* Deep Indigo (#4B0082) */
 
     --primary: 120 100% 25%; /* Bright Green (#008000) for CTAs */
     --primary-foreground: 0 0% 100%; /* White (#FFFFFF) */
@@ -20,18 +20,18 @@
     --secondary: 271 75% 53%; /* Blue Violet (#8A2BE2) */
     --secondary-foreground: 0 0% 100%; /* White (#FFFFFF) */
 
-    --muted: 0 0% 96%; /* Soft Gray (#F5F5F5) */
-    --muted-foreground: 277 100% 15%; /* Darker Indigo text for muted areas */
+    --muted: 260 33% 97%; /* Soft light violet-gray (#EEEAF4) */
+    --muted-foreground: 0 0% 45%; /* Medium gray text */
 
     --accent: 271 75% 53%; /* Blue Violet (#8A2BE2) */
     --accent-foreground: 0 0% 100%; /* White (#FFFFFF) */
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84.2% 60.2%; /* Keep standard red */
     --destructive-foreground: 0 0% 100%; /* White (#FFFFFF) */
 
-    --border: 277 100% 35%; /* Slightly lighter border than background */
+    --border: 260 33% 90%; /* Light violet-gray border */
     --input: 0 0% 96%; /* Soft Gray (#F5F5F5) for inputs */
-    --ring: 271 75% 53%; /* Blue Violet (#8A2BE2) */
+    --ring: 277 100% 25%; /* Deep Indigo (#4B0082) */
 
     --radius: 1rem;
   }
@@ -53,7 +53,7 @@
     --secondary-foreground: 0 0% 100%; /* White (#FFFFFF) */
 
     --muted: 277 100% 12%; /* Even darker shade for muted areas */
-    --muted-foreground: 0 0% 90%; /* Slightly off-white for better contrast */
+    --muted-foreground: 0 0% 90%; /* Light gray for better contrast */
 
     --accent: 271 75% 53%; /* Blue Violet (#8A2BE2) */
     --accent-foreground: 0 0% 100%; /* White (#FFFFFF) */
@@ -80,5 +80,9 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-indigo-500 font-bold;
   }
 }
