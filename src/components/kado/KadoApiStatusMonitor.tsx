@@ -105,7 +105,8 @@ const KadoApiStatusMonitor = () => {
       return <Badge variant="destructive">No Keys Configured</Badge>;
     }
     
-    return <Badge variant="warning">Partially Configured</Badge>;
+    // Change "warning" to "default" since "warning" is not a valid variant
+    return <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-white">Partially Configured</Badge>;
   };
 
   return (
