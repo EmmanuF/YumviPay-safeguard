@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { createNetworkError } from '@/utils/errorHandling';
 
 /**
  * Service to handle Kado API integration
@@ -23,7 +24,21 @@ export const kadoApiService = {
       
       if (error) {
         console.error('Error calling Kado API:', error);
-        throw error;
+        
+        // Create specific error type for better handling
+        throw createNetworkError(
+          error.message || 'Failed to connect to Kado API',
+          'server-error'
+        );
+      }
+      
+      if (response && response.error) {
+        console.error('Error response from Kado API:', response.error);
+        throw createNetworkError(
+          response.message || 'Error from Kado API',
+          'server-error',
+          response.status
+        );
       }
       
       return response;
@@ -44,8 +59,10 @@ export const kadoApiService = {
    */
   checkApiConnection: async () => {
     try {
+      console.log('Checking Kado API connection...');
       // Ping the Kado API to check if credentials are working
       const response = await kadoApiService.callKadoApi('ping', 'GET');
+      console.log('Kado API connection response:', response);
       return { 
         connected: true, 
         message: 'Successfully connected to Kado API' 

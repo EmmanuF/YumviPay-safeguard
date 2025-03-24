@@ -21,12 +21,15 @@ const corsHeaders = {
  * @param body Request body for POST/PUT requests
  * @returns HMAC signature string
  */
-const generateSignature = (path: string, timestamp: string, method: string, body?: string): string => {
+const generateSignature = (path: string, timestamp: string, method: string, body?: any): string => {
   const encoder = new TextEncoder();
   const secret = encoder.encode(KADO_API_SECRET);
   
   // Create message string to sign
-  const message = method.toUpperCase() + path + timestamp + (body ? JSON.stringify(body) : '');
+  let message = method.toUpperCase() + path + timestamp;
+  if (body) {
+    message += JSON.stringify(body);
+  }
   
   // Create HMAC signature
   const hmac = new Deno.HmacSha256(secret);
@@ -35,6 +38,7 @@ const generateSignature = (path: string, timestamp: string, method: string, body
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
   
+  console.log(`Generated signature for ${method} ${path}`);
   return signature;
 };
 
@@ -42,6 +46,7 @@ const generateSignature = (path: string, timestamp: string, method: string, body
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request');
     return new Response(null, {
       status: 204,
       headers: corsHeaders,
@@ -49,8 +54,13 @@ serve(async (req) => {
   }
 
   try {
+    // Log request details
+    console.log(`Request method: ${req.method}`);
+    console.log(`Request URL: ${req.url}`);
+    
     // Verify request is POST
     if (req.method !== 'POST') {
+      console.error('Method not allowed:', req.method);
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -69,9 +79,13 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { endpoint, method = 'GET', data } = await req.json();
+    const reqBody = await req.json();
+    console.log('Request body:', JSON.stringify(reqBody));
+    
+    const { endpoint, method = 'GET', data } = reqBody;
     
     if (!endpoint) {
+      console.error('Missing endpoint in request');
       return new Response(JSON.stringify({ error: 'Endpoint is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -96,7 +110,10 @@ serve(async (req) => {
       'X-API-Key': KADO_API_KEY,
       'X-Timestamp': timestamp,
       'X-Signature': signature,
+      ...corsHeaders, // Add CORS headers to response
     };
+    
+    console.log('Request headers:', JSON.stringify(headers, null, 2));
     
     // Make the request to Kado API
     const response = await fetch(url, {
@@ -105,21 +122,39 @@ serve(async (req) => {
       body: method !== 'GET' && data ? JSON.stringify(data) : undefined,
     });
     
-    // Get response data
-    const responseData = await response.json();
+    console.log(`Kado API response status: ${response.status}`);
     
+    // For non-OK responses, log headers and response details
     if (!response.ok) {
-      console.error(`Kado API error (${response.status}):`, responseData);
+      console.error(`Kado API error (${response.status}):`);
+      const responseText = await response.text();
+      console.error('Response body:', responseText);
       
-      return new Response(JSON.stringify({ 
-        error: 'Error from Kado API', 
-        status: response.status,
-        details: responseData 
-      }), {
-        status: response.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      try {
+        const responseData = JSON.parse(responseText);
+        return new Response(JSON.stringify({ 
+          error: 'Error from Kado API', 
+          status: response.status,
+          details: responseData 
+        }), {
+          status: 500, // Return 500 to client but log the actual status
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (parseError) {
+        return new Response(JSON.stringify({ 
+          error: 'Error from Kado API', 
+          status: response.status,
+          details: responseText 
+        }), {
+          status: 500, // Return 500 to client but log the actual status
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
+    
+    // Parse JSON response
+    const responseData = await response.json();
+    console.log('Kado API response data:', JSON.stringify(responseData, null, 2));
     
     // Return success response
     return new Response(JSON.stringify(responseData), {
@@ -129,7 +164,11 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing request:', error);
     
-    return new Response(JSON.stringify({ error: error.message || 'Internal server error' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error', 
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

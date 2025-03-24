@@ -38,6 +38,9 @@ import CountryPage from '@/pages/countries/CountryPage';
 import TransactionStatus from '@/pages/TransactionStatus';
 import TransactionDetails from '@/pages/TransactionDetails';
 
+// Debug tools
+import KadoConnectionDebugger from '@/components/kado/KadoConnectionDebugger';
+
 function App() {
   return (
     <AuthProvider>
@@ -89,6 +92,9 @@ function App() {
                       <TransactionStatus />
                     </ProtectedRoute>
                   } />
+                  
+                  {/* Debug Routes */}
+                  <Route path="/debug/kado" element={<KadoConnectionDebugger />} />
                   
                   {/* Footer Pages */}
                   <Route path="/about" element={<AboutUs />} />
