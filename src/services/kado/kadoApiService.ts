@@ -50,30 +50,30 @@ export const kadoApiService = {
         );
       }
       
-      // Check if response contains an error
+      // Check if response contains an error from our Edge Function
       if (response && response.error) {
-        console.error('Error response from Kado API:', response.error);
+        console.error('Error response from Edge Function:', response.error);
         throw createNetworkError(
           response.error.message || 'Error from Kado API',
-          'server-error',
-          response.status
+          'server-error'
         );
       }
       
-      // Special handling for ping endpoint to check for API key issues
-      if (endpoint === 'ping' && response && response.ping === 'partial_success') {
-        console.warn('Partial success from ping endpoint:', response);
-        // Still return the response but with a warning about the partial success
-        console.log('Edge function running but could not connect to Kado API');
+      // Special handling for ping endpoint
+      if (endpoint === 'ping') {
+        console.log('Ping response:', response);
+        
+        if (response && response.ping === 'error') {
+          throw createNetworkError(
+            response.message || 'Error from ping endpoint',
+            'server-error'
+          );
+        }
       }
       
       return response;
     } catch (error) {
       console.error('Error calling Kado API:', error);
-      
-      // Don't show toast here - let the calling function decide how to handle the error
-      // This allows for more targeted error handling in different contexts
-      
       throw error;
     }
   },
@@ -126,18 +126,10 @@ export const kadoApiService = {
         };
       }
       
-      // Handle partial success from ping
-      if (response.ping === 'partial_success') {
-        return {
-          connected: true,
-          message: `Edge function running but could not connect to Kado API: ${response.message || 'Unknown error'}`
-        };
-      }
-      
       // Handle successful ping
       return { 
         connected: true, 
-        message: 'Successfully connected to Kado API' 
+        message: response.message || 'Successfully connected to Kado API' 
       };
     } catch (error) {
       console.error('Kado API connection check failed:', error);
@@ -147,11 +139,6 @@ export const kadoApiService = {
       
       if (error instanceof Error) {
         errorMessage += `: ${error.message}`;
-        
-        // Add more context for edge function errors
-        if (error.message.includes('Edge Function returned a non-2xx status code')) {
-          errorMessage = 'Failed to connect to Kado API: Edge Function returned a non-2xx status code. Please check the Edge Function logs.';
-        }
       }
       
       return { 

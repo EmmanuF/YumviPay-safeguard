@@ -56,11 +56,10 @@ export function handleNetworkError(error: any): NetworkError {
     );
   }
   
-  // Handle Supabase Edge Function errors
+  // Handle Edge Function errors with better user-facing messages
   if (error.message && error.message.includes('Edge Function returned a non-2xx status code')) {
-    // This likely means the edge function encountered an error
     return createNetworkError(
-      'Error connecting to Kado API service. Please check your Supabase Edge Function logs.',
+      'Error connecting to Kado API service. Please check the Supabase Edge Function logs.',
       'server-error'
     );
   }
@@ -76,7 +75,15 @@ export function handleNetworkError(error: any): NetworkError {
     );
   }
   
-  // Handle specific Supabase edge function errors with more meaningful messages
+  // Handle JSON parse errors
+  if (error.name === 'SyntaxError' && error.message.includes('Unexpected token')) {
+    return createNetworkError(
+      'Invalid response format from server. This may indicate an issue with the API or Edge Function.',
+      'server-error'
+    );
+  }
+  
+  // Handle specific Supabase edge function errors
   if (error.error && error.error === 'Internal server error') {
     return createNetworkError(
       'Supabase Edge Function encountered an error. Please check the logs for details.',
