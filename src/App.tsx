@@ -33,6 +33,10 @@ import FAQ from '@/pages/support/FAQ';
 // Country pages
 import CountryPage from '@/pages/countries/CountryPage';
 
+// Transaction pages
+import TransactionStatus from '@/pages/TransactionStatus';
+import TransactionDetails from '@/pages/TransactionDetails';
+
 function App() {
   return (
     <AuthProvider>
@@ -70,6 +74,18 @@ function App() {
                   <Route path="/recipients" element={
                     <ProtectedRoute>
                       <Recipients />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Transaction Routes */}
+                  <Route path="/transaction/:transactionId" element={
+                    <ProtectedRoute>
+                      <TransactionDetails />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/transaction/new" element={
+                    <ProtectedRoute>
+                      <TransactionStatus />
                     </ProtectedRoute>
                   } />
                   
