@@ -1,105 +1,72 @@
 
-@layer utilities {
-  /* Enhanced glass card effects with depth and more pronounced visuals */
-  .glass-card {
-    @apply bg-secondary-50/90 border border-white/40 shadow-lg;
-    box-shadow: 
-      0 10px 30px rgba(110, 54, 229, 0.08),
-      0 6px 12px rgba(110, 54, 229, 0.06),
-      inset 0 1px 1px rgba(255, 255, 255, 0.6);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  
-  .glass-card:active {
-    @apply transform scale-[0.98] shadow-md;
-    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                box-shadow 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  
-  .glass-dark {
-    @apply bg-gray-900/80 border border-gray-800/30 shadow-lg;
-  }
-  
-  /* Enhanced glass effects with better visual separation and depth - removed backdrop blur */
-  .glass-effect {
-    @apply bg-white border border-white/40;
-    box-shadow: 
-      0 10px 40px -5px rgba(110, 54, 229, 0.12),
-      0 6px 16px -8px rgba(110, 54, 229, 0.08),
-      inset 0 1px 1px rgba(255, 255, 255, 0.6);
-  }
-
-  .dark .glass-effect {
-    @apply bg-gray-900/90 border border-gray-800/30;
-    box-shadow: 
-      0 10px 40px -5px rgba(0, 0, 0, 0.35),
-      0 6px 16px -8px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Improved glass cards with enhanced depth and light refraction - removed backdrop blur */
-  .glass-card-elevated {
-    @apply bg-secondary-50/95 border border-white/40 shadow-lg;
-    box-shadow: 
-      0 15px 35px -10px rgba(110, 54, 229, 0.15), 
-      0 8px 15px -8px rgba(110, 54, 229, 0.1),
-      0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-      inset 0 1px 2px rgba(255, 255, 255, 0.7);
-  }
-  
-  .dark .glass-card-elevated {
-    box-shadow: 
-      0 15px 35px -5px rgba(0, 0, 0, 0.3), 
-      0 8px 15px -8px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  }
-
-  /* New glass morphism variations with different intensities but no blur */
-  .glass-soft {
-    @apply bg-white/95 border border-white/30;
-    box-shadow: 0 4px 12px -4px rgba(110, 54, 229, 0.1);
-  }
-
-  .glass-medium {
-    @apply bg-white/98 border border-white/40;
-    box-shadow: 
-      0 8px 16px -4px rgba(110, 54, 229, 0.12),
-      inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  }
-
-  .glass-strong {
-    @apply bg-white border border-white/50;
-    box-shadow: 
-      0 12px 24px -6px rgba(110, 54, 229, 0.15),
-      0 6px 12px -6px rgba(110, 54, 229, 0.1),
-      inset 0 1px 2px rgba(255, 255, 255, 0.6);
-  }
-  
-  /* Dropdown solid backgrounds */
-  .dropdown-bg {
-    @apply bg-white border border-gray-200 shadow-lg;
-  }
-  
-  .dropdown-item-hover {
-    @apply hover:bg-gray-50 transition-colors;
-  }
-
-  /* Define the bg-white/98 class */
-  .bg-white\/98 {
-    background-color: rgba(255, 255, 255, 0.98);
-  }
+/* Glass morphism effect with new color scheme */
+.glass-effect {
+  @apply backdrop-blur-md bg-white/5 border border-white/15 rounded-xl;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-/* Enhanced neomorphic effects */
-.neo-button {
-  @apply bg-gradient-to-br from-secondary-50 to-secondary-100;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.05), 
-              -6px -6px 12px rgba(255, 255, 255, 0.8);
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Card with deep indigo gradient */
+.indigo-gradient-card {
+  @apply bg-gradient-to-br from-indigo-500 to-indigo-700 text-white rounded-xl shadow-lg;
 }
 
-.neo-button:active {
-  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1), 
-              inset -3px -3px 6px rgba(255, 255, 255, 0.8);
-  transform: scale(0.98);
+/* Card with violet accent */
+.violet-accent-card {
+  @apply bg-gradient-to-br from-secondary-400 to-secondary-600 text-white rounded-xl shadow-lg;
+}
+
+/* Green CTA gradient */
+.green-cta-gradient {
+  @apply bg-gradient-to-br from-primary-400 to-primary-600 text-white rounded-xl shadow-lg;
+}
+
+/* Frosted glass effect for cards on dark background */
+.frosted-card {
+  @apply backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Soft shadow for elevation */
+.soft-shadow {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Text effects */
+.text-shadow-sm {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Gradient text for headings */
+.indigo-text-gradient {
+  @apply bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent;
+}
+
+/* Highlight text effect */
+.highlight-text {
+  @apply relative inline-block;
+}
+
+.highlight-text::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-full h-[30%] bg-secondary-500/30 -z-10 rounded;
+}
+
+/* Input field styling */
+.enhanced-input {
+  @apply bg-muted border-0 focus:ring-2 focus:ring-secondary-400 rounded-lg;
+}
+
+/* Button hover effects */
+.hover-scale {
+  @apply transition-transform duration-300;
+}
+
+.hover-scale:hover {
+  @apply transform scale-105;
+}
+
+/* Divider with gradient */
+.gradient-divider {
+  height: 1px;
+  @apply bg-gradient-to-r from-transparent via-secondary-300/50 to-transparent my-6;
 }

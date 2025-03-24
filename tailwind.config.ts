@@ -26,35 +26,48 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
                 
-                // Updated Yumvi-Pay colors - thicker yellow
+                // Updated with new color scheme
                 primary: {
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
-                    50: '#f5f0ff',
-                    100: '#ece0ff',
-                    200: '#d9c2ff',
-                    300: '#c095ff',
-                    400: '#a566ff',
-                    500: '#6E36E5', // Main primary purple color
-                    600: '#5922d9',
-                    700: '#4a1bb8',
-                    800: '#3d1996',
-                    900: '#321878',
+                    50: '#e6f9e6',
+                    100: '#ccf3cc',
+                    200: '#99e699',
+                    300: '#66d966',
+                    400: '#33cc33',
+                    500: '#008000', // Bright Green
+                    600: '#006600',
+                    700: '#004d00',
+                    800: '#003300',
+                    900: '#001a00',
                 },
-                // Secondary colors changed from yellow to neutral gray
+                // Updated with new Blue Violet secondary
                 secondary: {
                     DEFAULT: 'hsl(var(--secondary))',
                     foreground: 'hsl(var(--secondary-foreground))',
-                    50: '#f9f9fa', // Light gray tint
-                    100: '#f1f1f2', // Lighter gray tint
-                    200: '#e4e4e6',
-                    300: '#d2d2d6',
-                    400: '#a9a9b0',
-                    500: '#8E9196', // Main gray
-                    600: '#71747a',
-                    700: '#585b61',
-                    800: '#45484e',
-                    900: '#393b40',
+                    50: '#f5f0fc', 
+                    100: '#ebe0f9', 
+                    200: '#d7c2f3',
+                    300: '#c3a3ed',
+                    400: '#af85e7',
+                    500: '#8A2BE2', // Blue Violet
+                    600: '#7922cb',
+                    700: '#6719b3',
+                    800: '#55119c',
+                    900: '#430985',
+                },
+                // Deep Indigo shades for backgrounds
+                indigo: {
+                    50: '#f2e6f9',
+                    100: '#e5ccf2',
+                    200: '#cc99e6',
+                    300: '#b266d9',
+                    400: '#9933cc',
+                    500: '#4B0082', // Deep Indigo (background)
+                    600: '#3d006b',
+                    700: '#2E004B', // Darker Indigo (footer)
+                    800: '#1f0033',
+                    900: '#10001a',
                 },
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
