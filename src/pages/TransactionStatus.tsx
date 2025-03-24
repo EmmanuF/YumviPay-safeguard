@@ -14,7 +14,7 @@ import { useTransactionReceipt } from '@/hooks/useTransactionReceipt';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 
 // Utility function to safely parse a number
 const safeParseNumber = (value: string | number | undefined): number => {
