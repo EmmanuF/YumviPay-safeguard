@@ -5,27 +5,49 @@ import { getStoredTransactions } from "./transactionStore";
 
 // Get transaction by ID
 export const getTransactionById = async (id: string): Promise<Transaction> => {
-  const transactions = await getStoredTransactions();
-  const transaction = transactions.find(t => t.id === id);
+  console.log(`getTransactionById called for ID: ${id}`);
   
-  if (!transaction) {
-    throw new Error(`Transaction with ID ${id} not found`);
+  try {
+    const transactions = await getStoredTransactions();
+    console.log(`Retrieved ${transactions.length} transactions from storage`);
+    
+    const transaction = transactions.find(t => t.id === id);
+    
+    if (!transaction) {
+      console.error(`Transaction with ID ${id} not found in stored transactions`);
+      throw new Error(`Transaction with ID ${id} not found`);
+    }
+    
+    console.log(`Found transaction for ID ${id}:`, transaction);
+    return transaction;
+  } catch (error) {
+    console.error(`Error retrieving transaction ${id}:`, error);
+    throw error;
   }
-  
-  return transaction;
 };
 
 // Get all transactions
 export const getTransactions = async (): Promise<Transaction[]> => {
-  return await getStoredTransactions();
+  try {
+    return await getStoredTransactions();
+  } catch (error) {
+    console.error("Error retrieving transactions:", error);
+    throw error;
+  }
 };
 
 // Get recent transactions (last 5)
 export const getRecentTransactions = async (): Promise<Transaction[]> => {
-  const transactions = await getStoredTransactions();
-  return transactions
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+  try {
+    const transactions = await getStoredTransactions();
+    return transactions
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  } catch (error) {
+    console.error("Error retrieving recent transactions:", error);
+    // Return empty array instead of throwing to prevent UI failures
+    return [];
+  }
 };
 
 // Get transaction (alias for getTransactionById for compatibility)
