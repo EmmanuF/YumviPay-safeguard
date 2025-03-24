@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 // Constants
@@ -208,7 +207,33 @@ const handleDiagnostics = async () => {
   try {
     const testPath = '/ping';
     const timestamp = new Date().toISOString();
-    const signature = await generateSignature(testPath, timestamp, 'GET');
+    
+    // Log the API keys being used (masked for security)
+    logInfo('Testing with API keys', {
+      publicKeyConfigured: KADO_API_KEY ? 'yes' : 'no',
+      publicKeyLength: KADO_API_KEY ? KADO_API_KEY.length : 0,
+      publicKeyPreview: KADO_API_KEY ? `${KADO_API_KEY.substring(0, 4)}...${KADO_API_KEY.substring(KADO_API_KEY.length - 4)}` : 'not set',
+      privateKeyConfigured: KADO_API_SECRET ? 'yes' : 'no',
+      privateKeyLength: KADO_API_SECRET ? KADO_API_SECRET.length : 0,
+    });
+    
+    // Generate signature with additional logging
+    let signature;
+    try {
+      signature = await generateSignature(testPath, timestamp, 'GET');
+      logInfo('Signature generated successfully', {
+        signatureLength: signature.length,
+        signaturePreview: signature.substring(0, 10) + '...'
+      });
+    } catch (signatureError) {
+      logError('Error generating signature for ping test', signatureError);
+      diagnosticResults.fullPingTest = {
+        success: false,
+        error: `Signature generation error: ${signatureError instanceof Error ? signatureError.message : String(signatureError)}`,
+        stage: 'signature_generation'
+      };
+      throw signatureError;
+    }
     
     const headers = {
       'Content-Type': 'application/json',
@@ -231,6 +256,8 @@ const handleDiagnostics = async () => {
     
     // First try a simpler approach with custom error handling
     try {
+      logInfo(`Sending request to ${pingUrl}`);
+      
       const response = await fetch(pingUrl, {
         method: 'GET',
         headers,
@@ -271,6 +298,12 @@ const handleDiagnostics = async () => {
           }
         }
       };
+      
+      // If we get a 401 or 403, it's likely an authentication issue
+      if (response.status === 401 || response.status === 403) {
+        diagnosticResults.fullPingTest.authError = true;
+        diagnosticResults.fullPingTest.authErrorReason = "Authentication failed - check API keys";
+      }
       
     } catch (pingError) {
       logError(`Direct ping test error: ${pingError instanceof Error ? pingError.message : String(pingError)}`);
@@ -316,12 +349,25 @@ const handleDiagnostics = async () => {
       ''                // Try the root endpoint
     ];
     
+    logInfo('Testing alternative endpoints', { alternativeEndpoints });
+    
     const exploratoryResults = [];
     
     for (const endpoint of alternativeEndpoints) {
       const testPath = endpoint;
       const timestamp = new Date().toISOString();
-      const signature = await generateSignature(testPath, timestamp, 'GET');
+      let signature;
+      
+      try {
+        signature = await generateSignature(testPath, timestamp, 'GET');
+      } catch (signError) {
+        exploratoryResults.push({
+          endpoint: testPath || '/',
+          success: false,
+          error: `Signature error: ${signError instanceof Error ? signError.message : String(signError)}`
+        });
+        continue;
+      }
       
       const headers = {
         'Content-Type': 'application/json',
@@ -337,6 +383,8 @@ const handleDiagnostics = async () => {
       logInfo(`Testing alternative endpoint: ${testUrl}`);
       
       try {
+        logInfo(`Sending request to alternative endpoint: ${testUrl}`);
+        
         const response = await fetch(testUrl, {
           method: 'GET',
           headers,
@@ -348,8 +396,10 @@ const handleDiagnostics = async () => {
         
         try {
           responseText = await response.text();
+          logInfo(`Response from ${testPath || '/'}: ${status} - ${responseText.substring(0, 100)}`);
         } catch (e) {
           responseText = "(failed to get response text)";
+          logError(`Failed to get response text from ${testPath || '/'}: ${e instanceof Error ? e.message : String(e)}`);
         }
         
         exploratoryResults.push({
@@ -594,6 +644,22 @@ serve(async (req) => {
             });
           }
           
+          // If we got a 401 or 403, it's an authentication issue
+          if (response.status === 401 || response.status === 403) {
+            logInfo('Authentication failed (401/403), returning error response');
+            
+            return new Response(JSON.stringify({
+              ping: "error",
+              message: "Authentication failed - check your API keys",
+              status: response.status,
+              authError: true,
+              timestamp: new Date().toISOString()
+            }), {
+              status: 200, // Always return 200 to frontend
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
           // Return the actual response from Kado
           return new Response(JSON.stringify({
             ping: response.ok ? "success" : "error",
@@ -609,6 +675,16 @@ serve(async (req) => {
         } catch (pingError) {
           logError('Error calling Kado ping endpoint', pingError);
           
+          // Enhance error information for debugging
+          const errorInfo = {
+            message: pingError instanceof Error ? pingError.message : String(pingError),
+            name: pingError instanceof Error ? pingError.name : 'Unknown',
+            stack: pingError instanceof Error ? pingError.stack : undefined,
+            isAbortError: pingError instanceof Error && pingError.name === 'AbortError'
+          };
+          
+          logInfo('Detailed ping error info', errorInfo);
+          
           // If the real ping fails, still return a 200 response to the frontend
           // but include detailed error information
           return new Response(JSON.stringify({
@@ -616,6 +692,7 @@ serve(async (req) => {
             message: "Error connecting to Kado API",
             error: pingError instanceof Error ? pingError.message : String(pingError),
             errorType: pingError instanceof Error ? pingError.name : typeof pingError,
+            errorDetails: errorInfo,
             timestamp: new Date().toISOString()
           }), {
             status: 200, // Return 200 for consistency
@@ -721,4 +798,3 @@ serve(async (req) => {
     });
   }
 });
-

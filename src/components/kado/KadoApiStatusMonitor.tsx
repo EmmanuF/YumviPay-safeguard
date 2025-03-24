@@ -8,11 +8,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, XCircle, RefreshCw, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { kadoApiService } from '@/services/kado/kadoApiService';
 
 type ApiKeyStatus = {
   publicKey: boolean;
   privateKey: boolean;
   lastChecked: string | null;
+  error?: string | null;
 };
 
 const KadoApiStatusMonitor = () => {
@@ -30,38 +32,28 @@ const KadoApiStatusMonitor = () => {
       setIsLoading(true);
       console.log('Checking if API keys are configured...');
       
-      const { data: secretsData, error: secretsError } = await supabase.functions.invoke('kado-api', {
-        body: { endpoint: 'check-secrets' }
-      });
-      
-      if (secretsError) {
-        console.error('Error checking API keys:', secretsError);
-        setApiKeysInfo({ 
-          publicKey: false, 
-          privateKey: false, 
-          lastChecked: new Date().toISOString() 
-        });
-        return { publicKey: false, privateKey: false };
-      }
-      
-      const publicKeyConfigured = secretsData?.publicKeyConfigured || false;
-      const privateKeyConfigured = secretsData?.privateKeyConfigured || false;
-      
-      console.log(`API keys status - Public key: ${publicKeyConfigured ? 'Configured' : 'Missing'}, Private key: ${privateKeyConfigured ? 'Configured' : 'Missing'}`);
+      const keysStatus = await kadoApiService.checkApiKeys();
       
       setApiKeysInfo({
-        publicKey: publicKeyConfigured,
-        privateKey: privateKeyConfigured,
-        lastChecked: new Date().toISOString()
+        publicKey: keysStatus.publicKeyConfigured,
+        privateKey: keysStatus.privateKeyConfigured,
+        lastChecked: new Date().toISOString(),
+        error: keysStatus.error
       });
       
-      return { publicKey: publicKeyConfigured, privateKey: privateKeyConfigured };
+      console.log(`API keys status - Public key: ${keysStatus.publicKeyConfigured ? 'Configured' : 'Missing'}, Private key: ${keysStatus.privateKeyConfigured ? 'Configured' : 'Missing'}`);
+      
+      return { 
+        publicKey: keysStatus.publicKeyConfigured, 
+        privateKey: keysStatus.privateKeyConfigured 
+      };
     } catch (error) {
       console.error(`Error checking API keys configuration:`, error);
       setApiKeysInfo({ 
         publicKey: false, 
         privateKey: false, 
-        lastChecked: new Date().toISOString() 
+        lastChecked: new Date().toISOString(),
+        error: error instanceof Error ? error.message : String(error)
       });
       return { publicKey: false, privateKey: false };
     } finally {
@@ -105,8 +97,7 @@ const KadoApiStatusMonitor = () => {
       return <Badge variant="destructive">No Keys Configured</Badge>;
     }
     
-    // Change "warning" to "default" since "warning" is not a valid variant
-    return <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-white">Partially Configured</Badge>;
+    return <Badge variant="warning">Partially Configured</Badge>;
   };
 
   return (
@@ -126,6 +117,14 @@ const KadoApiStatusMonitor = () => {
           </div>
         ) : (
           <div className="space-y-3">
+            {apiKeysInfo.error && (
+              <Alert variant="destructive" className="mb-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Error checking API keys</AlertTitle>
+                <AlertDescription>{apiKeysInfo.error}</AlertDescription>
+              </Alert>
+            )}
+            
             {(!apiKeysInfo.publicKey || !apiKeysInfo.privateKey) ? (
               <Alert variant="warning" className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300">
                 <AlertTriangle className="h-4 w-4" />
