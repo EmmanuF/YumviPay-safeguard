@@ -39,13 +39,14 @@ const logError = (message: string, error?: any) => {
 
 /**
  * Generate HMAC signature for Kado API authentication
+ * Updated to use the correct Deno crypto API
  * @param path API path
  * @param timestamp Request timestamp
  * @param method HTTP method
  * @param body Request body for POST/PUT requests
  * @returns HMAC signature string
  */
-const generateSignature = (path: string, timestamp: string, method: string, body?: any): string => {
+const generateSignature = async (path: string, timestamp: string, method: string, body?: any): Promise<string> => {
   try {
     logInfo(`Generating signature for ${method} ${path}`, { 
       timestamp, 
@@ -54,7 +55,7 @@ const generateSignature = (path: string, timestamp: string, method: string, body
     });
     
     const encoder = new TextEncoder();
-    const secret = encoder.encode(KADO_API_SECRET);
+    const secretKey = encoder.encode(KADO_API_SECRET);
     
     // Create message string to sign
     let message = method.toUpperCase() + path + timestamp;
@@ -64,10 +65,23 @@ const generateSignature = (path: string, timestamp: string, method: string, body
     
     logInfo(`Signature message created`, { messageLength: message.length });
     
-    // Create HMAC signature
-    const hmac = new Deno.HmacSha256(secret);
-    hmac.update(encoder.encode(message));
-    const signature = Array.from(new Uint8Array(hmac.digest()))
+    // Create HMAC signature using the correct crypto API
+    const key = await crypto.subtle.importKey(
+      "raw",
+      secretKey,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    
+    const signatureBuffer = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      encoder.encode(message)
+    );
+    
+    // Convert to hex string
+    const signature = Array.from(new Uint8Array(signatureBuffer))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
     
@@ -105,7 +119,7 @@ const handleDiagnostics = async () => {
   try {
     const testTimestamp = new Date().toISOString();
     const testPath = '/test-path';
-    const signature = generateSignature(testPath, testTimestamp, 'GET');
+    const signature = await generateSignature(testPath, testTimestamp, 'GET');
     diagnosticResults.hmacTest = {
       success: true,
       signatureLength: signature.length,
@@ -149,7 +163,7 @@ const handleDiagnostics = async () => {
   try {
     const testPath = '/ping';
     const timestamp = new Date().toISOString();
-    const signature = generateSignature(testPath, timestamp, 'GET');
+    const signature = await generateSignature(testPath, timestamp, 'GET');
     
     const headers = {
       'Content-Type': 'application/json',
@@ -337,7 +351,7 @@ serve(async (req) => {
     // Generate signature for auth
     let signature;
     try {
-      signature = generateSignature(path, timestamp, method, method !== 'GET' ? data : undefined);
+      signature = await generateSignature(path, timestamp, method, method !== 'GET' ? data : undefined);
     } catch (signError) {
       logError('Error generating signature', signError);
       return new Response(JSON.stringify({ 

@@ -7,6 +7,7 @@ export type NetworkErrorType =
   | 'server-error'
   | 'authentication-error'
   | 'api-error'
+  | 'crypto-error'
   | 'unknown-error';
 
 export interface NetworkError extends Error {
@@ -84,6 +85,22 @@ export function handleNetworkError(error: any): NetworkError {
       status,
       undefined,
       details
+    );
+  }
+  
+  // Handle cryptographic errors (for Kado HMAC signature issues)
+  if (error.message && (
+    error.message.includes('Failed to generate signature') ||
+    error.message.includes('is not a constructor') ||
+    error.message.includes('crypto') ||
+    error.message.includes('HMAC')
+  )) {
+    return createNetworkError(
+      'Error generating authentication signature for Kado API. Please check the edge function logs.',
+      'crypto-error',
+      undefined,
+      undefined,
+      { originalError: error }
     );
   }
   
@@ -210,6 +227,8 @@ function getErrorTitle(type: NetworkErrorType): string {
       return 'Authentication Error';
     case 'api-error':
       return 'API Error';
+    case 'crypto-error':
+      return 'Crypto Error';
     case 'unknown-error':
     default:
       return 'Error';
