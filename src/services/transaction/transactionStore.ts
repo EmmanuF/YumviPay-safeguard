@@ -2,7 +2,7 @@
 import { Transaction } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
 import { apiRequest } from "@/services/api/handlers";
-import { getOfflinePausedRequests } from "@/utils/networkUtils";
+import { isOffline, addPausedRequest } from "@/utils/networkUtils";
 
 // In-memory cache of transactions
 let transactionsCache: Transaction[] | null = null;
