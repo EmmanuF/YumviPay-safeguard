@@ -2,6 +2,9 @@
 import { getTransactionById as getTransaction, getAllTransactions, getRecentTransactions } from './transaction';
 import { Transaction } from '@/types/transaction';
 
+// Export the Transaction type for backwards compatibility
+export type { Transaction };
+
 // This file serves as a compatibility layer for legacy code that might still use
 // the old transactions service syntax. It redirects all requests to the new transaction service.
 

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTransactionById, Transaction } from '@/services/transactions';
@@ -15,16 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
-
-// Utility function to safely parse a number
-const safeParseNumber = (value: string | number | undefined): number => {
-  if (value === undefined) return 0;
-  if (typeof value === 'number') return value;
-  return parseFloat(value) || 0;
-};
-
-// Max time to wait for transaction loading in milliseconds
-const TRANSACTION_LOADING_TIMEOUT = 15000; // 15 seconds
 
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,7 +37,6 @@ const TransactionStatus = () => {
   } = useTransactionReceipt(transaction);
 
   useEffect(() => {
-    // Fetch transaction details
     const fetchTransactionDetails = async () => {
       setLoading(true);
       
@@ -58,7 +46,6 @@ const TransactionStatus = () => {
         return;
       }
       
-      // Set a timeout to prevent infinite loading
       const timeout = setTimeout(() => {
         console.error(`Transaction loading timed out after ${TRANSACTION_LOADING_TIMEOUT}ms for ID: ${id}`);
         setLoading(false);
@@ -69,19 +56,15 @@ const TransactionStatus = () => {
       
       try {
         console.log(`Fetching transaction details for ID: ${id}`);
-        // Now properly awaiting the async function
         const fetchedTransaction = await getTransactionById(id);
         
-        // Clear the timeout since we got the data
         clearTimeout(timeout);
         setLoadingTimeout(null);
         
         console.log(`Transaction fetched successfully:`, fetchedTransaction);
         setTransaction(fetchedTransaction);
         
-        // Add notification for completed transactions
         if (fetchedTransaction && fetchedTransaction.status === 'completed') {
-          // Convert amount to number for notification
           const amount = safeParseNumber(fetchedTransaction.amount);
             
           addNotification({
@@ -91,14 +74,12 @@ const TransactionStatus = () => {
             transactionId: fetchedTransaction.id
           });
           
-          // Clear any refresh interval once transaction is completed
           if (refreshInterval) {
             clearInterval(refreshInterval);
             setRefreshInterval(null);
           }
         }
       } catch (error) {
-        // Clear the timeout if there's an error
         clearTimeout(timeout);
         setLoadingTimeout(null);
         
@@ -111,20 +92,17 @@ const TransactionStatus = () => {
 
     fetchTransactionDetails();
     
-    // For pending transactions, start a refresh interval to check for updates
     if (transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
-      // Only set up the interval if it doesn't exist yet
       if (!refreshInterval) {
         console.log(`Setting up refresh interval for transaction ${id}`);
         const interval = window.setInterval(() => {
           fetchTransactionDetails();
-        }, 5000); // Check every 5 seconds
+        }, 5000);
         
         setRefreshInterval(interval);
       }
     }
     
-    // Clean up the timeout and interval when component unmounts
     return () => {
       if (loadingTimeout) {
         clearTimeout(loadingTimeout);
@@ -135,7 +113,6 @@ const TransactionStatus = () => {
     };
   }, [id, addNotification, refreshInterval, transaction?.status, setRefreshInterval]);
 
-  // Handle go back to home
   const handleGoHome = () => {
     navigate('/');
   };
