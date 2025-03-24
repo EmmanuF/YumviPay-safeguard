@@ -19,6 +19,7 @@ export const useKado = () => {
   const [isApiConnected, setIsApiConnected] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionCheckInProgress, setConnectionCheckInProgress] = useState(false);
+  const [lastConnectionCheck, setLastConnectionCheck] = useState<Date | null>(null);
   
   // Check API connection on mount
   useEffect(() => {
@@ -31,6 +32,7 @@ export const useKado = () => {
         const { connected } = await kadoApiService.checkApiConnection();
         console.log('Kado API connection check result:', connected);
         setIsApiConnected(connected);
+        setLastConnectionCheck(new Date());
       } catch (error) {
         console.error('Failed to check Kado API connection:', error);
         setIsApiConnected(false);
@@ -45,7 +47,22 @@ export const useKado = () => {
   /**
    * Check API connection with better error handling
    */
-  const checkApiConnection = useCallback(async () => {
+  const checkApiConnection = useCallback(async (forceCheck = false) => {
+    // If we checked recently (within 30 seconds) and not forcing a check, use cached result
+    if (
+      !forceCheck && 
+      lastConnectionCheck && 
+      (new Date().getTime() - lastConnectionCheck.getTime() < 30000) && 
+      isApiConnected !== null
+    ) {
+      console.log('Using recent API connection check result:', isApiConnected);
+      return { 
+        connected: isApiConnected, 
+        message: isApiConnected ? 'Connected to Kado API' : 'Not connected to Kado API',
+        cached: true
+      };
+    }
+    
     if (connectionCheckInProgress) {
       console.log('Connection check already in progress, waiting...');
       // Wait for the ongoing check to complete
@@ -74,12 +91,14 @@ export const useKado = () => {
       // Try to ping the Kado API
       const response = await kadoApiService.checkApiConnection();
       setIsApiConnected(response.connected);
+      setLastConnectionCheck(new Date());
       
       console.log('Kado API connection check result:', response.connected);
       return response;
     } catch (error) {
       console.error('Failed to check Kado API connection:', error);
       setIsApiConnected(false);
+      setLastConnectionCheck(new Date());
       return { 
         connected: false, 
         message: 'Failed to connect to Kado API: ' + (error instanceof Error ? error.message : String(error))
@@ -87,7 +106,7 @@ export const useKado = () => {
     } finally {
       setConnectionCheckInProgress(false);
     }
-  }, [connectionCheckInProgress, isApiConnected]);
+  }, [connectionCheckInProgress, isApiConnected, lastConnectionCheck]);
   
   /**
    * Redirect to Kado for payment and return to transaction status page
@@ -109,26 +128,34 @@ export const useKado = () => {
       
       // Check if API is connected before proceeding
       console.log('Checking API connection before redirect...');
-      const { connected } = await checkApiConnection();
+      let isConnected = false;
       
-      if (!connected) {
-        console.error('API connection check failed before redirect');
+      try {
+        const { connected } = await checkApiConnection();
+        isConnected = connected;
+      } catch (connectionError) {
+        console.error('Error checking API connection:', connectionError);
+      }
+      
+      if (!isConnected) {
+        console.warn('API connection check failed before redirect, proceeding with fallback flow');
         
         // Use shadcn toast with correct API
         uiToast({
-          variant: "destructive",
-          description: "Could not connect to payment provider API. Please try again later."
+          variant: "warning",
+          description: "Could not connect to payment provider API. Proceeding with offline mode."
         });
         
         // Also use sonner toast for better visibility
-        toast.error("API Error", {
-          description: "Could not connect to Kado API. Please try again later.",
+        toast.warning("API Connection Issue", {
+          description: "Proceeding in offline mode. Your transaction will still be processed.",
         });
         
-        throw new Error("Could not connect to Kado API");
+        // Continue with the redirect despite the API connection issue
+        // This is our fallback for when the Kado API is unreachable
       }
       
-      console.log('API connection successful, redirecting to Kado with params:', { ...params, returnUrl, userRef });
+      console.log('Redirecting to Kado with params:', { ...params, returnUrl, userRef });
       
       // Redirect to Kado
       await kadoRedirectService.redirectToKado({
@@ -149,10 +176,41 @@ export const useKado = () => {
         description: "Failed to connect to payment provider. Please try again."
       });
       
-      // Also use sonner toast for better visibility
-      toast.error("API Error", {
-        description: "Could not connect to Kado API. Please try again later.",
-      });
+      // Create a fallback transaction in case of error to prevent UI from being stuck
+      try {
+        const transaction = {
+          id: params.transactionId,
+          amount: params.amount,
+          recipientName: params.recipientName,
+          recipientContact: params.recipientContact || '',
+          country: params.country,
+          paymentMethod: params.paymentMethod,
+          provider: params.paymentMethod === 'mobile_money' ? 'MTN Mobile Money' : 'Bank Transfer',
+          status: 'failed' as const,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          estimatedDelivery: 'Failed',
+          failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect',
+          totalAmount: params.amount
+        };
+        
+        // Store locally for retrieval
+        localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify(transaction));
+        
+        // Import and use updateTransactionStatus to ensure it's properly recorded
+        const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
+        await updateTransactionStatus(params.transactionId, 'failed', {
+          failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
+        });
+        
+        // Navigate to transaction page to show the error
+        navigate(`/transaction/${params.transactionId}`);
+      } catch (fallbackError) {
+        console.error('Error creating fallback transaction:', fallbackError);
+        
+        // As a last resort, just navigate to the transaction page and let it handle the error
+        navigate(`/transaction/${params.transactionId}`);
+      }
       
       throw error; // Re-throw the error to be handled by the caller
     } finally {
@@ -223,6 +281,15 @@ export const useKado = () => {
       return result.paymentMethods || [];
     } catch (error) {
       console.error(`Error fetching payment methods for ${countryCode}:`, error);
+      
+      // Return fallback data for Cameroon when the API fails
+      if (countryCode.toUpperCase() === 'CM') {
+        return [
+          { id: 'mobile_money', name: 'Mobile Money', providers: ['MTN Mobile Money', 'Orange Money'] },
+          { id: 'bank_transfer', name: 'Bank Transfer', providers: ['Afriland First Bank', 'Ecobank'] }
+        ];
+      }
+      
       return [];
     }
   };

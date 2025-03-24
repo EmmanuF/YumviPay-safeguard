@@ -84,6 +84,12 @@ export const kadoRedirectService = {
       // Add to offline storage
       addOfflineTransaction(transaction);
       
+      // Store the transaction data with temporary ID to ensure it's retrievable immediately
+      localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify({
+        ...transaction,
+        transactionId: params.transactionId, // Store the ID in both formats for compatibility
+      }));
+      
       // In a real app, this would construct a URL to Kado's payment page
       // Include userRef parameter for KYC tracking
       const kadoUrl = `https://kado.com/pay?amount=${params.amount}&recipient=${encodeURIComponent(params.recipientName)}&country=${params.country}&payment_method=${params.paymentMethod}&transaction_id=${params.transactionId}&return_url=${encodeURIComponent(returnUrl)}&user_ref=${userRef || 'guest'}`;
@@ -102,9 +108,16 @@ export const kadoRedirectService = {
       // Simulate a delay to represent the user going to Kado and completing the process
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Simulate the Kado webhook response
-      console.log(`Simulating webhook for transaction ${params.transactionId}`);
-      await simulateKadoWebhook(params.transactionId);
+      try {
+        // Simulate the Kado webhook response
+        console.log(`Simulating webhook for transaction ${params.transactionId}`);
+        await simulateKadoWebhook(params.transactionId);
+      } catch (webhookError) {
+        console.error('Error simulating webhook:', webhookError);
+        // Even if webhook fails, don't throw - we'll just manually update the transaction
+        const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
+        await updateTransactionStatus(params.transactionId, 'processing');
+      }
       
       // Return - in a real app, Kado would redirect back to the returnUrl
       console.log('Kado redirect process completed');
@@ -116,6 +129,19 @@ export const kadoRedirectService = {
         description: "Could not redirect to payment provider",
         variant: "destructive"
       });
+      
+      // Create a fallback transaction in case of error so we don't get stuck
+      if (params.transactionId) {
+        try {
+          const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
+          await updateTransactionStatus(params.transactionId, 'processing', {
+            failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
+          });
+        } catch (updateError) {
+          console.error('Error updating transaction status after redirect error:', updateError);
+        }
+      }
+      
       throw error;
     }
   }

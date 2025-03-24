@@ -1,32 +1,52 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface LoadingStateProps {
   message?: string;
   submessage?: string;
   timeout?: number; // Time in ms after which to show timeout message
+  retryAction?: () => void; // Optional retry action
+  errorMessage?: string; // Optional error message to display
 }
 
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'Please wait while we process your request',
-  timeout = 10000 // 10 seconds default
+  timeout = 8000, // 8 seconds default
+  retryAction,
+  errorMessage
 }) => {
   const [showTimeout, setShowTimeout] = useState(false);
+  const [timeoutElapsed, setTimeoutElapsed] = useState(0);
   
   useEffect(() => {
+    // If there's an error message, show timeout view immediately
+    if (errorMessage) {
+      setShowTimeout(true);
+      return;
+    }
+    
     // Show timeout message after specified time
     const timer = setTimeout(() => {
       setShowTimeout(true);
     }, timeout);
     
-    return () => clearTimeout(timer);
-  }, [timeout]);
+    // Update elapsed time every second
+    const elapsedTimer = setInterval(() => {
+      setTimeoutElapsed(prev => prev + 1);
+    }, 1000);
+    
+    return () => {
+      clearTimeout(timer);
+      clearInterval(elapsedTimer);
+    };
+  }, [timeout, errorMessage]);
   
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-[60vh] flex items-center justify-center p-4 bg-background">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -35,9 +55,27 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         {showTimeout ? (
           <>
             <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto" />
-            <p className="mt-4 text-foreground font-medium">Taking longer than expected...</p>
+            <p className="mt-4 text-foreground font-medium">
+              {errorMessage || "Taking longer than expected..."}
+            </p>
             <p className="mt-2 text-muted-foreground text-sm">
-              This is taking longer than usual. You can wait or try refreshing the page.
+              {errorMessage 
+                ? "There was an error processing your transaction. You can try again or check the transaction status later."
+                : `This is taking longer than usual (${timeoutElapsed}s). The transaction might still be processing in the background.`
+              }
+            </p>
+            {retryAction && (
+              <Button 
+                onClick={retryAction} 
+                className="mt-4"
+                variant="outline"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retry
+              </Button>
+            )}
+            <p className="mt-4 text-xs text-muted-foreground">
+              If you navigate away, you can always check your transaction status later in your transaction history.
             </p>
           </>
         ) : (
