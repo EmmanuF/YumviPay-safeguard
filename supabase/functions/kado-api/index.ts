@@ -187,60 +187,84 @@ const handleDiagnostics = async () => {
     
     const pingUrl = `${KADO_API_URL}${testPath}`;
     logInfo(`Performing full ping test to ${pingUrl}`);
-    
-    const response = await fetch(pingUrl, {
-      method: 'GET',
-      headers,
-      signal: controller.signal,
-    }).catch(error => {
-      logError(`Ping test fetch error: ${error.message}`);
-      return { 
-        ok: false, 
-        status: 0, 
-        statusText: error.message,
-        responseText: `Error: ${error.message}`
-      };
+    logInfo(`Using headers:`, {
+      'Content-Type': headers['Content-Type'],
+      'X-API-Key': `${headers['X-API-Key'].substring(0, 4)}...${headers['X-API-Key'].substring(headers['X-API-Key'].length - 4)}`,
+      'X-Timestamp': headers['X-Timestamp'],
+      'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
     });
     
-    clearTimeout(timeoutId);
-    
-    let responseText = '';
-    let responseData = null;
-    
+    // First try a simpler approach with custom error handling
     try {
-      responseText = await response.text();
-      logInfo(`Ping response text: ${responseText}`);
+      const response = await fetch(pingUrl, {
+        method: 'GET',
+        headers,
+        signal: controller.signal,
+      });
+      
+      // Get response as text first for better debugging
+      const responseText = await response.text();
+      logInfo(`Raw ping response (${response.status}): ${responseText}`);
+      
+      // Try to parse the text as JSON
+      let responseData;
       try {
-        responseData = JSON.parse(responseText);
-      } catch (e) {
-        logError(`Error parsing response JSON: ${e.message}`);
-        // Leave responseData as null if parsing fails
+        if (responseText && responseText.trim()) {
+          responseData = JSON.parse(responseText);
+          logInfo(`Parsed ping response: ${JSON.stringify(responseData)}`);
+        } else {
+          logInfo(`Empty response from ping endpoint`);
+        }
+      } catch (parseError) {
+        logError(`Error parsing ping response as JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+        // If parsing fails, we'll use the text response
       }
-    } catch (e) {
-      logError(`Error getting response text: ${e.message}`);
-      responseText = `Error getting response text: ${e instanceof Error ? e.message : String(e)}`;
+      
+      diagnosticResults.fullPingTest = {
+        success: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        responseText: responseText || "(empty response)",
+        responseData: responseData || null,
+        requestDetails: {
+          url: pingUrl,
+          headers: {
+            'Content-Type': headers['Content-Type'],
+            'X-API-Key': `${headers['X-API-Key'].substring(0, 4)}...${headers['X-API-Key'].substring(headers['X-API-Key'].length - 4)}`,
+            'X-Timestamp': headers['X-Timestamp'],
+            'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
+          }
+        }
+      };
+      
+    } catch (pingError) {
+      logError(`Direct ping test error: ${pingError instanceof Error ? pingError.message : String(pingError)}`);
+      if (pingError instanceof Error) {
+        logError(`Error stack: ${pingError.stack}`);
+      }
+      
+      diagnosticResults.fullPingTest = {
+        success: false,
+        error: pingError instanceof Error ? pingError.message : String(pingError),
+        errorType: pingError instanceof Error ? pingError.name : typeof pingError,
+        errorStack: pingError instanceof Error ? pingError.stack : undefined,
+        requestDetails: {
+          url: pingUrl,
+          headers: {
+            'Content-Type': headers['Content-Type'],
+            'X-API-Key': `${headers['X-API-Key'].substring(0, 4)}...`,
+            'X-Timestamp': headers['X-Timestamp'],
+            'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
+          }
+        }
+      };
+    } finally {
+      clearTimeout(timeoutId);
     }
     
-    diagnosticResults.fullPingTest = {
-      success: response.ok,
-      status: response.status,
-      statusText: response.statusText,
-      responseText: responseText,
-      responseData: responseData,
-      requestDetails: {
-        url: pingUrl,
-        headers: {
-          'Content-Type': headers['Content-Type'],
-          'X-API-Key': `${headers['X-API-Key'].substring(0, 4)}...${headers['X-API-Key'].substring(headers['X-API-Key'].length - 4)}`,
-          'X-Timestamp': headers['X-Timestamp'],
-          'X-Signature': `${headers['X-Signature'].substring(0, 8)}...`,
-        }
-      }
-    };
-    
-    logInfo(`Ping test result: ${response.ok ? 'SUCCESS' : 'FAILED'} with status ${response.status}`);
+    logInfo(`Ping test result: ${diagnosticResults.fullPingTest.success ? 'SUCCESS' : 'FAILED'}`);
   } catch (error) {
-    logError('Error in full ping test', error);
+    logError('Error in full ping test wrapper', error);
     diagnosticResults.fullPingTest = {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -429,8 +453,13 @@ serve(async (req) => {
           
           let responseData;
           try {
-            responseData = JSON.parse(responseText);
-            logInfo('Parsed ping response', responseData);
+            if (responseText && responseText.trim()) {
+              responseData = JSON.parse(responseText);
+              logInfo('Parsed ping response', responseData);
+            } else {
+              logInfo('Empty ping response');
+              responseData = { success: response.ok, message: "Empty response" };
+            }
           } catch (parseError) {
             logError('Error parsing ping response', parseError);
             responseData = { text: responseText };
@@ -509,8 +538,13 @@ serve(async (req) => {
       
       let responseData;
       try {
-        responseData = JSON.parse(responseText);
-        logInfo('Parsed response data', responseData);
+        if (responseText && responseText.trim()) {
+          responseData = JSON.parse(responseText);
+          logInfo('Parsed response data', responseData);
+        } else {
+          logInfo('Empty response body');
+          responseData = { success: response.ok };
+        }
       } catch (parseError) {
         logError('Error parsing response', parseError);
         responseData = { text: responseText };
