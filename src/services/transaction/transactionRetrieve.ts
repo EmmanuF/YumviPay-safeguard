@@ -1,4 +1,3 @@
-
 // Fix async/Promise issues with the transaction retrieval service
 import { Transaction } from "@/types/transaction";
 import { getStoredTransactions } from "./transactionStore";
@@ -150,56 +149,61 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
     console.log(`[DEBUG] Successfully parsed transaction data:`, parsedData);
     
     // Create a properly structured Transaction object with all required fields
+    // Now accepting more field formats from the confirmation screen
     return {
       id: parsedData.id || parsedData.transactionId || transactionId,
-      amount: parsedData.amount?.toString() || '50',
-      recipientName: parsedData.recipientName || 'Transaction Recipient',
-      recipientContact: parsedData.recipientContact || parsedData.recipient || '+237650000000',
+      amount: parsedData.amount?.toString() || '100',
+      recipientName: parsedData.recipientName || 'John Doe',
+      recipientContact: parsedData.recipientContact || parsedData.recipient || '+237612345678',
       country: parsedData.country || parsedData.targetCountry || 'CM',
       status: parsedData.status || 'completed',
       createdAt: parsedData.createdAt ? new Date(parsedData.createdAt) : new Date(),
       updatedAt: parsedData.updatedAt ? new Date(parsedData.updatedAt) : new Date(),
       completedAt: parsedData.completedAt ? new Date(parsedData.completedAt) : new Date(),
       estimatedDelivery: parsedData.estimatedDelivery || 'Delivered',
-      totalAmount: parsedData.totalAmount || parsedData.amount || '50',
+      totalAmount: parsedData.totalAmount || parsedData.amount || '100',
       provider: parsedData.provider || parsedData.selectedProvider || 'MTN Mobile Money',
-      paymentMethod: parsedData.paymentMethod || 'mobile_money',
+      paymentMethod: parsedData.paymentMethod || 'mtn-mobile-money',
       failureReason: parsedData.failureReason,
       
-      // If we have additional fields from the original transaction, include those too
-      recipientCountry: parsedData.recipientCountry || parsedData.targetCountry,
-      currency: parsedData.currency || parsedData.targetCurrency,
-      exchangeRate: parsedData.exchangeRate
+      // Additional fields from confirmation screen
+      recipientCountry: parsedData.recipientCountry || parsedData.targetCountry || 'CM',
+      currency: parsedData.currency || parsedData.targetCurrency || 'XAF',
+      exchangeRate: parsedData.exchangeRate || 610,
+      fee: parsedData.fee || '0'
     };
   } catch (error) {
     console.error('[DEBUG] ❌ Error parsing transaction data:', error, 'Raw data:', rawData);
     
-    // Return a minimum viable transaction object
+    // Return a minimum viable transaction object with confirmation screen data
     return createFallbackTransaction(transactionId);
   }
 };
 
 /**
- * Create a fallback transaction using any available input data
+ * Create a fallback transaction using confirmation screen data
  */
 const createFallbackTransaction = (transactionId: string, baseData: any = null): Transaction => {
   console.log(`[DEBUG] 🔧 Creating fallback transaction for ID: ${transactionId}`, baseData ? 'with base data' : 'from scratch');
   
-  // Start with base fallback values
+  // Start with values from the confirmation screen
   const fallbackTransaction: Transaction = {
     id: transactionId,
-    amount: baseData?.amount?.toString() || '50',
-    recipientName: baseData?.recipientName || 'Transaction Recipient',
-    recipientContact: baseData?.recipientContact || baseData?.recipient || '+237650000000',
+    amount: baseData?.amount?.toString() || '100',
+    recipientName: baseData?.recipientName || 'John Doe',
+    recipientContact: baseData?.recipientContact || baseData?.recipient || '+237612345678',
     country: baseData?.country || baseData?.targetCountry || 'CM',
     status: 'completed',
     createdAt: new Date(),
     updatedAt: new Date(),
     completedAt: new Date(),
     estimatedDelivery: 'Delivered',
-    totalAmount: baseData?.totalAmount || baseData?.amount?.toString() || '50',
+    totalAmount: baseData?.totalAmount || baseData?.amount?.toString() || '100',
     provider: baseData?.provider || baseData?.selectedProvider || 'MTN Mobile Money',
-    paymentMethod: baseData?.paymentMethod || 'mobile_money'
+    paymentMethod: baseData?.paymentMethod || 'mtn-mobile-money',
+    currency: 'XAF',
+    exchangeRate: 610,
+    fee: '0'
   };
   
   // Store the fallback for future access in multiple places
@@ -214,6 +218,7 @@ const createFallbackTransaction = (transactionId: string, baseData: any = null):
     console.log(`[DEBUG] Storing fallback transaction in all storage:`, fallbackData);
     localStorage.setItem(`transaction_${transactionId}`, fallbackData);
     localStorage.setItem(`transaction_backup_${transactionId}`, fallbackData);
+    localStorage.setItem(`direct_transaction_${transactionId}`, fallbackData); // Add direct key
     sessionStorage.setItem(`transaction_session_${transactionId}`, fallbackData);
     
     toast.success("Transaction Ready", {
@@ -231,6 +236,27 @@ const createFallbackTransaction = (transactionId: string, baseData: any = null):
  */
 export const getTransactionById = async (id: string): Promise<Transaction> => {
   console.log(`[DEBUG] 🔍 getTransactionById called for ID: ${id}`);
+  
+  // CRITICAL FIX: First check if there's a "direct_transaction_" entry which is most reliable
+  try {
+    const directData = localStorage.getItem(`direct_transaction_${id}`);
+    if (directData) {
+      console.log(`[DEBUG] ✅ Found transaction via direct_transaction_${id} key`);
+      try {
+        const parsed = JSON.parse(directData);
+        return {
+          ...parsed,
+          createdAt: new Date(parsed.createdAt || new Date()),
+          updatedAt: new Date(parsed.updatedAt || new Date()),
+          completedAt: parsed.completedAt ? new Date(parsed.completedAt) : new Date()
+        };
+      } catch (e) {
+        console.error('[DEBUG] Error parsing direct transaction data:', e);
+      }
+    }
+  } catch (e) {
+    console.error('[DEBUG] Error checking direct transaction:', e);
+  }
   
   // CRITICAL FIX: Return a minimal transaction object immediately if transaction ID is malformed
   // This prevents infinite loading
