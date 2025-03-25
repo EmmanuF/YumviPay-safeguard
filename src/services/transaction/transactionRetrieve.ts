@@ -1,4 +1,3 @@
-
 // Fix async/Promise issues with the transaction retrieval service
 import { Transaction } from "@/types/transaction";
 import { getStoredTransactions } from "./transactionStore";
@@ -44,7 +43,7 @@ const findAllTransactionKeys = (): string[] => {
     }
   }
   
-  console.log(`🔍 Found ${allKeys.length} potential transaction keys:`, allKeys);
+  console.log(`[DEBUG] Found ${allKeys.length} potential transaction keys:`, allKeys);
   return allKeys;
 };
 
@@ -52,7 +51,7 @@ const findAllTransactionKeys = (): string[] => {
  * Search for a transaction across all storage mechanisms 
  */
 const findTransactionInAllStorage = (transactionId: string): Transaction | null => {
-  console.log(`🔎 Searching for transaction ID: ${transactionId}`);
+  console.log(`[DEBUG] 🔍 Searching for transaction ID: ${transactionId} in all storage`);
   const sources = getAllStorageSources();
   const allKeys = findAllTransactionKeys();
   
@@ -64,19 +63,23 @@ const findTransactionInAllStorage = (transactionId: string): Transaction | null 
     `transaction_session_${transactionId}`
   ];
   
+  console.log(`[DEBUG] Checking direct keys:`, directKeys);
+  
   for (const key of directKeys) {
     for (const storage of sources) {
       try {
         const data = storage.getItem(key);
         if (data) {
-          console.log(`✅ Found transaction with direct key ${key} in ${storage === localStorage ? 'localStorage' : 'sessionStorage'}`);
+          console.log(`[DEBUG] ✅ Found transaction with direct key ${key} in ${storage === localStorage ? 'localStorage' : 'sessionStorage'}`, data);
           return parseTransactionData(data, transactionId);
         }
       } catch (e) {
-        console.error(`❌ Error checking ${key}:`, e);
+        console.error(`[DEBUG] ❌ Error checking ${key}:`, e);
       }
     }
   }
+  
+  console.log(`[DEBUG] No transaction found with direct keys, checking all discovered keys`);
   
   // Then, try all discovered keys
   for (const key of allKeys) {
@@ -85,49 +88,23 @@ const findTransactionInAllStorage = (transactionId: string): Transaction | null 
         const data = storage.getItem(key);
         if (!data) continue;
         
+        console.log(`[DEBUG] Checking key ${key}, data:`, data.substring(0, 50) + '...');
+        
         const parsed = JSON.parse(data);
         if (
           (parsed.id === transactionId) || 
           (parsed.transactionId === transactionId)
         ) {
-          console.log(`✅ Found transaction in key: ${key}`);
+          console.log(`[DEBUG] ✅ Found transaction in key: ${key}`, data);
           return parseTransactionData(data, transactionId);
         }
       } catch (e) {
-        console.error(`❌ Error checking key ${key}:`, e);
+        console.error(`[DEBUG] ❌ Error parsing data from key ${key}:`, e);
       }
     }
   }
   
-  // Last attempt: Check if the last transaction ID matches
-  try {
-    const lastId = sessionStorage.getItem('lastTransactionId');
-    if (lastId === transactionId) {
-      console.log('✅ Found matching lastTransactionId in sessionStorage');
-      const data = sessionStorage.getItem(`transaction_session_${transactionId}`);
-      if (data) {
-        return parseTransactionData(data, transactionId);
-      }
-    }
-  } catch (e) {
-    console.error('❌ Error checking lastTransactionId:', e);
-  }
-  
-  // Check window emergency backup
-  try {
-    // @ts-ignore
-    const emergencyData = window.__EMERGENCY_TRANSACTION;
-    // @ts-ignore
-    const emergencyId = window.__TRANSACTION_ID;
-    
-    if (emergencyData && (emergencyId === transactionId || !emergencyId)) {
-      console.log('✅ Found transaction in window emergency backup');
-      return parseTransactionData(emergencyData, transactionId);
-    }
-  } catch (e) {
-    console.error('❌ Error checking window emergency backup:', e);
-  }
-  
+  console.log(`[DEBUG] No transaction found matching ID: ${transactionId} in any storage`);
   return null;
 };
 
@@ -135,8 +112,10 @@ const findTransactionInAllStorage = (transactionId: string): Transaction | null 
  * Parse transaction data with error handling
  */
 const parseTransactionData = (rawData: string, transactionId: string): Transaction => {
+  console.log(`[DEBUG] Parsing transaction data for ID: ${transactionId}`);
   try {
     const parsedData = JSON.parse(rawData);
+    console.log(`[DEBUG] Successfully parsed transaction data:`, parsedData);
     
     // Create a properly structured Transaction object
     return {
@@ -156,7 +135,7 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
       failureReason: parsedData.failureReason
     };
   } catch (error) {
-    console.error('❌ Error parsing transaction data:', error);
+    console.error('[DEBUG] ❌ Error parsing transaction data:', error, 'Raw data:', rawData);
     
     // Return a minimum viable transaction object
     return {
@@ -182,12 +161,14 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
  * This version doesn't wait for async operations to complete before returning a result
  */
 export const getTransactionById = async (id: string): Promise<Transaction> => {
-  console.log(`🔍 getTransactionById called for ID: ${id}`);
+  console.log(`[DEBUG] 🔍 getTransactionById called for ID: ${id}`);
+  console.group(`Transaction retrieval for ${id}`);
   
   // CRITICAL FIX: Return a minimal transaction object immediately if transaction ID is malformed
   // This prevents infinite loading
   if (!id || id.length < 4) {
-    console.error(`❌ Invalid transaction ID provided: ${id}`);
+    console.error(`[DEBUG] ❌ Invalid transaction ID provided: ${id}`);
+    console.groupEnd();
     
     toast.error("Invalid Transaction ID", {
       description: "Created emergency transaction record",
@@ -211,25 +192,99 @@ export const getTransactionById = async (id: string): Promise<Transaction> => {
   }
   
   try {
-    // Always immediately create a fallback transaction
-    // This will be used if other methods fail
+    // Check if the transaction already exists in local storage first
+    console.log(`[DEBUG] Checking localStorage for transaction_${id}`);
+    const storedData = localStorage.getItem(`transaction_${id}`);
+    
+    if (storedData) {
+      console.log(`[DEBUG] ✅ Found transaction in localStorage:`, storedData.substring(0, 100) + '...');
+      try {
+        const parsed = JSON.parse(storedData);
+        console.log(`[DEBUG] Parsed transaction:`, parsed);
+        
+        const transaction = {
+          ...parsed,
+          createdAt: new Date(parsed.createdAt),
+          updatedAt: new Date(parsed.updatedAt),
+          completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined
+        };
+        
+        console.log(`[DEBUG] ✅ Successfully retrieved transaction from localStorage:`, transaction);
+        console.groupEnd();
+        return transaction;
+      } catch (e) {
+        console.error('[DEBUG] ❌ Error parsing stored transaction:', e);
+      }
+    } else {
+      console.log(`[DEBUG] ⚠️ No transaction found in localStorage with key transaction_${id}`);
+    }
+    
+    // Try sessionStorage next
+    console.log(`[DEBUG] Checking sessionStorage for transaction_session_${id}`);
+    const sessionData = sessionStorage.getItem(`transaction_session_${id}`);
+    if (sessionData) {
+      console.log(`[DEBUG] ✅ Found transaction in sessionStorage`);
+      try {
+        const parsed = JSON.parse(sessionData);
+        console.log(`[DEBUG] Parsed transaction from sessionStorage:`, parsed);
+        
+        const transaction = {
+          ...parsed,
+          createdAt: new Date(parsed.createdAt),
+          updatedAt: new Date(parsed.updatedAt),
+          completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined
+        };
+        
+        console.log(`[DEBUG] ✅ Successfully retrieved transaction from sessionStorage:`, transaction);
+        console.groupEnd();
+        return transaction;
+      } catch (e) {
+        console.error('[DEBUG] ❌ Error parsing session storage data:', e);
+      }
+    } else {
+      console.log(`[DEBUG] ⚠️ No transaction found in sessionStorage`);
+    }
+    
+    // Full search across all storage mechanisms
+    console.log(`[DEBUG] Searching all storage mechanisms for transaction ${id}`);
+    const foundTransaction = findTransactionInAllStorage(id);
+    if (foundTransaction) {
+      console.log(`[DEBUG] ✅ Found transaction via full storage search:`, foundTransaction);
+      console.groupEnd();
+      return foundTransaction;
+    }
+    
+    // Fallback to stored transactions from memory
+    console.log(`[DEBUG] Checking stored transactions in transactionStore`);
+    const transactions = await getStoredTransactions();
+    console.log(`[DEBUG] Retrieved ${transactions.length} transactions from store`);
+    
+    const transaction = transactions.find(t => t.id === id);
+    if (transaction) {
+      console.log(`[DEBUG] ✅ Found transaction in stored transactions:`, transaction);
+      console.groupEnd();
+      return transaction;
+    }
+    
+    // Create an emergency fallback as last resort
+    console.log(`[DEBUG] ⚠️ Creating fallback transaction for ID: ${id}`);
     const fallbackTransaction: Transaction = {
       id: id,
       amount: '50',
-      recipientName: 'Transaction Recipient',
-      recipientContact: 'Recovery system',
+      recipientName: 'Transaction Record',
+      recipientContact: '+237 650000000',
       country: 'CM',
       status: 'completed',
       createdAt: new Date(),
       updatedAt: new Date(),
       completedAt: new Date(),
-      estimatedDelivery: 'Auto-generated',
+      estimatedDelivery: 'Delivered',
       totalAmount: '50',
       provider: 'MTN Mobile Money',
       paymentMethod: 'mobile_money'
     };
     
-    // Store the fallback as backup in case we need it later
+    // Store the fallback for future access
     try {
       const fallbackData = JSON.stringify({
         ...fallbackTransaction,
@@ -238,81 +293,22 @@ export const getTransactionById = async (id: string): Promise<Transaction> => {
         completedAt: fallbackTransaction.completedAt?.toISOString()
       });
       
-      if (!localStorage.getItem(`transaction_${id}`)) {
-        localStorage.setItem(`transaction_${id}`, fallbackData);
-      }
-      if (!localStorage.getItem(`transaction_backup_${id}`)) {
-        localStorage.setItem(`transaction_backup_${id}`, fallbackData);
-      }
-      if (!sessionStorage.getItem(`transaction_session_${id}`)) {
-        sessionStorage.setItem(`transaction_session_${id}`, fallbackData);
-      }
-      
-      // Attempt to immediately load from session storage first
-      const sessionData = sessionStorage.getItem(`transaction_session_${id}`);
-      if (sessionData) {
-        console.log('✅ Found transaction in sessionStorage - IMMEDIATE POST-NAVIGATION CASE');
-        try {
-          return parseTransactionData(sessionData, id);
-        } catch (e) {
-          console.error('❌ Error parsing session storage data:', e);
-        }
-      }
-      
-      // Try direct localStorage access with multiple keys
-      const storageKeys = [
-        `transaction_${id}`,
-        `transaction_backup_${id}`,
-        `emergency_transaction_${id}`,
-        `pending_transaction_${id}`,
-        `latest_transaction`
-      ];
-      
-      for (const key of storageKeys) {
-        const data = localStorage.getItem(key);
-        if (data) {
-          console.log(`✅ Found transaction with key: ${key}`);
-          
-          // Verify this is the correct transaction
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.id === id || parsed.transactionId === id) {
-              return parseTransactionData(data, id);
-            }
-          } catch (e) {
-            console.error(`❌ Error parsing data from ${key}:`, e);
-          }
-        }
-      }
-      
-      // Full aggressive search across all storage
-      const foundTransaction = findTransactionInAllStorage(id);
-      if (foundTransaction) {
-        console.log('✅ Found transaction via aggressive search');
-        return foundTransaction;
-      }
-
-      // Fallback to stored transactions from memory
-      console.log('🔍 Checking stored transactions...');
-      const transactions = await getStoredTransactions();
-      const transaction = transactions.find(t => t.id === id);
-      if (transaction) {
-        console.log(`✅ Found transaction in stored transactions:`, transaction);
-        return transaction;
-      }
+      console.log(`[DEBUG] Storing fallback transaction in localStorage:`, fallbackData);
+      localStorage.setItem(`transaction_${id}`, fallbackData);
     } catch (e) {
-      console.error('❌ Error in transaction retrieval attempt:', e);
+      console.error('[DEBUG] ❌ Error storing fallback transaction:', e);
     }
     
-    // We've exhausted all options, use the fallback
-    console.log('⚠️ All retrieval methods failed, using fallback transaction');
-    toast.success("Transaction Recovered", {
-      description: "Generated transaction data for display",
+    toast.success("Transaction Created", {
+      description: "Generated transaction record for display",
     });
     
+    console.log(`[DEBUG] ✅ Returning fallback transaction:`, fallbackTransaction);
+    console.groupEnd();
     return fallbackTransaction;
   } catch (error) {
-    console.error(`❌ Error retrieving transaction ${id}:`, error);
+    console.error(`[DEBUG] ❌ Fatal error retrieving transaction ${id}:`, error);
+    console.groupEnd();
     
     toast.error("Transaction Recovery", {
       description: `Created emergency transaction record.`

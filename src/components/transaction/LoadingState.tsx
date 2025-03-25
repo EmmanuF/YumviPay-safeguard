@@ -30,19 +30,87 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   const [autoRetryCount, setAutoRetryCount] = useState(0);
   const [showEmergencyButton, setShowEmergencyButton] = useState(false);
   const MAX_AUTO_RETRIES = 2;
+
+  // Function to diagnose the current transaction loading state
+  const diagnoseTransactionState = () => {
+    console.group(`[DEBUG] 🔍 Diagnosing transaction state for ID: ${transactionId}`);
+    
+    if (!transactionId) {
+      console.log('[DEBUG] ❌ No transaction ID provided to LoadingState component');
+      console.groupEnd();
+      return;
+    }
+    
+    try {
+      // Check localStorage for this transaction
+      const directData = localStorage.getItem(`transaction_${transactionId}`);
+      console.log(`[DEBUG] Direct transaction_${transactionId} exists:`, !!directData);
+      
+      // List all transaction-related keys
+      console.log('[DEBUG] All storage keys related to transactions:');
+      const transactionKeys = [];
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('transaction')) {
+          transactionKeys.push(key);
+        }
+      }
+      
+      console.log('[DEBUG] Found transaction keys:', transactionKeys);
+      
+      // Check if any key contains this transaction ID
+      const relevantKeys = transactionKeys.filter(key => key.includes(transactionId));
+      console.log(`[DEBUG] Keys matching transaction ID ${transactionId}:`, relevantKeys);
+      
+      for (const key of relevantKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            console.log(`[DEBUG] Content for key ${key}:`, parsed);
+          } catch (e) {
+            console.log(`[DEBUG] Failed to parse content for key ${key}:`, data);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[DEBUG] Error during diagnosis:', e);
+    }
+    
+    console.groupEnd();
+  };
   
   // Function to create a fallback transaction directly
   const createFallbackTransaction = () => {
-    if (!transactionId) return;
+    if (!transactionId) {
+      console.error('[DEBUG] ❌ Cannot create fallback transaction: No transaction ID provided');
+      return;
+    }
+    
+    console.log(`[DEBUG] 🔄 Creating fallback transaction for ID: ${transactionId}`);
+    
+    // Check if this transaction already exists
+    const existingData = localStorage.getItem(`transaction_${transactionId}`);
+    if (existingData) {
+      console.log('[DEBUG] Transaction already exists in localStorage, no need to create fallback');
+      try {
+        const parsed = JSON.parse(existingData);
+        console.log('[DEBUG] Existing transaction:', parsed);
+      } catch (e) {
+        console.error('[DEBUG] Failed to parse existing transaction:', e);
+      }
+    }
     
     // Create a basic fallback transaction
     const fallbackTransaction = {
       id: transactionId,
+      transactionId: transactionId, // Include both formats for compatibility
       amount: '50',
       recipientName: 'Transaction Recipient',
       recipientContact: '+123456789',
       country: 'CM',
-      status: 'completed' as const,
+      status: 'completed',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
@@ -53,38 +121,29 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     };
     
     // Store in multiple places for redundancy
-    localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(fallbackTransaction));
-    localStorage.setItem(`transaction_backup_${transactionId}`, JSON.stringify(fallbackTransaction));
-    localStorage.setItem(`emergency_transaction_${transactionId}`, JSON.stringify(fallbackTransaction));
-    
-    console.log('Created fallback transaction:', fallbackTransaction);
+    try {
+      const serialized = JSON.stringify(fallbackTransaction);
+      console.log('[DEBUG] Storing fallback transaction:', serialized);
+      
+      localStorage.setItem(`transaction_${transactionId}`, serialized);
+      localStorage.setItem(`transaction_backup_${transactionId}`, serialized);
+      localStorage.setItem(`emergency_transaction_${transactionId}`, serialized);
+      
+      console.log('[DEBUG] ✅ Created and stored fallback transaction');
+    } catch (e) {
+      console.error('[DEBUG] ❌ Error storing fallback transaction:', e);
+    }
     
     // Force reload the page to pick up the new transaction
+    console.log('[DEBUG] Reloading page to use the new transaction data');
     window.location.reload();
   };
   
   // Immediately create a fallback transaction if transactionId is provided
   useEffect(() => {
-    if (transactionId && !localStorage.getItem(`transaction_${transactionId}`)) {
-      console.log(`Creating initial fallback for transaction ${transactionId}`);
-      const fallbackTransaction = {
-        id: transactionId,
-        amount: '50',
-        recipientName: 'Transaction Recipient',
-        recipientContact: '+123456789',
-        country: 'CM',
-        status: 'completed' as const,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: new Date().toISOString(),
-        estimatedDelivery: 'Delivered',
-        totalAmount: '50',
-        provider: 'MTN Mobile Money',
-        paymentMethod: 'mobile_money'
-      };
-      
-      localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(fallbackTransaction));
-      localStorage.setItem(`transaction_backup_${transactionId}`, JSON.stringify(fallbackTransaction));
+    if (transactionId) {
+      console.log(`[DEBUG] LoadingState mounted with transaction ID: ${transactionId}`);
+      diagnoseTransactionState();
     }
   }, [transactionId]);
   
@@ -98,6 +157,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     
     // Show timeout message after specified time
     const timer = setTimeout(() => {
+      console.log(`[DEBUG] ⏱️ LoadingState timeout triggered after ${timeout}ms`);
       setShowTimeout(true);
       
       // Show emergency button immediately after timeout
@@ -105,7 +165,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       
       // Auto-retry logic with limited attempts
       if (retryAction && !autoRetryAttempted && autoRetryCount < MAX_AUTO_RETRIES) {
-        console.log(`Auto-retrying transaction load after timeout (attempt ${autoRetryCount + 1}/${MAX_AUTO_RETRIES})`);
+        console.log(`[DEBUG] 🔄 Auto-retrying transaction load after timeout (attempt ${autoRetryCount + 1}/${MAX_AUTO_RETRIES})`);
         setAutoRetryAttempted(true);
         setAutoRetryCount(prev => prev + 1);
         
@@ -116,6 +176,11 @@ const LoadingState: React.FC<LoadingStateProps> = ({
             setAutoRetryAttempted(false);
           }, 1500);
         }, 500);
+      }
+      
+      // Diagnose transaction state after timeout
+      if (transactionId) {
+        diagnoseTransactionState();
       }
     }, timeout);
     
@@ -137,7 +202,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       clearInterval(elapsedTimer);
       clearInterval(dotsTimer);
     };
-  }, [timeout, errorMessage, retryAction, autoRetryAttempted, autoRetryCount]);
+  }, [timeout, errorMessage, retryAction, autoRetryAttempted, autoRetryCount, transactionId]);
   
   const handleGoHome = () => {
     navigate('/');
