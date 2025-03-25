@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import RecipientStep from './RecipientStep';
@@ -35,9 +36,25 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   const prepareDataForStorage = (data: any, step: string) => {
     if (!data) return null;
     
+    // Preserve the original amount across all steps
+    const amount = data.amount || parseFloat(localStorage.getItem('lastTransactionAmount') || '0') || 0;
+    
+    // Calculate the correct convertedAmount based on actual amount and exchange rate
+    // This fixes the inconsistency between initial calculation and confirmation
+    const exchangeRate = data.exchangeRate || 610;
+    const calculatedConvertedAmount = amount * exchangeRate;
+    
     // Enhance transaction data with confirmation screen values
     const enhancedData = {
       ...data,
+      
+      // Always preserve the correct amount values
+      amount: amount,
+      sendAmount: amount.toString(),
+      
+      // Ensure correct converted amount based on the exchange rate
+      convertedAmount: calculatedConvertedAmount,
+      receiveAmount: calculatedConvertedAmount.toString(),
       
       // If we're on recipient step, ensure recipient fields
       ...(step === 'recipient' && {
@@ -58,11 +75,10 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
         currency: data.targetCurrency || 'XAF',
         exchangeRate: data.exchangeRate || 610,
         fee: data.fee || '0',
-        totalAmount: data.amount || '100',
+        totalAmount: amount,
       }),
       
       // Common required fields with confirmation screen values
-      amount: data.amount || 100,
       country: data.targetCountry || 'CM',
       lastStep: step,
       timestamp: new Date().toISOString()
@@ -70,6 +86,23 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
     
     return enhancedData;
   };
+  
+  // Re-calculate and synchronize convertedAmount whenever transactionData.amount changes
+  useEffect(() => {
+    if (transactionData && transactionData.amount && transactionData.exchangeRate) {
+      const calculatedConvertedAmount = transactionData.amount * transactionData.exchangeRate;
+      
+      // Only update if there's a significant difference to avoid infinite loops
+      if (Math.abs(calculatedConvertedAmount - transactionData.convertedAmount) > 1) {
+        console.log(`Resynchronizing convertedAmount based on amount ${transactionData.amount} and exchange rate ${transactionData.exchangeRate}`);
+        console.log(`Old: ${transactionData.convertedAmount}, New: ${calculatedConvertedAmount}`);
+        
+        updateTransactionData({
+          convertedAmount: calculatedConvertedAmount
+        });
+      }
+    }
+  }, [transactionData?.amount, transactionData?.exchangeRate]);
   
   // Safeguard: Pre-cache the current step's transaction data for recovery
   useEffect(() => {
@@ -87,7 +120,9 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
         
         // Also store complete copy in pendingTransaction for global recovery
         localStorage.setItem('pendingTransaction', JSON.stringify(enhancedData));
+        localStorage.setItem('pendingTransactionBackup', JSON.stringify(enhancedData));
         localStorage.setItem('lastStep', currentStep);
+        localStorage.setItem('lastTransactionAmount', enhancedData.amount.toString());
         
         console.log(`Cached enhanced transaction data for step ${currentStep}:`, enhancedData);
       } catch (e) {
@@ -112,6 +147,17 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
         enhancedData.paymentMethod = enhancedData.paymentMethod || 'mtn-mobile-money';
         enhancedData.estimatedDelivery = 'Processing';
         enhancedData.status = 'pending';
+        
+        // Ensure the amount and converted amount are consistent
+        const amount = enhancedData.amount || parseFloat(localStorage.getItem('lastTransactionAmount') || '0');
+        enhancedData.amount = amount;
+        enhancedData.sendAmount = amount.toString();
+        enhancedData.totalAmount = amount;
+        
+        // Recalculate convertedAmount to ensure consistency
+        const exchangeRate = enhancedData.exchangeRate || 610;
+        enhancedData.convertedAmount = amount * exchangeRate;
+        enhancedData.receiveAmount = enhancedData.convertedAmount.toString();
         
         // Serialize with all required fields
         const serializedData = JSON.stringify(enhancedData);

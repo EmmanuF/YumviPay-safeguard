@@ -31,7 +31,9 @@ export const useTransactionContinue = ({
       isProcessing, 
       authLoading, 
       onContinue,
-      isLoggedIn
+      isLoggedIn,
+      sendAmount,
+      receiveAmount
     });
     
     // Prevent multiple clicks
@@ -64,27 +66,32 @@ export const useTransactionContinue = ({
       sourceCurrency,
       targetCurrency,
       amount: amountValue,
+      sendAmount: amountValue.toString(), // Add explicit sendAmount field
       receiveAmount: receiveAmountValue.toString(),
-      exchangeRate
+      exchangeRate,
+      convertedAmount: receiveAmountValue, // Add explicit convertedAmount field
+      timestamp: new Date().toISOString() // Add timestamp for troubleshooting
     };
     
-    console.log('Saving transaction data:', transactionData);
+    console.log('Saving transaction data with explicit fields:', transactionData);
     
     try {
-      // Save the transaction data to localStorage
+      // Save the transaction data to localStorage with redundancy
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+      localStorage.setItem('pendingTransactionBackup', JSON.stringify(transactionData));
+      localStorage.setItem('lastTransactionAmount', amountValue.toString());
       
       // Wait to ensure the localStorage write completes
       setTimeout(() => {
         if (onContinue) {
-          console.log('Calling onContinue callback directly');
+          console.log('Calling onContinue callback directly with amount:', amountValue);
           // If we're in inline mode, call the onContinue callback
           onContinue();
         } else if (isLoggedIn) {
-          console.log('User is logged in, navigating directly to /send');
+          console.log('User is logged in, navigating directly to /send with amount:', amountValue);
           navigate('/send');
         } else {
-          console.log('User is not logged in, navigating to signin with redirect');
+          console.log('User is not logged in, navigating to signin with redirect and amount:', amountValue);
           navigate('/signin', { state: { redirectTo: '/send' } });
         }
         

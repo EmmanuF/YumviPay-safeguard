@@ -34,16 +34,41 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
   onRefresh
 }) => {
   const isPending = transaction.status === 'pending' || transaction.status === 'processing';
-  const isMinimalData = 
+  
+  // Improved data validation checks
+  const isMinimalData = !transaction || 
     transaction.recipientName === 'Processing...' || 
     transaction.recipientName === 'Unknown' || 
-    transaction.amount === '0';
+    (typeof transaction.amount === 'string' && transaction.amount === '0') ||
+    (typeof transaction.amount === 'number' && transaction.amount === 0);
+  
+  // Access amount more safely
+  const getTransactionAmount = () => {
+    if (!transaction) return '0';
+    
+    // Try multiple possible sources of the amount
+    const amount = transaction.sendAmount || 
+                  transaction.amount || 
+                  localStorage.getItem('lastTransactionAmount') || 
+                  '0';
+    
+    return typeof amount === 'number' ? amount.toString() : amount;
+  };
+
+  // Get recipient name with fallback
+  const getRecipientName = () => {
+    return transaction?.recipientName || 'John Doe';
+  };
   
   // Enhanced emergency function to directly update transaction status with improved
   // reliability and immediate UI feedback
   const handleForceComplete = () => {
     try {
       console.log(`[CRITICAL] 🛠️ Forcing transaction ${transaction.id} to completed status`);
+      
+      // Get the correct amount from multiple possible sources
+      const transactionAmount = getTransactionAmount();
+      console.log(`Using transaction amount: ${transactionAmount}`);
       
       // Create updated transaction with completed status and more accurate defaults
       // based on the confirmation screen data
@@ -54,7 +79,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
         completedAt: new Date().toISOString(),
         // Fill in missing data with more accurate defaults
         recipientName: transaction.recipientName || 'John Doe',
-        amount: transaction.amount || '100',
+        amount: transactionAmount,
         recipientContact: transaction.recipientContact || '+237612345678',
         country: transaction.country || 'CM',
         provider: transaction.provider || 'MTN Mobile Money',
@@ -62,7 +87,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
         currency: transaction.currency || 'XAF',
         sourceCurrency: 'USD',
         targetCurrency: 'XAF',
-        convertedAmount: 61000,
+        convertedAmount: parseFloat(transactionAmount) * 610,
         exchangeRate: 610,
         estimatedDelivery: 'Delivered'
       };
@@ -75,7 +100,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       localStorage.setItem(`transaction_backup_${transaction.id}`, transactionData);
       localStorage.setItem(`emergency_transaction_${transaction.id}`, transactionData);
       localStorage.setItem(`completed_transaction_${transaction.id}`, transactionData);
-      localStorage.setItem(`direct_transaction_${transaction.id}`, transactionData); // New direct key
+      localStorage.setItem(`direct_transaction_${transaction.id}`, transactionData); // Direct key
       sessionStorage.setItem(`transaction_session_${transaction.id}`, transactionData);
       
       console.log('Transaction data updated and stored with multiple keys:', updatedTransaction);
@@ -100,7 +125,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
         <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
           <div style="color: #10b981; font-size: 48px; margin-bottom: 16px;">✓</div>
           <h3>Transaction Completed!</h3>
-          <p>Your transaction of $100 to ${updatedTransaction.recipientName} has been successfully completed.</p>
+          <p>Your transaction of $${transactionAmount} to ${getRecipientName()} has been successfully completed.</p>
         </div>
       `;
       document.body.appendChild(successOverlay);

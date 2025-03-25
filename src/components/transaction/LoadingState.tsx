@@ -64,21 +64,49 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     // First, check if there's any transaction data we can use as a base
     let baseData = null;
     try {
-      // Try the pendingTransaction first
-      const pendingTransaction = localStorage.getItem('pendingTransaction');
-      if (pendingTransaction) {
-        baseData = JSON.parse(pendingTransaction);
-        console.log('[DEBUG] Using pendingTransaction as base for fallback:', baseData);
+      // Check multiple data sources in order of preference
+      const sources = [
+        'pendingTransaction',
+        'pendingTransactionBackup',
+        'processedPendingTransaction',
+        'confirmed_transaction_data',
+        'currentTransactionData'
+      ];
+      
+      // Try each source until we find valid data
+      for (const source of sources) {
+        const data = localStorage.getItem(source);
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            baseData = parsed;
+            console.log(`[DEBUG] Using ${source} as base for fallback:`, baseData);
+            break;
+          } catch (e) {
+            console.error(`[DEBUG] Error parsing ${source}:`, e);
+          }
+        }
       }
     } catch (e) {
-      console.error('[DEBUG] Error parsing pendingTransaction:', e);
+      console.error('[DEBUG] Error finding base transaction data:', e);
     }
+    
+    // Get correct amount, checking all possible places
+    const amount = baseData?.amount?.toString() || 
+                  baseData?.sendAmount || 
+                  localStorage.getItem('lastTransactionAmount') || 
+                  '100';
+    
+    // Calculate converted amount based on exchange rate
+    const exchangeRate = baseData?.exchangeRate || 610;
+    const convertedAmount = parseFloat(amount) * exchangeRate;
     
     // Create a fallback transaction with data matching the confirmation screen
     const fallbackTransaction = {
       id: transactionId,
       transactionId: transactionId, // Include both formats for compatibility
-      amount: baseData?.amount?.toString() || '100',
+      amount: amount,
+      sendAmount: amount, // Add explicit sendAmount
       recipientName: baseData?.recipientName || 'John Doe',
       recipientContact: baseData?.recipientContact || baseData?.recipient || '+237612345678',
       country: baseData?.country || baseData?.targetCountry || 'CM',
@@ -87,17 +115,17 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       updatedAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
       estimatedDelivery: 'Delivered',
-      totalAmount: baseData?.totalAmount || baseData?.amount?.toString() || '100',
+      totalAmount: baseData?.totalAmount || baseData?.amount?.toString() || amount,
       provider: baseData?.provider || baseData?.selectedProvider || 'MTN Mobile Money',
       paymentMethod: baseData?.paymentMethod || 'mtn-mobile-money',
       
       // Include exact data from confirmation screen
       sourceCurrency: baseData?.sourceCurrency || 'USD',
       targetCurrency: baseData?.targetCurrency || 'XAF',
-      convertedAmount: baseData?.convertedAmount || 61000,
-      exchangeRate: baseData?.exchangeRate || 610,
+      convertedAmount: baseData?.convertedAmount || convertedAmount,
+      exchangeRate: exchangeRate,
       fee: baseData?.fee || '0',
-      currency: 'XAF' // Add currency field explicitly for better compatibility
+      currency: baseData?.currency || baseData?.targetCurrency || 'XAF' // Add currency field explicitly for better compatibility
     };
     
     // Store in multiple places for redundancy
@@ -116,6 +144,9 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       // Also use sessionStorage for additional redundancy
       sessionStorage.setItem(`transaction_session_${transactionId}`, serialized);
       sessionStorage.setItem(`fallback_session_${transactionId}`, serialized);
+      
+      // Store the amount separately for better recoverability
+      localStorage.setItem('lastTransactionAmount', amount);
       
       toast.success("Transaction Created", {
         description: "We've created a transaction record for you.",
