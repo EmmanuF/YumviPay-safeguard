@@ -1,3 +1,4 @@
+
 // Fix async/Promise issues with the transaction retrieval service
 import { Transaction } from "@/types/transaction";
 import { getStoredTransactions } from "./transactionStore";
@@ -148,11 +149,24 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
     const parsedData = JSON.parse(rawData);
     console.log(`[DEBUG] Successfully parsed transaction data:`, parsedData);
     
+    // Ensure amount is consistently formatted - first try to parse to a number for consistency
+    let amount = '0';
+    if (parsedData.amount !== undefined) {
+      if (typeof parsedData.amount === 'number') {
+        amount = parsedData.amount.toString();
+      } else if (typeof parsedData.amount === 'string') {
+        // Try to parse to ensure consistent format
+        const numAmount = parseFloat(parsedData.amount);
+        amount = !isNaN(numAmount) ? numAmount.toString() : parsedData.amount;
+      }
+    }
+    
     // Create a properly structured Transaction object with all required fields
     // Now accepting more field formats from the confirmation screen
     return {
       id: parsedData.id || parsedData.transactionId || transactionId,
-      amount: parsedData.amount?.toString() || '100',
+      amount: amount, // Use consistently formatted amount
+      sendAmount: parsedData.sendAmount || amount, // Ensure sendAmount is also consistent
       recipientName: parsedData.recipientName || 'John Doe',
       recipientContact: parsedData.recipientContact || parsedData.recipient || '+237612345678',
       country: parsedData.country || parsedData.targetCountry || 'CM',
@@ -161,7 +175,7 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
       updatedAt: parsedData.updatedAt ? new Date(parsedData.updatedAt) : new Date(),
       completedAt: parsedData.completedAt ? new Date(parsedData.completedAt) : new Date(),
       estimatedDelivery: parsedData.estimatedDelivery || 'Delivered',
-      totalAmount: parsedData.totalAmount || parsedData.amount || '100',
+      totalAmount: parsedData.totalAmount || amount, // Use consistent amount
       provider: parsedData.provider || parsedData.selectedProvider || 'MTN Mobile Money',
       paymentMethod: parsedData.paymentMethod || 'mtn-mobile-money',
       failureReason: parsedData.failureReason,
@@ -170,7 +184,10 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
       recipientCountry: parsedData.recipientCountry || parsedData.targetCountry || 'CM',
       currency: parsedData.currency || parsedData.targetCurrency || 'XAF',
       exchangeRate: parsedData.exchangeRate || 610,
-      fee: parsedData.fee || '0'
+      fee: parsedData.fee || '0',
+      convertedAmount: typeof parsedData.convertedAmount === 'number' 
+        ? parsedData.convertedAmount 
+        : parseFloat(amount) * 610 // Calculate if not available
     };
   } catch (error) {
     console.error('[DEBUG] ❌ Error parsing transaction data:', error, 'Raw data:', rawData);
@@ -186,10 +203,20 @@ const parseTransactionData = (rawData: string, transactionId: string): Transacti
 const createFallbackTransaction = (transactionId: string, baseData: any = null): Transaction => {
   console.log(`[DEBUG] 🔧 Creating fallback transaction for ID: ${transactionId}`, baseData ? 'with base data' : 'from scratch');
   
+  // Get the most reliable amount from window if available
+  let amount = '100';
+  if (window.getTransactionAmount) {
+    const storeAmount = window.getTransactionAmount();
+    if (storeAmount > 0) {
+      amount = storeAmount.toString();
+    }
+  }
+  
   // Start with values from the confirmation screen
   const fallbackTransaction: Transaction = {
     id: transactionId,
-    amount: baseData?.amount?.toString() || '100',
+    amount: baseData?.amount?.toString() || amount,
+    sendAmount: baseData?.sendAmount?.toString() || amount,
     recipientName: baseData?.recipientName || 'John Doe',
     recipientContact: baseData?.recipientContact || baseData?.recipient || '+237612345678',
     country: baseData?.country || baseData?.targetCountry || 'CM',
@@ -198,12 +225,13 @@ const createFallbackTransaction = (transactionId: string, baseData: any = null):
     updatedAt: new Date(),
     completedAt: new Date(),
     estimatedDelivery: 'Delivered',
-    totalAmount: baseData?.totalAmount || baseData?.amount?.toString() || '100',
+    totalAmount: baseData?.totalAmount || amount,
     provider: baseData?.provider || baseData?.selectedProvider || 'MTN Mobile Money',
     paymentMethod: baseData?.paymentMethod || 'mtn-mobile-money',
     currency: 'XAF',
     exchangeRate: 610,
-    fee: '0'
+    fee: '0',
+    convertedAmount: parseFloat(amount) * 610
   };
   
   // Store the fallback for future access in multiple places

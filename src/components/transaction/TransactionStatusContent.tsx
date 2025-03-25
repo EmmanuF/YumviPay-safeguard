@@ -9,7 +9,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { getTransactionAmount } from '@/utils/transactionDataStore';
 
 interface TransactionStatusContentProps {
   transaction: Transaction;
@@ -43,33 +42,41 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
     (typeof transaction.amount === 'string' && transaction.amount === '0') ||
     (typeof transaction.amount === 'number' && transaction.amount === 0);
   
-  // Access amount more safely
-  const getTransactionAmount = () => {
-    if (!transaction) return '0';
-    
-    // Try from transaction data store first (most reliable)
-    const storeAmount = window.getTransactionAmount?.();
-    if (storeAmount && storeAmount > 0) {
-      return storeAmount.toString();
+  // Get the most reliable transaction amount from all possible sources
+  const getReliableAmount = (): string => {
+    // First try the global transaction amount getter (most reliable)
+    if (window.getTransactionAmount) {
+      const amount = window.getTransactionAmount();
+      if (amount > 0) {
+        return amount.toString();
+      }
     }
     
-    // Try multiple possible sources of the amount
-    if (transaction.sendAmount !== undefined && transaction.sendAmount !== null) {
+    // Try transaction data directly
+    if (!transaction) return '0';
+    
+    // Try sendAmount first (most accurate for send flow)
+    if (transaction.sendAmount !== undefined) {
       return typeof transaction.sendAmount === 'number' 
         ? transaction.sendAmount.toString() 
         : transaction.sendAmount;
     }
     
-    if (transaction.amount !== undefined && transaction.amount !== null) {
+    // Fall back to amount
+    if (transaction.amount !== undefined) {
       return typeof transaction.amount === 'number' 
         ? transaction.amount.toString() 
         : transaction.amount;
     }
     
-    // Try localStorage as last resort
-    const lastAmount = localStorage.getItem('lastTransactionAmount');
-    if (lastAmount) {
-      return lastAmount;
+    // Last resort, check localStorage
+    try {
+      const storedAmount = localStorage.getItem('lastTransactionAmount');
+      if (storedAmount && !isNaN(parseFloat(storedAmount))) {
+        return storedAmount;
+      }
+    } catch (e) {
+      console.error('Error accessing localStorage:', e);
     }
     
     return '0';
@@ -86,20 +93,22 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
     try {
       console.log(`[CRITICAL] 🛠️ Forcing transaction ${transaction.id} to completed status`);
       
-      // Get the correct amount from multiple possible sources
-      const transactionAmount = getTransactionAmount();
-      console.log(`Using transaction amount: ${transactionAmount}`);
+      // Get reliable amount
+      const transactionAmount = getReliableAmount();
+      console.log(`Using reliable transaction amount: ${transactionAmount}`);
       
       // Create updated transaction with completed status and more accurate defaults
-      // based on the confirmation screen data
       const updatedTransaction = {
         ...transaction,
         status: 'completed',
         updatedAt: new Date().toISOString(),
         completedAt: new Date().toISOString(),
+        // Use consistent amount values
+        amount: transactionAmount,
+        sendAmount: transactionAmount,
+        totalAmount: transactionAmount,
         // Fill in missing data with more accurate defaults
         recipientName: transaction.recipientName || 'John Doe',
-        amount: transactionAmount,
         recipientContact: transaction.recipientContact || '+237612345678',
         country: transaction.country || 'CM',
         provider: transaction.provider || 'MTN Mobile Money',
