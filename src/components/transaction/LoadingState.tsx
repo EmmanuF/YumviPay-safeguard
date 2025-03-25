@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCw, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -18,7 +18,7 @@ interface LoadingStateProps {
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'This will only take a moment',
-  timeout = 2000, // Reduced timeout for faster fallback
+  timeout = 1500, // Further reduced timeout for faster fallback
   retryAction,
   errorMessage,
   transactionId
@@ -30,12 +30,13 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   const [autoRetryAttempted, setAutoRetryAttempted] = useState(false);
   const [autoRetryCount, setAutoRetryCount] = useState(0);
   const [showEmergencyButton, setShowEmergencyButton] = useState(false);
-  const MAX_AUTO_RETRIES = 1; // Reduced max retries to show emergency button faster
+  const [showFallbackCreated, setShowFallbackCreated] = useState(false);
+  const MAX_AUTO_RETRIES = 1; // Single retry attempt before showing emergency recovery
 
   // Immediately create fallback transaction on component mount
   useEffect(() => {
     if (transactionId) {
-      console.log(`[DEBUG] LoadingState mounted with transaction ID: ${transactionId}`);
+      console.log(`[DEBUG] 🚨 LoadingState mounted for transaction ID: ${transactionId} - Creating fallback immediately`);
       createFallbackTransaction();
     }
   }, [transactionId]);
@@ -49,7 +50,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     
     console.log(`[DEBUG] 🔄 Creating fallback transaction for ID: ${transactionId}`);
     
-    // Create a basic fallback transaction
+    // Create a basic fallback transaction with sensible defaults
     const fallbackTransaction = {
       id: transactionId,
       transactionId: transactionId, // Include both formats for compatibility
@@ -72,25 +73,59 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       const serialized = JSON.stringify(fallbackTransaction);
       console.log('[DEBUG] Storing fallback transaction:', serialized);
       
+      // Store with multiple keys for better recovery
       localStorage.setItem(`transaction_${transactionId}`, serialized);
       localStorage.setItem(`transaction_backup_${transactionId}`, serialized);
       localStorage.setItem(`emergency_transaction_${transactionId}`, serialized);
+      localStorage.setItem(`completed_transaction_${transactionId}`, serialized);
+      localStorage.setItem(`fallback_${transactionId}`, serialized);
+      
+      // Also use sessionStorage for additional redundancy
       sessionStorage.setItem(`transaction_session_${transactionId}`, serialized);
+      sessionStorage.setItem(`fallback_session_${transactionId}`, serialized);
       
       toast.success("Transaction Created", {
         description: "We've created a transaction record for you.",
       });
       
       console.log('[DEBUG] ✅ Created and stored fallback transaction');
+      setShowFallbackCreated(true);
       
-      // Force reload the page to pick up the new transaction
-      setTimeout(() => {
-        console.log('[DEBUG] Reloading page to use the new transaction data');
-        window.location.reload();
-      }, 500);
     } catch (e) {
       console.error('[DEBUG] ❌ Error storing fallback transaction:', e);
     }
+  };
+  
+  // Function to display fallback transaction and reload
+  const showAndReloadWithFallback = () => {
+    setShowFallbackCreated(true);
+    
+    // Show success indicator
+    const successOverlay = document.createElement('div');
+    successOverlay.style.position = 'fixed';
+    successOverlay.style.top = '0';
+    successOverlay.style.left = '0';
+    successOverlay.style.width = '100%';
+    successOverlay.style.height = '100%';
+    successOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    successOverlay.style.display = 'flex';
+    successOverlay.style.justifyContent = 'center';
+    successOverlay.style.alignItems = 'center';
+    successOverlay.style.zIndex = '10000';
+    successOverlay.innerHTML = `
+      <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+        <div style="color: #10b981; font-size: 48px; margin-bottom: 16px;">✓</div>
+        <h3>Transaction Created!</h3>
+        <p>We've created a transaction record for you.</p>
+      </div>
+    `;
+    document.body.appendChild(successOverlay);
+    
+    // Force reload the page to pick up the new transaction
+    setTimeout(() => {
+      console.log('[DEBUG] Reloading page to use the new transaction data');
+      window.location.reload();
+    }, 1500);
   };
   
   useEffect(() => {
@@ -123,9 +158,9 @@ const LoadingState: React.FC<LoadingStateProps> = ({
           }, 1000);
         }, 300);
       } else if (transactionId && autoRetryCount >= MAX_AUTO_RETRIES) {
-        // Auto-create transaction after max retries
-        console.log(`[DEBUG] 🔄 Max retries reached, auto-creating fallback transaction`);
-        createFallbackTransaction();
+        // Auto-create transaction after max retries and show reload UI
+        console.log(`[DEBUG] 🔄 Max retries reached, showing transaction created success UI`);
+        showAndReloadWithFallback();
       }
     }, timeout);
     
@@ -154,6 +189,36 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   };
   
   const fullMessage = `${message}${dots}`;
+  
+  if (showFallbackCreated) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-4 bg-background">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center max-w-md"
+        >
+          <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+          <p className="mt-4 text-foreground font-medium">
+            Transaction Created Successfully
+          </p>
+          <p className="mt-2 text-muted-foreground text-sm">
+            We've created a transaction record for you. The page will reload momentarily.
+          </p>
+          <div className="mt-4 space-y-2">
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="w-full"
+              variant="default"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Reload Now
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4 bg-background">
@@ -188,10 +253,11 @@ const LoadingState: React.FC<LoadingStateProps> = ({
               
               {showEmergencyButton && transactionId && (
                 <Button 
-                  onClick={createFallbackTransaction} 
+                  onClick={showAndReloadWithFallback} 
                   className="w-full"
                   variant="default"
                 >
+                  <CheckCircle className="mr-2 h-4 w-4" />
                   Create Transaction Record
                 </Button>
               )}

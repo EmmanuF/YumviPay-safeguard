@@ -1,13 +1,14 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import RecipientStep from './RecipientStep';
 import PaymentStep from './PaymentStep';
 import ConfirmationStep from './ConfirmationStep';
 import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 import LoadingState from '@/components/transaction/LoadingState';
+import { toast } from 'sonner';
 
 interface SendMoneyStepRendererProps {
   currentStep: SendMoneyStep;
@@ -29,6 +30,43 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   error
 }) => {
   console.log('Rendering step:', currentStep, 'with data:', transactionData);
+  
+  // Safeguard: Pre-cache the current step's transaction data for recovery
+  useEffect(() => {
+    if (transactionData && currentStep) {
+      try {
+        // Store current step's transaction data for potential recovery
+        localStorage.setItem(`step_${currentStep}_data`, JSON.stringify({
+          ...transactionData,
+          lastStep: currentStep,
+          timestamp: new Date().toISOString()
+        }));
+        console.log(`Cached transaction data for step ${currentStep}`);
+      } catch (e) {
+        console.error('Error caching step data:', e);
+      }
+    }
+  }, [currentStep, transactionData]);
+  
+  // For confirmation step, store the transaction data in multiple places for redundancy
+  useEffect(() => {
+    if (currentStep === 'confirmation' && transactionData) {
+      try {
+        const serializedData = JSON.stringify({
+          ...transactionData,
+          timestamp: new Date().toISOString()
+        });
+        
+        localStorage.setItem('confirmed_transaction_data', serializedData);
+        localStorage.setItem('pending_transaction_backup', serializedData);
+        sessionStorage.setItem('confirm_transaction_session', serializedData);
+        
+        console.log('Stored confirmation step data with redundancy');
+      } catch (e) {
+        console.error('Error storing confirmation data:', e);
+      }
+    }
+  }, [currentStep, transactionData]);
   
   // Show loading state if we're submitting with transaction ID if available
   if (isSubmitting) {
@@ -66,6 +104,32 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   // Check if we have required transaction data
   if (!transactionData) {
     console.error('Missing transaction data in step renderer');
+    // Try to recover from cached step data
+    try {
+      const cachedStepData = localStorage.getItem(`step_${currentStep}_data`);
+      if (cachedStepData) {
+        const parsed = JSON.parse(cachedStepData);
+        console.log(`Recovered data for step ${currentStep}:`, parsed);
+        
+        // Update transaction data with recovered data
+        updateTransactionData(parsed);
+        
+        toast.success("Data Recovered", {
+          description: "Successfully recovered your transaction data",
+        });
+        
+        // Return temporary loading placeholder while data is being updated
+        return (
+          <div className="p-4 text-center">
+            <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+            <p className="mt-2">Transaction data recovered, loading...</p>
+          </div>
+        );
+      }
+    } catch (e) {
+      console.error('Error recovering step data:', e);
+    }
+    
     return (
       <LoadingState 
         message="Error loading transaction data" 
