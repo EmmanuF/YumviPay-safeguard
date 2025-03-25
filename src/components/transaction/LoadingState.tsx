@@ -15,7 +15,7 @@ interface LoadingStateProps {
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'This will only take a moment',
-  timeout = 4000, // Reduced to 4 seconds for better UX
+  timeout = 6000, // Increased to 6 seconds for better UX
   retryAction,
   errorMessage
 }) => {
@@ -23,6 +23,8 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   const [timeoutElapsed, setTimeoutElapsed] = useState(0);
   const [dots, setDots] = useState('');
   const [autoRetryAttempted, setAutoRetryAttempted] = useState(false);
+  const [autoRetryCount, setAutoRetryCount] = useState(0);
+  const MAX_AUTO_RETRIES = 2;
   
   useEffect(() => {
     // If there's an error message, show timeout view immediately
@@ -35,12 +37,18 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     const timer = setTimeout(() => {
       setShowTimeout(true);
       
-      // Auto-retry once if retry action exists and hasn't been attempted yet
-      if (retryAction && !autoRetryAttempted) {
-        console.log('Auto-retrying transaction load after timeout');
+      // Auto-retry logic with limited attempts
+      if (retryAction && !autoRetryAttempted && autoRetryCount < MAX_AUTO_RETRIES) {
+        console.log(`Auto-retrying transaction load after timeout (attempt ${autoRetryCount + 1}/${MAX_AUTO_RETRIES})`);
         setAutoRetryAttempted(true);
+        setAutoRetryCount(prev => prev + 1);
+        
         setTimeout(() => {
           retryAction();
+          // Reset auto-retry flag after a delay to allow multiple auto-retries
+          setTimeout(() => {
+            setAutoRetryAttempted(false);
+          }, 3000);
         }, 1000);
       }
     }, timeout);
@@ -63,7 +71,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       clearInterval(elapsedTimer);
       clearInterval(dotsTimer);
     };
-  }, [timeout, errorMessage, retryAction, autoRetryAttempted]);
+  }, [timeout, errorMessage, retryAction, autoRetryAttempted, autoRetryCount]);
   
   const fullMessage = `${message}${dots}`;
   

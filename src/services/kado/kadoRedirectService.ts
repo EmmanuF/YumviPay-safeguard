@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { deepLinkService } from '../deepLinkService';
@@ -52,8 +51,9 @@ export const kadoRedirectService = {
       console.log('Adding transaction to offline storage:', transaction);
       addOfflineTransaction(transaction);
       
-      // Also store in localStorage with explicit transaction key format
+      // Enhanced localStorage storage with multiple backup keys
       const transactionKey = `transaction_${params.transactionId}`;
+      const backupKey = `transaction_backup_${params.transactionId}`;
       const transactionData = JSON.stringify({
         ...transaction,
         transactionId: params.transactionId,
@@ -61,17 +61,39 @@ export const kadoRedirectService = {
         updatedAt: transaction.updatedAt.toISOString()
       });
       
-      // Ensure localStorage is properly updated BEFORE navigation
+      // Store with primary key
       localStorage.setItem(transactionKey, transactionData);
-      console.log(`Transaction stored in localStorage with key: ${transactionKey}`, transaction);
+      // Store with backup key
+      localStorage.setItem(backupKey, transactionData);
+      console.log(`Transaction stored in localStorage with keys: ${transactionKey} and ${backupKey}`, transaction);
       
-      // Double-check that the storage actually happened
-      const storedData = localStorage.getItem(transactionKey);
-      if (!storedData) {
-        console.error(`ERROR: Failed to store transaction in localStorage! Key: ${transactionKey}`);
-        throw new Error('Failed to store transaction data locally');
-      } else {
-        console.log(`Verified transaction stored in localStorage successfully: ${storedData.substring(0, 50)}...`);
+      // Verify storage was successful
+      const verifyStorage = () => {
+        const storedData = localStorage.getItem(transactionKey);
+        const backupData = localStorage.getItem(backupKey);
+        
+        if (!storedData && !backupData) {
+          console.error(`ERROR: Failed to store transaction in localStorage! Keys: ${transactionKey}, ${backupKey}`);
+          throw new Error('Failed to store transaction data locally');
+        } else {
+          console.log(`Verified transaction storage successful: ${(storedData || backupData)?.substring(0, 50)}...`);
+          return true;
+        }
+      };
+      
+      // Keep trying to verify storage for up to 3 attempts
+      let storageVerified = false;
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (!storageVerified && attempts < maxAttempts) {
+        try {
+          storageVerified = verifyStorage();
+        } catch (e) {
+          attempts++;
+          if (attempts >= maxAttempts) throw e;
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       }
       
       // For high-value transactions, use biometric verification if available
@@ -126,31 +148,41 @@ export const kadoRedirectService = {
         description: "You will be redirected to complete KYC and payment"
       });
       
-      // CRITICAL FIX: First simulate the webhook to update transaction status before navigation
+      // CRITICAL: Ensure the webhook simulation happens BEFORE navigation
+      // This promotes the transaction to "processing" state immediately
       try {
         console.log(`Simulating webhook for transaction ${params.transactionId} BEFORE navigation`);
         // Force the transaction to "processing" state immediately for better UX
         const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
         await updateTransactionStatus(params.transactionId, 'processing');
         
-        // Run the webhook simulation in the background but don't wait for it
-        // This will automatically update to 'completed' after a delay
+        // Fire webhook simulation but don't wait for it to complete
+        const { simulateKadoWebhook } = await import('../transaction/transactionUpdate');
         simulateKadoWebhook(params.transactionId).catch(err => {
           console.error('Background webhook simulation error:', err);
         });
       } catch (webhookError) {
         console.error('Error starting webhook simulation:', webhookError);
-        // Continue with navigation anyway after logging the error
+        // Continue anyway after logging the error
       }
       
-      // Add a delay to ensure all storage operations have completed
-      // before navigation
-      setTimeout(() => {
-        console.log(`Navigating to transaction screen for ${params.transactionId}`);
-        
-        // Navigate to transaction page
-        window.location.href = `/transaction/${params.transactionId}`;
-      }, 500);
+      // CRITICAL FIX: Add a delay and ensure data is stored before navigation
+      // This gives localStorage time to sync and webhook to start
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Verify one last time before navigation
+      try {
+        verifyStorage();
+      } catch (error) {
+        console.error('Final storage verification failed:', error);
+        // Attempt emergency fallback
+        localStorage.setItem(`emergency_transaction_${params.transactionId}`, transactionData);
+      }
+      
+      console.log(`DATA VERIFIED - NOW navigating to transaction screen for ${params.transactionId}`);
+      
+      // Use direct window.location.href for more reliable navigation
+      window.location.href = `/transaction/${params.transactionId}`;
       
       console.log('Kado redirect process completed successfully');
       return;

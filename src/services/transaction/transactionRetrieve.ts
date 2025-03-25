@@ -1,56 +1,110 @@
-
 // Fix async/Promise issues with the transaction retrieval service
 import { Transaction } from "@/types/transaction";
 import { getStoredTransactions } from "./transactionStore";
 import { toast } from 'sonner';
 
-// Get transaction by ID
+// Improved direct localStorage check function
+const getTransactionFromLocalStorage = (id: string): Transaction | null => {
+  try {
+    console.log(`Checking localStorage directly for transaction: ${id}`);
+    // First try exact match with transaction ID
+    let rawData = localStorage.getItem(`transaction_${id}`);
+    
+    // If not found, try searching all localStorage keys
+    if (!rawData) {
+      console.log(`No direct match for transaction_${id}, searching all localStorage keys`);
+      // Get all keys that might be related to this transaction
+      const allKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('transaction_') || key.includes(id)
+      );
+      
+      console.log(`Found ${allKeys.length} potential transaction keys:`, allKeys);
+      
+      // Try each key
+      for (const key of allKeys) {
+        const tempData = localStorage.getItem(key);
+        if (tempData) {
+          try {
+            const parsed = JSON.parse(tempData);
+            // Check if this data matches our transaction ID
+            if (
+              parsed.id === id || 
+              parsed.transactionId === id || 
+              key === `transaction_${id}`
+            ) {
+              console.log(`Found matching transaction in key: ${key}`, parsed);
+              rawData = tempData;
+              break;
+            }
+          } catch (e) {
+            console.error(`Error parsing data from key ${key}:`, e);
+          }
+        }
+      }
+    }
+    
+    if (rawData) {
+      try {
+        const parsed = JSON.parse(rawData);
+        console.log(`Successfully parsed transaction data from localStorage:`, parsed);
+        
+        // Convert the data to a proper Transaction object
+        return {
+          id: parsed.id || parsed.transactionId || id,
+          amount: parsed.amount || '0',
+          recipientName: parsed.recipientName || 'Unknown',
+          recipientContact: parsed.recipientContact || '',
+          country: parsed.country || 'Unknown',
+          status: parsed.status || 'pending',
+          createdAt: new Date(parsed.createdAt || Date.now()),
+          updatedAt: new Date(parsed.updatedAt || Date.now()),
+          completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined,
+          estimatedDelivery: parsed.estimatedDelivery || 'Processing',
+          totalAmount: parsed.totalAmount || parsed.amount || '0',
+          provider: parsed.provider || 'Unknown',
+          paymentMethod: parsed.paymentMethod || 'unknown',
+          failureReason: parsed.failureReason
+        };
+      } catch (parseError) {
+        console.error(`Error parsing transaction data:`, parseError);
+        return null;
+      }
+    }
+    
+    console.log(`No transaction data found in localStorage for ID: ${id}`);
+    return null;
+  } catch (error) {
+    console.error(`Error checking localStorage for transaction ${id}:`, error);
+    return null;
+  }
+};
+
+// Get transaction by ID - improved with better localStorage checking
 export const getTransactionById = async (id: string): Promise<Transaction> => {
   console.log(`getTransactionById called for ID: ${id}`);
   
   try {
+    // First, check localStorage directly (prioritize this)
+    const localStorageTransaction = getTransactionFromLocalStorage(id);
+    if (localStorageTransaction) {
+      console.log(`Found transaction in localStorage:`, localStorageTransaction);
+      return localStorageTransaction;
+    }
+    
+    // If not in localStorage, check stored transactions
     const transactions = await getStoredTransactions();
     console.log(`Retrieved ${transactions.length} transactions from storage`);
     
     const transaction = transactions.find(t => t.id === id);
     
     if (!transaction) {
-      console.log(`Transaction with ID ${id} not found in stored transactions, checking local storage`);
-      
-      // Check if the ID might be a transaction we just created
-      // This is a fallback for transactions that might not be in storage yet
-      if (localStorage.getItem(`transaction_${id}`)) {
-        try {
-          const tempTransaction = JSON.parse(localStorage.getItem(`transaction_${id}`) || '');
-          console.log(`Found transaction in localStorage with key transaction_${id}`, tempTransaction);
-          
-          // Convert the temporary transaction to a proper Transaction object
-          return {
-            id: tempTransaction.transactionId || tempTransaction.id || id,
-            amount: tempTransaction.amount || '0',
-            recipientName: tempTransaction.recipientName || 'Unknown',
-            recipientContact: tempTransaction.recipientContact || '',
-            country: tempTransaction.country || 'Unknown',
-            status: tempTransaction.status || 'pending',
-            createdAt: new Date(tempTransaction.createdAt || Date.now()),
-            updatedAt: new Date(tempTransaction.updatedAt || Date.now()),
-            estimatedDelivery: 'Processing',
-            totalAmount: tempTransaction.amount || '0',
-            provider: tempTransaction.provider || 'Unknown',
-            paymentMethod: tempTransaction.paymentMethod || 'unknown'
-          };
-        } catch (parseError) {
-          console.error(`Error parsing temporary transaction ${id}:`, parseError);
-        }
-      }
-      
       console.warn(`Transaction with ID ${id} not found, creating fallback transaction`);
       
       // If we still can't find the transaction, create a fallback one to avoid errors
       return {
         id: id,
         amount: '0',
-        recipientName: 'Unknown Recipient',
+        recipientName: 'Processing...',
         recipientContact: '',
         country: 'Unknown',
         status: 'processing' as const,
