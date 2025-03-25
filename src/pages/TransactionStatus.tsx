@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTransactionById, Transaction } from '@/services/transactions';
@@ -16,15 +15,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 
-// Utility function to safely parse a number
 const safeParseNumber = (value: string | number | undefined): number => {
   if (value === undefined) return 0;
   if (typeof value === 'number') return value;
   return parseFloat(value) || 0;
 };
 
-// Max time to wait for transaction loading in milliseconds
-const TRANSACTION_LOADING_TIMEOUT = 15000; // 15 seconds
+const TRANSACTION_LOADING_TIMEOUT = 15000;
 
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
@@ -93,7 +90,6 @@ const TransactionStatus = () => {
     setError(null);
     setRetryCount(prev => prev + 1);
     
-    // Clear any existing timeout
     if (loadingTimeout) {
       clearTimeout(loadingTimeout);
       setLoadingTimeout(null);
@@ -119,13 +115,12 @@ const TransactionStatus = () => {
 
     startFetchWithTimeout();
     
-    // Set up polling for pending/processing transactions
     if (transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
       if (!refreshInterval) {
         console.log(`Setting up refresh interval for transaction ${id}`);
         const interval = window.setInterval(() => {
           fetchTransactionDetails();
-        }, 3000); // Poll every 3 seconds (reduced from 5 seconds)
+        }, 3000);
         
         setRefreshInterval(interval);
       }
