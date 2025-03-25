@@ -51,11 +51,25 @@ export const kadoRedirectService = {
       console.log('Adding transaction to offline storage:', transaction);
       addOfflineTransaction(transaction);
       
-      // Also store in localStorage for redundancy
-      localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify({
+      // Also store in localStorage with explicit transaction key format
+      const transactionKey = `transaction_${params.transactionId}`;
+      const transactionData = JSON.stringify({
         ...transaction,
         transactionId: params.transactionId,
-      }));
+      });
+      
+      // Ensure localStorage is properly updated BEFORE navigation
+      localStorage.setItem(transactionKey, transactionData);
+      console.log(`Transaction stored in localStorage with key: ${transactionKey}`, transaction);
+      
+      // Double-check that the storage actually happened
+      const storedData = localStorage.getItem(transactionKey);
+      if (!storedData) {
+        console.error(`ERROR: Failed to store transaction in localStorage! Key: ${transactionKey}`);
+        throw new Error('Failed to store transaction data locally');
+      } else {
+        console.log(`Verified transaction stored in localStorage successfully: ${storedData.substring(0, 50)}...`);
+      }
       
       // For high-value transactions, use biometric verification if available
       if (parseFloat(params.amount) > 100) {
@@ -109,25 +123,37 @@ export const kadoRedirectService = {
         description: "You will be redirected to complete KYC and payment"
       });
       
-      // CRITICAL FIX: Import the transaction update functions outside the timeout
-      // to prevent race conditions
-      const { simulateKadoWebhook } = await import('../transaction/transactionUpdate');
+      // CRITICAL FIX: Import the webhook function more reliably
+      let simulateKadoWebhook;
+      try {
+        // Import the transaction update module
+        const transactionUpdateModule = await import('../transaction/transactionUpdate');
+        simulateKadoWebhook = transactionUpdateModule.simulateKadoWebhook;
+      } catch (importError) {
+        console.error('Error importing webhook simulator:', importError);
+      }
       
-      // Simulate a very short delay for redirection (250ms instead of 1000ms)
-      await new Promise(resolve => setTimeout(resolve, 250));
+      // CRITICAL FIX: First run the webhook simulation and wait for it to complete
+      // before navigation to ensure transaction status is updated
+      if (simulateKadoWebhook) {
+        try {
+          console.log(`Simulating webhook for transaction ${params.transactionId} - BEFORE navigation`);
+          await simulateKadoWebhook(params.transactionId);
+          console.log(`Webhook simulation completed for ${params.transactionId}`);
+        } catch (webhookError) {
+          console.error('Error in webhook simulation:', webhookError);
+          // Continue with navigation anyway after logging the error
+        }
+      }
       
-      // CRITICAL FIX: Trigger the webhook simulation immediately but don't await it
-      console.log(`Simulating webhook for transaction ${params.transactionId}`);
-      simulateKadoWebhook(params.transactionId).catch(webhookError => {
-        console.error('Background webhook simulation error:', webhookError);
-      });
-      
-      // CRITICAL FIX: Navigate to transaction screen immediately
-      // Don't rely on external redirect to navigate
-      console.log(`Navigating directly to transaction screen for ${params.transactionId}`);
-      
-      // Immediately navigate to transaction page - do NOT wait for any redirect
-      window.location.href = `/transaction/${params.transactionId}`;
+      // Use setTimeout to give localStorage a moment to complete any pending writes
+      setTimeout(() => {
+        console.log(`Navigating to transaction screen for ${params.transactionId}`);
+        
+        // Use navigate from utils instead of direct window.location assignment
+        // This helps avoid full page reloads and maintains state better
+        window.location.href = `/transaction/${params.transactionId}`;
+      }, 300);
       
       console.log('Kado redirect process completed successfully');
       return;
