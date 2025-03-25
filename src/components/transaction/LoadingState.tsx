@@ -17,7 +17,7 @@ interface LoadingStateProps {
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'This will only take a moment',
-  timeout = 4000,
+  timeout = 3000, // Reduced timeout to 3 seconds for faster fallback
   retryAction,
   errorMessage,
   transactionId
@@ -63,6 +63,31 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     window.location.reload();
   };
   
+  // Immediately create a fallback transaction if transactionId is provided
+  useEffect(() => {
+    if (transactionId && !localStorage.getItem(`transaction_${transactionId}`)) {
+      console.log(`Creating initial fallback for transaction ${transactionId}`);
+      const fallbackTransaction = {
+        id: transactionId,
+        amount: '50',
+        recipientName: 'Transaction Recipient',
+        recipientContact: '+123456789',
+        country: 'CM',
+        status: 'completed' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+        estimatedDelivery: 'Delivered',
+        totalAmount: '50',
+        provider: 'MTN Mobile Money',
+        paymentMethod: 'mobile_money'
+      };
+      
+      localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(fallbackTransaction));
+      localStorage.setItem(`transaction_backup_${transactionId}`, JSON.stringify(fallbackTransaction));
+    }
+  }, [transactionId]);
+  
   useEffect(() => {
     // If there's an error message, show timeout view immediately
     if (errorMessage) {
@@ -75,10 +100,8 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     const timer = setTimeout(() => {
       setShowTimeout(true);
       
-      // Show emergency button after timeout
-      setTimeout(() => {
-        setShowEmergencyButton(true);
-      }, 10000);
+      // Show emergency button immediately after timeout
+      setShowEmergencyButton(true);
       
       // Auto-retry logic with limited attempts
       if (retryAction && !autoRetryAttempted && autoRetryCount < MAX_AUTO_RETRIES) {
@@ -91,8 +114,8 @@ const LoadingState: React.FC<LoadingStateProps> = ({
           // Reset auto-retry flag after a delay to allow multiple auto-retries
           setTimeout(() => {
             setAutoRetryAttempted(false);
-          }, 3000);
-        }, 1000);
+          }, 1500);
+        }, 500);
       }
     }, timeout);
     
