@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Loader2, AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface LoadingStateProps {
   message?: string;
@@ -17,7 +18,7 @@ interface LoadingStateProps {
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'This will only take a moment',
-  timeout = 3000, // Reduced timeout to 3 seconds for faster fallback
+  timeout = 3000, // Reduced timeout for faster fallback
   retryAction,
   errorMessage,
   transactionId
@@ -31,55 +32,22 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   const [showEmergencyButton, setShowEmergencyButton] = useState(false);
   const MAX_AUTO_RETRIES = 2;
 
-  // Function to diagnose the current transaction loading state
-  const diagnoseTransactionState = () => {
-    console.group(`[DEBUG] 🔍 Diagnosing transaction state for ID: ${transactionId}`);
-    
-    if (!transactionId) {
-      console.log('[DEBUG] ❌ No transaction ID provided to LoadingState component');
-      console.groupEnd();
-      return;
-    }
-    
-    try {
-      // Check localStorage for this transaction
-      const directData = localStorage.getItem(`transaction_${transactionId}`);
-      console.log(`[DEBUG] Direct transaction_${transactionId} exists:`, !!directData);
+  // Immediately attempt to create fallback transaction on component mount if ID is provided
+  useEffect(() => {
+    if (transactionId) {
+      console.log(`[DEBUG] LoadingState mounted with transaction ID: ${transactionId}`);
       
-      // List all transaction-related keys
-      console.log('[DEBUG] All storage keys related to transactions:');
-      const transactionKeys = [];
+      // Check if transaction already exists in any storage
+      const existingTransaction = localStorage.getItem(`transaction_${transactionId}`);
       
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.includes('transaction')) {
-          transactionKeys.push(key);
-        }
+      if (!existingTransaction) {
+        console.log(`[DEBUG] ⚠️ No transaction found for ID ${transactionId}, creating immediately`);
+        createFallbackTransaction();
+      } else {
+        console.log(`[DEBUG] ✅ Transaction ${transactionId} already exists in localStorage`);
       }
-      
-      console.log('[DEBUG] Found transaction keys:', transactionKeys);
-      
-      // Check if any key contains this transaction ID
-      const relevantKeys = transactionKeys.filter(key => key.includes(transactionId));
-      console.log(`[DEBUG] Keys matching transaction ID ${transactionId}:`, relevantKeys);
-      
-      for (const key of relevantKeys) {
-        const data = localStorage.getItem(key);
-        if (data) {
-          try {
-            const parsed = JSON.parse(data);
-            console.log(`[DEBUG] Content for key ${key}:`, parsed);
-          } catch (e) {
-            console.log(`[DEBUG] Failed to parse content for key ${key}:`, data);
-          }
-        }
-      }
-    } catch (e) {
-      console.error('[DEBUG] Error during diagnosis:', e);
     }
-    
-    console.groupEnd();
-  };
+  }, [transactionId]);
   
   // Function to create a fallback transaction directly
   const createFallbackTransaction = () => {
@@ -89,18 +57,6 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     }
     
     console.log(`[DEBUG] 🔄 Creating fallback transaction for ID: ${transactionId}`);
-    
-    // Check if this transaction already exists
-    const existingData = localStorage.getItem(`transaction_${transactionId}`);
-    if (existingData) {
-      console.log('[DEBUG] Transaction already exists in localStorage, no need to create fallback');
-      try {
-        const parsed = JSON.parse(existingData);
-        console.log('[DEBUG] Existing transaction:', parsed);
-      } catch (e) {
-        console.error('[DEBUG] Failed to parse existing transaction:', e);
-      }
-    }
     
     // Create a basic fallback transaction
     const fallbackTransaction = {
@@ -129,23 +85,19 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       localStorage.setItem(`transaction_backup_${transactionId}`, serialized);
       localStorage.setItem(`emergency_transaction_${transactionId}`, serialized);
       
+      toast.success("Transaction Created", {
+        description: "We've created a transaction record for you.",
+      });
+      
       console.log('[DEBUG] ✅ Created and stored fallback transaction');
+      
+      // Force reload the page to pick up the new transaction
+      console.log('[DEBUG] Reloading page to use the new transaction data');
+      window.location.reload();
     } catch (e) {
       console.error('[DEBUG] ❌ Error storing fallback transaction:', e);
     }
-    
-    // Force reload the page to pick up the new transaction
-    console.log('[DEBUG] Reloading page to use the new transaction data');
-    window.location.reload();
   };
-  
-  // Immediately create a fallback transaction if transactionId is provided
-  useEffect(() => {
-    if (transactionId) {
-      console.log(`[DEBUG] LoadingState mounted with transaction ID: ${transactionId}`);
-      diagnoseTransactionState();
-    }
-  }, [transactionId]);
   
   useEffect(() => {
     // If there's an error message, show timeout view immediately
@@ -176,11 +128,10 @@ const LoadingState: React.FC<LoadingStateProps> = ({
             setAutoRetryAttempted(false);
           }, 1500);
         }, 500);
-      }
-      
-      // Diagnose transaction state after timeout
-      if (transactionId) {
-        diagnoseTransactionState();
+      } else if (transactionId && autoRetryCount >= MAX_AUTO_RETRIES) {
+        // Auto-create transaction after max retries
+        console.log(`[DEBUG] 🔄 Max retries reached, auto-creating fallback transaction`);
+        createFallbackTransaction();
       }
     }, timeout);
     
@@ -241,6 +192,16 @@ const LoadingState: React.FC<LoadingStateProps> = ({
                 </Button>
               )}
               
+              {showEmergencyButton && transactionId && (
+                <Button 
+                  onClick={createFallbackTransaction} 
+                  className="w-full"
+                  variant="default"
+                >
+                  Create Transaction Record
+                </Button>
+              )}
+              
               <Button 
                 onClick={handleGoHome} 
                 className="w-full"
@@ -249,16 +210,6 @@ const LoadingState: React.FC<LoadingStateProps> = ({
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Home
               </Button>
-              
-              {showEmergencyButton && transactionId && (
-                <Button 
-                  onClick={createFallbackTransaction} 
-                  className="w-full mt-4"
-                  variant="default"
-                >
-                  Create Transaction Record
-                </Button>
-              )}
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
               If you navigate away, you can always check your transaction status later in your transaction history.
