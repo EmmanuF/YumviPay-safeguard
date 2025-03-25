@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import { Country } from '@/hooks/useCountries';
@@ -26,8 +26,20 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   selectedPaymentMethod,
   selectedProvider,
 }) => {
-  // Convert amount to number
+  // Convert amount to number, ensuring it's valid
   const amountValue = parseFloat(amount) || 0;
+  
+  // Log the amount for debugging
+  useEffect(() => {
+    console.log('TransactionSummary rendering with amount:', { 
+      rawAmount: amount, 
+      parsedAmount: amountValue 
+    });
+    
+    // Verify the amount from localStorage to check consistency
+    const storedAmount = localStorage.getItem('lastTransactionAmount');
+    console.log('Comparing with lastTransactionAmount:', storedAmount);
+  }, [amount, amountValue]);
   
   // Get payment method details
   const paymentMethod = selectedCountryData?.paymentMethods.find(
@@ -39,6 +51,10 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   
   const sourceCurrency = 'USD';
   const targetCurrency = selectedCountryData?.currency || 'XAF';
+  
+  // Fixed exchange rate for consistent calculation
+  const exchangeRate = 610;
+  const convertedAmount = amountValue * exchangeRate;
   
   const itemVariants = {
     hidden: { opacity: 0 },
@@ -60,12 +76,12 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
         
         <div className="flex justify-between">
           <span className="text-gray-500">Exchange Rate</span>
-          <span className="font-medium">1 {sourceCurrency} = 610 {targetCurrency}</span>
+          <span className="font-medium">1 {sourceCurrency} = {exchangeRate} {targetCurrency}</span>
         </div>
         
         <div className="flex justify-between">
           <span className="text-gray-500">Recipient Gets</span>
-          <span className="font-medium">{formatCurrency(amountValue * 610, targetCurrency)}</span>
+          <span className="font-medium">{formatCurrency(convertedAmount, targetCurrency)}</span>
         </div>
         
         {recipientName && (

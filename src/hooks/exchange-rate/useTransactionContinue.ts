@@ -76,6 +76,11 @@ export const useTransactionContinue = ({
     console.log('Saving transaction data with explicit fields:', transactionData);
     
     try {
+      // Clear any old transaction data first to avoid inconsistencies
+      localStorage.removeItem('pendingTransaction');
+      localStorage.removeItem('pendingTransactionBackup');
+      localStorage.removeItem('processedPendingTransaction');
+      
       // Save the transaction data to localStorage with redundancy
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
       localStorage.setItem('pendingTransactionBackup', JSON.stringify(transactionData));
