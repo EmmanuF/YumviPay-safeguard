@@ -7,6 +7,7 @@ import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
 import { navigate } from '@/utils/navigationUtils';
 import { addOfflineTransaction } from '../transaction/transactionStore';
+import { simulateKadoWebhook } from '../transaction/transactionUpdate';
 
 /**
  * Service to handle redirecting to Kado for KYC and payment processing
@@ -56,6 +57,8 @@ export const kadoRedirectService = {
       const transactionData = JSON.stringify({
         ...transaction,
         transactionId: params.transactionId,
+        createdAt: transaction.createdAt.toISOString(),
+        updatedAt: transaction.updatedAt.toISOString()
       });
       
       // Ensure localStorage is properly updated BEFORE navigation
@@ -123,37 +126,31 @@ export const kadoRedirectService = {
         description: "You will be redirected to complete KYC and payment"
       });
       
-      // CRITICAL FIX: Import the webhook function more reliably
-      let simulateKadoWebhook;
+      // CRITICAL FIX: First simulate the webhook to update transaction status before navigation
       try {
-        // Import the transaction update module
-        const transactionUpdateModule = await import('../transaction/transactionUpdate');
-        simulateKadoWebhook = transactionUpdateModule.simulateKadoWebhook;
-      } catch (importError) {
-        console.error('Error importing webhook simulator:', importError);
+        console.log(`Simulating webhook for transaction ${params.transactionId} BEFORE navigation`);
+        // Force the transaction to "processing" state immediately for better UX
+        const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
+        await updateTransactionStatus(params.transactionId, 'processing');
+        
+        // Run the webhook simulation in the background but don't wait for it
+        // This will automatically update to 'completed' after a delay
+        simulateKadoWebhook(params.transactionId).catch(err => {
+          console.error('Background webhook simulation error:', err);
+        });
+      } catch (webhookError) {
+        console.error('Error starting webhook simulation:', webhookError);
+        // Continue with navigation anyway after logging the error
       }
       
-      // CRITICAL FIX: First run the webhook simulation and wait for it to complete
-      // before navigation to ensure transaction status is updated
-      if (simulateKadoWebhook) {
-        try {
-          console.log(`Simulating webhook for transaction ${params.transactionId} - BEFORE navigation`);
-          await simulateKadoWebhook(params.transactionId);
-          console.log(`Webhook simulation completed for ${params.transactionId}`);
-        } catch (webhookError) {
-          console.error('Error in webhook simulation:', webhookError);
-          // Continue with navigation anyway after logging the error
-        }
-      }
-      
-      // Use setTimeout to give localStorage a moment to complete any pending writes
+      // Add a delay to ensure all storage operations have completed
+      // before navigation
       setTimeout(() => {
         console.log(`Navigating to transaction screen for ${params.transactionId}`);
         
-        // Use navigate from utils instead of direct window.location assignment
-        // This helps avoid full page reloads and maintains state better
+        // Navigate to transaction page
         window.location.href = `/transaction/${params.transactionId}`;
-      }, 300);
+      }, 500);
       
       console.log('Kado redirect process completed successfully');
       return;
@@ -196,7 +193,11 @@ export const kadoRedirectService = {
               totalAmount: params.amount
             };
             
-            localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify(transaction));
+            localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify({
+              ...transaction,
+              createdAt: transaction.createdAt.toISOString(),
+              updatedAt: transaction.updatedAt.toISOString()
+            }));
             console.log(`Emergency fallback: stored failed transaction in localStorage for ${params.transactionId}`);
             
             // Still redirect to transaction page even after error
@@ -216,6 +217,3 @@ export const kadoRedirectService = {
     }
   }
 };
-
-// Create a simple navigation utility to be used by the redirect service
-// Add this file next

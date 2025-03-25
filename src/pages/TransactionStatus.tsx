@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getTransactionById, Transaction } from '@/services/transactions';
-import { updateTransactionStatus } from '@/services/transaction'; // Import directly from transaction service
+import { updateTransactionStatus } from '@/services/transaction'; 
 import { useNotifications } from '@/contexts/NotificationContext';
 import BottomNavigation from '@/components/BottomNavigation';
 import {
@@ -19,7 +19,7 @@ import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Reduce timeout to improve user experience
-const TRANSACTION_LOADING_TIMEOUT = 4000; // Reduced from 8s to 4s
+const TRANSACTION_LOADING_TIMEOUT = 4000; // 4 seconds
 const MAX_RETRY_ATTEMPTS = 3;
 
 const safeParseNumber = (value: string | number | undefined): number => {
@@ -52,6 +52,44 @@ const TransactionStatus = () => {
     handleSendSmsNotification
   } = useTransactionReceipt(transaction);
 
+  // New helper function to directly check localStorage for transaction
+  const getLocalStorageTransaction = (transactionId: string): Transaction | null => {
+    try {
+      const transactionKey = `transaction_${transactionId}`;
+      console.log(`Directly checking localStorage for key: ${transactionKey}`);
+      
+      const storedData = localStorage.getItem(transactionKey);
+      if (!storedData) {
+        console.log(`No transaction found in localStorage with key: ${transactionKey}`);
+        return null;
+      }
+      
+      console.log(`Found transaction data in localStorage: ${storedData.substring(0, 50)}...`);
+      const parsedData = JSON.parse(storedData);
+      
+      // Convert to proper Transaction format
+      return {
+        id: parsedData.id || parsedData.transactionId || transactionId,
+        amount: parsedData.amount || '0',
+        recipientName: parsedData.recipientName || 'Unknown Recipient',
+        recipientContact: parsedData.recipientContact || '',
+        country: parsedData.country || 'CM',
+        status: parsedData.status || 'pending',
+        createdAt: new Date(parsedData.createdAt || new Date()),
+        updatedAt: new Date(parsedData.updatedAt || new Date()),
+        completedAt: parsedData.completedAt ? new Date(parsedData.completedAt) : undefined,
+        failureReason: parsedData.failureReason,
+        estimatedDelivery: parsedData.estimatedDelivery || 'Processing',
+        totalAmount: parsedData.totalAmount || parsedData.amount || '0',
+        provider: parsedData.provider || 'Unknown',
+        paymentMethod: parsedData.paymentMethod || 'mobile_money'
+      };
+    } catch (error) {
+      console.error(`Error retrieving transaction from localStorage:`, error);
+      return null;
+    }
+  };
+
   const fetchTransactionDetails = async (force = false) => {
     if (!id) {
       setLoading(false);
@@ -61,68 +99,56 @@ const TransactionStatus = () => {
 
     console.log(`Attempting to fetch transaction ${id} (attempt ${retryCount + 1})`);
     
-    // CRITICAL FIX: First check localStorage directly before trying API calls
-    // This ensures we retrieve locally stored transactions even during network issues
-    const localStorageKey = `transaction_${id}`;
-    const storedTransaction = localStorage.getItem(localStorageKey);
+    // CRITICAL FIX: Check localStorage first before any API calls
+    const localTransaction = getLocalStorageTransaction(id);
     
-    if (storedTransaction) {
-      try {
-        console.log(`Found transaction in localStorage with key: ${localStorageKey}`);
-        const parsedTransaction = JSON.parse(storedTransaction);
-        console.log('Parsed transaction from localStorage:', parsedTransaction);
+    if (localTransaction) {
+      console.log(`Successfully retrieved transaction ${id} from localStorage:`, localTransaction);
+      setTransaction(localTransaction);
+      setLoading(false);
+      setError(null);
+      
+      // If transaction is completed, add notification
+      if (localTransaction.status === 'completed') {
+        const amount = safeParseNumber(localTransaction.amount);
         
-        // Convert to proper Transaction format
-        const localTransaction: Transaction = {
-          id: parsedTransaction.id || parsedTransaction.transactionId || id,
-          amount: parsedTransaction.amount || '0',
-          recipientName: parsedTransaction.recipientName || 'Unknown Recipient',
-          recipientContact: parsedTransaction.recipientContact || '',
-          country: parsedTransaction.country || 'CM',
-          status: parsedTransaction.status || 'pending',
-          createdAt: new Date(parsedTransaction.createdAt || new Date()),
-          updatedAt: new Date(parsedTransaction.updatedAt || new Date()),
-          completedAt: parsedTransaction.completedAt ? new Date(parsedTransaction.completedAt) : undefined,
-          failureReason: parsedTransaction.failureReason,
-          estimatedDelivery: parsedTransaction.estimatedDelivery || 'Processing',
-          totalAmount: parsedTransaction.totalAmount || parsedTransaction.amount || '0',
-          provider: parsedTransaction.provider || 'Unknown',
-          paymentMethod: parsedTransaction.paymentMethod || 'mobile_money'
-        };
+        addNotification({
+          title: "Transfer Successful",
+          message: `Your transfer of $${amount} to ${localTransaction.recipientName} was successful.`,
+          type: 'success',
+          transactionId: localTransaction.id
+        });
         
-        // Set transaction directly from localStorage
-        setTransaction(localTransaction);
-        setLoading(false);
-        setError(null);
-        
-        // If transaction is completed, add notification
-        if (localTransaction.status === 'completed') {
-          const amount = safeParseNumber(localTransaction.amount);
-          
-          addNotification({
-            title: "Transfer Successful",
-            message: `Your transfer of $${amount} to ${localTransaction.recipientName} was successful.`,
-            type: 'success',
-            transactionId: localTransaction.id
-          });
-          
-          if (refreshInterval) {
-            clearInterval(refreshInterval);
-            setRefreshInterval(null);
-          }
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          setRefreshInterval(null);
         }
-        
-        // If we found a transaction in localStorage, return early - don't try API
-        return;
-      } catch (parseError) {
-        console.error(`Error parsing localStorage transaction ${id}:`, parseError);
-        // If parsing fails, continue to API call
       }
-    } else {
-      console.log(`No transaction found in localStorage with key: ${localStorageKey}`);
+      
+      // If transaction is pending or processing and we're forcing a refresh,
+      // try to move it along in the background
+      if (force && (localTransaction.status === 'pending' || localTransaction.status === 'processing')) {
+        console.log(`Transaction ${id} is ${localTransaction.status}, attempting to update status in background`);
+        
+        try {
+          // Don't await this - let it update in the background
+          updateTransactionStatus(id, 'processing').catch(console.error);
+          
+          // Try the webhook simulation again
+          const { simulateKadoWebhook } = await import('@/services/transaction/transactionUpdate');
+          simulateKadoWebhook(id).catch(console.error);
+        } catch (updateError) {
+          console.error('Background status update error:', updateError);
+        }
+      }
+      
+      // Return early since we found a valid transaction
+      return;
     }
     
-    // If we reach here, we didn't find a valid transaction in localStorage
+    // If we get here, we didn't find the transaction in localStorage
+    console.log(`Transaction ${id} not found in localStorage, trying API`);
+    
     try {
       console.log(`Fetching transaction details for ID: ${id} from API, retry attempt: ${retryCount}`);
       
@@ -133,14 +159,19 @@ const TransactionStatus = () => {
         console.log(`Transaction fetched successfully from API:`, fetchedTransaction);
       } catch (fetchError) {
         console.error('Error fetching transaction from API:', fetchError);
-        
-        // If API fetch fails, we've already checked localStorage earlier
-        // Just throw the error to move to the catch block
         throw fetchError;
       }
       
       if (fetchedTransaction) {
         setTransaction(fetchedTransaction);
+        
+        // Also update localStorage for future reference
+        localStorage.setItem(`transaction_${id}`, JSON.stringify({
+          ...fetchedTransaction,
+          createdAt: fetchedTransaction.createdAt.toISOString(),
+          updatedAt: fetchedTransaction.updatedAt.toISOString(),
+          completedAt: fetchedTransaction.completedAt ? fetchedTransaction.completedAt.toISOString() : undefined
+        }));
         
         if (fetchedTransaction.status === 'completed') {
           const amount = safeParseNumber(fetchedTransaction.amount);
@@ -181,10 +212,6 @@ const TransactionStatus = () => {
     } catch (error) {
       console.error('Error fetching transaction:', error);
       
-      // We already tried localStorage at the start of this function
-      // If we still don't have a transaction, we need to handle the error
-      setError(error instanceof Error ? error.message : "Failed to load transaction data");
-      
       // After max retries, create a fallback transaction if we still have nothing
       if (retryCount >= MAX_RETRY_ATTEMPTS && !transaction) {
         try {
@@ -210,6 +237,13 @@ const TransactionStatus = () => {
           setTransaction(recoveredTransaction);
           setError(null);
           
+          // Store it in localStorage for future reference
+          localStorage.setItem(`transaction_${id}`, JSON.stringify({
+            ...recoveredTransaction,
+            createdAt: recoveredTransaction.createdAt.toISOString(),
+            updatedAt: recoveredTransaction.updatedAt.toISOString()
+          }));
+          
           // Show recovery toast
           toast.info("Transaction Created", {
             description: "We've created a transaction record. Please check its status."
@@ -220,6 +254,7 @@ const TransactionStatus = () => {
       }
       
       setLoading(false);
+      setError(error instanceof Error ? error.message : "Failed to load transaction data");
     }
   };
 
@@ -268,13 +303,13 @@ const TransactionStatus = () => {
 
     startFetchWithTimeout();
     
-    // Force a refresh if transaction is still pending after 10 seconds
+    // Force a refresh if transaction is still pending after 5 seconds
     const pendingStatusTimeout = setTimeout(() => {
       if (transaction && (transaction.status === 'pending')) {
         console.log('Transaction still pending after extended time, forcing refresh');
         handleRetry();
       }
-    }, 5000); // Reduced from 10s to 5s for faster feedback
+    }, 5000);
     
     // If transaction exists and is pending or processing, set up refresh interval
     if (transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
@@ -282,7 +317,7 @@ const TransactionStatus = () => {
         console.log(`Setting up refresh interval for transaction ${id}`);
         const interval = window.setInterval(() => {
           fetchTransactionDetails();
-        }, 2000); // Reduced from 3s to 2s for more responsive updates
+        }, 2000); // 2 second refresh interval
         
         setRefreshInterval(interval);
       }

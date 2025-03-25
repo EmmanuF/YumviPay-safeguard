@@ -14,8 +14,8 @@ interface LoadingStateProps {
 
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
-  submessage = 'Please wait while we process your request',
-  timeout = 6000, // Reduced from 8s to 6s
+  submessage = 'This will only take a moment',
+  timeout = 4000, // Reduced to 4 seconds for better UX
   retryAction,
   errorMessage
 }) => {
@@ -83,7 +83,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
             <p className="mt-2 text-muted-foreground text-sm">
               {errorMessage 
                 ? "There was an error processing your transaction. You can try again or check the transaction status later."
-                : `This is taking longer than usual (${timeoutElapsed}s). The transaction might still be processing in the background.`
+                : `We're still looking for your transaction data (${timeoutElapsed}s). This may take a moment to process.`
               }
             </p>
             {retryAction && (

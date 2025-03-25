@@ -1,4 +1,3 @@
-
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
 import { isOffline, addPausedRequest } from "@/utils/networkUtils";
@@ -15,7 +14,7 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<void> 
     // Check that it was actually updated
     await checkTransactionExists(transactionId);
     
-    // Simulate external processing with reduced delay (500ms)
+    // Simulate external processing with reduced delay (1000ms)
     // Use Promise to ensure the function doesn't complete until the status is updated
     return new Promise((resolve, reject) => {
       setTimeout(async () => {
@@ -87,7 +86,7 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<void> 
             }
           }
         }
-      }, 500); // Increased to 500ms for more reliable status updates
+      }, 1000); // Increased to 1000ms for more reliable status updates
     });
   } catch (error) {
     console.error(`Error initiating webhook simulation for ${transactionId}:`, error);
@@ -96,12 +95,12 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<void> 
     try {
       const existingData = localStorage.getItem(`transaction_${transactionId}`);
       const transaction = existingData 
-        ? { ...JSON.parse(existingData), status: 'completed', updatedAt: new Date(), completedAt: new Date() }
+        ? { ...JSON.parse(existingData), status: 'completed', updatedAt: new Date().toISOString(), completedAt: new Date().toISOString() }
         : {
             id: transactionId,
             status: 'completed' as const,
-            updatedAt: new Date(),
-            completedAt: new Date()
+            updatedAt: new Date().toISOString(),
+            completedAt: new Date().toISOString()
           };
       
       localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(transaction));
@@ -153,9 +152,6 @@ export const updateTransactionStatus = async (
 ): Promise<Transaction | null> => {
   console.log(`Updating transaction ${transactionId} status to ${status}`);
   
-  // Skip Supabase update for non-UUID transaction IDs (our mock transactions)
-  const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(transactionId);
-  
   // Update local storage first for immediate feedback 
   // This is critical for ensuring the UI shows the updated status
   const locallyUpdated = await updateLocalTransaction(transactionId, status, options);
@@ -163,6 +159,9 @@ export const updateTransactionStatus = async (
     console.error(`Failed to update transaction ${transactionId} locally!`);
     // Still try Supabase if applicable
   }
+  
+  // Skip Supabase update for non-UUID transaction IDs (our mock transactions)
+  const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(transactionId);
   
   // Prepare update data for database
   const updateData: Record<string, any> = {
