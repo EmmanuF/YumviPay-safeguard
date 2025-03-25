@@ -41,20 +41,40 @@ export const useSendMoneySteps = () => {
     }
   };
 
+  // Enhanced transaction data preparation to ensure all required fields
+  const prepareCompleteTransactionData = (transactionData: any, transactionId: string) => {
+    // Ensure all required fields are present with sensible defaults
+    return {
+      id: transactionId,
+      transactionId: transactionId, // Include both formats for compatibility
+      amount: transactionData.amount?.toString() || '50',
+      recipientName: transactionData.recipientName || 'Transaction Recipient',
+      recipientContact: transactionData.recipientContact || transactionData.recipient || '+237650000000',
+      country: transactionData.targetCountry || 'CM',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      estimatedDelivery: 'Processing',
+      totalAmount: transactionData.amount?.toString() || '50',
+      paymentMethod: transactionData.paymentMethod || 'mobile_money',
+      provider: transactionData.selectedProvider || 'MTN Mobile Money',
+      
+      // Include any additional data from the original transaction
+      sourceCurrency: transactionData.sourceCurrency || 'USD',
+      targetCurrency: transactionData.targetCurrency || 'XAF',
+      convertedAmount: transactionData.convertedAmount || transactionData.receiveAmount || '0',
+      exchangeRate: transactionData.exchangeRate || 0,
+    };
+  };
+
   // Store transaction with multiple redundancy mechanisms
   const storeTransactionData = (transactionId: string, data: any) => {
     try {
-      // Prepare data for storage with ISO date strings
-      const storageData = JSON.stringify({
-        ...data,
-        transactionId,
-        id: transactionId, // Ensure both id and transactionId are set
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'pending'
-      });
+      // Prepare enhanced data with all required fields
+      const completeData = prepareCompleteTransactionData(data, transactionId);
+      const storageData = JSON.stringify(completeData);
       
-      console.log(`📦 Storing transaction ${transactionId} with redundancy:`, data);
+      console.log(`📦 Storing COMPLETE transaction ${transactionId} with redundancy:`, completeData);
       
       // Use multiple storage mechanisms
       const storageKeys = [

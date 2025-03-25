@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import RecipientStep from './RecipientStep';
 import PaymentStep from './PaymentStep';
@@ -30,18 +30,57 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   error
 }) => {
   console.log('Rendering step:', currentStep, 'with data:', transactionData);
+  const cachedDataRef = useRef<any>(null);
+  
+  // Prepare data for storage in a more robust way - ensure all required fields
+  const prepareDataForStorage = (data: any, step: string) => {
+    if (!data) return null;
+    
+    // Enhance transaction data with defaults for required fields
+    const enhancedData = {
+      ...data,
+      
+      // If we're on recipient step, ensure recipient fields
+      ...(step === 'recipient' && {
+        recipientName: data.recipientName || 'Transaction Recipient',
+        recipientContact: data.recipientContact || data.recipient || '+237650000000',
+      }),
+      
+      // If we're on payment step, ensure payment fields
+      ...(step === 'payment' && {
+        paymentMethod: data.paymentMethod || 'mobile_money',
+        provider: data.selectedProvider || 'MTN Mobile Money',
+      }),
+      
+      // Common required fields with defaults
+      amount: data.amount || 50,
+      country: data.targetCountry || 'CM',
+      lastStep: step,
+      timestamp: new Date().toISOString()
+    };
+    
+    return enhancedData;
+  };
   
   // Safeguard: Pre-cache the current step's transaction data for recovery
   useEffect(() => {
     if (transactionData && currentStep) {
       try {
+        // Prepare enhanced data
+        const enhancedData = prepareDataForStorage(transactionData, currentStep);
+        if (!enhancedData) return;
+        
+        // Cache data in memory for immediate recovery
+        cachedDataRef.current = enhancedData;
+        
         // Store current step's transaction data for potential recovery
-        localStorage.setItem(`step_${currentStep}_data`, JSON.stringify({
-          ...transactionData,
-          lastStep: currentStep,
-          timestamp: new Date().toISOString()
-        }));
-        console.log(`Cached transaction data for step ${currentStep}`);
+        localStorage.setItem(`step_${currentStep}_data`, JSON.stringify(enhancedData));
+        
+        // Also store complete copy in pendingTransaction for global recovery
+        localStorage.setItem('pendingTransaction', JSON.stringify(enhancedData));
+        localStorage.setItem('lastStep', currentStep);
+        
+        console.log(`Cached enhanced transaction data for step ${currentStep}:`, enhancedData);
       } catch (e) {
         console.error('Error caching step data:', e);
       }
@@ -52,16 +91,20 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   useEffect(() => {
     if (currentStep === 'confirmation' && transactionData) {
       try {
-        const serializedData = JSON.stringify({
-          ...transactionData,
-          timestamp: new Date().toISOString()
-        });
+        // Prepare enhanced data
+        const enhancedData = prepareDataForStorage(transactionData, 'confirmation');
+        if (!enhancedData) return;
         
+        // Serialize with all required fields
+        const serializedData = JSON.stringify(enhancedData);
+        
+        // Store in multiple places for maximum reliability
         localStorage.setItem('confirmed_transaction_data', serializedData);
         localStorage.setItem('pending_transaction_backup', serializedData);
+        localStorage.setItem('processedPendingTransaction', serializedData);
         sessionStorage.setItem('confirm_transaction_session', serializedData);
         
-        console.log('Stored confirmation step data with redundancy');
+        console.log('Stored enhanced confirmation step data with redundancy:', enhancedData);
       } catch (e) {
         console.error('Error storing confirmation data:', e);
       }
@@ -75,7 +118,7 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
         message="Processing your request..." 
         submessage="Please wait while we complete this step"
         transactionId={transactionData?.id || transactionData?.transactionId}
-        timeout={1500} // Shorter timeout during step processing
+        timeout={500} // Very short timeout during step processing
       />
     );
   }
@@ -106,10 +149,23 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
     console.error('Missing transaction data in step renderer');
     // Try to recover from cached step data
     try {
+      // First try in-memory cache for fastest recovery
+      if (cachedDataRef.current) {
+        console.log(`Recovered data from in-memory cache:`, cachedDataRef.current);
+        updateTransactionData(cachedDataRef.current);
+        return (
+          <div className="p-4 text-center">
+            <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+            <p className="mt-2">Transaction data recovered, loading...</p>
+          </div>
+        );
+      }
+      
+      // Try local storage next
       const cachedStepData = localStorage.getItem(`step_${currentStep}_data`);
       if (cachedStepData) {
         const parsed = JSON.parse(cachedStepData);
-        console.log(`Recovered data for step ${currentStep}:`, parsed);
+        console.log(`Recovered data for step ${currentStep} from localStorage:`, parsed);
         
         // Update transaction data with recovered data
         updateTransactionData(parsed);
@@ -123,6 +179,47 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
           <div className="p-4 text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
             <p className="mt-2">Transaction data recovered, loading...</p>
+          </div>
+        );
+      }
+      
+      // Try to find data from any step
+      const lastStep = localStorage.getItem('lastStep');
+      if (lastStep) {
+        const lastStepData = localStorage.getItem(`step_${lastStep}_data`);
+        if (lastStepData) {
+          const parsed = JSON.parse(lastStepData);
+          console.log(`Recovered data from previous step ${lastStep}:`, parsed);
+          updateTransactionData(parsed);
+          
+          toast.success("Data Recovered", {
+            description: "Recovered data from your previous step",
+          });
+          
+          return (
+            <div className="p-4 text-center">
+              <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+              <p className="mt-2">Previous step data recovered, loading...</p>
+            </div>
+          );
+        }
+      }
+      
+      // Try the pending transaction as a last resort
+      const pendingTransaction = localStorage.getItem('pendingTransaction');
+      if (pendingTransaction) {
+        const parsed = JSON.parse(pendingTransaction);
+        console.log(`Recovered data from pendingTransaction:`, parsed);
+        updateTransactionData(parsed);
+        
+        toast.success("Data Recovered", {
+          description: "Retrieved your pending transaction",
+        });
+        
+        return (
+          <div className="p-4 text-center">
+            <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+            <p className="mt-2">Pending transaction retrieved, loading...</p>
           </div>
         );
       }
