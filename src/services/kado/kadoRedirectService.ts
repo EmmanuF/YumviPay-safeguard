@@ -1,10 +1,10 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { deepLinkService } from '../deepLinkService';
 import { isPlatform } from '@/utils/platformUtils';
 import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
-import { navigate } from '@/utils/navigationUtils';
 import { addOfflineTransaction } from '../transaction/transactionStore';
 import { simulateKadoWebhook } from '../transaction/transactionUpdate';
 
@@ -19,7 +19,7 @@ export const kadoRedirectService = {
    */
   redirectToKado: async (params: KadoRedirectParams): Promise<void> => {
     try {
-      console.log('kadoRedirectService.redirectToKado called with params:', params);
+      console.log('🔄 kadoRedirectService.redirectToKado called with params:', params);
       
       // Get user ID if authenticated to use as userRef
       const { data: { session } } = await supabase.auth.getSession();
@@ -28,7 +28,7 @@ export const kadoRedirectService = {
       // If no userRef was provided but user is logged in, use their ID
       if (!userRef && session?.user?.id) {
         userRef = session.user.id;
-        console.log(`Using authenticated user ID as userRef: ${userRef}`);
+        console.log(`📝 Using authenticated user ID as userRef: ${userRef}`);
       }
       
       // Create a transaction object to store locally immediately
@@ -47,14 +47,13 @@ export const kadoRedirectService = {
         totalAmount: params.amount
       };
       
-      // Add to offline storage immediately for reliability
-      console.log('Adding transaction to offline storage:', transaction);
+      // 1. STORE DATA IMMEDIATELY IN MULTIPLE FORMATS
+      console.log('📦 Storing transaction in all available storage mechanisms');
+      
+      // IndexedDB/offline storage
       addOfflineTransaction(transaction);
       
-      // Synchronous localStorage operation - critical for data persistence!
-      const transactionKey = `transaction_${params.transactionId}`;
-      const backupKey = `transaction_backup_${params.transactionId}`;
-      const emergencyKey = `emergency_transaction_${params.transactionId}`;
+      // JSON serialized for localStorage/sessionStorage
       const transactionData = JSON.stringify({
         ...transaction,
         transactionId: params.transactionId,
@@ -62,54 +61,89 @@ export const kadoRedirectService = {
         updatedAt: transaction.updatedAt.toISOString()
       });
       
-      // Store with multiple keys for redundancy
-      localStorage.setItem(transactionKey, transactionData);
-      localStorage.setItem(backupKey, transactionData);
-      localStorage.setItem(emergencyKey, transactionData);
-      console.log(`Transaction stored in localStorage with keys: ${transactionKey}, ${backupKey}, and ${emergencyKey}`, transaction);
+      // Store in multiple locations with different keys for redundancy
+      const storageKeys = [
+        `transaction_${params.transactionId}`,
+        `transaction_backup_${params.transactionId}`,
+        `emergency_transaction_${params.transactionId}`,
+        `transaction_session_${params.transactionId}`,
+        `pending_transaction_${Date.now()}`,
+        `latest_transaction`
+      ];
       
-      // Force a validation of storage success (important!!)
-      const validateStorage = () => {
-        const data1 = localStorage.getItem(transactionKey);
-        const data2 = localStorage.getItem(backupKey);
-        const data3 = localStorage.getItem(emergencyKey);
-        
-        if (!data1 && !data2 && !data3) {
-          console.error('CRITICAL ERROR: All attempts to store transaction failed!');
-          return false;
+      // Store in localStorage
+      storageKeys.forEach(key => {
+        try {
+          localStorage.setItem(key, transactionData);
+        } catch (e) {
+          console.error(`❌ Failed to store in localStorage with key ${key}:`, e);
         }
-        
-        console.log(`Storage validation succeeded: Found ${data1 ? 'primary' : ''}${data2 ? ' backup' : ''}${data3 ? ' emergency' : ''} storage.`);
-        return true;
-      };
+      });
       
-      // Verify storage was successful - try multiple times
+      // Store in sessionStorage as well
+      try {
+        sessionStorage.setItem(`transaction_session_${params.transactionId}`, transactionData);
+        sessionStorage.setItem('lastTransactionId', params.transactionId);
+      } catch (e) {
+        console.error('❌ Error storing in sessionStorage:', e);
+      }
+      
+      // Store with window object as last resort
+      try {
+        // @ts-ignore - Using window as emergency backup
+        window.__EMERGENCY_TRANSACTION = transactionData;
+      } catch (e) {
+        console.error('❌ Error storing in window object:', e);
+      }
+      
+      // 2. VERIFY STORAGE SUCCESS
+      console.log('🔍 Verifying data was successfully stored...');
+      
       let storageVerified = false;
-      let storageAttempts = 0;
-      const maxStorageAttempts = 3;
+      let attempts = 0;
+      const maxAttempts = 3;
       
-      while (!storageVerified && storageAttempts < maxStorageAttempts) {
-        storageVerified = validateStorage();
+      while (!storageVerified && attempts < maxAttempts) {
+        attempts++;
+        
+        // Check multiple storage locations
+        const storedData = [
+          localStorage.getItem(`transaction_${params.transactionId}`),
+          localStorage.getItem(`transaction_backup_${params.transactionId}`),
+          sessionStorage.getItem(`transaction_session_${params.transactionId}`)
+        ];
+        
+        // If any storage method succeeded, we're good
+        storageVerified = storedData.some(data => !!data);
+        
         if (!storageVerified) {
-          console.log(`Storage verification failed on attempt ${storageAttempts + 1}/${maxStorageAttempts}, retrying...`);
+          console.log(`⚠️ Storage verification failed on attempt ${attempts}/${maxAttempts}, retrying...`);
           
-          // Try storage again
-          localStorage.setItem(transactionKey, transactionData);
-          localStorage.setItem(backupKey, transactionData);
-          localStorage.setItem(emergencyKey, transactionData);
+          // Try storage again with all methods
+          storageKeys.forEach(key => {
+            try {
+              localStorage.setItem(key, transactionData);
+            } catch (e) {}
+          });
           
-          storageAttempts++;
+          try {
+            sessionStorage.setItem(`transaction_session_${params.transactionId}`, transactionData);
+            sessionStorage.setItem('lastTransactionId', params.transactionId);
+          } catch (e) {}
           
           // Small delay between attempts
-          await new Promise(resolve => setTimeout(resolve, 50));
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
       
       if (!storageVerified) {
-        throw new Error('Failed to verify transaction storage after multiple attempts');
+        console.error('❌ CRITICAL ERROR: Failed to verify transaction storage after multiple attempts');
+        throw new Error('Could not store transaction data safely, aborting redirect');
       }
       
-      // Biometric verification for high-value transactions (unchanged)
+      console.log('✅ Transaction data storage verified successfully');
+      
+      // 3. OPTIONAL BIOMETRIC CHECK FOR HIGH-VALUE TRANSACTIONS
       if (parseFloat(params.amount) > 100) {
         try {
           const isAvailable = await BiometricService.isAvailable();
@@ -127,66 +161,89 @@ export const kadoRedirectService = {
             }
           }
         } catch (bioError) {
-          console.error('Biometric authentication error:', bioError);
+          console.error('❓ Biometric authentication error:', bioError);
           // Continue without biometric auth if there's an error
         }
       }
       
-      // Generate appropriate return URL (simplified from original)
+      // 4. PREPARE RETURN URL
       const returnUrl = isPlatform('mobile') && params.deepLinkBack
         ? deepLinkService.generateDeepLink(`transaction/${params.transactionId}`, { source: 'kado', userRef: userRef || 'guest' })
         : params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`;
       
-      // Simplified mock URL for Kado redirection
+      // For debugging - this is a simplified mock URL
       const kadoUrl = `https://kado.com/pay?amount=${params.amount}&recipient=${encodeURIComponent(params.recipientName)}&country=${params.country}&payment_method=${params.paymentMethod}&transaction_id=${params.transactionId}&return_url=${encodeURIComponent(returnUrl)}&user_ref=${userRef || 'guest'}`;
       
-      console.log(`Redirecting to Kado (simulated): ${kadoUrl}`);
-      console.log(`Return URL: ${returnUrl}`);
+      console.log(`🔄 Redirecting to Kado (simulated): ${kadoUrl}`);
+      console.log(`🔙 Return URL: ${returnUrl}`);
       
-      // Show toast indicating redirection
+      // 5. SHOW REDIRECT TOAST
       toast({
         title: "Redirecting to Payment Provider",
         description: "You will be redirected to complete KYC and payment"
       });
       
-      // CRITICAL: Promote the transaction to "processing" state BEFORE redirecting
+      // 6. UPDATE TRANSACTION STATUS TO PROCESSING
       try {
+        console.log('📝 Updating transaction status to processing...');
         const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
         await updateTransactionStatus(params.transactionId, 'processing');
         
-        // Fire webhook simulation but don't wait for it
+        // Simulate webhook response in background
         simulateKadoWebhook(params.transactionId).catch(err => {
-          console.error('Background webhook simulation error:', err);
+          console.error('⚠️ Background webhook simulation error:', err);
         });
       } catch (updateError) {
-        console.error('Error starting transaction update:', updateError);
+        console.error('❌ Error starting transaction update:', updateError);
       }
       
-      // CRITICAL: Ensure data is stored by waiting before navigation
-      // This is the most important fix - adding a longer delay!
-      console.log('Waiting to ensure data persistence before navigation...');
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // 7. CRITICAL: ENSURE DATA IS STORED BEFORE NAVIGATION
+      // This longer delay is crucial for reliable operation
+      console.log('⏱️ Waiting to ensure data persistence before navigation...');
       
-      // Final storage verification
-      if (!validateStorage()) {
-        console.error('CRITICAL: Final storage verification failed!');
+      // Create a visible indicator that we're waiting
+      const loadingDiv = document.createElement('div');
+      loadingDiv.style.position = 'fixed';
+      loadingDiv.style.top = '0';
+      loadingDiv.style.left = '0';
+      loadingDiv.style.width = '100%';
+      loadingDiv.style.height = '100%';
+      loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
+      loadingDiv.style.display = 'flex';
+      loadingDiv.style.justifyContent = 'center';
+      loadingDiv.style.alignItems = 'center';
+      loadingDiv.style.zIndex = '10000';
+      loadingDiv.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+          <h3>Preparing Secure Payment...</h3>
+          <p>Please wait while we securely prepare your transaction.</p>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+      
+      // Wait with a longer timeout to ensure data persistence
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // 8. NAVIGATE TO TRANSACTION SCREEN DIRECTLY INSTEAD OF KADO
+      // This is a crucial fix - we're skipping actual Kado redirect for testing
+      try {
+        console.log('✅ ALL DATA VERIFIED - Now navigating to transaction screen');
         
-        // Emergency measure: one more attempt with a different approach
-        const sessionStorageKey = `transaction_session_${params.transactionId}`;
-        sessionStorage.setItem(sessionStorageKey, transactionData);
-        sessionStorage.setItem('lastTransactionId', params.transactionId);
+        // Remove loading indicator
+        document.body.removeChild(loadingDiv);
         
-        console.log('Emergency backup created in sessionStorage');
+        // For testing purposes, we'll navigate directly to the transaction screen
+        // In production, this would be an actual redirect to Kado
+        window.location.href = `/transaction/${params.transactionId}`;
+        
+        return;
+      } catch (navError) {
+        console.error('❌ Navigation error:', navError);
+        document.body.removeChild(loadingDiv);
+        throw navError;
       }
-      
-      console.log(`ALL DATA VERIFIED - Now navigating to transaction screen for ${params.transactionId}`);
-      
-      // Use direct location replace for the most reliable navigation
-      window.location.replace(`/transaction/${params.transactionId}`);
-      
-      return;
     } catch (error) {
-      console.error('Error in Kado redirect process:', error);
+      console.error('❌ Error in Kado redirect process:', error);
       toast({
         title: "Error",
         description: "Could not redirect to payment provider. Please try again.",
@@ -201,13 +258,13 @@ export const kadoRedirectService = {
             failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
           });
           
-          window.location.replace(`/transaction/${params.transactionId}`);
+          window.location.href = `/transaction/${params.transactionId}`;
         } catch (updateError) {
-          console.error('Error updating transaction status after redirect error:', updateError);
-          window.location.replace('/');
+          console.error('❌ Error updating transaction status after redirect error:', updateError);
+          window.location.href = '/';
         }
       } else {
-        window.location.replace('/');
+        window.location.href = '/';
       }
       
       throw error;
