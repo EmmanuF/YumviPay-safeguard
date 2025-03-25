@@ -11,9 +11,7 @@ export const getHistoryMockTransactions = (): Transaction[] => {
       recipientCountry: 'Cameroon',
       recipientCountryCode: 'CM',
       status: 'completed',
-      date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-      type: 'send',
-      createdAt: new Date(Date.now() - 86400000),
+      createdAt: new Date(Date.now() - 86400000), // 1 day ago
       country: 'Cameroon',
       fee: '500',
       totalAmount: '50500',
@@ -31,8 +29,6 @@ export const getHistoryMockTransactions = (): Transaction[] => {
       recipientCountry: 'Cameroon',
       recipientCountryCode: 'CM',
       status: 'pending',
-      date: new Date().toISOString(),
-      type: 'send',
       createdAt: new Date(),
       country: 'Cameroon',
       fee: '350',
@@ -51,9 +47,7 @@ export const getHistoryMockTransactions = (): Transaction[] => {
       recipientCountry: 'Cameroon',
       recipientCountryCode: 'CM',
       status: 'completed',
-      date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-      type: 'send',
-      createdAt: new Date(Date.now() - 172800000),
+      createdAt: new Date(Date.now() - 172800000), // 2 days ago
       country: 'Cameroon',
       fee: '750',
       totalAmount: '100750',
@@ -71,9 +65,7 @@ export const getHistoryMockTransactions = (): Transaction[] => {
       recipientCountry: 'Cameroon',
       recipientCountryCode: 'CM',
       status: 'failed',
-      date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-      type: 'send',
-      createdAt: new Date(Date.now() - 259200000),
+      createdAt: new Date(Date.now() - 259200000), // 3 days ago
       country: 'Cameroon',
       fee: '250',
       totalAmount: '15250',
@@ -92,9 +84,7 @@ export const getHistoryMockTransactions = (): Transaction[] => {
       recipientCountry: 'Cameroon',
       recipientCountryCode: 'CM',
       status: 'completed',
-      date: new Date(Date.now() - 432000000).toISOString(), // 5 days ago
-      type: 'send',
-      createdAt: new Date(Date.now() - 432000000),
+      createdAt: new Date(Date.now() - 432000000), // 5 days ago
       country: 'Cameroon',
       fee: '1000',
       totalAmount: '201000',

@@ -30,4 +30,6 @@ export interface Transaction {
   totalAmount?: string | number;
   isRecurring?: boolean;
   recurringPaymentId?: string;
+  date?: string; // Added date property for backward compatibility
+  type?: string; // Added type property for backward compatibility
 }

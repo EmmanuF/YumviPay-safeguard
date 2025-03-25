@@ -60,8 +60,9 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     const groups: Record<string, Transaction[]> = {};
     
     transactions.forEach(transaction => {
-      const dateStr = transaction.date ? new Date(transaction.date).toDateString() : 
-                       transaction.createdAt.toDateString();
+      // Use date property if available, otherwise fallback to createdAt
+      const dateObj = transaction.date ? new Date(transaction.date) : transaction.createdAt;
+      const dateStr = dateObj.toDateString();
       
       if (!groups[dateStr]) {
         groups[dateStr] = [];

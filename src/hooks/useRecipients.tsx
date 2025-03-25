@@ -1,4 +1,5 @@
 
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { Recipient } from '@/types/recipient';
 import { 
@@ -11,7 +12,34 @@ import {
 } from '@/services/recipients/index';
 import { useToast } from '@/hooks/use-toast';
 
-export const useRecipients = () => {
+// Define the return type for the hook
+interface RecipientsContextType {
+  recipients: Recipient[];
+  loading: boolean;
+  addRecipient: (recipient: Omit<Recipient, 'id'>) => Promise<Recipient>;
+  updateRecipient: (recipient: Recipient) => Promise<Recipient>;
+  deleteRecipient: (id: string) => Promise<void>;
+  toggleFavorite: (id: string) => Promise<Recipient>;
+  updateLastUsed: (id: string) => Promise<Recipient>;
+  refreshRecipients: () => Promise<void>;
+}
+
+// Create context
+const RecipientsContext = createContext<RecipientsContextType | undefined>(undefined);
+
+// Provider component
+export const RecipientsProvider = ({ children }: { children: ReactNode }) => {
+  const recipientsData = useRecipientsCore();
+  
+  return (
+    <RecipientsContext.Provider value={recipientsData}>
+      {children}
+    </RecipientsContext.Provider>
+  );
+};
+
+// Core hook implementation
+const useRecipientsCore = (): RecipientsContextType => {
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -151,4 +179,16 @@ export const useRecipients = () => {
     updateLastUsed: handleUpdateLastUsed,
     refreshRecipients: fetchRecipients,
   };
+};
+
+// Export the hook with context
+export const useRecipients = () => {
+  const context = useContext(RecipientsContext);
+  
+  // If outside provider, use the core hook directly
+  if (context === undefined) {
+    return useRecipientsCore();
+  }
+  
+  return context;
 };
