@@ -18,7 +18,7 @@ interface LoadingStateProps {
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'This will only take a moment',
-  timeout = 3000, // Reduced timeout for faster fallback
+  timeout = 2000, // Reduced timeout for faster fallback
   retryAction,
   errorMessage,
   transactionId
@@ -30,22 +30,13 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   const [autoRetryAttempted, setAutoRetryAttempted] = useState(false);
   const [autoRetryCount, setAutoRetryCount] = useState(0);
   const [showEmergencyButton, setShowEmergencyButton] = useState(false);
-  const MAX_AUTO_RETRIES = 2;
+  const MAX_AUTO_RETRIES = 1; // Reduced max retries to show emergency button faster
 
-  // Immediately attempt to create fallback transaction on component mount if ID is provided
+  // Immediately create fallback transaction on component mount
   useEffect(() => {
     if (transactionId) {
       console.log(`[DEBUG] LoadingState mounted with transaction ID: ${transactionId}`);
-      
-      // Check if transaction already exists in any storage
-      const existingTransaction = localStorage.getItem(`transaction_${transactionId}`);
-      
-      if (!existingTransaction) {
-        console.log(`[DEBUG] ⚠️ No transaction found for ID ${transactionId}, creating immediately`);
-        createFallbackTransaction();
-      } else {
-        console.log(`[DEBUG] ✅ Transaction ${transactionId} already exists in localStorage`);
-      }
+      createFallbackTransaction();
     }
   }, [transactionId]);
   
@@ -84,6 +75,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       localStorage.setItem(`transaction_${transactionId}`, serialized);
       localStorage.setItem(`transaction_backup_${transactionId}`, serialized);
       localStorage.setItem(`emergency_transaction_${transactionId}`, serialized);
+      sessionStorage.setItem(`transaction_session_${transactionId}`, serialized);
       
       toast.success("Transaction Created", {
         description: "We've created a transaction record for you.",
@@ -92,8 +84,10 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       console.log('[DEBUG] ✅ Created and stored fallback transaction');
       
       // Force reload the page to pick up the new transaction
-      console.log('[DEBUG] Reloading page to use the new transaction data');
-      window.location.reload();
+      setTimeout(() => {
+        console.log('[DEBUG] Reloading page to use the new transaction data');
+        window.location.reload();
+      }, 500);
     } catch (e) {
       console.error('[DEBUG] ❌ Error storing fallback transaction:', e);
     }
@@ -109,7 +103,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     
     // Show timeout message after specified time
     const timer = setTimeout(() => {
-      console.log(`[DEBUG] ⏱️ LoadingState timeout triggered after ${timeout}ms`);
+      console.log(`[DEBUG] ⏱️ LoadingState timeout triggered after ${timeout}ms for ID: ${transactionId}`);
       setShowTimeout(true);
       
       // Show emergency button immediately after timeout
@@ -117,7 +111,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       
       // Auto-retry logic with limited attempts
       if (retryAction && !autoRetryAttempted && autoRetryCount < MAX_AUTO_RETRIES) {
-        console.log(`[DEBUG] 🔄 Auto-retrying transaction load after timeout (attempt ${autoRetryCount + 1}/${MAX_AUTO_RETRIES})`);
+        console.log(`[DEBUG] 🔄 Auto-retrying transaction load after timeout (attempt ${autoRetryCount + 1}/${MAX_AUTO_RETRIES})...`);
         setAutoRetryAttempted(true);
         setAutoRetryCount(prev => prev + 1);
         
@@ -126,8 +120,8 @@ const LoadingState: React.FC<LoadingStateProps> = ({
           // Reset auto-retry flag after a delay to allow multiple auto-retries
           setTimeout(() => {
             setAutoRetryAttempted(false);
-          }, 1500);
-        }, 500);
+          }, 1000);
+        }, 300);
       } else if (transactionId && autoRetryCount >= MAX_AUTO_RETRIES) {
         // Auto-create transaction after max retries
         console.log(`[DEBUG] 🔄 Max retries reached, auto-creating fallback transaction`);

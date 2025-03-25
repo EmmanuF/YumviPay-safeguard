@@ -30,9 +30,16 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
 }) => {
   console.log('Rendering step:', currentStep, 'with data:', transactionData);
   
-  // Show loading state if we're submitting
+  // Show loading state if we're submitting with transaction ID if available
   if (isSubmitting) {
-    return <LoadingState message="Processing your request..." submessage="Please wait while we complete this step" />;
+    return (
+      <LoadingState 
+        message="Processing your request..." 
+        submessage="Please wait while we complete this step"
+        transactionId={transactionData?.id || transactionData?.transactionId}
+        timeout={1500} // Shorter timeout during step processing
+      />
+    );
   }
   
   // Show error state if there's an error

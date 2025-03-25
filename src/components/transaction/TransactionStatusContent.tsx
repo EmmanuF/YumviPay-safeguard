@@ -8,6 +8,7 @@ import TransactionStatusNotifications from '@/components/transaction/Transaction
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface TransactionStatusContentProps {
   transaction: Transaction;
@@ -51,12 +52,21 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       
       // Update in localStorage for immediate feedback
       localStorage.setItem(`transaction_${transaction.id}`, JSON.stringify(updatedTransaction));
+      localStorage.setItem(`transaction_backup_${transaction.id}`, JSON.stringify(updatedTransaction));
+      
       console.log('Forced transaction to completed status:', updatedTransaction);
       
+      toast.success("Transaction Completed", {
+        description: "Transaction status updated to completed",
+      });
+      
       // Refresh the page to show completed status
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error('Error forcing transaction completion:', error);
+      toast.error("Error Updating Transaction", {
+        description: "Please try again",
+      });
     }
   };
   
@@ -124,6 +134,14 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
             variant="default"
             status={transaction.status}
           />
+          
+          <Button 
+            onClick={handleForceComplete} 
+            variant="default" 
+            className="w-full mt-2"
+          >
+            Force Complete Transaction
+          </Button>
         </div>
       )}
       
