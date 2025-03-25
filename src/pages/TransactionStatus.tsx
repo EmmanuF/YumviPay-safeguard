@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getTransactionById, Transaction, updateTransactionStatus } from '@/services/transactions';
+import { getTransactionById, Transaction } from '@/services/transactions';
+import { updateTransactionStatus } from '@/services/transaction'; // Import directly from transaction service
 import { useNotifications } from '@/contexts/NotificationContext';
 import BottomNavigation from '@/components/BottomNavigation';
 import {
