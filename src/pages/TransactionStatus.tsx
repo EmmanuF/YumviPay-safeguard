@@ -15,8 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
-// Reduce timeout to improve user experience
 const TRANSACTION_LOADING_TIMEOUT = 3000; // 3 seconds
 const MAX_RETRY_ATTEMPTS = 3;
 
@@ -49,7 +49,6 @@ const TransactionStatus = () => {
     handleSendSmsNotification
   } = useTransactionReceipt(transaction);
 
-  // We've completely refactored this function to be much more aggressive about loading
   const fetchTransactionDetails = async (force = false) => {
     if (!id) {
       setLoading(false);
@@ -60,7 +59,6 @@ const TransactionStatus = () => {
     console.log(`Attempting to fetch transaction ${id} (attempt ${retryCount + 1})`);
     
     try {
-      // The getTransactionById function now handles all the fallbacks
       const fetchedTransaction = await getTransactionById(id);
       
       if (fetchedTransaction) {
@@ -69,7 +67,6 @@ const TransactionStatus = () => {
         setLoading(false);
         setError(null);
         
-        // If transaction is completed, add notification
         if (fetchedTransaction.status === 'completed') {
           const amount = safeParseNumber(fetchedTransaction.amount);
           
@@ -91,11 +88,9 @@ const TransactionStatus = () => {
     } catch (error) {
       console.error('Error fetching transaction:', error);
       
-      // Create a fallback transaction even on first try
       try {
         console.log('Creating fallback transaction due to error');
         
-        // Create a minimal valid transaction object as fallback
         const recoveredTransaction: Transaction = {
           id: id,
           amount: '50',
@@ -116,7 +111,6 @@ const TransactionStatus = () => {
         setTransaction(recoveredTransaction);
         setError(null);
         
-        // Store it in localStorage for future reference
         localStorage.setItem(`transaction_${id}`, JSON.stringify({
           ...recoveredTransaction,
           createdAt: recoveredTransaction.createdAt.toISOString(),
@@ -124,7 +118,6 @@ const TransactionStatus = () => {
           completedAt: recoveredTransaction.completedAt.toISOString()
         }));
         
-        // Also store as backup
         localStorage.setItem(`emergency_transaction_${id}`, JSON.stringify({
           ...recoveredTransaction,
           createdAt: recoveredTransaction.createdAt.toISOString(),
@@ -134,7 +127,6 @@ const TransactionStatus = () => {
         
         setLoading(false);
         
-        // Show recovery toast
         toast.success("Transaction Created", {
           description: "We've created a transaction record for you."
         });
@@ -156,12 +148,10 @@ const TransactionStatus = () => {
       setLoadingTimeout(null);
     }
     
-    // Force status update on retry
     fetchTransactionDetails(true);
   };
 
   useEffect(() => {
-    // Check if transaction ID is from URL state (after fresh redirect)
     if (location.state && location.state.transactionId && !id) {
       console.log('Found transaction ID in location state:', location.state.transactionId);
       navigate(`/transaction/${location.state.transactionId}`, { replace: true });
