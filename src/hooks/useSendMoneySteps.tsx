@@ -41,6 +41,34 @@ export const useSendMoneySteps = () => {
     }
   };
 
+  // Store transaction with multiple redundancy mechanisms
+  const storeTransactionData = (transactionId: string, data: any) => {
+    // Prepare data for storage
+    const storageData = JSON.stringify({
+      ...data,
+      transactionId,
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    });
+    
+    console.log(`Storing transaction ${transactionId} with redundancy:`, data);
+    
+    // Use multiple storage mechanisms
+    localStorage.setItem(`transaction_${transactionId}`, storageData);
+    localStorage.setItem(`transaction_backup_${transactionId}`, storageData);
+    localStorage.setItem(`pendingKadoTransaction`, storageData);
+    
+    // Use session storage as well
+    try {
+      sessionStorage.setItem(`transaction_session_${transactionId}`, storageData);
+      sessionStorage.setItem('lastTransactionId', transactionId);
+    } catch (e) {
+      console.error('Error storing in sessionStorage:', e);
+    }
+    
+    return true;
+  };
+
   const handleNext = async () => {
     try {
       clearError();
@@ -79,13 +107,12 @@ export const useSendMoneySteps = () => {
             const transactionData = JSON.parse(pendingTransaction);
             console.log('Transaction data retrieved:', transactionData);
             
-            // Store the transaction with its ID before redirecting
-            localStorage.setItem(`transaction_${transactionId}`, JSON.stringify({
-              ...transactionData,
-              transactionId,
-              createdAt: new Date().toISOString(),
-              status: 'pending'
-            }));
+            // CRITICAL IMPROVEMENT: Store transaction data with multiple redundancy
+            // before trying to redirect
+            storeTransactionData(transactionId, transactionData);
+            
+            // Wait briefly to ensure storage completes
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             // Redirect to Kado for payment processing
             await redirectToKadoAndReturn({
