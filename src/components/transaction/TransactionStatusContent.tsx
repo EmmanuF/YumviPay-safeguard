@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { getTransactionAmount } from '@/utils/transactionDataStore';
 
 interface TransactionStatusContentProps {
   transaction: Transaction;
@@ -46,13 +47,32 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
   const getTransactionAmount = () => {
     if (!transaction) return '0';
     
-    // Try multiple possible sources of the amount
-    const amount = transaction.sendAmount ?? 
-                  transaction.amount ?? 
-                  localStorage.getItem('lastTransactionAmount') ?? 
-                  '0';
+    // Try from transaction data store first (most reliable)
+    const storeAmount = window.getTransactionAmount?.();
+    if (storeAmount && storeAmount > 0) {
+      return storeAmount.toString();
+    }
     
-    return typeof amount === 'number' ? amount.toString() : amount;
+    // Try multiple possible sources of the amount
+    if (transaction.sendAmount !== undefined && transaction.sendAmount !== null) {
+      return typeof transaction.sendAmount === 'number' 
+        ? transaction.sendAmount.toString() 
+        : transaction.sendAmount;
+    }
+    
+    if (transaction.amount !== undefined && transaction.amount !== null) {
+      return typeof transaction.amount === 'number' 
+        ? transaction.amount.toString() 
+        : transaction.amount;
+    }
+    
+    // Try localStorage as last resort
+    const lastAmount = localStorage.getItem('lastTransactionAmount');
+    if (lastAmount) {
+      return lastAmount;
+    }
+    
+    return '0';
   };
 
   // Get recipient name with fallback

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { setTransactionAmount, setTransactionData } from '@/utils/transactionDataStore';
 
 export interface TransactionContinueOptions {
   sendAmount: string;
@@ -27,7 +28,7 @@ export const useTransactionContinue = ({
 
   const handleContinue = () => {
     // Debug the continue action
-    console.log('handleContinue called in useExchangeRateCalculator', { 
+    console.log('handleContinue called in useTransactionContinue', { 
       isProcessing, 
       authLoading, 
       onContinue,
@@ -61,30 +62,32 @@ export const useTransactionContinue = ({
     const cleanedReceiveAmount = receiveAmount.replace(/,/g, '');
     const receiveAmountValue = parseFloat(cleanedReceiveAmount);
     
-    // Store the current exchange information in localStorage for use in next steps
-    const transactionData = {
-      sourceCurrency,
-      targetCurrency,
-      amount: amountValue,
-      sendAmount: amountValue.toString(), // Store as sendAmount for consistent naming
-      receiveAmount: receiveAmountValue.toString(),
-      exchangeRate,
-      convertedAmount: receiveAmountValue, // Add explicit convertedAmount field
-      timestamp: new Date().toISOString() // Add timestamp for troubleshooting
-    };
-    
-    console.log('Saving transaction data with explicit fields:', transactionData);
-    
+    // Store all the transaction data in our centralized store
     try {
-      // Clear any old transaction data first to avoid inconsistencies
+      console.log('Setting transaction data with:', {
+        amount: amountValue,
+        convertedAmount: receiveAmountValue,
+        sourceCurrency,
+        targetCurrency,
+        exchangeRate
+      });
+      
+      // First, clear any old transaction data
       localStorage.removeItem('pendingTransaction');
       localStorage.removeItem('pendingTransactionBackup');
       localStorage.removeItem('processedPendingTransaction');
       
-      // Save the transaction data to localStorage with redundancy
-      localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
-      localStorage.setItem('pendingTransactionBackup', JSON.stringify(transactionData));
-      localStorage.setItem('lastTransactionAmount', amountValue.toString());
+      // Set transaction amount separately for redundancy
+      setTransactionAmount(amountValue);
+      
+      // Set complete transaction data 
+      setTransactionData({
+        amount: amountValue,
+        convertedAmount: receiveAmountValue,
+        sourceCurrency,
+        targetCurrency,
+        exchangeRate
+      });
       
       // Wait to ensure the localStorage write completes
       setTimeout(() => {

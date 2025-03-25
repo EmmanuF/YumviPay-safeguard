@@ -6,6 +6,7 @@ import { Country } from '@/hooks/useCountries';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/utils/formatUtils';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
+import { getTransactionAmount } from '@/utils/transactionDataStore';
 
 interface TransactionSummaryProps {
   amount: string;
@@ -26,19 +27,31 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   selectedPaymentMethod,
   selectedProvider,
 }) => {
-  // Convert amount to number, ensuring it's valid
-  const amountValue = parseFloat(amount) || 0;
+  // Get amount in a consistent way, prioritizing store amount
+  const [amountValue, setAmountValue] = React.useState(() => {
+    const storeAmount = getTransactionAmount();
+    if (storeAmount > 0) {
+      return storeAmount;
+    }
+    return parseFloat(amount) || 0;
+  });
+  
+  // Fetch amount from data store on mount for consistency
+  useEffect(() => {
+    const storeAmount = getTransactionAmount();
+    if (storeAmount > 0 && storeAmount !== amountValue) {
+      console.log('Updating amount from data store:', storeAmount);
+      setAmountValue(storeAmount);
+    }
+  }, []);
   
   // Log the amount for debugging
   useEffect(() => {
     console.log('TransactionSummary rendering with amount:', { 
       rawAmount: amount, 
-      parsedAmount: amountValue 
+      parsedAmount: amountValue,
+      storedAmount: getTransactionAmount()
     });
-    
-    // Verify the amount from localStorage to check consistency
-    const storedAmount = localStorage.getItem('lastTransactionAmount');
-    console.log('Comparing with lastTransactionAmount:', storedAmount);
   }, [amount, amountValue]);
   
   // Get payment method details

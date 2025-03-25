@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useCountries } from './useCountries';
 import { toast } from 'sonner';
+import { getTransactionData, initializeStore } from '@/utils/transactionDataStore';
 
 export interface TransactionData {
   amount: number;
@@ -46,111 +47,35 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
     recurringFrequency: null
   });
 
-  // Load pending transaction from localStorage if available
+  // Initialize transaction data from our store
   useEffect(() => {
     console.log('Transaction data initialization running, countries loaded:', countries.length);
     
     try {
-      // First, check for lastTransactionAmount for explicit amount tracking
-      const lastAmount = localStorage.getItem('lastTransactionAmount');
-      console.log('Last transaction amount from storage:', lastAmount);
+      // Initialize our store (creates default data if needed)
+      const storedData = initializeStore();
       
-      // Try different storage locations in order of preference
-      const processedPendingTransaction = localStorage.getItem('processedPendingTransaction');
-      const pendingTransactionBackup = localStorage.getItem('pendingTransactionBackup');
-      const pendingTransaction = processedPendingTransaction || 
-                               pendingTransactionBackup || 
-                               localStorage.getItem('pendingTransaction');
+      console.log('Retrieved transaction data from store:', storedData);
       
-      if (pendingTransaction) {
-        try {
-          const data = JSON.parse(pendingTransaction);
-          console.log('Found pending transaction data:', data);
-          
-          // Find the country with matching currency code
-          const targetCountry = countries.find(c => c.currency === data.targetCurrency)?.code || 'CM';
-          
-          // Get the amount directly - prioritize sendAmount over amount for consistency
-          const amount = data.sendAmount ? parseFloat(data.sendAmount) : 
-                         data.amount ? parseFloat(data.amount.toString()) :
-                         lastAmount ? parseFloat(lastAmount) : 0;
-          
-          console.log('Parsed amount from transaction data:', amount);
-          
-          // Calculate the converted amount based on the exchange rate
-          const exchangeRate = data.exchangeRate || 610;
-          const convertedAmount = amount * exchangeRate;
-          
-          console.log('Using amount:', amount, 'with exchange rate:', exchangeRate, '= converted amount:', convertedAmount);
-          
-          setTransactionData(prev => ({
-            ...prev,
-            amount: amount,
-            sourceCurrency: data.sourceCurrency || 'USD',
-            targetCurrency: data.targetCurrency || 'XAF',
-            targetCountry,
-            convertedAmount: convertedAmount,
-          }));
-          
-          // Immediately store the parsed values back to ensure consistency
-          const updatedData = {
-            ...data,
-            amount: amount,
-            sendAmount: amount.toString(),
-            convertedAmount: convertedAmount,
-            receiveAmount: convertedAmount.toString()
-          };
-          
-          console.log('Storing updated transaction data:', updatedData);
-          
-          // Store this accurate data back in all storage locations
-          localStorage.setItem('pendingTransaction', JSON.stringify(updatedData));
-          localStorage.setItem('pendingTransactionBackup', JSON.stringify(updatedData));
-          localStorage.setItem('processedPendingTransaction', JSON.stringify(updatedData));
-          localStorage.setItem('lastTransactionAmount', amount.toString());
-        } catch (error) {
-          console.error('Error parsing pending transaction:', error);
-          setError('Failed to load transaction data. Please try again.');
-          
-          // Show toast for debugging
-          toast.error("Error Loading Transaction", {
-            description: "Could not parse transaction data",
-          });
-        }
-      } else if (lastAmount) {
-        // If we only have lastTransactionAmount but no pending transaction,
-        // at least update the amount field
-        const parsedAmount = parseFloat(lastAmount);
-        if (!isNaN(parsedAmount) && parsedAmount > 0) {
-          console.log(`Using last known amount: ${parsedAmount}`);
-          
-          // Calculate converted amount based on default exchange rate
-          const exchangeRate = 610; // Default exchange rate
-          const convertedAmount = parsedAmount * exchangeRate;
-          
-          setTransactionData(prev => ({
-            ...prev,
-            amount: parsedAmount,
-            convertedAmount: convertedAmount
-          }));
-          
-          // Store minimal transaction data
-          const minimalData = {
-            amount: parsedAmount,
-            sendAmount: parsedAmount.toString(),
-            convertedAmount: convertedAmount,
-            receiveAmount: convertedAmount.toString(),
-            sourceCurrency: 'USD',
-            targetCurrency: 'XAF',
-            exchangeRate: exchangeRate,
-            timestamp: new Date().toISOString()
-          };
-          
-          localStorage.setItem('pendingTransaction', JSON.stringify(minimalData));
-          localStorage.setItem('pendingTransactionBackup', JSON.stringify(minimalData));
-        }
+      if (storedData) {
+        // Find the country with matching currency code
+        const targetCountry = countries.find(c => c.currency === storedData.targetCurrency)?.code || 'CM';
+        
+        // Update transaction data state with stored values
+        setTransactionData(prev => ({
+          ...prev,
+          amount: storedData.amount,
+          sourceCurrency: storedData.sourceCurrency,
+          targetCurrency: storedData.targetCurrency,
+          targetCountry,
+          convertedAmount: storedData.convertedAmount,
+          recipientName: storedData.recipientName || '',
+          recipient: storedData.recipientContact || null,
+        }));
+        
+        console.log('Set transaction data from store with amount:', storedData.amount);
       } else {
-        console.log('No pending transaction found, using default values');
+        console.log('No stored transaction data found, using default values');
       }
     } catch (err) {
       console.error('Error in transaction initialization:', err);
@@ -165,56 +90,27 @@ export const useSendMoneyTransaction = (defaultCountryCode: string = 'CM') => {
   const updateTransactionData = (data: Partial<TransactionData>) => {
     console.log('Updating transaction data:', data);
     
-    // Handle amount updates with special care
-    if (data.amount !== undefined) {
-      // Store amount in localStorage for redundancy and quick access
-      localStorage.setItem('lastTransactionAmount', data.amount.toString());
-      console.log(`Storing explicit amount in lastTransactionAmount: ${data.amount}`);
-      
-      // If we're updating the amount, we should update convertedAmount too if we have an exchange rate
-      if (transactionData.sourceCurrency && transactionData.targetCurrency) {
-        // Use a fixed exchange rate for consistent calculation
-        const exchangeRate = 610;
-        const convertedAmount = data.amount * exchangeRate;
-        
-        console.log(`Auto-updating convertedAmount based on new amount: ${data.amount} * ${exchangeRate} = ${convertedAmount}`);
-        
-        // Include convertedAmount in the update
-        data.convertedAmount = convertedAmount;
-      }
-    }
-    
     setTransactionData(prev => {
       const updated = { ...prev, ...data };
       
-      // Store the updated data for recovery if needed
+      // Also update our centralized store
       try {
-        // Also update the pending transaction data if it exists
-        const pendingData = localStorage.getItem('pendingTransaction');
-        if (pendingData) {
-          const parsed = JSON.parse(pendingData);
-          const updatedPending = { 
-            ...parsed,
-            ...data,
-            // Always include these critical fields
+        import('@/utils/transactionDataStore').then(({ setTransactionData }) => {
+          setTransactionData({
             amount: updated.amount,
-            sendAmount: updated.amount.toString(),
+            sourceCurrency: updated.sourceCurrency,
+            targetCurrency: updated.targetCurrency,
+            exchangeRate: updated.convertedAmount / updated.amount,
             convertedAmount: updated.convertedAmount,
-            receiveAmount: updated.convertedAmount.toString(),
-            timestamp: new Date().toISOString()
-          };
-          
-          localStorage.setItem('pendingTransaction', JSON.stringify(updatedPending));
-          localStorage.setItem('pendingTransactionBackup', JSON.stringify(updatedPending));
-          localStorage.setItem('currentTransactionData', JSON.stringify(updated));
-          
-          console.log('Updated pending transaction data:', updatedPending);
-        } else {
-          // If no pending data exists, store current state
-          localStorage.setItem('currentTransactionData', JSON.stringify(updated));
-        }
+            recipientName: updated.recipientName,
+            recipientContact: updated.recipient || undefined,
+            recipientCountry: updated.targetCountry,
+            paymentMethod: updated.paymentMethod || undefined,
+            provider: updated.selectedProvider || undefined
+          });
+        });
       } catch (e) {
-        console.error('Error storing current transaction data:', e);
+        console.error('Error updating transaction data store:', e);
       }
       
       return updated;

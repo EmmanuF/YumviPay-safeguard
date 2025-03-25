@@ -1,26 +1,41 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+import { AuthProvider } from './contexts/AuthContext.tsx';
+import { CountriesProvider } from './hooks/useCountries.tsx';
+import { RecipientsProvider } from './hooks/useRecipients.tsx';
+import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "@/components/theme-provider"
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import './styles/index.css';
-import { initializeApp } from './utils/initializeApp';
+// Make transaction data retrieval functions globally available for emergency access
+import { getTransactionAmount, getTransactionData } from './utils/transactionDataStore';
 
-// Initialize the app (database, auth, etc.)
-initializeApp().catch(error => {
-  console.error('Failed to initialize app:', error);
-});
-
-// Initialize the root element
-const rootElement = document.getElementById('root');
-
-if (!rootElement) {
-  throw new Error('Root element not found');
+// Attach to window for emergency access
+declare global {
+  interface Window {
+    getTransactionAmount: typeof getTransactionAmount;
+    getTransactionData: typeof getTransactionData;
+  }
 }
 
-// Create the root and render the app
-ReactDOM.createRoot(rootElement).render(
+window.getTransactionAmount = getTransactionAmount;
+window.getTransactionData = getTransactionData;
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider
+      defaultTheme="system"
+      storageKey="vite-react-theme"
+    >
+      <AuthProvider>
+        <CountriesProvider>
+          <RecipientsProvider>
+            <App />
+            <Toaster />
+          </RecipientsProvider>
+        </CountriesProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>,
-);
+)
