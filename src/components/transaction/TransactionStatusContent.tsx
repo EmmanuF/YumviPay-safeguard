@@ -47,9 +47,9 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
     if (!transaction) return '0';
     
     // Try multiple possible sources of the amount
-    const amount = transaction.sendAmount || 
-                  transaction.amount || 
-                  localStorage.getItem('lastTransactionAmount') || 
+    const amount = transaction.sendAmount ?? 
+                  transaction.amount ?? 
+                  localStorage.getItem('lastTransactionAmount') ?? 
                   '0';
     
     return typeof amount === 'number' ? amount.toString() : amount;

@@ -6,6 +6,7 @@ export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed
 export interface Transaction {
   id: string;
   amount: string | number;
+  sendAmount?: string | number; // Add sendAmount property
   currency?: string;
   fee?: string | number;
   recipientId?: string;
@@ -29,4 +30,8 @@ export interface Transaction {
   isRecurring?: boolean;
   recurringPaymentId?: string;
   recurringFrequency?: string;
+  convertedAmount?: number; // Add this to match what we're storing
+  receiveAmount?: string; // Add this to match what we're storing
+  sourceCurrency?: string; // Add this to ensure currency conversion info is available
+  targetCurrency?: string; // Add this to ensure currency conversion info is available
 }

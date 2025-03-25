@@ -66,7 +66,7 @@ export const useTransactionContinue = ({
       sourceCurrency,
       targetCurrency,
       amount: amountValue,
-      sendAmount: amountValue.toString(), // Add explicit sendAmount field
+      sendAmount: amountValue.toString(), // Store as sendAmount for consistent naming
       receiveAmount: receiveAmountValue.toString(),
       exchangeRate,
       convertedAmount: receiveAmountValue, // Add explicit convertedAmount field
