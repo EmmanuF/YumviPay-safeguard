@@ -15,13 +15,14 @@ interface LoadingStateProps {
 const LoadingState: React.FC<LoadingStateProps> = ({ 
   message = 'Loading transaction details...',
   submessage = 'Please wait while we process your request',
-  timeout = 8000, // 8 seconds default
+  timeout = 6000, // Reduced from 8s to 6s
   retryAction,
   errorMessage
 }) => {
   const [showTimeout, setShowTimeout] = useState(false);
   const [timeoutElapsed, setTimeoutElapsed] = useState(0);
   const [dots, setDots] = useState('');
+  const [autoRetryAttempted, setAutoRetryAttempted] = useState(false);
   
   useEffect(() => {
     // If there's an error message, show timeout view immediately
@@ -33,6 +34,15 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     // Show timeout message after specified time
     const timer = setTimeout(() => {
       setShowTimeout(true);
+      
+      // Auto-retry once if retry action exists and hasn't been attempted yet
+      if (retryAction && !autoRetryAttempted) {
+        console.log('Auto-retrying transaction load after timeout');
+        setAutoRetryAttempted(true);
+        setTimeout(() => {
+          retryAction();
+        }, 1000);
+      }
     }, timeout);
     
     // Update elapsed time every second
@@ -53,7 +63,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       clearInterval(elapsedTimer);
       clearInterval(dotsTimer);
     };
-  }, [timeout, errorMessage]);
+  }, [timeout, errorMessage, retryAction, autoRetryAttempted]);
   
   const fullMessage = `${message}${dots}`;
   
@@ -83,7 +93,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
                 variant="outline"
               >
                 <RefreshCw className="mr-2 h-4 w-4" />
-                Retry
+                Retry Loading
               </Button>
             )}
             <p className="mt-4 text-xs text-muted-foreground">

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import NotificationToggle from './NotificationToggle';
 import { Progress } from '@/components/ui/progress';
-import { Clock } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { TransactionStatus } from '@/types/transaction';
 
 interface StatusUpdateBarProps {
@@ -26,7 +26,7 @@ const StatusUpdateBar: React.FC<StatusUpdateBarProps> = ({
   const getProgressValue = (status: TransactionStatus): number => {
     switch(status) {
       case 'pending': return 25;
-      case 'processing': return 50;
+      case 'processing': return 60;
       case 'completed': return 100;
       case 'failed': return 100;
       case 'cancelled': return 100;
@@ -48,11 +48,35 @@ const StatusUpdateBar: React.FC<StatusUpdateBarProps> = ({
     }
   };
   
+  const getStatusIcon = (status: TransactionStatus) => {
+    switch(status) {
+      case 'completed':
+        return <CheckCircle2 className="w-4 h-4 text-green-600 mr-1" />;
+      case 'failed':
+      case 'cancelled':
+        return <AlertCircle className="w-4 h-4 text-red-600 mr-1" />;
+      default:
+        return <Clock className="w-4 h-4 mr-1" />;
+    }
+  };
+  
+  const getStatusColor = (status: TransactionStatus): string => {
+    switch(status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'failed': 
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'processing': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-primary-50 text-primary-800';
+    }
+  };
+  
+  const bgColorClass = getStatusColor(status);
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-primary-50 p-4 rounded-lg ${className}`}
+      className={`p-4 rounded-lg ${bgColorClass} ${className}`}
     >
       <div className="flex items-center justify-between mb-3">
         <NotificationToggle 
@@ -67,19 +91,22 @@ const StatusUpdateBar: React.FC<StatusUpdateBarProps> = ({
         />
       </div>
       
-      {/* Add progress indicator */}
-      {status !== 'completed' && status !== 'failed' && status !== 'cancelled' && (
-        <div className="mt-2">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center text-sm text-primary-700">
-              <Clock className="w-3 h-3 mr-1" />
-              <span>{getEstimatedText(status)}</span>
-            </div>
-            <span className="text-xs font-medium">{getProgressValue(status)}%</span>
+      {/* Status indicator */}
+      <div className="mt-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center text-sm font-medium">
+            {getStatusIcon(status)}
+            <span>{getEstimatedText(status)}</span>
           </div>
-          <Progress value={getProgressValue(status)} className="h-2" />
+          {status !== 'completed' && status !== 'failed' && status !== 'cancelled' && (
+            <span className="text-xs font-medium">{getProgressValue(status)}%</span>
+          )}
         </div>
-      )}
+        
+        {status !== 'completed' && status !== 'failed' && status !== 'cancelled' && (
+          <Progress value={getProgressValue(status)} className="h-2" />
+        )}
+      </div>
     </motion.div>
   );
 };

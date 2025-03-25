@@ -5,7 +5,7 @@ import { deepLinkService } from '../deepLinkService';
 import { isPlatform } from '@/utils/platformUtils';
 import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
-import { simulateKadoWebhook } from '../transaction';
+import { navigate } from '@/utils/navigationUtils';
 import { addOfflineTransaction } from '../transaction/transactionStore';
 
 /**
@@ -57,10 +57,8 @@ export const kadoRedirectService = {
         transactionId: params.transactionId,
       }));
       
-      // Verify identity with biometrics for high-value transactions if available
-      // This is an additional security measure for payment initiation
-      const amount = parseFloat(params.amount);
-      if (amount > 100) { // Only for transactions over $100 equivalent
+      // For high-value transactions, use biometric verification if available
+      if (parseFloat(params.amount) > 100) {
         try {
           const isAvailable = await BiometricService.isAvailable();
           const isEnabled = await BiometricService.isEnabled();
@@ -111,21 +109,25 @@ export const kadoRedirectService = {
         description: "You will be redirected to complete KYC and payment"
       });
       
+      // CRITICAL FIX: Import the transaction update functions outside the timeout
+      // to prevent race conditions
+      const { simulateKadoWebhook } = await import('../transaction/transactionUpdate');
+      
       // Simulate a very short delay for redirection (250ms instead of 1000ms)
       await new Promise(resolve => setTimeout(resolve, 250));
       
-      // Simulate the Kado webhook response immediately without waiting
+      // CRITICAL FIX: Trigger the webhook simulation immediately but don't await it
       console.log(`Simulating webhook for transaction ${params.transactionId}`);
+      simulateKadoWebhook(params.transactionId).catch(webhookError => {
+        console.error('Background webhook simulation error:', webhookError);
+      });
       
-      // Use a try/catch but don't wait for it to complete - let it run in background
-      try {
-        // Don't await this - let it run in the background with a deliberately detached promise
-        simulateKadoWebhook(params.transactionId).catch(webhookError => {
-          console.error('Background webhook simulation error:', webhookError);
-        });
-      } catch (webhookError) {
-        console.error('Error setting up webhook simulation:', webhookError);
-      }
+      // CRITICAL FIX: Navigate to transaction screen immediately
+      // Don't rely on external redirect to navigate
+      console.log(`Navigating directly to transaction screen for ${params.transactionId}`);
+      
+      // Immediately navigate to transaction page - do NOT wait for any redirect
+      window.location.href = `/transaction/${params.transactionId}`;
       
       console.log('Kado redirect process completed successfully');
       return;
@@ -137,13 +139,16 @@ export const kadoRedirectService = {
         variant: "destructive"
       });
       
-      // Create a fallback transaction in case of error so we don't get stuck
+      // Create a fallback transaction in case of error
       if (params.transactionId) {
         try {
           const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
           await updateTransactionStatus(params.transactionId, 'failed', {
             failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
           });
+          
+          // Even after error, redirect to transaction page 
+          window.location.href = `/transaction/${params.transactionId}`;
         } catch (updateError) {
           console.error('Error updating transaction status after redirect error:', updateError);
           
@@ -167,13 +172,24 @@ export const kadoRedirectService = {
             
             localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify(transaction));
             console.log(`Emergency fallback: stored failed transaction in localStorage for ${params.transactionId}`);
+            
+            // Still redirect to transaction page even after error
+            window.location.href = `/transaction/${params.transactionId}`;
           } catch (storageError) {
             console.error('Failed emergency localStorage fallback:', storageError);
+            // As last resort, direct navigation
+            window.location.href = '/';
           }
         }
+      } else {
+        // If no transaction ID, go home
+        window.location.href = '/';
       }
       
       throw error;
     }
   }
 };
+
+// Create a simple navigation utility to be used by the redirect service
+// Add this file next

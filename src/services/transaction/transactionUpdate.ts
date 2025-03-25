@@ -1,4 +1,3 @@
-
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
 import { isOffline, addPausedRequest } from "@/utils/networkUtils";
@@ -12,7 +11,8 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<void> 
     await updateTransactionStatus(transactionId, 'processing');
     console.log(`Transaction ${transactionId} set to processing status`);
     
-    // Simulate external processing with reduced delay (500ms)
+    // Simulate external processing with reduced delay (200ms)
+    // Use shorter timeouts to improve user experience
     setTimeout(async () => {
       try {
         // Higher success rate (98%) to reduce test frustration
@@ -52,20 +52,41 @@ export const simulateKadoWebhook = async (transactionId: string): Promise<void> 
           console.log(`Fallback local update for ${transactionId} completed:`, localUpdate);
         } catch (fallbackError) {
           console.error(`Even fallback update failed for ${transactionId}:`, fallbackError);
+          
+          // Last resort emergency fallback - direct localStorage manipulation
+          try {
+            const existingData = localStorage.getItem(`transaction_${transactionId}`);
+            if (existingData) {
+              const parsedData = JSON.parse(existingData);
+              const updatedData = {
+                ...parsedData,
+                status: 'completed',
+                updatedAt: new Date().toISOString(),
+                completedAt: new Date().toISOString()
+              };
+              localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedData));
+              console.log(`Emergency direct localStorage update for ${transactionId} completed`);
+            }
+          } catch (emergencyError) {
+            console.error(`Emergency fallback also failed for ${transactionId}:`, emergencyError);
+          }
         }
       }
-    }, 500); // Reduced from 2000ms to 500ms for faster testing
+    }, 200); // Reduced from 500ms to 200ms for faster testing
   } catch (error) {
     console.error(`Error initiating webhook simulation for ${transactionId}:`, error);
     
     // Emergency fallback - directly update localStorage
     try {
-      const transaction = {
-        id: transactionId,
-        status: 'completed' as const,
-        updatedAt: new Date(),
-        completedAt: new Date()
-      };
+      const existingData = localStorage.getItem(`transaction_${transactionId}`);
+      const transaction = existingData 
+        ? { ...JSON.parse(existingData), status: 'completed', updatedAt: new Date(), completedAt: new Date() }
+        : {
+            id: transactionId,
+            status: 'completed' as const,
+            updatedAt: new Date(),
+            completedAt: new Date()
+          };
       
       localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(transaction));
       console.log(`Emergency fallback: Stored completed status in localStorage for ${transactionId}`);
@@ -89,7 +110,8 @@ export const updateTransactionStatus = async (
   // Skip Supabase update for non-UUID transaction IDs (our mock transactions)
   const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(transactionId);
   
-  // Update local storage first for immediate feedback
+  // Update local storage first for immediate feedback 
+  // This is critical for ensuring the UI shows the updated status
   await updateLocalTransaction(transactionId, status, options);
   
   // Prepare update data for database
@@ -225,6 +247,29 @@ const updateLocalTransaction = async (
       } catch (parseError) {
         console.error(`Error parsing stored transaction ${transactionId}:`, parseError);
       }
+    }
+    
+    // If transaction doesn't exist in any storage, create a new one
+    if (!rawStoredTransaction) {
+      console.log(`Transaction ${transactionId} not found in storage, creating new entry`);
+      const newTransaction = {
+        id: transactionId,
+        status,
+        updatedAt: new Date(),
+        createdAt: new Date(),
+        ...(options?.completedAt && { completedAt: options.completedAt }),
+        ...(options?.failureReason && { failureReason: options.failureReason }),
+        amount: 0,
+        recipientName: 'Unknown',
+        country: 'CM',
+        paymentMethod: 'mobile_money',
+        provider: 'MTN Mobile Money',
+        estimatedDelivery: status === 'completed' ? 'Delivered' : 'Processing',
+        totalAmount: 0
+      };
+      
+      localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(newTransaction));
+      return true;
     }
     
     console.warn(`Transaction ${transactionId} not found in any local storage`);
