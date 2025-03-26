@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTransactionContinue } from '@/hooks/exchange-rate/useTransactionContinue';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,6 +34,7 @@ const itemVariants = {
 
 const HeroCalculator: React.FC = () => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { 
     sendAmount, 
     setSendAmount, 
@@ -43,9 +46,14 @@ const HeroCalculator: React.FC = () => {
   const sourceCurrency = "USD";
   const targetCurrency = "XAF";
   
-  const handleContinue = () => {
-    navigate('/signup');
-  };
+  // Use the transaction continue hook for proper navigation
+  const { handleContinue, isProcessing } = useTransactionContinue({
+    sendAmount,
+    receiveAmount,
+    sourceCurrency,
+    targetCurrency,
+    exchangeRate
+  });
   
   return (
     <motion.div
@@ -104,6 +112,7 @@ const HeroCalculator: React.FC = () => {
         <Button 
           onClick={handleContinue}
           className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center"
+          disabled={isProcessing}
         >
           <span className="mr-2">Send Now</span>
           <ArrowRight className="h-5 w-5" />
