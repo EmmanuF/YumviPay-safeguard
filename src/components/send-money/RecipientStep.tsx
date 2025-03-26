@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
 import { User, Phone, Info, ArrowRight } from 'lucide-react';
-import { QRCodeOption } from './payment/QRCodeOption';
+import QRCodeOption from './payment/QRCodeOption';
 
-// Define form schema with validation
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   recipientContact: z.string().min(6, { message: "Valid phone number required." })
@@ -36,17 +34,13 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   onNext,
   onBack
 }) => {
-  // Format phone number as user types
   const formatPhoneNumber = (value: string) => {
-    // Strip non-numeric characters except + at the beginning
     let cleaned = value.replace(/[^\d+]/g, '');
     
-    // Ensure only one + at the beginning
     if (cleaned.startsWith('+')) {
       cleaned = '+' + cleaned.substring(1).replace(/\+/g, '');
     }
     
-    // Format with spaces after country code and groups of digits
     if (cleaned.startsWith('+') && cleaned.length > 3) {
       return `${cleaned.substring(0, 4)} ${cleaned.substring(4).replace(/(.{3})/g, '$1 ').trim()}`;
     }
@@ -54,7 +48,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     return cleaned;
   };
 
-  // Form setup with default values from transaction data
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,20 +57,17 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   });
 
-  // Form submission
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log("Form submitted:", values);
-    // Update transaction data with form values
     updateTransactionData({
       recipientName: values.recipientName,
       recipientContact: values.recipientContact,
-      recipient: values.recipientContact, // For backward compatibility
+      recipient: values.recipientContact,
       saveToFavorites: values.saveToFavorites
     });
     onNext();
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -114,7 +104,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                {/* Recipient Name Field */}
                 <FormField
                   control={form.control}
                   name="recipientName"
@@ -141,7 +130,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   )}
                 />
 
-                {/* Recipient Contact Field */}
                 <FormField
                   control={form.control}
                   name="recipientContact"
@@ -175,7 +163,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   )}
                 />
 
-                {/* Save to Favorites Toggle */}
                 <FormField
                   control={form.control}
                   name="saveToFavorites"
@@ -197,12 +184,10 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                     </FormItem>
                   )}
                 />
-                
-                {/* QR Code Option */}
+
                 <QRCodeOption 
                   transactionData={transactionData}
                   onScanComplete={(data) => {
-                    // When QR scan completes, update the form with scanned data
                     if (data?.recipientName) {
                       form.setValue('recipientName', data.recipientName);
                     }
@@ -212,7 +197,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   }}
                 />
 
-                {/* Navigation Buttons */}
                 <div className="pt-4 flex space-x-3">
                   <Button 
                     type="button"
