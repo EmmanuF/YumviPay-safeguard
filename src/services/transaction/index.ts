@@ -15,7 +15,7 @@ import {
 
 import {
   createTransaction
-} from './store/transactionCreation';
+} from './create';
 
 import {
   initializeTransactions,
