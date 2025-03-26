@@ -53,11 +53,12 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       recipientName: transactionData?.recipientName || "",
       recipientContact: transactionData?.recipientContact || transactionData?.recipient || "",
       saveToFavorites: transactionData?.saveToFavorites || false
-    }
+    },
+    mode: "onChange" // This ensures validation runs on every change
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("Form submitted:", values);
+    console.log("Form submitted with values:", values);
     updateTransactionData({
       recipientName: values.recipientName,
       recipientContact: values.recipientContact,
@@ -84,18 +85,19 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
-  // Add console logging to debug button clicks
+  // Handle button clicks with more verbose logging
   const handleBackClick = () => {
-    console.log("Back button clicked in RecipientStep");
+    console.log("Back button clicked in RecipientStep with data:", form.getValues());
     onBack();
   };
 
   const handleNextClick = () => {
-    console.log("Next button clicked in RecipientStep");
+    console.log("Next button clicked in RecipientStep with data:", form.getValues());
     form.handleSubmit(onSubmit)();
   };
 
   const isFormValid = form.formState.isValid;
+  console.log("Form state:", { isValid: isFormValid, errors: form.formState.errors });
 
   return (
     <motion.div
@@ -115,7 +117,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
             </p>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form className="space-y-5">
                 <FormField
                   control={form.control}
                   name="recipientName"
