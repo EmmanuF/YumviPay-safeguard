@@ -46,14 +46,38 @@ const HeroCalculator: React.FC = () => {
   const sourceCurrency = "USD";
   const targetCurrency = "XAF";
   
-  // Use the transaction continue hook for proper navigation
-  const { handleContinue, isProcessing } = useTransactionContinue({
-    sendAmount,
-    receiveAmount,
-    sourceCurrency,
-    targetCurrency,
-    exchangeRate
-  });
+  // Custom handling for "Send Now" button to ensure direct redirection to /send for logged in users
+  const handleContinue = () => {
+    console.log("Send Now button clicked, isLoggedIn:", isLoggedIn);
+    
+    try {
+      // Store transaction data in localStorage
+      const transactionData = {
+        amount: parseFloat(sendAmount) || 100,
+        sendAmount: sendAmount,
+        receiveAmount: receiveAmount,
+        sourceCurrency,
+        targetCurrency,
+        exchangeRate,
+        convertedAmount: parseFloat(receiveAmount) || 61000,
+        targetCountry: "CM",
+      };
+      
+      localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+      console.log("Transaction data stored:", transactionData);
+      
+      // Redirect based on authentication status
+      if (isLoggedIn) {
+        console.log("User is logged in, redirecting to /send");
+        navigate('/send');
+      } else {
+        console.log("User is not logged in, redirecting to /signin");
+        navigate('/signin', { state: { redirectAfterLogin: '/send' } });
+      }
+    } catch (error) {
+      console.error("Error during transaction continuation:", error);
+    }
+  };
   
   return (
     <motion.div
@@ -112,7 +136,6 @@ const HeroCalculator: React.FC = () => {
         <Button 
           onClick={handleContinue}
           className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center"
-          disabled={isProcessing}
         >
           <span className="mr-2">Send Now</span>
           <ArrowRight className="h-5 w-5" />

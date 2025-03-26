@@ -1,16 +1,15 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
-import { User, Phone, Info, ArrowRight } from 'lucide-react';
+import { User, Phone, Info } from 'lucide-react';
+import PaymentStepNavigation from './payment/PaymentStepNavigation';
 
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -90,6 +89,13 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     console.log("Back button clicked in RecipientStep");
     onBack();
   };
+
+  const handleNextClick = () => {
+    console.log("Next button clicked in RecipientStep");
+    form.handleSubmit(onSubmit)();
+  };
+
+  const isFormValid = form.formState.isValid;
 
   return (
     <motion.div
@@ -191,23 +197,12 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   )}
                 />
 
-                <div className="pt-4 flex space-x-3">
-                  <Button 
-                    type="button"
-                    variant="outline" 
-                    onClick={handleBackClick} 
-                    className="w-1/2 border-secondary-300"
-                  >
-                    Back
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="w-1/2 bg-primary hover:bg-primary-600 group"
-                  >
-                    Continue
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </div>
+                <PaymentStepNavigation 
+                  onNext={handleNextClick}
+                  onBack={handleBackClick}
+                  isNextDisabled={!isFormValid}
+                  isSubmitting={false}
+                />
               </form>
             </Form>
           </CardContent>
