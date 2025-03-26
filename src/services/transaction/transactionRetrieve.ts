@@ -12,7 +12,7 @@ export const getTransactionById = async (id: string): Promise<Transaction | null
   
   try {
     // First try localStorage for immediately available data
-    const storedTransactions = getStoredTransactions();
+    const storedTransactions = await getStoredTransactions();
     const storedTransaction = storedTransactions.find(t => t.id === id);
     
     if (storedTransaction) {
@@ -152,7 +152,7 @@ const createFallbackTransaction = (id: string): Transaction => {
 export const getAllTransactions = async (): Promise<Transaction[]> => {
   try {
     // Get locally stored transactions
-    const storedTransactions = getStoredTransactions();
+    const storedTransactions = await getStoredTransactions();
     
     // Try to get from Supabase if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
@@ -181,7 +181,7 @@ export const getAllTransactions = async (): Promise<Transaction[]> => {
     return storedTransactions.map(normalizeTransaction);
   } catch (error) {
     console.error('Error retrieving all transactions:', error);
-    return getStoredTransactions().map(normalizeTransaction);
+    return (await getStoredTransactions()).map(normalizeTransaction);
   }
 };
 
