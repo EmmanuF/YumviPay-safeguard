@@ -24,6 +24,18 @@ const frTranslations = {
   'transaction.success': 'Transfert Réussi',
   'transaction.processing': 'Traitement en Cours',
   'transaction.failed': 'Échec du Transfert',
+  'transaction.details': 'Détails de la Transaction',
+  'transaction.status': 'Statut',
+  'transaction.date': 'Date',
+  'transaction.time': 'Heure',
+  'transaction.referenceId': 'ID de Référence',
+  'transaction.fee': 'Frais',
+  'transaction.total': 'Total',
+  'transaction.exchangeRate': 'Taux de Change',
+  'transaction.receivedAmount': 'Montant Reçu',
+  'transaction.sendAgain': 'Envoyer à Nouveau',
+  'transaction.viewHistory': 'Voir l\'Historique',
+  'transaction.goBack': 'Retour',
   
   // SendMoney component
   'sendMoney.title': 'Envoyer de l\'Argent',

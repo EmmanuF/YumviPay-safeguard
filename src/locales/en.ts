@@ -24,6 +24,18 @@ const enTranslations = {
   'transaction.success': 'Transfer Successful',
   'transaction.processing': 'Processing Transfer',
   'transaction.failed': 'Transfer Failed',
+  'transaction.details': 'Transaction Details',
+  'transaction.status': 'Status',
+  'transaction.date': 'Date',
+  'transaction.time': 'Time',
+  'transaction.referenceId': 'Reference ID',
+  'transaction.fee': 'Fee',
+  'transaction.total': 'Total',
+  'transaction.exchangeRate': 'Exchange Rate',
+  'transaction.receivedAmount': 'Received Amount',
+  'transaction.sendAgain': 'Send Again',
+  'transaction.viewHistory': 'View History',
+  'transaction.goBack': 'Go Back',
   
   // SendMoney component
   'sendMoney.title': 'Send Money',

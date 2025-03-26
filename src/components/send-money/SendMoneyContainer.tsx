@@ -84,7 +84,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
       setSelectedCountry(defaultCountryCode);
       form.setValue('country', defaultCountryCode);
     }
-  }, [defaultCountryCode, form.setValue]);
+  }, [defaultCountryCode, form]);
 
   const handleCountryChange = (value: string) => {
     setSelectedCountry(value);

@@ -1,23 +1,18 @@
 
-// Re-export all Kado functionality
-export * from './types';
-export { kadoRedirectService } from './redirect';
-export * from './kadoWebhookService';
-export * from './kadoKycService';
-export * from './kadoApiService';
-export * from './useKado';
-export * from './hooks';
+import { handleKadoRedirect } from './redirect/redirectHandler';
 
-// Create a combined service for backward compatibility
-import { kadoRedirectService } from './redirect';
-import { kadoWebhookService } from './kadoWebhookService';
-import { kadoKycService } from './kadoKycService';
-import { kadoApiService } from './kadoApiService';
-import { useKado } from './useKado';
-
+/**
+ * Service to handle all interactions with Kado
+ */
 export const kadoService = {
-  ...kadoRedirectService,
-  ...kadoWebhookService,
-  ...kadoKycService,
-  ...kadoApiService
+  // Redirect functions
+  redirectToKado: async (params: import('./types').KadoRedirectParams): Promise<void> => {
+    return handleKadoRedirect(params);
+  }
 };
+
+// Re-export types but avoid duplicate exports
+export * from './types';
+
+// Export redirect service for backward compatibility
+export { kadoRedirectService } from './redirect';
