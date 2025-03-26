@@ -4,7 +4,7 @@ import { isOffline } from "@/utils/networkUtils";
 import { inMemoryTransactions, generateMockTransactions } from './initialization';
 
 // Get transactions from localStorage or generate mock data if needed
-export const getOfflineTransactions = (): Transaction[] => {
+export const getOfflineTransactions = async (): Promise<Transaction[]> => {
   try {
     const storedTransactions = localStorage.getItem('transactions');
     
@@ -44,7 +44,7 @@ export const getOfflineTransactions = (): Transaction[] => {
 };
 
 // Save transactions to localStorage
-export const setOfflineTransactions = (transactions: Transaction[]): void => {
+export const setOfflineTransactions = async (transactions: Transaction[]): Promise<void> => {
   try {
     // Then attempt to save to localStorage
     localStorage.setItem('transactions', JSON.stringify(transactions));
@@ -55,9 +55,9 @@ export const setOfflineTransactions = (transactions: Transaction[]): void => {
 };
 
 // Add a new transaction to storage
-export const addOfflineTransaction = (transaction: Transaction): void => {
+export const addOfflineTransaction = async (transaction: Transaction): Promise<void> => {
   try {
-    const transactions = getOfflineTransactions();
+    const transactions = await getOfflineTransactions();
     
     // Check if transaction already exists
     const existingIndex = transactions.findIndex(t => t.id === transaction.id);
@@ -74,7 +74,7 @@ export const addOfflineTransaction = (transaction: Transaction): void => {
       transactions.push(transaction);
     }
     
-    setOfflineTransactions(transactions);
+    await setOfflineTransactions(transactions);
     console.log(`Transaction ${transaction.id} added/updated in offline storage`);
   } catch (error) {
     console.error(`Error adding transaction ${transaction.id} to offline storage:`, error);
@@ -82,12 +82,12 @@ export const addOfflineTransaction = (transaction: Transaction): void => {
 };
 
 // Update an existing transaction in storage
-export const updateOfflineTransaction = (
+export const updateOfflineTransaction = async (
   transactionId: string, 
   updatedFields: Partial<Transaction>
-): void => {
+): Promise<void> => {
   try {
-    const transactions = getOfflineTransactions();
+    const transactions = await getOfflineTransactions();
     const existingIndex = transactions.findIndex(t => t.id === transactionId);
     
     if (existingIndex >= 0) {
@@ -97,7 +97,7 @@ export const updateOfflineTransaction = (
         updatedAt: new Date()
       };
       
-      setOfflineTransactions(transactions);
+      await setOfflineTransactions(transactions);
       console.log(`Transaction ${transactionId} updated in offline storage`);
     } else {
       console.warn(`Cannot update transaction ${transactionId}: not found in storage`);
@@ -108,7 +108,7 @@ export const updateOfflineTransaction = (
 };
 
 // Clear all transactions from storage
-export const clearTransactionsStore = (): void => {
+export const clearTransactionsStore = async (): Promise<void> => {
   try {
     localStorage.removeItem('transactions');
     console.log('Transactions store cleared');

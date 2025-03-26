@@ -13,18 +13,21 @@ export const getUserId = async (): Promise<string | null> => {
 // Handle offline transaction storage
 export const addOfflineTransaction = async (transaction: Transaction) => {
   const { getOfflineTransactions, setOfflineTransactions } = await import('../store');
-  const offlineTransactions = getOfflineTransactions();
+  // Need to await the Promise result from getOfflineTransactions
+  const offlineTransactions = await getOfflineTransactions();
   setOfflineTransactions([...offlineTransactions, transaction]);
 };
 
 // Update a transaction in the offline cache
 export const updateLocalTransaction = async (id: string, updatedTransaction: Transaction) => {
   const { getOfflineTransactions, setOfflineTransactions } = await import('../store');
-  const offlineTransactions = getOfflineTransactions();
+  // Need to await the Promise result from getOfflineTransactions
+  const offlineTransactions = await getOfflineTransactions();
   const index = offlineTransactions.findIndex(t => t.id === id);
   if (index >= 0) {
     offlineTransactions[index] = updatedTransaction;
-    setOfflineTransactions([...offlineTransactions]);
+    // Need to await the Promise result from setOfflineTransactions
+    await setOfflineTransactions([...offlineTransactions]);
   }
 };
 
