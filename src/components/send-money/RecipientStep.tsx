@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,6 +57,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     mode: "onChange" // This ensures validation runs on every change
   });
 
+  // Submit handler with enhanced logging
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log("Form submitted with values:", values);
     updateTransactionData({
@@ -65,6 +66,8 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       recipient: values.recipientContact,
       saveToFavorites: values.saveToFavorites
     });
+    
+    console.log("Calling onNext() after form submission");
     onNext();
   };
 
@@ -85,7 +88,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
-  // Handle button clicks with more verbose logging
+  // Enhanced button handlers with detailed logging
   const handleBackClick = () => {
     console.log("Back button clicked in RecipientStep with data:", form.getValues());
     onBack();
@@ -93,18 +96,35 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
 
   const handleNextClick = () => {
     console.log("Next button clicked in RecipientStep with data:", form.getValues());
-    form.handleSubmit(onSubmit)();
+    
+    // Manually trigger form validation before submission
+    form.trigger().then(isValid => {
+      console.log("Form validation result:", isValid);
+      if (isValid) {
+        form.handleSubmit(onSubmit)();
+      } else {
+        console.log("Form validation failed, not submitting");
+      }
+    });
   };
 
   const isFormValid = form.formState.isValid;
-  console.log("Form state:", { isValid: isFormValid, errors: form.formState.errors });
+  
+  // Log form state changes for debugging
+  useEffect(() => {
+    console.log("Form state updated:", { 
+      isValid: form.formState.isValid, 
+      isDirty: form.formState.isDirty,
+      errors: form.formState.errors
+    });
+  }, [form.formState.isValid, form.formState.isDirty, form.formState.errors]);
 
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-6"
+      className="space-y-6 pb-20" // Added padding at bottom to ensure buttons are visible
     >
       <motion.div variants={itemVariants}>
         <Card className="shadow-lg border border-secondary-100/30">
@@ -117,7 +137,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
             </p>
 
             <Form {...form}>
-              <form className="space-y-5">
+              <div className="space-y-5">
                 <FormField
                   control={form.control}
                   name="recipientName"
@@ -205,7 +225,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   isNextDisabled={!isFormValid}
                   isSubmitting={false}
                 />
-              </form>
+              </div>
             </Form>
           </CardContent>
         </Card>

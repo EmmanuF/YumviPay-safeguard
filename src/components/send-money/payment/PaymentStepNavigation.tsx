@@ -26,24 +26,24 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     }
   };
 
-  // Add more verbose logging to track button clicks
+  // Enhanced logging to track button clicks
   const handleNextClick = () => {
-    console.log("Next button clicked in PaymentStepNavigation");
+    console.log("Next button clicked in PaymentStepNavigation, calling onNext()");
     onNext();
   };
 
   const handleBackClick = () => {
-    console.log("Back button clicked in PaymentStepNavigation");
+    console.log("Back button clicked in PaymentStepNavigation, calling onBack()");
     onBack();
   };
 
   return (
-    <motion.div variants={itemVariants} className="w-full pt-6 flex gap-4">
+    <motion.div variants={itemVariants} className="w-full pt-6 flex gap-4 mb-16">
       <Button 
         type="button"
         variant="outline"
         onClick={handleBackClick} 
-        className="flex-1 border-secondary-300 h-12" 
+        className="flex-1 border-secondary-300 h-14" 
         size="lg"
         disabled={isSubmitting}
       >
@@ -52,19 +52,19 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
       <Button 
         type="button"
         onClick={handleNextClick} 
-        className="flex-1 bg-primary hover:bg-primary-600 group h-12" 
+        className="flex-1 bg-primary hover:bg-primary-600 group h-14" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             Processing
           </>
         ) : (
           <>
             Continue
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </>
         )}
       </Button>
