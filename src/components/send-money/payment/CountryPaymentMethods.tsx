@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { getPaymentMethodById, getProviderById } from '@/data/cameroonPaymentProviders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import { Clock, AlertCircle, CreditCard, Smartphone, Building } from 'lucide-rea
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 import { useToast } from '@/components/ui/use-toast';
+import { PaymentMethod } from '@/types/country'; // Import the PaymentMethod type from the correct location
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
