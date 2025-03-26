@@ -1,71 +1,52 @@
 
 /**
- * Format a currency amount for display
- * @param amount The amount to format
- * @param currency The currency code (default: USD)
+ * Format currency value with proper currency symbol and localization
+ * @param amount Amount to format
+ * @param currencyCode ISO currency code (USD, EUR, XAF, etc.)
+ * @param locale Locale for formatting (default: en-US)
  * @returns Formatted currency string
  */
-export const formatCurrency = (amount: string | number, currency = 'USD'): string => {
-  if (amount === undefined || amount === null) return '$0.00';
+export const formatCurrency = (
+  amount: number | string,
+  currencyCode: string = 'USD',
+  locale: string = 'en-US'
+): string => {
+  // Handle string amounts
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  // Handle NaN or invalid values
+  if (isNaN(numericAmount)) {
+    return `0.00 ${currencyCode}`;
+  }
   
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(numAmount);
+  try {
+    // Use Intl.NumberFormat for proper formatting
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericAmount);
+  } catch (error) {
+    // Fallback for unsupported currency codes
+    return `${numericAmount.toFixed(2)} ${currencyCode}`;
+  }
 };
 
 /**
- * Format a number with appropriate separators
- * @param amount The amount to format
+ * Format large numbers with commas for better readability
+ * @param value Number to format
  * @returns Formatted number string
  */
-export const formatNumber = (amount: string | number): string => {
-  if (amount === undefined || amount === null) return '0';
+export const formatNumberWithCommas = (value: number | string): string => {
+  // Handle string values
+  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
   
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  
-  return new Intl.NumberFormat('en-US').format(numAmount);
-};
-
-/**
- * Format transaction amount based on currency
- * @param amount Amount to format
- * @param options Formatting options
- * @returns Formatted amount string
- */
-export const formatTransactionAmount = (
-  amount: string | number | undefined,
-  options?: {
-    currency?: string;
-    locale?: string;
+  // Handle NaN or invalid values
+  if (isNaN(numericValue)) {
+    return '0';
   }
-): string => {
-  if (amount === undefined || amount === null) return '$0.00';
   
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const currency = options?.currency || 'USD';
-  const locale = options?.locale || 'en-US';
-  
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(numAmount);
-};
-
-/**
- * Create a simple display value for an amount and currency
- */
-export const getSimpleAmountDisplay = (amount: string | number | undefined, currency = 'USD'): string => {
-  if (amount === undefined || amount === null) return '$0';
-  
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const symbol = currency === 'USD' ? '$' : currency === 'XAF' ? 'FCFA' : currency;
-  
-  return `${symbol}${new Intl.NumberFormat('en-US').format(numAmount)}`;
+  // Use Intl.NumberFormat for proper formatting
+  return new Intl.NumberFormat().format(numericValue);
 };
