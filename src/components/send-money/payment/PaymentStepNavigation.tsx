@@ -19,6 +19,13 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   isSubmitting = false,
   nextLabel = 'Continue'
 }) => {
+  // Log navigation rendering
+  console.log('Rendering PaymentStepNavigation', { 
+    isNextDisabled, 
+    isSubmitting,
+    nextLabel
+  });
+  
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { 
@@ -29,7 +36,11 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   };
 
   return (
-    <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
+    <motion.div
+      variants={itemVariants}
+      className="pt-4 flex space-x-3 w-full"
+      style={{ display: 'flex' }}
+    >
       <Button 
         variant="outline"
         onClick={onBack} 

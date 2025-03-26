@@ -114,6 +114,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
+  // Log navigation props for debugging
+  console.log('Navigation props:', { 
+    isNextDisabled, 
+    isSubmitting, 
+    onNext: typeof onNext, 
+    onBack: typeof onBack 
+  });
+
   return (
     <motion.div 
       variants={containerVariants}
@@ -187,7 +195,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </Card>
       </motion.div>
       
-      <motion.div variants={itemVariants} className="mt-4">
+      {/* Explicitly render navigation with forced visibility */}
+      <motion.div variants={itemVariants} className="mt-6">
         <PaymentStepNavigation 
           onNext={onNext}
           onBack={onBack}
