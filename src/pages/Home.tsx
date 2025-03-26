@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -35,10 +36,20 @@ const Home = () => {
     <MobileAppLayout>
       <PageTransition>
         <div className="min-h-screen">
-          {/* Hero section with purple gradient background */}
+          {/* Indigo header with cleaner styling */}
           <div className="relative overflow-hidden">
-            <div className="bg-gradient-to-b from-secondary-600 to-secondary-400 relative z-10">
-              <div className="pt-6">
+            {/* Indigo header base layer */}
+            <div className="absolute top-0 left-0 right-0 z-20">
+              {/* Top solid section */}
+              <div className="h-20 bg-indigo-600"></div>
+              
+              {/* Additional bottom layer for smoother transition */}
+              <div className="h-4 bg-indigo-500 transform origin-top-right"></div>
+            </div>
+            
+            {/* Light background section instead of yellow */}
+            <div className="bg-gradient-to-b from-muted to-white pt-24 relative z-10 hero-bg">
+              <div className="pt-8">
                 <Navigation onGetStarted={handleGetStarted} />
                 <Hero onGetStarted={handleGetStarted} />
               </div>
@@ -46,13 +57,13 @@ const Home = () => {
           </div>
           
           {/* Rest of the sections with neutral/light background */}
-          <div className="bg-gradient-to-b from-slate-50 to-white">
-            <div className="container mx-auto px-4 pb-24 pt-12">
+          <div className="bg-gradient-to-b from-white to-muted/50">
+            <div className="container mx-auto px-4 pb-24">
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="mt-8 md:mt-16"
+                className="mt-2 md:mt-6"
               >
                 <Features />
                 <HowItWorks />
