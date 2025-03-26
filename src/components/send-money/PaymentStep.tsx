@@ -1,21 +1,19 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useCountries } from '@/hooks/useCountries';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
-import CountryPaymentMethods from './payment/CountryPaymentMethods';
-import PreferredPaymentMethods from './payment/PreferredPaymentMethods';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import { Building, Smartphone, CreditCard, CircleCheck } from 'lucide-react';
-import SavePreferenceToggle from './payment/SavePreferenceToggle';
-import QRCodeOption from './payment/QRCodeOption';
 import { toast } from 'sonner';
+
+// Import our new components
+import PaymentStepHeader from './payment/PaymentStepHeader';
+import PreferredMethodsSection from './payment/PreferredMethodsSection';
+import AvailableMethodsSection from './payment/AvailableMethodsSection';
+import QRCodeSection from './payment/QRCodeSection';
+import SavePreferenceSection from './payment/SavePreferenceSection';
 
 interface PaymentStepProps {
   transactionData: any;
@@ -155,66 +153,43 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     >
       <motion.div variants={itemVariants} className="flex-grow">
         <Card className="border-0 shadow-lg bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Select Payment Method</CardTitle>
-            <CardDescription>
-              Choose how you want to send {transactionData.amount} {transactionData.sourceCurrency} 
-              to {transactionData.recipientName || 'your recipient'}
-            </CardDescription>
-          </CardHeader>
+          <PaymentStepHeader 
+            amount={transactionData.amount}
+            sourceCurrency={transactionData.sourceCurrency}
+            recipientName={transactionData.recipientName}
+          />
           
           <CardContent className="pt-0">
-            {preferredMethods.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-sm font-medium mb-2 text-muted-foreground">Your preferred methods</h3>
-                <PreferredPaymentMethods
-                  preferredMethods={preferredMethods}
-                  countryCode={transactionData.targetCountry || 'CM'}
-                  selectedCountry={selectedCountry}
-                  transactionData={transactionData}
-                  updateTransactionData={updateTransactionData}
-                />
-              </div>
-            )}
+            <PreferredMethodsSection 
+              preferredMethods={preferredMethods}
+              countryCode={transactionData.targetCountry || 'CM'}
+              selectedCountry={selectedCountry}
+              transactionData={transactionData}
+              updateTransactionData={updateTransactionData}
+            />
             
-            <div>
-              <h3 className="text-sm font-medium mb-2 text-muted-foreground">Available payment methods</h3>
-              <CountryPaymentMethods
-                countryCode={transactionData.targetCountry || 'CM'}
-                methods={paymentMethods}
-                isLoading={isLoading}
-                selectedMethod={transactionData.paymentMethod}
-                selectedProvider={transactionData.selectedProvider}
-                onSelectMethod={(methodId, providerId) => {
-                  updateTransactionData({
-                    paymentMethod: methodId,
-                    selectedProvider: providerId
-                  });
-                }}
-                getMethodIcon={getPaymentMethodIcon}
-              />
-            </div>
+            <AvailableMethodsSection 
+              countryCode={transactionData.targetCountry || 'CM'}
+              methods={paymentMethods}
+              isLoading={isLoading}
+              selectedMethod={transactionData.paymentMethod}
+              selectedProvider={transactionData.selectedProvider}
+              onSelectMethod={(methodId, providerId) => {
+                updateTransactionData({
+                  paymentMethod: methodId,
+                  selectedProvider: providerId
+                });
+              }}
+              getMethodIcon={getPaymentMethodIcon}
+            />
             
-            <div className="mt-6">
-              <QRCodeOption
-                transactionData={transactionData}
-                onScanComplete={(data) => {
-                  console.log("QR Code scan completed with data:", data);
-                  toast.info('QR code scanned successfully', {
-                    description: 'The recipient details have been filled in'
-                  });
-                }}
-              />
-            </div>
+            <QRCodeSection transactionData={transactionData} />
             
-            {transactionData.paymentMethod && (
-              <div className="mt-6">
-                <SavePreferenceToggle
-                  checked={savePreference}
-                  onChange={handleSavePreference}
-                />
-              </div>
-            )}
+            <SavePreferenceSection 
+              showSection={!!transactionData.paymentMethod}
+              savePreference={savePreference}
+              onToggle={handleSavePreference}
+            />
           </CardContent>
         </Card>
       </motion.div>
