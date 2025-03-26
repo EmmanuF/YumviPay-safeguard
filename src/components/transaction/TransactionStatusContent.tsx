@@ -1,14 +1,13 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Transaction } from '@/types/transaction';
 import TransactionReceipt from '@/components/transaction/TransactionReceipt';
 import StatusUpdateBar from '@/components/transaction/StatusUpdateBar';
 import { ActionButtons } from '@/components/transaction';
 import TransactionStatusNotifications from '@/components/transaction/TransactionStatusNotifications';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw, CheckCircle, Share2, ArrowUpRight, ReceiptText } from 'lucide-react';
+import { AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { getReliableAmount, storeTransactionAmount, formatTransactionAmount } from '@/utils/transactionAmountUtils';
 
@@ -116,59 +115,18 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       });
       
       successOverlay.innerHTML = `
-        <div style="background: white; padding: 30px; border-radius: 16px; text-align: center; max-width: 90%; width: 340px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
-          <div style="margin-bottom: 20px;">
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="30" cy="30" r="30" fill="#008000" />
-              <path d="M20 30L27 37L40 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </div>
-          <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #1e293b;">Transaction Completed!</h3>
-          <p style="color: #4b5563; margin-bottom: 20px;">Your transaction of ${formattedAmount} to ${transaction.recipientName || 'John Doe'} has been successfully completed.</p>
-          <div style="font-size: 30px; margin-top: 10px;">🎉</div>
+        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+          <div style="color: #10b981; font-size: 48px; margin-bottom: 16px;">✓</div>
+          <h3>Transaction Completed!</h3>
+          <p>Your transaction of ${formattedAmount} to ${transaction.recipientName || 'John Doe'} has been successfully completed.</p>
         </div>
       `;
       document.body.appendChild(successOverlay);
       
-      // Add confetti effect
-      const confettiColors = ['#8A2BE2', '#4B0082', '#008000', '#F9F6FD', '#FFD700'];
-      try {
-        // Try to simulate confetti with simple divs if no confetti library is available
-        for (let i = 0; i < 100; i++) {
-          const confetti = document.createElement('div');
-          const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
-          confetti.style.position = 'fixed';
-          confetti.style.left = Math.random() * 100 + 'vw';
-          confetti.style.top = -20 + 'px';
-          confetti.style.width = Math.random() * 10 + 5 + 'px';
-          confetti.style.height = Math.random() * 10 + 5 + 'px';
-          confetti.style.backgroundColor = color;
-          confetti.style.borderRadius = '50%';
-          confetti.style.zIndex = '9999';
-          confetti.style.pointerEvents = 'none';
-          confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
-          document.body.appendChild(confetti);
-          
-          // Create keyframes for the confetti animation
-          const style = document.createElement('style');
-          style.innerHTML = `
-            @keyframes fall {
-              to {
-                transform: translateY(100vh) rotate(${Math.random() * 360}deg);
-                opacity: 0;
-              }
-            }
-          `;
-          document.head.appendChild(style);
-        }
-      } catch (error) {
-        console.error('Error creating confetti effect:', error);
-      }
-      
       // Refresh the page to show completed status after a short delay
       setTimeout(() => {
         window.location.reload();
-      }, 2500);
+      }, 1500);
     } catch (error) {
       console.error('Error forcing transaction completion:', error);
       toast.error("Error Updating Transaction", {
@@ -177,101 +135,66 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
     }
   };
   
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
-  };
-  
   if (isMinimalData && isPending) {
     // Show simplified content while we wait for full data
     return (
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex-1 p-4 pb-20"
-      >
-        <motion.div variants={itemVariants}>
-          <Card className="overflow-hidden shadow-lg border-none card-accent">
-            <CardHeader className="pb-4 pt-6">
-              <CardTitle className="text-center text-xl">Transaction Processing</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="text-center space-y-4">
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-primary-50 p-4 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-                  </div>
-                </div>
-                <div className="animate-pulse space-y-4">
-                  <div className="h-4 bg-gray-200 rounded-full w-3/4 mx-auto"></div>
-                  <div className="h-8 bg-gray-200 rounded-full w-1/2 mx-auto"></div>
-                  <div className="h-4 bg-gray-200 rounded-full w-5/6 mx-auto"></div>
-                </div>
-                <p className="mt-6 text-sm text-muted-foreground">
-                  Transaction details are being processed...
-                </p>
-                
-                <div className="mt-6 space-y-3">
-                  {onRefresh && (
-                    <Button 
-                      onClick={onRefresh} 
-                      variant="outline" 
-                      className="w-full h-12 rounded-xl flex items-center justify-center gap-2"
-                    >
-                      <RefreshCw className="h-5 w-5" />
-                      Refresh Transaction Data
-                    </Button>
-                  )}
-                  
-                  <Button 
-                    onClick={handleForceComplete} 
-                    variant="default" 
-                    className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 shadow-md flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle className="h-5 w-5" />
-                    Complete Transaction Now
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+      <div className="flex-1 p-4 pb-20">
+        <Card className="p-6">
+          <div className="text-center space-y-4">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6 mx-auto"></div>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Transaction details are being processed...
+            </p>
+            
+            <div className="mt-4 space-y-2">
+              {onRefresh && (
+                <Button 
+                  onClick={onRefresh} 
+                  variant="outline" 
+                  className="w-full"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Refresh Transaction Data
+                </Button>
+              )}
+              
+              <Button 
+                onClick={handleForceComplete} 
+                variant="default" 
+                className="w-full"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Complete Transaction Now
+              </Button>
+            </div>
+          </div>
+        </Card>
         
-        <motion.div variants={itemVariants} className="mt-4">
+        <div className="mt-4">
           <StatusUpdateBar 
             transactionId={transaction.id}
             variant="default"
             status={transaction.status}
           />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     );
   }
   
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="flex-1 p-4 pb-20"
-    >
-      <motion.div variants={itemVariants}>
-        <TransactionReceipt 
-          transaction={transaction}
-          onShare={onShare}
-          onDownload={onDownload}
-        />
-      </motion.div>
+    <div className="flex-1 p-4 pb-20">
+      <TransactionReceipt 
+        transaction={transaction}
+        onShare={onShare}
+        onDownload={onDownload}
+      />
       
       {isPending && (
-        <motion.div variants={itemVariants} className="mt-4">
+        <div className="mt-4">
           <StatusUpdateBar 
             transactionId={transaction.id}
             variant="default"
@@ -281,53 +204,30 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
           <Button 
             onClick={handleForceComplete} 
             variant="default" 
-            className="w-full mt-3 h-12 rounded-xl bg-green-600 hover:bg-green-700 shadow-md flex items-center justify-center gap-2"
+            className="w-full mt-2"
           >
-            <CheckCircle className="h-5 w-5" />
+            <CheckCircle className="mr-2 h-4 w-4" />
             Complete Transaction Now
           </Button>
-        </motion.div>
+        </div>
       )}
       
-      <motion.div variants={itemVariants}>
-        <TransactionStatusNotifications
-          onSendEmail={onSendEmail}
-          onSendSms={onSendSms}
-          onDownload={onDownload}
-          sendingNotification={sendingNotification}
-          generatingReceipt={generatingReceipt}
-        />
-      </motion.div>
+      <TransactionStatusNotifications
+        onSendEmail={onSendEmail}
+        onSendSms={onSendSms}
+        onDownload={onDownload}
+        sendingNotification={sendingNotification}
+        generatingReceipt={generatingReceipt}
+      />
       
-      <motion.div variants={itemVariants} className="mt-6 grid grid-cols-2 gap-3">
-        <Button 
-          onClick={onShare} 
-          variant="outline"
-          className="h-14 rounded-xl shadow-sm flex flex-col items-center justify-center gap-1"
-        >
-          <Share2 className="h-5 w-5" />
-          <span className="text-xs">Share</span>
-        </Button>
-        
-        <Button 
-          onClick={onDownload}
-          variant="outline"
-          className="h-14 rounded-xl shadow-sm flex flex-col items-center justify-center gap-1"
-        >
-          <ReceiptText className="h-5 w-5" />
-          <span className="text-xs">Receipt</span>
-        </Button>
-        
-        <Button 
-          onClick={onSendAgain}
-          variant="default"
-          className="h-14 rounded-xl bg-primary-600 hover:bg-primary-700 shadow-md col-span-2 flex items-center justify-center gap-2"
-        >
-          <ArrowUpRight className="h-5 w-5" />
-          Send Again
-        </Button>
-      </motion.div>
-    </motion.div>
+      <div className="mt-6">
+        <ActionButtons 
+          handleShareTransaction={onShare} 
+          handleSendAgain={onSendAgain}
+          transactionStatus={transaction.status}
+        />
+      </div>
+    </div>
   );
 };
 

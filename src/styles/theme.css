@@ -5,65 +5,65 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    
-    --primary: 270 58% 44%;
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 262 83% 58%;
-    --secondary-foreground: 0 0% 100%;
-    
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    
-    --radius: 0.75rem;
+    --background: 0 0% 100%; /* White (#FFFFFF) - clean look */
+    --foreground: 0 0% 20%; /* Dark gray for text (#333333) */
+
+    --card: 0 0% 100%; /* White (#FFFFFF) */
+    --card-foreground: 277 100% 25%; /* Deep Indigo (#4B0082) */
+
+    --popover: 0 0% 100%; /* White (#FFFFFF) */
+    --popover-foreground: 277 100% 25%; /* Deep Indigo (#4B0082) */
+
+    --primary: 120 100% 25%; /* Bright Green (#008000) for CTAs */
+    --primary-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --secondary: 271 75% 53%; /* Blue Violet (#8A2BE2) */
+    --secondary-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --muted: 260 33% 97%; /* Soft light violet-gray (#EEEAF4) */
+    --muted-foreground: 0 0% 45%; /* Medium gray text */
+
+    --accent: 271 75% 53%; /* Blue Violet (#8A2BE2) */
+    --accent-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --destructive: 0 84.2% 60.2%; /* Keep standard red */
+    --destructive-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --border: 260 33% 90%; /* Light violet-gray border */
+    --input: 0 0% 96%; /* Soft Gray (#F5F5F5) for inputs - updated from lavender */
+    --ring: 277 100% 25%; /* Deep Indigo (#4B0082) */
+
+    --radius: 1rem;
   }
- 
+
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    
+    --background: 277 100% 15%; /* Darker Indigo (#2E004B) */
+    --foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --card: 277 100% 15%; /* Darker Indigo (#2E004B) */
+    --card-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --popover: 277 100% 15%; /* Darker Indigo (#2E004B) */
+    --popover-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --primary: 120 100% 25%; /* Bright Green (#008000) */
+    --primary-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --secondary: 271 75% 53%; /* Blue Violet (#8A2BE2) */
+    --secondary-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --muted: 277 100% 12%; /* Even darker shade for muted areas */
+    --muted-foreground: 0 0% 90%; /* Light gray for better contrast */
+
+    --accent: 271 75% 53%; /* Blue Violet (#8A2BE2) */
+    --accent-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --destructive-foreground: 0 0% 100%; /* White (#FFFFFF) */
+
+    --border: 277 100% 25%; /* Deep Indigo border */
+    --input: 277 100% 20%; /* Darker input background */
+    --ring: 271 75% 53%; /* Blue Violet (#8A2BE2) */
   }
 }
 
@@ -71,73 +71,18 @@
   * {
     @apply border-border;
   }
-  
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  /* Typography enhancements */
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight;
-  }
-  
-  h1 {
-    @apply text-3xl;
-  }
-  
-  h2 {
-    @apply text-2xl;
-  }
-  
-  h3 {
-    @apply text-xl;
-  }
-  
-  h4 {
-    @apply text-lg;
-  }
-  
-  small {
-    @apply text-sm text-muted-foreground;
-  }
-  
-  /* Form field default styles */
-  input::placeholder, 
-  textarea::placeholder {
-    @apply text-gray-400;
-  }
-  
-  /* Improve readability */
-  p {
-    @apply leading-relaxed;
-  }
-  
-  /* Default link style */
-  a {
-    @apply text-primary hover:text-primary-600 transition-colors;
-  }
-}
 
-/* Custom classes for consistent spacing */
-@layer components {
-  .container-tight {
-    @apply max-w-2xl mx-auto px-4;
-  }
-  
-  .section-padding {
-    @apply py-8 md:py-12;
-  }
-  
-  .card-padding {
-    @apply p-4 md:p-6;
-  }
-  
-  .flex-center {
-    @apply flex items-center justify-center;
-  }
-  
-  .flex-between {
-    @apply flex items-center justify-between;
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-indigo-500 font-bold;
   }
 }

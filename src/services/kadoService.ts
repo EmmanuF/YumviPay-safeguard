@@ -3,7 +3,7 @@
 // It re-exports everything from the new kado directory to ensure existing imports work
 
 import { kadoService, KadoRedirectParams, KadoWebhookResponse, KadoKycStatusResponse } from './kado';
-import { useKado } from './kado/hooks/useKado'; // Fixed path to useKado
+import { useKado } from './kado/useKado'; // Import from the correct path
 
 // Re-export types
 export type { 
