@@ -2,6 +2,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { HeroCalculator } from './index';
+import TimeLocationGreeting from './TimeLocationGreeting';
+import PersonalizedWelcome from './PersonalizedWelcome';
 
 const HeroDescription: React.FC = () => {
   return (
@@ -12,7 +14,7 @@ const HeroDescription: React.FC = () => {
       className="w-full max-w-3xl mx-auto"
     >
       {/* Trusted by section - moved to the top far left */}
-      <div className="mb-4 flex justify-start items-center">
+      <div className="mb-4 flex justify-between items-center">
         <div className="flex items-center">
           <div className="flex">
             <img 
@@ -50,6 +52,11 @@ const HeroDescription: React.FC = () => {
             </div>
             <span className="text-xs font-medium ml-1">4.9/5</span>
           </motion.div>
+        </div>
+
+        <div className="flex flex-col items-end space-y-1">
+          <TimeLocationGreeting />
+          <PersonalizedWelcome />
         </div>
       </div>
 
