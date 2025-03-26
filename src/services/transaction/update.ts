@@ -71,7 +71,7 @@ export const updateTransactionStatus = async (
         const updatedTransaction = {
           ...parsedTransaction,
           status,
-          updated_at: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           ...updateData
         };
         
@@ -85,7 +85,26 @@ export const updateTransactionStatus = async (
     }
     
     console.log('Transaction status updated successfully:', data);
-    return data as Transaction;
+    
+    // Convert database response to Transaction type
+    const updatedTransaction: Transaction = {
+      id: data.id,
+      amount: data.amount,
+      recipientName: data.recipient_name,
+      country: data.country,
+      status: data.status as TransactionStatus,
+      createdAt: new Date(data.created_at),
+      updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
+      completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
+      failureReason: data.failure_reason,
+      recipientContact: data.recipient_contact,
+      paymentMethod: data.payment_method,
+      provider: data.provider,
+      estimatedDelivery: data.estimated_delivery,
+      totalAmount: data.total_amount
+    };
+    
+    return updatedTransaction;
   } catch (error) {
     console.error('Error in updateTransactionStatus:', error);
     
@@ -97,9 +116,9 @@ export const updateTransactionStatus = async (
         const updatedTransaction = {
           ...parsedTransaction,
           status,
-          updated_at: new Date().toISOString(),
-          ...(status === 'completed' ? { completed_at: new Date().toISOString() } : {}),
-          ...(status === 'failed' && options.failureReason ? { failure_reason: options.failureReason } : {})
+          updatedAt: new Date().toISOString(),
+          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
         localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedTransaction));

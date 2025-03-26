@@ -10,8 +10,7 @@ import {
 
 import {
   updateTransactionStatus,
-  simulateWebhook,
-  simulateKadoWebhook
+  simulateWebhook
 } from './update';
 
 import {
@@ -40,7 +39,6 @@ export {
   // Update functions
   updateTransactionStatus,
   simulateWebhook,
-  simulateKadoWebhook,
   
   // Creation functions
   createTransaction,

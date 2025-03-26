@@ -7,7 +7,7 @@ import { updateTransactionStatus } from './updateStatus';
  * @param transactionId Transaction ID
  * @param status Status to set (defaults to random success/failure)
  */
-export const simulateKadoWebhook = async (
+export const simulateWebhook = async (
   transactionId: string,
   status?: 'completed' | 'failed'
 ): Promise<void> => {

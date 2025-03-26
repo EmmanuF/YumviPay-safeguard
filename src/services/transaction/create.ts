@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { Transaction } from '@/types/transaction';
+import { getReliableAmount } from '@/utils/transactionAmountUtils';
 
 /**
  * Create a new transaction
@@ -41,6 +42,31 @@ export const createTransaction = async (transaction: Partial<Transaction>): Prom
       return localTransaction;
     }
     
+    // Get authenticated user
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    
+    // If no user ID is available and we're trying to use Supabase, switch to local storage
+    if (!userId) {
+      console.log('No authenticated user, creating local transaction instead');
+      const localId = transaction.id || `local-${Date.now()}`;
+      const localTransaction: Transaction = {
+        id: localId,
+        amount: transaction.amount?.toString() || '0',
+        recipientName: transaction.recipientName || 'Unknown',
+        country: transaction.country || 'CM',
+        status: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        recipientContact: transaction.recipientContact,
+        paymentMethod: transaction.paymentMethod,
+        provider: transaction.provider
+      };
+      
+      localStorage.setItem(`transaction_${localId}`, JSON.stringify(localTransaction));
+      return localTransaction;
+    }
+    
     // Default values for required fields if not provided for Supabase insertion
     const transactionData = {
       status: transaction.status || 'pending',
@@ -48,9 +74,10 @@ export const createTransaction = async (transaction: Partial<Transaction>): Prom
       recipient_name: transaction.recipientName,
       recipient_contact: transaction.recipientContact,
       country: transaction.country,
-      amount: transaction.amount?.toString(),
+      amount: typeof transaction.amount === 'number' ? transaction.amount.toString() : transaction.amount,
       payment_method: transaction.paymentMethod,
       provider: transaction.provider,
+      user_id: userId, // Add the required user_id field
       // You can add other fields as needed
       id: transaction.id // Only if provided
     };
