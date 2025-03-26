@@ -8,7 +8,7 @@ import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import { Building, Smartphone, CreditCard, CircleCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Import our new components
+// Import our components
 import PaymentStepHeader from './payment/PaymentStepHeader';
 import PreferredMethodsSection from './payment/PreferredMethodsSection';
 import AvailableMethodsSection from './payment/AvailableMethodsSection';
@@ -30,7 +30,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onBack,
   isSubmitting = false
 }) => {
-  console.log('Rendering PaymentStep with props:', {
+  console.log('[PaymentStep] Rendering with props:', {
     onNext: typeof onNext,
     onBack: typeof onBack,
     isSubmitting,
@@ -104,26 +104,27 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   
   const isNextDisabled = !transactionData.paymentMethod || !transactionData.selectedProvider;
   
-  const handleNextClick = () => {
-    console.log('PaymentStep handleNextClick called, isNextDisabled:', isNextDisabled);
+  // Ensuring we have the navigation functions
+  const handleNextClick = (e: React.MouseEvent) => {
+    console.log('[PaymentStep] handleNextClick called');
     if (!isNextDisabled && typeof onNext === 'function') {
-      console.log('Calling onNext from PaymentStep');
+      console.log('[PaymentStep] Calling onNext from PaymentStep');
       onNext();
     } else {
-      console.log('Next button disabled or onNext is not a function');
+      console.log('[PaymentStep] Next button disabled or onNext is not a function');
       if (isNextDisabled) {
         toast.error("Please select a payment method and provider before continuing");
       }
     }
   };
   
-  const handleBackClick = () => {
-    console.log('PaymentStep handleBackClick called');
+  const handleBackClick = (e: React.MouseEvent) => {
+    console.log('[PaymentStep] handleBackClick called');
     if (typeof onBack === 'function') {
-      console.log('Calling onBack from PaymentStep');
+      console.log('[PaymentStep] Calling onBack from PaymentStep');
       onBack();
     } else {
-      console.log('onBack is not a function');
+      console.log('[PaymentStep] onBack is not a function');
     }
   };
   
@@ -143,6 +144,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
   };
+
+  // Debug the navigation functions
+  console.log('[PaymentStep] Navigation functions before render:', { 
+    onNext: typeof onNext, 
+    onBack: typeof onBack,
+    handleNextClick: typeof handleNextClick,
+    handleBackClick: typeof handleBackClick
+  });
 
   return (
     <motion.div 
@@ -196,8 +205,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       
       <div className="sticky bottom-0 pt-4 pb-2 bg-background">
         <PaymentStepNavigation 
-          onNext={handleNextClick}
-          onBack={handleBackClick}
+          onNext={onNext}
+          onBack={onBack}
           isNextDisabled={isNextDisabled}
           isSubmitting={isSubmitting}
           nextLabel="Continue"

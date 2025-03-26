@@ -19,29 +19,32 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   nextLabel = 'Continue'
 }) => {
   // Enhanced logging for debugging
-  console.log('PaymentStepNavigation props:', { 
+  console.log('[PaymentStepNavigation] Props received:', { 
     isNextDisabled, 
     isSubmitting,
     onNext: typeof onNext, 
     onBack: typeof onBack 
   });
   
-  // Debug handler wrappers
-  const handleNext = () => {
-    console.log('Next button clicked, calling onNext function');
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log('[PaymentStepNavigation] Next button clicked');
     if (typeof onNext === 'function') {
+      console.log('[PaymentStepNavigation] Calling onNext function');
       onNext();
     } else {
-      console.error('onNext is not a function!', onNext);
+      console.error('[PaymentStepNavigation] onNext is not a function!', onNext);
     }
   };
   
-  const handleBack = () => {
-    console.log('Back button clicked, calling onBack function');
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log('[PaymentStepNavigation] Back button clicked');
     if (typeof onBack === 'function') {
+      console.log('[PaymentStepNavigation] Calling onBack function');
       onBack();
     } else {
-      console.error('onBack is not a function!', onBack);
+      console.error('[PaymentStepNavigation] onBack is not a function!', onBack);
     }
   };
 
@@ -53,6 +56,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
         className="w-full" 
         size="lg"
         disabled={isSubmitting}
+        type="button"
       >
         Back
       </Button>
@@ -61,6 +65,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
         className="w-full" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
+        type="button"
       >
         {isSubmitting ? (
           <>
