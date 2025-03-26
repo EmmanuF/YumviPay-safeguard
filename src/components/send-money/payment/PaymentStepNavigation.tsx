@@ -26,7 +26,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     }
   };
 
-  // Make sure we don't prevent default behavior or stop propagation
+  // Add more verbose logging to track button clicks
   const handleNextClick = () => {
     console.log("Next button clicked in PaymentStepNavigation");
     onNext();

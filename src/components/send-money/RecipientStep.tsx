@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
 import { User, Phone, Info, ArrowRight } from 'lucide-react';
-import QRCodeOption from './payment/QRCodeOption';
 
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -83,6 +83,12 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       opacity: 1,
       transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
+  };
+
+  // Add console logging to debug button clicks
+  const handleBackClick = () => {
+    console.log("Back button clicked in RecipientStep");
+    onBack();
   };
 
   return (
@@ -185,23 +191,11 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   )}
                 />
 
-                <QRCodeOption 
-                  transactionData={transactionData}
-                  onScanComplete={(data) => {
-                    if (data?.recipientName) {
-                      form.setValue('recipientName', data.recipientName);
-                    }
-                    if (data?.recipientContact || data?.recipient) {
-                      form.setValue('recipientContact', data.recipientContact || data.recipient);
-                    }
-                  }}
-                />
-
                 <div className="pt-4 flex space-x-3">
                   <Button 
                     type="button"
                     variant="outline" 
-                    onClick={onBack} 
+                    onClick={handleBackClick} 
                     className="w-1/2 border-secondary-300"
                   >
                     Back
