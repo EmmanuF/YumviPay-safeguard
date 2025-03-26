@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -5,7 +6,7 @@ import { toast } from 'sonner';
 import { useKado } from '@/services/kado/useKado';
 import { generateTransactionId } from '@/utils/transactionUtils';
 
-export type SendMoneyStep = 'recipient' | 'payment' | 'confirmation';
+export type SendMoneyStep = 'recipient' | 'payment' | 'confirmation' | 'complete';
 
 export const useSendMoneySteps = () => {
   const navigate = useNavigate();
@@ -99,7 +100,7 @@ export const useSendMoneySteps = () => {
         window.__EMERGENCY_TRANSACTION = storageData;
         window.__TRANSACTION_ID = transactionId;
       } catch (e) {
-        console.error('��� Error storing in window object:', e);
+        console.error('❌ Error storing in window object:', e);
       }
       
       try {
@@ -123,9 +124,11 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
+          console.log('✅ Transitioning to payment step');
           setCurrentStep('payment');
           break;
         case 'payment':
+          console.log('✅ Transitioning to confirmation step');
           setCurrentStep('confirmation');
           break;
         case 'confirmation':
@@ -267,9 +270,11 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'payment':
+          console.log('⏮️ Transitioning back to recipient step');
           setCurrentStep('recipient');
           break;
         case 'confirmation':
+          console.log('⏮️ Transitioning back to payment step');
           setCurrentStep('payment');
           break;
         case 'recipient':

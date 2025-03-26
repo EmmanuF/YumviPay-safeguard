@@ -38,7 +38,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   };
 
   return (
-    <motion.div variants={itemVariants} className="w-full pt-6 flex gap-4 mb-16">
+    <motion.div variants={itemVariants} className="w-full pt-6 flex gap-4 mb-20 mt-8 sticky bottom-0 z-10 bg-background">
       <Button 
         type="button"
         variant="outline"

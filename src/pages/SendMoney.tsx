@@ -59,6 +59,7 @@ const SendMoney: React.FC = () => {
       const updated = { ...prev, ...data };
       try {
         localStorage.setItem('pendingTransaction', JSON.stringify(updated));
+        console.log("Transaction data updated:", updated);
       } catch (e) {
         console.error('Error saving transaction data:', e);
       }
@@ -68,6 +69,11 @@ const SendMoney: React.FC = () => {
 
   // Get current step index
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
+  
+  // Log when the current step changes
+  useEffect(() => {
+    console.log("SendMoney page: Current step changed to", currentStep);
+  }, [currentStep]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -117,7 +123,7 @@ const SendMoney: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex-1 p-4 bg-muted/30">
+      <div className="flex-1 p-4 bg-muted/30 pb-24">
         <div className="container mx-auto max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

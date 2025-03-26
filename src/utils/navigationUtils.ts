@@ -17,6 +17,8 @@ export const navigate = (
   }
 ): void => {
   try {
+    console.log(`🧭 Navigating to: ${path}`, options);
+    
     // Handle state by storing it in sessionStorage temporarily
     if (options?.state) {
       const stateKey = `nav_state_${Date.now()}`;

@@ -7,6 +7,7 @@ import { Loader2, RepeatIcon, ArrowRight, CheckCircle } from 'lucide-react';
 import { useCountries } from '@/hooks/useCountries';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/utils/formatUtils';
+import PaymentStepNavigation from './payment/PaymentStepNavigation';
 
 export interface ConfirmationStepProps {
   transactionData: {
@@ -70,12 +71,23 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       .replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  // Enhanced handlers with detailed logging for debugging
+  const handleNextClick = () => {
+    console.log("Confirm button clicked in ConfirmationStep, calling onConfirm()");
+    onConfirm();
+  };
+
+  const handleBackClick = () => {
+    console.log("Back button clicked in ConfirmationStep, calling onBack()");
+    onBack();
+  };
+
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-6"
+      className="space-y-6 pb-20" // Added padding to ensure buttons are visible
     >
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between mb-4">
@@ -191,35 +203,13 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         </Card>
       </motion.div>
       
-      <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
-        <Button 
-          variant="outline"
-          onClick={onBack} 
-          className="w-1/2 border-secondary-300" 
-          size="lg"
-          disabled={isSubmitting}
-        >
-          Back
-        </Button>
-        <Button 
-          onClick={onConfirm} 
-          className="w-1/2 bg-primary hover:bg-primary-600 group" 
-          size="lg"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            <>
-              Confirm & Pay
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </>
-          )}
-        </Button>
-      </motion.div>
+      {/* Replace the custom buttons with the consistent PaymentStepNavigation component */}
+      <PaymentStepNavigation
+        onNext={handleNextClick}
+        onBack={handleBackClick}
+        isNextDisabled={false}
+        isSubmitting={isSubmitting}
+      />
     </motion.div>
   );
 };
