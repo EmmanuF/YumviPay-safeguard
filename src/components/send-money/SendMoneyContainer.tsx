@@ -1,20 +1,53 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useCountries } from '@/hooks/useCountries';
+import { usePaymentMethods } from '@/hooks/usePaymentMethods';
+import { useLocale } from '@/contexts/LocaleContext';
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { cn } from '@/lib/utils';
+import PaymentMethodCard from '@/components/PaymentMethodCard';
+import { Bank, Wallet, CreditCard, Contact2 } from 'lucide-react';
+import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
+import { kadoRedirectService } from '@/services/kado/redirect';
 
-import React, { useEffect } from 'react';
-import PageTransition from '@/components/PageTransition';
-import SendMoneyLayout from '@/components/send-money/SendMoneyLayout';
-import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
-import BottomNavigation from '@/components/BottomNavigation';
-import InitialDataCalculator from '@/components/send-money/InitialDataCalculator';
-import LoadingState from '@/components/transaction/LoadingState';
-import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
-import { useSendMoneyTransaction, TransactionData } from '@/hooks/useSendMoneyTransaction';
+const formSchema = z.object({
+  amount: z.string().min(1, {
+    message: "Amount is required.",
+  }),
+  country: z.string().min(1, {
+    message: "Country is required.",
+  }),
+  paymentMethod: z.string().min(1, {
+    message: "Payment method is required.",
+  }),
+  recipientName: z.string().min(1, {
+    message: "Recipient name is required.",
+  }),
+  recipientContact: z.string().min(1, {
+    message: "Recipient contact is required.",
+  }),
+});
 
 interface SendMoneyContainerProps {
   isLoading: boolean;
   needsInitialData: boolean;
-  error?: string | Error | null;
-  defaultCountryCode: string;
-  onInitialDataContinue: () => void;
+  error: string | Error | null;
+  defaultCountryCode?: string | null;
+  onInitialDataContinue?: () => void;
 }
 
 const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
@@ -24,106 +57,219 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
   defaultCountryCode,
   onInitialDataContinue
 }) => {
-  const { transactionData, updateTransactionData, isInitialized, error: transactionError } = 
-    useSendMoneyTransaction(defaultCountryCode);
-  
-  // Get step management
-  const { currentStep, isSubmitting, error: stepError, handleNext, handleBack } = useSendMoneySteps();
-  
-  // Combined error state
-  const combinedError = error || transactionError || stepError;
+  const navigate = useNavigate();
+  const { t } = useLocale();
+  const { toast } = useToast();
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountryCode || '');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const { countries, isLoading: countriesLoading } = useCountries();
+  const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods(selectedCountry);
+  const [transactionId, setTransactionId] = useState('');
+  const [showCalculator, setShowCalculator] = useState(true);
 
-  // Debug log for component state
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      amount: '',
+      country: defaultCountryCode || '',
+      paymentMethod: '',
+      recipientName: '',
+      recipientContact: '',
+    },
+  });
+
   useEffect(() => {
-    console.log('SendMoneyContainer rendering with states:', {
-      isLoading,
-      needsInitialData,
-      error: error ? true : false,
-      transactionError: transactionError ? true : false,
-      isInitialized,
-      currentStep
-    });
-  }, [isLoading, needsInitialData, error, transactionError, isInitialized, currentStep]);
-  
-  // Format error message for display
-  const getErrorMessage = (err: string | Error | null): string => {
-    if (!err) return "An unexpected error occurred";
-    
-    if (typeof err === 'string') {
-      return err;
+    if (defaultCountryCode) {
+      setSelectedCountry(defaultCountryCode);
+      form.setValue('country', defaultCountryCode);
     }
-    
-    if (err instanceof Error) {
-      return err.message || "Error processing your transaction";
-    }
-    
-    // If it's an object with a message property
-    if (typeof err === 'object' && err !== null && 'message' in err) {
-      const message = (err as any).message;
-      return typeof message === 'string' ? message : "Error processing your transaction";
-    }
-    
-    return "An unexpected error occurred";
+  }, [defaultCountryCode, form.setValue]);
+
+  const handleCountryChange = (value: string) => {
+    setSelectedCountry(value);
+    form.setValue('country', value);
+    setSelectedPaymentMethod('');
+    form.setValue('paymentMethod', '');
   };
 
-  // Show loading state if necessary
-  // Set a maximum loading time of 10 seconds to prevent infinite loading
-  if (isLoading && !isInitialized) {
-    return <LoadingState 
-      message="Preparing your transaction..." 
-      submessage="Please wait while we fetch your data"
-    />;
-  }
-  
-  // Show error state if necessary
-  if (combinedError) {
-    return <LoadingState 
-      message="Error loading transaction data" 
-      submessage={getErrorMessage(combinedError)}
-    />;
-  }
+  const handlePaymentMethodSelect = (method: string) => {
+    setSelectedPaymentMethod(method);
+    form.setValue('paymentMethod', method);
+  };
 
-  // If we need to collect initial data, show the exchange rate calculator
+  const paymentMethodIcon = (method: string) => {
+    switch (method) {
+      case 'mobile_money':
+        return <Wallet className="h-6 w-6 text-green-500" />;
+      case 'bank_transfer':
+        return <Bank className="h-6 w-6 text-blue-500" />;
+      case 'credit_card':
+        return <CreditCard className="h-6 w-6 text-purple-500" />;
+      default:
+        return <Contact2 className="h-6 w-6 text-gray-500" />;
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      // Generate a unique transaction ID
+      const newTransactionId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      setTransactionId(newTransactionId);
+
+      // Store the transaction details in localStorage
+      localStorage.setItem('pendingTransaction', JSON.stringify({
+        ...values,
+        transactionId: newTransactionId
+      }));
+
+      // Redirect to Kado
+      await kadoRedirectService.redirectToKado({
+        amount: values.amount,
+        recipientName: values.recipientName,
+        recipientContact: values.recipientContact,
+        country: values.country,
+        paymentMethod: values.paymentMethod,
+        transactionId: newTransactionId,
+        returnUrl: `${window.location.origin}/transaction/${newTransactionId}`,
+      });
+
+      // Navigate to transaction status page
+      navigate(`/transaction/${newTransactionId}`);
+    } catch (error: any) {
+      console.error("Kado redirect error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to initiate transaction. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handler for continuing after selecting amount and currencies
+  const handleCalculatorContinue = () => {
+    setShowCalculator(false);
+  };
+
   if (needsInitialData) {
     return (
-      <PageTransition>
-        <div className="flex flex-col min-h-screen bg-gray-50">
-          <SendMoneyLayout 
-            currentStep={0} 
-            stepCount={4}
-            title="Set Transfer Details"
-          >
-            <InitialDataCalculator onContinue={onInitialDataContinue} />
-          </SendMoneyLayout>
-          <div className="pb-16"></div>
-          <BottomNavigation />
-        </div>
-      </PageTransition>
+      <div className="container mx-auto mt-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('sendMoney.initialDataTitle')}</CardTitle>
+            <CardDescription>{t('sendMoney.initialDataDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ExchangeRateCalculator onContinue={onInitialDataContinue} />
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
-  // Render normal send money flow once we have the initial data
-  return (
-    <PageTransition>
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        <SendMoneyLayout 
-          currentStep={currentStep} 
-          stepCount={3}
-        >
-          <SendMoneyStepRenderer
-            currentStep={currentStep}
-            transactionData={transactionData}
-            updateTransactionData={updateTransactionData}
-            onNext={handleNext}
-            onBack={handleBack}
-            isSubmitting={isSubmitting}
-            error={combinedError ? getErrorMessage(combinedError) : null}
-          />
-        </SendMoneyLayout>
-        <div className="pb-16"></div>
-        <BottomNavigation />
+  if (showCalculator) {
+    return (
+      <div className="container mx-auto mt-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('sendMoney.calculatorTitle')}</CardTitle>
+            <CardDescription>{t('sendMoney.calculatorDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ExchangeRateCalculator inlineMode onContinue={handleCalculatorContinue} />
+          </CardContent>
+        </Card>
       </div>
-    </PageTransition>
+    );
+  }
+
+  return (
+    <div className="container mx-auto mt-10">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('sendMoney.title')}</CardTitle>
+          <CardDescription>{t('sendMoney.description')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {error && <div className="text-red-500">{error.toString()}</div>}
+
+            <div>
+              <Label htmlFor="amount">{t('sendMoney.amountLabel')}</Label>
+              <Input id="amount" type="number" placeholder={t('sendMoney.amountPlaceholder')} {...form.register('amount')} />
+              {form.formState.errors.amount && (
+                <p className="text-red-500 text-sm">{form.formState.errors.amount.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="country">{t('sendMoney.countryLabel')}</Label>
+              <Select onValueChange={handleCountryChange} defaultValue={defaultCountryCode || ''}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t('sendMoney.countryPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {countriesLoading ? (
+                    <SelectItem value="loading" disabled>Loading countries...</SelectItem>
+                  ) : (
+                    countries.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              {form.formState.errors.country && (
+                <p className="text-red-500 text-sm">{form.formState.errors.country.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>{t('sendMoney.paymentMethodLabel')}</Label>
+              {paymentMethodsLoading ? (
+                <p>Loading payment methods...</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {paymentMethods.map((method) => (
+                    <PaymentMethodCard
+                      key={method.id}
+                      name={method.name}
+                      description={method.id === 'mobile_money' ? 'Send via mobile money' : 'Send via bank transfer'}
+                      icon={paymentMethodIcon(method.id)}
+                      isSelected={selectedPaymentMethod === method.id}
+                      onClick={() => handlePaymentMethodSelect(method.id)}
+                      options={method.providers ? method.providers.map(provider => ({
+                        id: provider,
+                        name: provider
+                      })) : []}
+                    />
+                  ))}
+                </div>
+              )}
+              {form.formState.errors.paymentMethod && (
+                <p className="text-red-500 text-sm">{form.formState.errors.paymentMethod.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="recipientName">{t('sendMoney.recipientNameLabel')}</Label>
+              <Input id="recipientName" placeholder={t('sendMoney.recipientNamePlaceholder')} {...form.register('recipientName')} />
+              {form.formState.errors.recipientName && (
+                <p className="text-red-500 text-sm">{form.formState.errors.recipientName.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="recipientContact">{t('sendMoney.recipientContactLabel')}</Label>
+              <Input id="recipientContact" placeholder={t('sendMoney.recipientContactPlaceholder')} {...form.register('recipientContact')} />
+              {form.formState.errors.recipientContact && (
+                <p className="text-red-500 text-sm">{form.formState.errors.recipientContact.message}</p>
+              )}
+            </div>
+
+            <Button disabled={isLoading}>{t('sendMoney.submitButton')}</Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

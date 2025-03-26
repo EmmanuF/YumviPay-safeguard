@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { kadoRedirectService } from '../kadoRedirectService';
+import { kadoRedirectService } from '../redirect';
 import { KadoRedirectParams } from '../types';
 import { isPlatform } from '@/utils/platformUtils';
-import { useToast as useUiToast } from '@/hooks/use-toast';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { updateTransactionStatus } from '@/services/transaction';
 
 /**
@@ -15,7 +15,7 @@ import { updateTransactionStatus } from '@/services/transaction';
 export const useKadoRedirect = (checkApiConnection: (forceCheck?: boolean) => Promise<any>) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const uiToast = useUiToast();
+  const { toast } = useToast();
   
   /**
    * Redirect to Kado for payment and return to transaction status page
@@ -50,13 +50,13 @@ export const useKadoRedirect = (checkApiConnection: (forceCheck?: boolean) => Pr
         console.warn('API connection check failed before redirect, proceeding with fallback flow');
         
         // Use shadcn toast with correct API
-        uiToast({
+        toast({
           variant: "warning",
           description: "Could not connect to payment provider API. Proceeding with offline mode."
         });
         
         // Also use sonner toast for better visibility
-        toast.warning("API Connection Issue", {
+        sonnerToast.warning("API Connection Issue", {
           description: "Proceeding in offline mode. Your transaction will still be processed.",
         });
         
@@ -80,7 +80,7 @@ export const useKadoRedirect = (checkApiConnection: (forceCheck?: boolean) => Pr
       console.error('Error redirecting to Kado:', error);
       
       // Use shadcn toast with correct API
-      uiToast({
+      toast({
         variant: "destructive",
         description: "Failed to connect to payment provider. Please try again."
       });

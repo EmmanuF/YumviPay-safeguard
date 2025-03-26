@@ -3,7 +3,7 @@ import { useKadoApiConnection } from './hooks/useKadoApiConnection';
 import { useKadoRedirect } from './hooks/useKadoRedirect';
 import { useKadoKyc } from './hooks/useKadoKyc';
 import { useKadoPaymentMethods } from './hooks/useKadoPaymentMethods';
-import { kadoRedirectService } from './kadoRedirectService';
+import { kadoRedirectService } from './redirect';
 import { kadoWebhookService } from './kadoWebhookService';
 import { kadoKycService } from './kadoKycService';
 import { kadoApiService } from './kadoApiService';
