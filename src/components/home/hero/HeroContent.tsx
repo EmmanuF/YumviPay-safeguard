@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import HeroFeatureBadges from './HeroFeatureBadges';
 import HeroTitle from './HeroTitle';
 import HeroDescription from './HeroDescription';
 import HeroActions from './HeroActions';
@@ -32,6 +33,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted }) => {
     >
       <div className="mb-6">
         <HeroTitle />
+        <HeroFeatureBadges />
       </div>
       <HeroDescription />
       <HeroActions onGetStarted={onGetStarted} />
