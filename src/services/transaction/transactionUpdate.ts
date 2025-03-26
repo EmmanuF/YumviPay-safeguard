@@ -124,7 +124,7 @@ const checkTransactionExists = async (transactionId: string): Promise<boolean> =
     }
     
     // If not in localStorage, check offline storage
-    const { getOfflineTransactions } = await import('./transactionStore');
+    const { getOfflineTransactions } = await import('./store');
     const transactions = getOfflineTransactions();
     const transaction = transactions.find(t => t.id === transactionId);
     
@@ -284,7 +284,7 @@ const updateLocalTransaction = async (
         
         try {
           // Also update in the offline store
-          const { getOfflineTransactions, setOfflineTransactions } = await import('./transactionStore');
+          const { getOfflineTransactions, setOfflineTransactions } = await import('./store');
           const transactions = getOfflineTransactions();
           const index = transactions.findIndex(t => t.id === transactionId);
           
@@ -333,7 +333,7 @@ const updateLocalTransaction = async (
     
     // If direct localStorage access failed, try the offline store
     try {
-      const { getOfflineTransactions, setOfflineTransactions } = await import('./transactionStore');
+      const { getOfflineTransactions, setOfflineTransactions } = await import('./store');
       
       const transactions = getOfflineTransactions();
       const index = transactions.findIndex(t => t.id === transactionId);
@@ -428,7 +428,7 @@ const getLocalTransaction = async (transactionId: string): Promise<Transaction |
     
     // If not found in localStorage, try the offline store
     try {
-      const { getOfflineTransactions } = await import('./transactionStore');
+      const { getOfflineTransactions } = await import('./store');
       
       const transactions = getOfflineTransactions();
       const transaction = transactions.find(t => t.id === transactionId);

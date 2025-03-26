@@ -5,7 +5,7 @@ import { deepLinkService } from '../deepLinkService';
 import { isPlatform } from '@/utils/platformUtils';
 import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
-import { addOfflineTransaction } from '../transaction/transactionStore';
+import { addOfflineTransaction } from '../transaction/store';
 import { simulateKadoWebhook } from '../transaction/transactionUpdate';
 
 /**

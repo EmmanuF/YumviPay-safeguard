@@ -1,4 +1,3 @@
-
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { Recipient } from "@/types/recipient";
 import { supabase } from "@/integrations/supabase/client";
@@ -207,7 +206,7 @@ export const createTransaction = (
 // Add a transaction to the offline cache
 // This is an internal function used by the module
 const addOfflineTransaction = (transaction: Transaction) => {
-  import("./transactionStore").then(({ getOfflineTransactions, setOfflineTransactions }) => {
+  import("./store").then(({ getOfflineTransactions, setOfflineTransactions }) => {
     const offlineTransactions = getOfflineTransactions();
     setOfflineTransactions([...offlineTransactions, transaction]);
   });
@@ -216,7 +215,7 @@ const addOfflineTransaction = (transaction: Transaction) => {
 // Update a transaction in the offline cache
 // This is an internal function used by the module
 const updateLocalTransaction = (id: string, updatedTransaction: Transaction) => {
-  import("./transactionStore").then(({ getOfflineTransactions, setOfflineTransactions }) => {
+  import("./store").then(({ getOfflineTransactions, setOfflineTransactions }) => {
     const offlineTransactions = getOfflineTransactions();
     const index = offlineTransactions.findIndex(t => t.id === id);
     if (index >= 0) {
