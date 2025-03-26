@@ -31,8 +31,10 @@ const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted }) => {
       animate="visible"
       className="flex flex-col"
     >
-      <HeroTitle />
-      <HeroFeatureBadges />
+      <div className="mb-6">
+        <HeroTitle />
+        <HeroFeatureBadges />
+      </div>
       <HeroDescription />
       <HeroActions onGetStarted={onGetStarted} />
       <HeroFeatureBullets />

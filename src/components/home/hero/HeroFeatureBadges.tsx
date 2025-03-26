@@ -9,7 +9,7 @@ const HeroFeatureBadges: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center gap-2 mb-3"
+      className="flex items-center gap-2 mt-2"
     >
       <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium flex items-center shadow-sm">
         <Zap size={16} className="mr-1" />

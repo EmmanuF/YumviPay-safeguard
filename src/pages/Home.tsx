@@ -48,8 +48,8 @@ const Home = () => {
             </div>
             
             {/* Light background section instead of yellow */}
-            <div className="bg-gradient-to-b from-muted to-white pt-24 relative z-10 hero-bg">
-              <div className="pt-8">
+            <div className="bg-gradient-to-b from-muted to-white pt-16 relative z-10 hero-bg">
+              <div className="pt-6">
                 <Navigation onGetStarted={handleGetStarted} />
                 <Hero onGetStarted={handleGetStarted} />
               </div>
