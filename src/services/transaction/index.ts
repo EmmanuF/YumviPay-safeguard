@@ -38,6 +38,9 @@ export {
 // Export transaction creation functions
 export { createKadoTransaction } from './createKadoTransaction';
 
+// Import TransactionStatus type to ensure proper typing
+import { Transaction, TransactionStatus } from '@/types/transaction';
+
 // Now add the missing transaction query functions
 export const getAllTransactions = async () => {
   const stored = await getStoredTransactions();
@@ -56,7 +59,7 @@ export const getTransactionById = async (id: string) => {
 
 export const updateTransactionStatus = async (
   id: string, 
-  status: string, 
+  status: TransactionStatus, 
   options?: { 
     completedAt?: Date; 
     failureReason?: string; 
