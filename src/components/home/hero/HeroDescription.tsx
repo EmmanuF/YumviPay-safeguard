@@ -11,10 +11,8 @@ const HeroDescription: React.FC = () => {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-3xl mx-auto"
     >
-      <HeroCalculator />
-      
-      {/* Trusted by section - moved to the top */}
-      <div className="mt-6 mb-4 flex justify-between items-center">
+      {/* Trusted by section - moved to the top far left */}
+      <div className="mb-4 flex justify-start items-center">
         <div className="flex items-center">
           <div className="flex">
             <img 
@@ -54,24 +52,26 @@ const HeroDescription: React.FC = () => {
           </motion.div>
         </div>
       </div>
+
+      <HeroCalculator />
       
-      {/* Feature bullet points in a single horizontal line */}
-      <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
-        <div className="flex items-center gap-2">
+      {/* Feature bullet points in a single horizontal line with flex-nowrap */}
+      <div className="flex flex-nowrap justify-between items-center mt-4 space-x-2 overflow-x-auto">
+        <div className="flex items-center gap-1 whitespace-nowrap">
           <div className="bg-green-100 p-1 rounded-full">
             <div className="text-green-600">✓</div>
           </div>
           <p className="text-sm text-gray-600">Fast transfers to 10+ African countries</p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 whitespace-nowrap">
           <div className="bg-green-100 p-1 rounded-full">
             <div className="text-green-600">✓</div>
           </div>
           <p className="text-sm text-gray-600"><strong>100% FREE</strong> - No transaction fees ever</p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 whitespace-nowrap">
           <div className="bg-green-100 p-1 rounded-full">
             <div className="text-green-600">✓</div>
           </div>
