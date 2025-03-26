@@ -19,28 +19,32 @@ export const useSendMoneyPage = () => {
   useEffect(() => {
     console.log('SendMoney: Checking auth status...', { authLoading, isLoggedIn });
     
-    // Don't use setTimeout to avoid potential race conditions
     if (!authLoading) {
       console.log('SendMoney: Auth check complete:', { isLoggedIn });
       setAuthChecked(true);
+      
+      // Debug user state
+      console.log('Current user state:', user);
+      console.log('Auth state isLoggedIn:', isLoggedIn);
     }
-  }, [authLoading, isLoggedIn]);
+  }, [authLoading, isLoggedIn, user]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (authChecked && !authLoading && !isLoggedIn) {
-      console.log('SendMoney: User not logged in, redirecting to signin');
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to continue with your transaction.",
-        variant: "default"
-      });
-      navigate('/signin', { state: { redirectTo: '/send' } });
-    }
-    
-    // Set pageLoading to false once auth is checked (regardless of result)
-    if (authChecked) {
-      console.log('SendMoney: Auth check finished, setting pageLoading to false');
+    if (authChecked && !authLoading) {
+      if (!isLoggedIn) {
+        console.log('SendMoney: User not logged in, redirecting to signin');
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to continue with your transaction.",
+          variant: "default"
+        });
+        navigate('/signin', { state: { redirectTo: '/send' } });
+      } else {
+        console.log('SendMoney: User is logged in, continuing to Send Money page');
+      }
+      
+      // Set pageLoading to false once auth is checked (regardless of result)
       setPageLoading(false);
     }
   }, [authChecked, isLoggedIn, authLoading, navigate]);

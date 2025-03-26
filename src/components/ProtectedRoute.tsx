@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isLoggedIn, loading: authLoading, authError } = useAuth();
+  const { isLoggedIn, loading: authLoading, authError, refreshAuthState } = useAuth();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,6 +21,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkAuth = async () => {
       try {
         console.log('Checking auth in ProtectedRoute for', location.pathname);
+        
+        // Force a refresh of auth state to ensure we have the latest data
+        await refreshAuthState();
         
         // If we already know the user is logged in from context, skip the check
         if (isLoggedIn && !authLoading) {
@@ -85,7 +88,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         console.error('Error checking authentication:', error);
         
         // Check if the error is a timeout - in which case we can be more lenient
-        if (error.message.includes('timed out')) {
+        if (error.message && error.message.includes('timed out')) {
           console.log('Auth check timed out, using last known state');
           
           // If we were previously authenticated and this is just a timeout,
@@ -121,7 +124,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
     
     checkAuth();
-  }, [authError, toast, location.pathname, isLoggedIn, authLoading]);
+  }, [authError, toast, location.pathname, isLoggedIn, authLoading, refreshAuthState]);
   
   // Show loading state while checking authentication
   if (authLoading || isChecking) {
