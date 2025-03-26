@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { isPlatform } from '@/utils/platformUtils';
 import { toast as uiToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
+import { updateTransactionStatus } from '@/services/transaction';
 
 /**
  * Hook to use Kado services with navigation
@@ -198,7 +199,6 @@ export const useKado = () => {
         localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify(transaction));
         
         // Import and use updateTransactionStatus to ensure it's properly recorded
-        const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
         await updateTransactionStatus(params.transactionId, 'failed', {
           failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
         });

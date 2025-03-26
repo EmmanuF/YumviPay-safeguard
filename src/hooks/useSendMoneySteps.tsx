@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -41,12 +40,10 @@ export const useSendMoneySteps = () => {
     }
   };
 
-  // Enhanced transaction data preparation to ensure all required fields
   const prepareCompleteTransactionData = (transactionData: any, transactionId: string) => {
-    // Ensure all required fields are present with sensible defaults
     return {
       id: transactionId,
-      transactionId: transactionId, // Include both formats for compatibility
+      transactionId: transactionId,
       amount: transactionData.amount?.toString() || '50',
       recipientName: transactionData.recipientName || 'Transaction Recipient',
       recipientContact: transactionData.recipientContact || transactionData.recipient || '+237650000000',
@@ -59,7 +56,6 @@ export const useSendMoneySteps = () => {
       paymentMethod: transactionData.paymentMethod || 'mobile_money',
       provider: transactionData.selectedProvider || 'MTN Mobile Money',
       
-      // Include any additional data from the original transaction
       sourceCurrency: transactionData.sourceCurrency || 'USD',
       targetCurrency: transactionData.targetCurrency || 'XAF',
       convertedAmount: transactionData.convertedAmount || transactionData.receiveAmount || '0',
@@ -67,16 +63,13 @@ export const useSendMoneySteps = () => {
     };
   };
 
-  // Store transaction with multiple redundancy mechanisms
   const storeTransactionData = (transactionId: string, data: any) => {
     try {
-      // Prepare enhanced data with all required fields
       const completeData = prepareCompleteTransactionData(data, transactionId);
       const storageData = JSON.stringify(completeData);
       
       console.log(`📦 Storing COMPLETE transaction ${transactionId} with redundancy:`, completeData);
       
-      // Use multiple storage mechanisms
       const storageKeys = [
         `transaction_${transactionId}`,
         `transaction_backup_${transactionId}`,
@@ -85,7 +78,6 @@ export const useSendMoneySteps = () => {
         `latest_transaction`
       ];
       
-      // Store in localStorage with all keys
       storageKeys.forEach(key => {
         try {
           localStorage.setItem(key, storageData);
@@ -94,7 +86,6 @@ export const useSendMoneySteps = () => {
         }
       });
       
-      // Use sessionStorage as well
       try {
         sessionStorage.setItem(`transaction_session_${transactionId}`, storageData);
         sessionStorage.setItem('lastTransactionId', transactionId);
@@ -102,17 +93,13 @@ export const useSendMoneySteps = () => {
         console.error('❌ Error storing in sessionStorage:', e);
       }
       
-      // Store with window object as last resort
       try {
-        // @ts-ignore - Using window as emergency backup
         window.__EMERGENCY_TRANSACTION = storageData;
-        // @ts-ignore
         window.__TRANSACTION_ID = transactionId;
       } catch (e) {
         console.error('❌ Error storing in window object:', e);
       }
       
-      // Force a synchronous localStorage flush by reading back
       try {
         const verification = localStorage.getItem(`transaction_${transactionId}`);
         console.log(`✅ Storage verification: ${!!verification}`);
@@ -143,12 +130,10 @@ export const useSendMoneySteps = () => {
           setIsSubmitting(true);
           console.log('🚀 Submitting transaction...');
           
-          // Generate a transaction ID for the current transaction
           const transactionId = generateTransactionId();
           console.log(`🆔 Generated transaction ID: ${transactionId}`);
           
           try {
-            // Check API connection before proceeding
             const isConnected = await validateApiConnection();
             if (!isConnected) {
               toast.error("Connection Error", {
@@ -157,7 +142,6 @@ export const useSendMoneySteps = () => {
               throw new Error("API connection validation failed");
             }
             
-            // Get transaction data from localStorage
             const pendingTransaction = localStorage.getItem('pendingTransaction');
             if (!pendingTransaction) {
               throw new Error('Transaction data not found');
@@ -166,7 +150,6 @@ export const useSendMoneySteps = () => {
             const transactionData = JSON.parse(pendingTransaction);
             console.log('📊 Transaction data retrieved:', transactionData);
             
-            // CRITICAL: Store transaction data with multiple redundancy BEFORE redirecting
             const stored = storeTransactionData(transactionId, transactionData);
             if (!stored) {
               console.error('❌ Failed to store transaction data reliably');
@@ -176,7 +159,6 @@ export const useSendMoneySteps = () => {
               // Continue anyway - we'll try to recover later
             }
             
-            // Show a loading overlay for visual feedback
             const loadingDiv = document.createElement('div');
             loadingDiv.style.position = 'fixed';
             loadingDiv.style.top = '0';
@@ -196,36 +178,29 @@ export const useSendMoneySteps = () => {
             `;
             document.body.appendChild(loadingDiv);
             
-            // Wait to ensure storage is complete (crucial fix)
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            // FOR TESTING: Skip actual Kado redirect and go directly to transaction page
-            // This bypasses the problematic redirect while we debug
-            const testMode = true; // Set to false in production
+            const testMode = true;
             
             if (testMode) {
               console.log('🧪 TEST MODE: Skipping Kado redirect, going directly to transaction page');
               
-              // Simulate successful storage and navigation
               await new Promise(resolve => setTimeout(resolve, 500));
               
               try {
                 document.body.removeChild(loadingDiv);
               } catch (e) {}
               
-              // Navigate directly to transaction page
               navigate(`/transaction/${transactionId}`);
               
-              // Simulate webhook in background
               try {
-                const { simulateKadoWebhook } = await import('@/services/transaction/transactionUpdate');
+                const { simulateKadoWebhook } = await import('@/services/transaction');
                 simulateKadoWebhook(transactionId).catch(e => console.error('Webhook simulation error:', e));
               } catch (e) {}
               
               return;
             }
             
-            // If not in test mode, proceed with actual Kado redirect
             await redirectToKadoAndReturn({
               amount: transactionData.amount.toString(),
               recipientName: transactionData.recipientName || 'Recipient',
@@ -235,7 +210,6 @@ export const useSendMoneySteps = () => {
               transactionId,
             });
             
-            // Clean up loading overlay
             try {
               document.body.removeChild(loadingDiv);
             } catch (e) {}
@@ -243,7 +217,6 @@ export const useSendMoneySteps = () => {
           } catch (error) {
             console.error('❌ Error in handleNext:', error);
             
-            // Increment retry count and check if we should retry
             const newRetryCount = retryCount + 1;
             setRetryCount(newRetryCount);
             
@@ -252,10 +225,8 @@ export const useSendMoneySteps = () => {
                 description: `Retry ${newRetryCount}/${MAX_RETRIES}: Connecting to payment provider...`,
               });
               
-              // Wait before retrying
               await new Promise(resolve => setTimeout(resolve, 1500));
               
-              // Try again (recursively call handleNext)
               return handleNext();
             }
             
@@ -263,7 +234,6 @@ export const useSendMoneySteps = () => {
               description: "Could not connect to payment provider after multiple attempts. Please try again later.",
             });
             
-            // If retries exhausted, navigate to transaction page anyway
             navigate('/transaction/new', { 
               state: { 
                 errorType: 'kado_connection_error',
@@ -291,7 +261,7 @@ export const useSendMoneySteps = () => {
     try {
       clearError();
       console.log('📝 Moving to previous step from:', currentStep);
-      setRetryCount(0); // Reset retry count when going back
+      setRetryCount(0);
       
       switch (currentStep) {
         case 'payment':

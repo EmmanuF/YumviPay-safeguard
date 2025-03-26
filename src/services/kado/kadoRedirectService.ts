@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { deepLinkService } from '../deepLinkService';
@@ -6,7 +5,7 @@ import { isPlatform } from '@/utils/platformUtils';
 import { BiometricService } from '../biometric';
 import { KadoRedirectParams } from './types';
 import { addOfflineTransaction } from '../transaction/store';
-import { simulateKadoWebhook } from '../transaction/transactionUpdate';
+import { simulateKadoWebhook, updateTransactionStatus } from '../transaction';
 
 /**
  * Service to handle redirecting to Kado for KYC and payment processing
@@ -186,7 +185,6 @@ export const kadoRedirectService = {
       // 6. UPDATE TRANSACTION STATUS TO PROCESSING
       try {
         console.log('📝 Updating transaction status to processing...');
-        const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
         await updateTransactionStatus(params.transactionId, 'processing');
         
         // Simulate webhook response in background
@@ -253,7 +251,6 @@ export const kadoRedirectService = {
       // Create a fallback transaction if we have a transaction ID
       if (params.transactionId) {
         try {
-          const { updateTransactionStatus } = await import('../transaction/transactionUpdate');
           await updateTransactionStatus(params.transactionId, 'failed', {
             failureReason: error instanceof Error ? error.message : 'Unknown error during Kado redirect'
           });
