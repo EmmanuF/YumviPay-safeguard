@@ -1,7 +1,7 @@
 
 import { Transaction } from '@/types/transaction';
 import { supabase } from '@/integrations/supabase/client';
-import { getStoredTransactions } from '../transactionStore';
+import { getStoredTransactions } from '../store';
 import { normalizeTransaction, mapDatabaseTransactionToModel } from '../utils/transactionMappers';
 
 /**

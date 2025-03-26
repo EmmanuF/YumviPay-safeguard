@@ -15,7 +15,7 @@ import {
 
 import {
   createTransaction
-} from './transactionCreate';
+} from './store/transactionCreation';
 
 import {
   initializeTransactions,
@@ -25,7 +25,7 @@ import {
   addOfflineTransaction,
   updateOfflineTransaction,
   clearTransactionsStore
-} from './transactionStore';
+} from './store';
 
 // Export everything for use throughout the app
 export {
