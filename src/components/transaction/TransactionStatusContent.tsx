@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { getReliableAmount, storeTransactionAmount, formatTransactionAmount } from '@/utils/transactionAmountUtils';
 
 interface TransactionStatusContentProps {
   transaction: Transaction;
@@ -39,53 +40,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
   const isMinimalData = !transaction || 
     transaction.recipientName === 'Processing...' || 
     transaction.recipientName === 'Unknown' || 
-    (typeof transaction.amount === 'string' && transaction.amount === '0') ||
-    (typeof transaction.amount === 'number' && transaction.amount === 0);
-  
-  // Get the most reliable transaction amount from all possible sources
-  const getReliableAmount = (): string => {
-    // First try the global transaction amount getter (most reliable)
-    if (window.getTransactionAmount) {
-      const amount = window.getTransactionAmount();
-      if (amount > 0) {
-        return amount.toString();
-      }
-    }
-    
-    // Try transaction data directly
-    if (!transaction) return '0';
-    
-    // Try sendAmount first (most accurate for send flow)
-    if (transaction.sendAmount !== undefined) {
-      return typeof transaction.sendAmount === 'number' 
-        ? transaction.sendAmount.toString() 
-        : transaction.sendAmount;
-    }
-    
-    // Fall back to amount
-    if (transaction.amount !== undefined) {
-      return typeof transaction.amount === 'number' 
-        ? transaction.amount.toString() 
-        : transaction.amount;
-    }
-    
-    // Last resort, check localStorage
-    try {
-      const storedAmount = localStorage.getItem('lastTransactionAmount');
-      if (storedAmount && !isNaN(parseFloat(storedAmount))) {
-        return storedAmount;
-      }
-    } catch (e) {
-      console.error('Error accessing localStorage:', e);
-    }
-    
-    return '0';
-  };
-
-  // Get recipient name with fallback
-  const getRecipientName = () => {
-    return transaction?.recipientName || 'John Doe';
-  };
+    getReliableAmount(transaction) === 0;
   
   // Enhanced emergency function to directly update transaction status with improved
   // reliability and immediate UI feedback
@@ -94,8 +49,11 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       console.log(`[CRITICAL] 🛠️ Forcing transaction ${transaction.id} to completed status`);
       
       // Get reliable amount
-      const transactionAmount = getReliableAmount();
+      const transactionAmount = getReliableAmount(transaction, 50);
       console.log(`Using reliable transaction amount: ${transactionAmount}`);
+      
+      // Store amount with our utility for greater reliability
+      storeTransactionAmount(transactionAmount, transaction.id);
       
       // Create updated transaction with completed status and more accurate defaults
       const updatedTransaction = {
@@ -116,7 +74,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
         currency: transaction.currency || 'XAF',
         sourceCurrency: 'USD',
         targetCurrency: 'XAF',
-        convertedAmount: parseFloat(transactionAmount) * 610,
+        convertedAmount: transactionAmount * 610,
         exchangeRate: 610,
         estimatedDelivery: 'Delivered'
       };
@@ -150,11 +108,17 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       successOverlay.style.justifyContent = 'center';
       successOverlay.style.alignItems = 'center';
       successOverlay.style.zIndex = '10000';
+      
+      // Use formatted amount in the success message
+      const formattedAmount = formatTransactionAmount(transactionAmount, {
+        currency: 'USD'
+      });
+      
       successOverlay.innerHTML = `
         <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
           <div style="color: #10b981; font-size: 48px; margin-bottom: 16px;">✓</div>
           <h3>Transaction Completed!</h3>
-          <p>Your transaction of $${transactionAmount} to ${getRecipientName()} has been successfully completed.</p>
+          <p>Your transaction of ${formattedAmount} to ${transaction.recipientName || 'John Doe'} has been successfully completed.</p>
         </div>
       `;
       document.body.appendChild(successOverlay);

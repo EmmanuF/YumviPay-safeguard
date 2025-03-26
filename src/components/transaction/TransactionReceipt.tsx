@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ArrowRight, CheckCircle, AlertCircle, Clock, Download, Share2 } from 'lucide-react';
 import { Transaction } from '@/types/transaction';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCountries } from '@/hooks/useCountries';
 import { formatDate } from '@/utils/formatUtils';
-import { getTransactionAmount } from '@/utils/transactionDataStore';
+import { getReliableAmount, formatTransactionAmount } from '@/utils/transactionAmountUtils';
 
 interface TransactionReceiptProps {
   transaction: Transaction;
@@ -23,45 +24,13 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
   const countryCode = transaction.recipientCountryCode || 'CM';
   const country = getCountryByCode(countryCode);
   
-  // Enhanced amount formatting with better fallbacks and consistency
-  const formatAmount = (amount: string | number | undefined): string => {
-    if (amount === undefined) {
-      // Try to get amount from transaction data store for reliability
-      const storeAmount = window.getTransactionAmount?.();
-      if (storeAmount) return storeAmount.toString();
-      return '0';
-    }
-    
-    // Handle different amount formats consistently
-    if (typeof amount === 'number') {
-      // Ensure we don't show long decimal values
-      return Number(amount).toFixed(2);
-    }
-    
-    // Try parsing the string to format consistently
-    const parsed = parseFloat(amount);
-    if (!isNaN(parsed)) {
-      return parsed.toFixed(2);
-    }
-    
-    // Return original string if we can't format it
-    return amount;
-  };
+  // Get the most reliable amount value using our utility
+  const amount = getReliableAmount(transaction);
   
-  // Get the most reliable amount value
-  const getReliableAmount = (): string => {
-    // Try transaction data store first
-    const storeAmount = window.getTransactionAmount?.();
-    if (storeAmount) return storeAmount.toString();
-    
-    // Try transaction.sendAmount next (most accurate)
-    if (transaction.sendAmount !== undefined) {
-      return formatAmount(transaction.sendAmount);
-    }
-    
-    // Fall back to transaction.amount
-    return formatAmount(transaction.amount);
-  };
+  // Format the amount for display with currency
+  const formattedAmount = formatTransactionAmount(amount, {
+    currency: transaction.sourceCurrency || 'USD'
+  });
   
   // Get status icon
   const getStatusIcon = () => {
@@ -129,7 +98,7 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
             <div>
               <p className="text-sm text-primary-700">Amount Sent</p>
               <p className="text-2xl font-bold text-primary-900">
-                ${getReliableAmount()}
+                {formattedAmount}
               </p>
             </div>
             <div className="text-right">
@@ -142,7 +111,7 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
           <div className="flex items-center justify-between mt-3">
             <p className="text-sm font-medium text-primary-700">Total</p>
             <p className="text-lg font-bold text-primary-900">
-              ${getReliableAmount()}
+              {formattedAmount}
             </p>
           </div>
         </div>
