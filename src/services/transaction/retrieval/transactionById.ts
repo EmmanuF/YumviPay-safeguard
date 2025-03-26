@@ -9,87 +9,95 @@ import { createFallbackTransaction } from '../utils/fallbackTransactions';
  * Get a transaction by ID from all available sources
  */
 export const getTransactionById = async (id: string): Promise<Transaction | null> => {
-  console.log(`[DEBUG] Fetching transaction with ID: ${id}`);
+  console.log(`[Transaction Retrieval] Fetching transaction with ID: ${id}`);
   
   try {
-    // First try localStorage for immediately available data
+    // First check localStorage directly for the transaction
+    const directTransactionKey = `transaction_${id}`;
+    const backupTransactionKey = `transaction_backup_${id}`;
+    const emergencyTransactionKey = `emergency_transaction_${id}`;
+    const completedTransactionKey = `completed_transaction_${id}`;
+    
+    // Try all possible storage keys for this transaction
+    const possibleKeys = [
+      directTransactionKey,
+      backupTransactionKey,
+      emergencyTransactionKey,
+      completedTransactionKey,
+      `direct_transaction_${id}`
+    ];
+    
+    // Check all possible keys
+    for (const key of possibleKeys) {
+      try {
+        const storedData = localStorage.getItem(key);
+        if (storedData) {
+          console.log(`[Transaction Retrieval] Found transaction in localStorage key: ${key}`);
+          const parsedData = JSON.parse(storedData);
+          
+          // Make sure dates are properly handled
+          return {
+            ...parsedData,
+            createdAt: parsedData.createdAt ? new Date(parsedData.createdAt) : new Date(),
+            updatedAt: parsedData.updatedAt ? new Date(parsedData.updatedAt) : new Date(),
+            completedAt: parsedData.completedAt ? new Date(parsedData.completedAt) : undefined
+          };
+        }
+      } catch (e) {
+        console.error(`[Transaction Retrieval] Error accessing key ${key}:`, e);
+      }
+    }
+    
+    // Try sessionStorage next
+    try {
+      const sessionData = sessionStorage.getItem(`transaction_session_${id}`);
+      if (sessionData) {
+        console.log('[Transaction Retrieval] Found transaction in sessionStorage');
+        const parsedData = JSON.parse(sessionData);
+        return normalizeTransaction(parsedData);
+      }
+    } catch (e) {
+      console.error('[Transaction Retrieval] Error accessing sessionStorage:', e);
+    }
+    
+    // If not found in direct storage, try the transaction store
     const storedTransactions = await getStoredTransactions();
     const storedTransaction = storedTransactions.find(t => t.id === id);
     
     if (storedTransaction) {
-      console.log(`[DEBUG] Found transaction in local storage: ${id}`);
+      console.log(`[Transaction Retrieval] Found transaction in transaction store: ${id}`);
       return normalizeTransaction(storedTransaction);
     }
     
-    // Check individual localStorage keys that might contain this transaction
-    const transactionKeys = [
-      `transaction_${id}`,
-      `transaction_backup_${id}`,
-      `emergency_transaction_${id}`,
-      `direct_transaction_${id}`,
-      `completed_transaction_${id}`
-    ];
-    
-    for (const key of transactionKeys) {
-      const storageData = localStorage.getItem(key);
-      if (storageData) {
-        try {
-          const parsedData = JSON.parse(storageData);
-          console.log(`[DEBUG] Found transaction in localStorage key ${key}`);
-          return normalizeTransaction(parsedData);
-        } catch (e) {
-          console.error(`[DEBUG] Error parsing data from ${key}:`, e);
-        }
-      }
-    }
-    
-    // Then try sessionStorage
-    try {
-      const sessionData = sessionStorage.getItem(`transaction_session_${id}`);
-      if (sessionData) {
-        const parsedData = JSON.parse(sessionData);
-        console.log(`[DEBUG] Found transaction in sessionStorage`);
-        return normalizeTransaction(parsedData);
-      }
-    } catch (e) {
-      console.error('[DEBUG] Error accessing sessionStorage:', e);
-    }
-    
-    // Try to get from Supabase if user is authenticated
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      console.log('[DEBUG] User is authenticated, trying Supabase');
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      if (error) {
-        console.error('[DEBUG] Supabase error:', error);
+    // If still not found and in dev/test environment, create a fallback
+    if (process.env.NODE_ENV === 'development' || window.location.hostname.includes('lovableproject')) {
+      console.log('[Transaction Retrieval] Creating fallback transaction for development');
+      const fallback = createFallbackTransaction(id);
+      
+      // Store the fallback for future retrievals
+      try {
+        localStorage.setItem(directTransactionKey, JSON.stringify({
+          ...fallback,
+          createdAt: fallback.createdAt.toISOString(),
+          updatedAt: fallback.updatedAt.toISOString(),
+          completedAt: fallback.completedAt ? fallback.completedAt.toISOString() : undefined
+        }));
+      } catch (e) {
+        console.error('[Transaction Retrieval] Error storing fallback transaction:', e);
       }
       
-      if (data) {
-        console.log('[DEBUG] Found transaction in Supabase');
-        return mapDatabaseTransactionToModel(data);
-      }
+      return fallback;
     }
     
-    // If we're in development and no transaction found, create a fallback
-    if (process.env.NODE_ENV === 'development' || window.location.hostname.includes('lovableproject')) {
-      console.log('[DEBUG] Creating fallback transaction for development');
-      return createFallbackTransaction(id);
-    }
-    
-    console.log('[DEBUG] Transaction not found anywhere');
+    console.log('[Transaction Retrieval] Transaction not found anywhere');
     return null;
   } catch (error) {
-    console.error('[DEBUG] Error retrieving transaction:', error);
+    console.error('[Transaction Retrieval] Error retrieving transaction:', error);
     
     // Create fallback transaction on error in development
     if (process.env.NODE_ENV === 'development' || window.location.hostname.includes('lovableproject')) {
-      console.log('[DEBUG] Creating fallback transaction after error');
-      return createFallbackTransaction(id);
+      const fallback = createFallbackTransaction(id);
+      return fallback;
     }
     
     throw error;

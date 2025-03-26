@@ -1,58 +1,81 @@
 
 import { Transaction } from '@/types/transaction';
-import { formatCurrency } from './currencyFormatter';
+
+interface FormatOptions {
+  currency?: string;
+  locale?: string;
+}
 
 /**
- * Get a reliable amount from a transaction, handling various formats and fallbacks
+ * Format a transaction amount for display
  */
-export const getReliableAmount = (transaction: Transaction | null, defaultValue = 0): number => {
-  if (!transaction) return defaultValue;
+export const formatTransactionAmount = (
+  amount: number | string,
+  options: FormatOptions = {}
+): string => {
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   
-  // Check different possible amount fields
-  if (typeof transaction.amount === 'number') return transaction.amount;
-  if (typeof transaction.amount === 'string') return parseFloat(transaction.amount) || defaultValue;
-  if (typeof transaction.totalAmount === 'number') return transaction.totalAmount;
-  if (typeof transaction.totalAmount === 'string') return parseFloat(transaction.totalAmount) || defaultValue;
-  if (typeof transaction.sendAmount === 'number') return transaction.sendAmount;
-  if (typeof transaction.sendAmount === 'string') return parseFloat(transaction.sendAmount) || defaultValue;
+  if (isNaN(numericAmount)) {
+    return 'N/A';
+  }
   
-  return defaultValue;
-};
-
-/**
- * Store transaction amount in multiple places for redundancy
- */
-export const storeTransactionAmount = (amount: number, transactionId: string): void => {
+  const { currency = 'USD', locale = 'en-US' } = options;
+  
   try {
-    const amountStr = amount.toString();
-    localStorage.setItem(`transaction_amount_${transactionId}`, amountStr);
-    localStorage.setItem(`amount_backup_${transactionId}`, amountStr);
-    localStorage.setItem(`transaction_${transactionId}_amount`, amountStr);
-  } catch (e) {
-    console.error('Error storing transaction amount:', e);
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericAmount);
+  } catch (error) {
+    console.error('Error formatting amount:', error);
+    return `${currency} ${numericAmount.toFixed(2)}`;
   }
 };
 
 /**
- * Format transaction amount for display
+ * Get a reliable amount value from a transaction
+ * Falls back to various amount fields if the primary one is invalid
  */
-export const formatTransactionAmount = (
-  amount: number | string | undefined,
-  options: {
-    currency?: string;
-    locale?: string;
-  } = {}
-): string => {
-  if (amount === undefined) return '$0.00';
+export const getReliableAmount = (transaction: Transaction, fallback = 0): number => {
+  if (!transaction) return fallback;
   
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const currency = options.currency || 'USD';
-  const locale = options.locale || 'en-US';
+  // Try all possible amount fields
+  const possibleAmounts = [
+    transaction.amount,
+    transaction.sendAmount,
+    transaction.totalAmount
+  ];
   
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(numAmount);
+  for (const amount of possibleAmounts) {
+    if (amount !== undefined && amount !== null) {
+      const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+      if (!isNaN(numericAmount) && numericAmount > 0) {
+        return numericAmount;
+      }
+    }
+  }
+  
+  // If no valid amount is found, return the fallback
+  return fallback;
+};
+
+/**
+ * Store a transaction amount in multiple places for reliability
+ */
+export const storeTransactionAmount = (amount: number, transactionId: string): void => {
+  try {
+    localStorage.setItem(`transaction_amount_${transactionId}`, amount.toString());
+    localStorage.setItem(`backup_amount_${transactionId}`, amount.toString());
+    localStorage.setItem('lastTransactionAmount', amount.toString());
+  } catch (error) {
+    console.error('Error storing transaction amount:', error);
+  }
+};
+
+export default {
+  formatTransactionAmount,
+  getReliableAmount,
+  storeTransactionAmount
 };

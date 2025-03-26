@@ -1,53 +1,56 @@
 
 import { Transaction } from '@/types/transaction';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Create a fallback transaction for development/testing
+ * Create a fallback transaction for when the real transaction can't be found
+ * This is mainly for development/testing purposes
  */
 export const createFallbackTransaction = (id: string): Transaction => {
-  console.log('[DEBUG] Creating fallback transaction with ID:', id);
+  console.log(`[Fallback] Creating fallback transaction for ID: ${id}`);
   
+  const now = new Date();
+  
+  // Create a realistic fallback transaction
   const fallbackTransaction: Transaction = {
-    id: id || uuidv4(),
-    amount: 50,
+    id: id,
+    amount: '50',
+    sendAmount: '50',
     recipientName: 'John Doe',
     recipientContact: '+237612345678',
     country: 'CM',
     status: 'completed',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    completedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
+    completedAt: now,
     estimatedDelivery: 'Delivered',
-    totalAmount: 50,
-    sendAmount: 50,
+    totalAmount: '50',
     provider: 'MTN Mobile Money',
-    paymentMethod: 'mobile_money',
+    paymentMethod: 'mtn-mobile-money',
     currency: 'XAF',
-    recipientCountry: 'Cameroon',
-    recipientCountryCode: 'CM',
     sourceCurrency: 'USD',
     targetCurrency: 'XAF',
     convertedAmount: 30500,
-    exchangeRate: 610,
-    date: new Date().toISOString(),
-    type: 'send'
+    exchangeRate: 610
   };
   
-  // Store the fallback transaction for future retrieval
+  // Store the fallback transaction for future retrievals
   try {
-    const serialized = JSON.stringify({
+    localStorage.setItem(`transaction_${id}`, JSON.stringify({
       ...fallbackTransaction,
       createdAt: fallbackTransaction.createdAt.toISOString(),
       updatedAt: fallbackTransaction.updatedAt.toISOString(),
-      completedAt: fallbackTransaction.completedAt?.toISOString()
-    });
+      completedAt: fallbackTransaction.completedAt.toISOString()
+    }));
     
-    localStorage.setItem(`transaction_${id}`, serialized);
-    localStorage.setItem(`transaction_backup_${id}`, serialized);
-    localStorage.setItem(`fallback_transaction_${id}`, serialized);
+    // Also store with backup keys for redundancy
+    localStorage.setItem(`transaction_backup_${id}`, JSON.stringify({
+      ...fallbackTransaction,
+      createdAt: fallbackTransaction.createdAt.toISOString(),
+      updatedAt: fallbackTransaction.updatedAt.toISOString(),
+      completedAt: fallbackTransaction.completedAt.toISOString()
+    }));
   } catch (e) {
-    console.error('[DEBUG] Error storing fallback transaction:', e);
+    console.error('[Fallback] Error storing fallback transaction:', e);
   }
   
   return fallbackTransaction;
