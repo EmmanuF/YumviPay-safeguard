@@ -18,7 +18,7 @@ export const useSendMoneySteps = () => {
   const MAX_RETRIES = 2;
 
   useEffect(() => {
-    console.log('[useSendMoneySteps] 📊 Current Step:', currentStep, 'Submitting:', isSubmitting, 'Error:', error);
+    console.log('📊 Send Money Step:', currentStep, 'Submitting:', isSubmitting, 'Error:', error);
   }, [currentStep, isSubmitting, error]);
 
   const clearError = () => {
@@ -118,16 +118,14 @@ export const useSendMoneySteps = () => {
 
   const handleNext = async () => {
     try {
-      console.log('[useSendMoneySteps] 🚀 handleNext called, current step:', currentStep);
       clearError();
+      console.log('📝 Moving to next step from:', currentStep);
       
       switch (currentStep) {
         case 'recipient':
-          console.log('[useSendMoneySteps] Transitioning from recipient to payment step');
           setCurrentStep('payment');
           break;
         case 'payment':
-          console.log('[useSendMoneySteps] Transitioning from payment to confirmation step');
           setCurrentStep('confirmation');
           break;
         case 'confirmation':
@@ -249,10 +247,10 @@ export const useSendMoneySteps = () => {
           }
           break;
         default:
-          console.error('[useSendMoneySteps] ❌ Unknown step:', currentStep);
+          console.error('❌ Unknown step:', currentStep);
       }
     } catch (error) {
-      console.error('[useSendMoneySteps] ❌ Error in handleNext:', error);
+      console.error('❌ Error in handleNext:', error);
       setIsSubmitting(false);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       toast.error("Error", {
@@ -263,29 +261,27 @@ export const useSendMoneySteps = () => {
 
   const handleBack = () => {
     try {
-      console.log('[useSendMoneySteps] ⬅️ handleBack called, current step:', currentStep);
       clearError();
+      console.log('📝 Moving to previous step from:', currentStep);
       setRetryCount(0);
       
       switch (currentStep) {
         case 'payment':
-          console.log('[useSendMoneySteps] Transitioning from payment back to recipient step');
           setCurrentStep('recipient');
           break;
         case 'confirmation':
-          console.log('[useSendMoneySteps] Transitioning from confirmation back to payment step');
           setCurrentStep('payment');
           break;
         case 'recipient':
-          console.log('[useSendMoneySteps] ⏮️ Already at first step, navigating to home');
+          console.log('⏮️ Already at first step, navigating to home');
           navigate('/');
           break;
         default:
-          console.error('[useSendMoneySteps] ❌ Unknown step:', currentStep);
+          console.error('❌ Unknown step:', currentStep);
           navigate('/');
       }
     } catch (error) {
-      console.error('[useSendMoneySteps] ❌ Error in handleBack:', error);
+      console.error('❌ Error in handleBack:', error);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };

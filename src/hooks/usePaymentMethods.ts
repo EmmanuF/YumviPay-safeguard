@@ -1,6 +1,17 @@
 
 import { useState, useEffect } from 'react';
-import { PaymentMethod } from '@/types/country';
+
+interface PaymentMethodProvider {
+  id: string;
+  name: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  description?: string;
+  providers?: string[];
+}
 
 /**
  * Hook to get available payment methods for a specific country
@@ -34,18 +45,12 @@ export const usePaymentMethods = (countryCode: string) => {
               id: 'mobile_money',
               name: 'Mobile Money',
               description: 'Pay using your mobile money account',
-              icon: 'smartphone',
-              fees: '1-2%',
-              processingTime: 'Instant',
               providers: ['MTN Mobile Money', 'Orange Money']
             },
             {
               id: 'bank_transfer',
               name: 'Bank Transfer',
               description: 'Transfer directly from your bank account',
-              icon: 'building',
-              fees: '1-3%',
-              processingTime: '1-2 business days',
               providers: ['Afriland First Bank', 'Ecobank', 'UBA']
             }
           ]);
@@ -56,18 +61,12 @@ export const usePaymentMethods = (countryCode: string) => {
               id: 'mobile_money',
               name: 'Mobile Money',
               description: 'Pay using your mobile money account',
-              icon: 'smartphone',
-              fees: '1-2%',
-              processingTime: 'Instant',
               providers: ['Paga', 'OPay', 'PalmPay']
             },
             {
               id: 'bank_transfer',
               name: 'Bank Transfer',
               description: 'Transfer directly from your bank account',
-              icon: 'building',
-              fees: '1-3%',
-              processingTime: '1-2 business days',
               providers: ['GTBank', 'Access Bank', 'First Bank']
             }
           ]);
@@ -78,18 +77,12 @@ export const usePaymentMethods = (countryCode: string) => {
               id: 'mobile_money',
               name: 'Mobile Money',
               description: 'Pay using your mobile money account',
-              icon: 'smartphone',
-              fees: '1-2%',
-              processingTime: 'Instant',
               providers: ['MTN Mobile Money', 'Vodafone Cash', 'AirtelTigo Money']
             },
             {
               id: 'bank_transfer',
               name: 'Bank Transfer',
               description: 'Transfer directly from your bank account',
-              icon: 'building',
-              fees: '1-3%',
-              processingTime: '1-2 business days',
               providers: ['GCB Bank', 'Ecobank Ghana', 'Stanbic Bank']
             }
           ]);
@@ -100,18 +93,12 @@ export const usePaymentMethods = (countryCode: string) => {
               id: 'mobile_money',
               name: 'Mobile Money',
               description: 'Pay using your mobile money account',
-              icon: 'smartphone',
-              fees: '1-2%',
-              processingTime: 'Instant',
               providers: ['Mobile Money']
             },
             {
               id: 'bank_transfer',
               name: 'Bank Transfer',
               description: 'Transfer directly from your bank account',
-              icon: 'building',
-              fees: '1-3%',
-              processingTime: '1-2 business days',
               providers: ['Bank Transfer']
             }
           ]);

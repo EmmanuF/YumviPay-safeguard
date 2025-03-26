@@ -2,7 +2,16 @@
 import { useState, useEffect } from 'react';
 import { useCountries } from './useCountries';
 import { useKado } from '@/services/kado/useKado';
-import { PaymentMethod } from '@/types/country';
+
+interface PaymentMethod {
+  id: string;
+  name: string;
+  description?: string;
+  providers?: string[];
+  icon?: string;
+  fees?: string;
+  processingTime?: string;
+}
 
 export const usePaymentMethods = (countryCode: string) => {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -39,8 +48,6 @@ export const usePaymentMethods = (countryCode: string) => {
                   name: 'Mobile Money',
                   description: 'Send via mobile money providers',
                   icon: 'smartphone',
-                  fees: '1-2%',
-                  processingTime: 'Instant',
                   providers: ['MTN Mobile Money', 'Orange Money']
                 },
                 {
@@ -48,8 +55,6 @@ export const usePaymentMethods = (countryCode: string) => {
                   name: 'Bank Transfer',
                   description: 'Send via bank transfer',
                   icon: 'building',
-                  fees: '1-3%',
-                  processingTime: '1-2 business days',
                   providers: ['Afriland First Bank', 'Ecobank']
                 }
               ]);

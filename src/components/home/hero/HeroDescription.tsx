@@ -13,7 +13,7 @@ const HeroDescription: React.FC = () => {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-3xl mx-auto"
     >
-      {/* Greeting section at top of calculator as a banner */}
+      {/* Greeting section moved to top of calculator as a banner */}
       <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm p-3 mb-4 border border-gray-100">
         <div className="flex flex-col space-y-1">
           <TimeLocationGreeting />
@@ -21,10 +21,8 @@ const HeroDescription: React.FC = () => {
         </div>
       </div>
 
-      <HeroCalculator />
-      
-      {/* Trusted by section - moved to middle of page after calculator */}
-      <div className="my-6 flex items-center justify-center">
+      {/* Trusted by section - kept at top */}
+      <div className="mb-4 flex items-center">
         <div className="flex">
           <img 
             src="https://randomuser.me/api/portraits/men/25.jpg" 
@@ -62,6 +60,8 @@ const HeroDescription: React.FC = () => {
           <span className="text-xs font-medium ml-1">4.9/5</span>
         </motion.div>
       </div>
+
+      <HeroCalculator />
       
       {/* Feature bullet points in a single horizontal line with flex-nowrap */}
       <div className="flex flex-nowrap justify-between items-center mt-4 space-x-2 overflow-x-auto">

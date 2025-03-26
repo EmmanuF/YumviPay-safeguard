@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
@@ -8,62 +9,39 @@ interface PaymentStepNavigationProps {
   onBack: () => void;
   isNextDisabled: boolean;
   isSubmitting: boolean;
-  nextLabel?: string;
 }
 
 const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   onNext,
   onBack,
   isNextDisabled,
-  isSubmitting = false,
-  nextLabel = 'Continue'
+  isSubmitting = false
 }) => {
-  // Enhanced logging for debugging
-  console.log('[PaymentStepNavigation] Props received:', { 
-    isNextDisabled, 
-    isSubmitting,
-    onNext: typeof onNext, 
-    onBack: typeof onBack 
-  });
-  
-  const handleNext = () => {
-    console.log('[PaymentStepNavigation] Next button clicked');
-    if (typeof onNext === 'function') {
-      console.log('[PaymentStepNavigation] Calling onNext function');
-      onNext();
-    } else {
-      console.error('[PaymentStepNavigation] onNext is not a function!', onNext);
-    }
-  };
-  
-  const handleBack = () => {
-    console.log('[PaymentStepNavigation] Back button clicked');
-    if (typeof onBack === 'function') {
-      console.log('[PaymentStepNavigation] Calling onBack function');
-      onBack();
-    } else {
-      console.error('[PaymentStepNavigation] onBack is not a function!', onBack);
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
   };
 
   return (
-    <div className="grid grid-cols-2 gap-3 w-full">
+    <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
       <Button 
         variant="outline"
-        onClick={handleBack} 
-        className="w-full" 
+        onClick={onBack} 
+        className="w-1/2" 
         size="lg"
         disabled={isSubmitting}
-        type="button"
       >
         Back
       </Button>
       <Button 
-        onClick={handleNext} 
-        className="w-full" 
+        onClick={onNext} 
+        className="w-1/2" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
-        type="button"
       >
         {isSubmitting ? (
           <>
@@ -71,10 +49,10 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
             Processing
           </>
         ) : (
-          nextLabel
+          'Continue'
         )}
       </Button>
-    </div>
+    </motion.div>
   );
 };
 
