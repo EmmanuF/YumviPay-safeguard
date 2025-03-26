@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import RecipientStep from './RecipientStep';
@@ -29,7 +28,11 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
   isSubmitting,
   error
 }) => {
-  console.log('Rendering step:', currentStep, 'with data:', transactionData);
+  console.log('SendMoneyStepRenderer rendering step:', currentStep, 'with handlers:', {
+    onNext: typeof onNext,
+    onBack: typeof onBack
+  });
+  
   const cachedDataRef = useRef<any>(null);
   
   // Prepare data for storage with exact confirmation screen values
@@ -301,6 +304,11 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
 
   const renderStep = () => {
     try {
+      console.log(`Rendering step: ${currentStep} with handlers:`, {
+        onNext: typeof onNext,
+        onBack: typeof onBack
+      });
+      
       switch (currentStep) {
         case 'recipient':
           return (
@@ -312,6 +320,7 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
             />
           );
         case 'payment':
+          console.log('Rendering PaymentStep with handlers from SendMoneyStepRenderer');
           return (
             <PaymentStep
               transactionData={transactionData}

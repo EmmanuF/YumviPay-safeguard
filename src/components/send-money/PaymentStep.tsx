@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -33,6 +32,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onBack,
   isSubmitting = false
 }) => {
+  console.log('Rendering PaymentStep with props:', {
+    onNext: typeof onNext,
+    onBack: typeof onBack,
+    isSubmitting,
+    transactionData: {
+      paymentMethod: transactionData?.paymentMethod,
+      selectedProvider: transactionData?.selectedProvider
+    }
+  });
+
   const [savePreference, setSavePreference] = useState(false);
   const { getCountryByCode } = useCountries();
   const { paymentMethods, isLoading } = usePaymentMethods(transactionData.targetCountry || 'CM');
@@ -97,6 +106,29 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   
   const isNextDisabled = !transactionData.paymentMethod || !transactionData.selectedProvider;
   
+  const handleNextClick = () => {
+    console.log('PaymentStep handleNextClick called, isNextDisabled:', isNextDisabled);
+    if (!isNextDisabled && typeof onNext === 'function') {
+      console.log('Calling onNext from PaymentStep');
+      onNext();
+    } else {
+      console.log('Next button disabled or onNext is not a function');
+      if (isNextDisabled) {
+        toast.error("Please select a payment method and provider before continuing");
+      }
+    }
+  };
+  
+  const handleBackClick = () => {
+    console.log('PaymentStep handleBackClick called');
+    if (typeof onBack === 'function') {
+      console.log('Calling onBack from PaymentStep');
+      onBack();
+    } else {
+      console.log('onBack is not a function');
+    }
+  };
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -113,14 +145,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
   };
-
-  // Log navigation props for debugging
-  console.log('Navigation props:', { 
-    isNextDisabled, 
-    isSubmitting, 
-    onNext: typeof onNext, 
-    onBack: typeof onBack 
-  });
 
   return (
     <motion.div 
@@ -195,11 +219,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </Card>
       </motion.div>
       
-      {/* Navigation buttons - separate from card content */}
       <div className="sticky bottom-0 pt-4 pb-2 bg-background">
         <PaymentStepNavigation 
-          onNext={onNext}
-          onBack={onBack}
+          onNext={handleNextClick}
+          onBack={handleBackClick}
           isNextDisabled={isNextDisabled}
           isSubmitting={isSubmitting}
           nextLabel="Continue"

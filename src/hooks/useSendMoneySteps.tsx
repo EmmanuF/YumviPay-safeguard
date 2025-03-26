@@ -123,9 +123,11 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
+          console.log('Transitioning from recipient to payment step');
           setCurrentStep('payment');
           break;
         case 'payment':
+          console.log('Transitioning from payment to confirmation step');
           setCurrentStep('confirmation');
           break;
         case 'confirmation':
@@ -267,9 +269,11 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'payment':
+          console.log('Transitioning from payment back to recipient step');
           setCurrentStep('recipient');
           break;
         case 'confirmation':
+          console.log('Transitioning from confirmation back to payment step');
           setCurrentStep('payment');
           break;
         case 'recipient':

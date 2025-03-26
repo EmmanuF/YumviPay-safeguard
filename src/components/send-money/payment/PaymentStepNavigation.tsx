@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
@@ -19,19 +18,30 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   isSubmitting = false,
   nextLabel = 'Continue'
 }) => {
-  // Log navigation rendering
-  console.log('Rendering PaymentStepNavigation', { 
+  // Enhanced logging for debugging
+  console.log('PaymentStepNavigation props:', { 
     isNextDisabled, 
     isSubmitting,
-    nextLabel
+    onNext: typeof onNext, 
+    onBack: typeof onBack 
   });
   
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
+  // Debug handler wrappers
+  const handleNext = () => {
+    console.log('Next button clicked, calling onNext function');
+    if (typeof onNext === 'function') {
+      onNext();
+    } else {
+      console.error('onNext is not a function!', onNext);
+    }
+  };
+  
+  const handleBack = () => {
+    console.log('Back button clicked, calling onBack function');
+    if (typeof onBack === 'function') {
+      onBack();
+    } else {
+      console.error('onBack is not a function!', onBack);
     }
   };
 
@@ -39,7 +49,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     <div className="grid grid-cols-2 gap-3 w-full">
       <Button 
         variant="outline"
-        onClick={onBack} 
+        onClick={handleBack} 
         className="w-full" 
         size="lg"
         disabled={isSubmitting}
@@ -47,7 +57,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
         Back
       </Button>
       <Button 
-        onClick={onNext} 
+        onClick={handleNext} 
         className="w-full" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
