@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -93,7 +94,9 @@ export const useSendMoneySteps = () => {
         console.error('❌ Error storing in sessionStorage:', e);
       }
       
+      // Safely access window properties with proper TypeScript handling
       try {
+        // Add emergency transaction data to window for fallback recovery
         window.__EMERGENCY_TRANSACTION = storageData;
         window.__TRANSACTION_ID = transactionId;
       } catch (e) {
