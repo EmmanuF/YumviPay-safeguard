@@ -1,9 +1,14 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Globe } from 'lucide-react';
+import { Globe, Zap, Shield } from 'lucide-react';
+import HeroActions from './HeroActions';
 
-const HeroTitle: React.FC = () => {
+interface HeroTitleProps {
+  onGetStarted: () => void;
+}
+
+const HeroTitle: React.FC<HeroTitleProps> = ({ onGetStarted }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -11,9 +16,26 @@ const HeroTitle: React.FC = () => {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="relative mb-6"
     >
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
-        <span className="text-indigo-600">Transfer Without Boundaries</span>
-      </h1>
+      <div className="flex flex-col">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+          <span className="text-indigo-600">Transfer Without Boundaries</span>
+        </h1>
+        
+        <div className="flex flex-wrap items-center justify-between mt-2">
+          <div className="flex items-center gap-2">
+            <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium flex items-center shadow-sm">
+              <Zap size={16} className="mr-1" />
+              Fast & Secure
+            </span>
+            <span className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-medium flex items-center shadow-sm">
+              <Shield size={16} className="mr-1" />
+              Free Transfers
+            </span>
+          </div>
+          
+          <HeroActions onGetStarted={onGetStarted} />
+        </div>
+      </div>
       
       <motion.div 
         className="absolute -top-5 -right-5 text-indigo-200 rotate-12 opacity-30"

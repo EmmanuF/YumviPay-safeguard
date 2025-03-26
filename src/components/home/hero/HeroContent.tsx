@@ -1,10 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import HeroFeatureBadges from './HeroFeatureBadges';
 import HeroTitle from './HeroTitle';
 import HeroDescription from './HeroDescription';
-import HeroActions from './HeroActions';
 import HeroFeatureBullets from './HeroFeatureBullets';
 import HeroTrustIndicators from './HeroTrustIndicators';
 
@@ -32,11 +30,9 @@ const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted }) => {
       className="flex flex-col"
     >
       <div className="mb-6">
-        <HeroTitle />
-        <HeroFeatureBadges />
+        <HeroTitle onGetStarted={onGetStarted} />
       </div>
       <HeroDescription />
-      <HeroActions onGetStarted={onGetStarted} />
       <HeroFeatureBullets />
       <HeroTrustIndicators />
     </motion.div>
