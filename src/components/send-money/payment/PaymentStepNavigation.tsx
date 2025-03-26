@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowRight } from 'lucide-react';
 
 interface PaymentStepNavigationProps {
   onNext: () => void;
@@ -26,20 +26,33 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     }
   };
 
+  // Make sure we don't prevent default behavior or stop propagation
+  const handleNextClick = () => {
+    console.log("Next button clicked in PaymentStepNavigation");
+    onNext();
+  };
+
+  const handleBackClick = () => {
+    console.log("Back button clicked in PaymentStepNavigation");
+    onBack();
+  };
+
   return (
     <motion.div variants={itemVariants} className="pt-4 flex space-x-3">
       <Button 
+        type="button"
         variant="outline"
-        onClick={onBack} 
-        className="w-1/2" 
+        onClick={handleBackClick} 
+        className="w-1/2 border-secondary-300" 
         size="lg"
         disabled={isSubmitting}
       >
         Back
       </Button>
       <Button 
-        onClick={onNext} 
-        className="w-1/2" 
+        type="button"
+        onClick={handleNextClick} 
+        className="w-1/2 bg-primary hover:bg-primary-600 group" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
       >
@@ -49,7 +62,10 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
             Processing
           </>
         ) : (
-          'Continue'
+          <>
+            Continue
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </>
         )}
       </Button>
     </motion.div>

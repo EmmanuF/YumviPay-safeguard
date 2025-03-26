@@ -58,3 +58,89 @@
 .requirements-list ul {
   @apply list-disc pl-4 mt-1;
 }
+
+/* Animated checkbox */
+.animated-checkbox input:checked ~ .checkmark {
+  @apply bg-primary;
+  animation: checkbox-pop 0.3s forwards;
+}
+
+@keyframes checkbox-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Custom-styled radio buttons */
+.custom-radio {
+  @apply relative inline-flex items-center cursor-pointer;
+}
+
+.custom-radio input {
+  @apply absolute opacity-0;
+}
+
+.custom-radio .radio-mark {
+  @apply h-5 w-5 border border-gray-300 rounded-full flex items-center justify-center transition-all;
+}
+
+.custom-radio input:checked ~ .radio-mark {
+  @apply border-2 border-primary;
+}
+
+.custom-radio input:checked ~ .radio-mark::after {
+  content: "";
+  @apply block h-2.5 w-2.5 rounded-full bg-primary;
+  animation: radio-pop 0.2s ease-out;
+}
+
+@keyframes radio-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Form section with glass effect */
+.form-section-glass {
+  @apply backdrop-blur-sm bg-white/90 border border-white/30 rounded-xl p-6 shadow-lg;
+}
+
+/* Accent highlights for important fields */
+.accent-field {
+  @apply border-l-4 border-primary pl-3;
+}
+
+/* Switch toggle enhancements */
+.enhanced-switch {
+  @apply w-12 h-6 rounded-full relative transition-all duration-200;
+}
+
+.enhanced-switch .thumb {
+  @apply w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-all duration-200;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.enhanced-switch.on {
+  @apply bg-primary;
+}
+
+.enhanced-switch.on .thumb {
+  left: calc(100% - 22px);
+}
+
+.enhanced-switch.off {
+  @apply bg-gray-300;
+}

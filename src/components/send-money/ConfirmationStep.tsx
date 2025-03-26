@@ -3,9 +3,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, RepeatIcon } from 'lucide-react';
+import { Loader2, RepeatIcon, ArrowRight, CheckCircle } from 'lucide-react';
 import { useCountries } from '@/hooks/useCountries';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/utils/formatUtils';
 
 export interface ConfirmationStepProps {
   transactionData: {
@@ -19,6 +20,7 @@ export interface ConfirmationStepProps {
     selectedProvider?: string;
     isRecurring?: boolean;
     recurringFrequency?: string;
+    termsAccepted?: boolean;
   };
   onConfirm: () => void;
   onBack: () => void;
@@ -32,7 +34,6 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   isSubmitting = false
 }) => {
   const { getCountryByCode } = useCountries();
-  const selectedCountryData = getCountryByCode(transactionData.targetCurrency);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -51,14 +52,6 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
-
   const getRecurringFrequencyText = (frequency: string) => {
     switch (frequency) {
       case 'weekly': return 'Weekly';
@@ -67,6 +60,14 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       case 'quarterly': return 'Every 3 Months';
       default: return 'Regularly';
     }
+  };
+
+  // Format payment method name for display
+  const formatMethodName = (method: string | null) => {
+    if (!method) return 'Not specified';
+    return method
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   return (
@@ -78,86 +79,114 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     >
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Confirm Your Transfer</h2>
+          <h2 className="text-xl font-bold text-indigo-800">Review Your Transfer</h2>
           {transactionData.isRecurring && (
-            <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200 flex items-center">
+            <Badge className="bg-secondary-100 text-secondary-800 hover:bg-secondary-200 flex items-center">
               <RepeatIcon size={14} className="mr-1" />
               {getRecurringFrequencyText(transactionData.recurringFrequency || 'monthly')}
             </Badge>
           )}
         </div>
         
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium">Transfer Details</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="text-gray-500">Amount:</div>
-                <div className="font-medium text-right">
-                  {formatCurrency(transactionData.amount, transactionData.sourceCurrency)}
+        <Card className="shadow-lg border border-secondary-100/30">
+          <CardContent className="p-6 space-y-6">
+            {/* Amount section */}
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-semibold text-indigo-700 mb-3">Transfer Amount</h3>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500">You send</p>
+                  <p className="text-xl font-bold">{formatCurrency(transactionData.amount, transactionData.sourceCurrency)}</p>
                 </div>
-                
-                <div className="text-gray-500">Recipient gets:</div>
-                <div className="font-medium text-right">
-                  {formatCurrency(transactionData.convertedAmount, transactionData.targetCurrency)}
+                <div className="text-center px-3">
+                  <ArrowRight className="h-5 w-5 text-primary" />
                 </div>
-                
-                <div className="text-gray-500">Fee:</div>
-                <div className="font-medium text-right text-green-600">
-                  Free
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Recipient gets</p>
+                  <p className="text-xl font-bold">{formatCurrency(transactionData.convertedAmount, transactionData.targetCurrency)}</p>
                 </div>
-                
-                <div className="text-gray-500">Exchange rate:</div>
-                <div className="font-medium text-right">
-                  1 {transactionData.sourceCurrency} = {(transactionData.convertedAmount / transactionData.amount).toFixed(2)} {transactionData.targetCurrency}
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Exchange rate</span>
+                  <span className="font-medium">
+                    1 {transactionData.sourceCurrency} = {(transactionData.convertedAmount / transactionData.amount).toFixed(2)} {transactionData.targetCurrency}
+                  </span>
                 </div>
-                
+                <div className="flex justify-between text-sm mt-2">
+                  <span className="text-gray-500">Fee</span>
+                  <span className="font-medium text-green-600">Free</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Recipient details */}
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-semibold text-indigo-700 mb-3">Recipient</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Name</span>
+                  <span className="font-medium">{transactionData.recipientName || 'Not specified'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Contact</span>
+                  <span className="font-medium">{transactionData.recipient || 'Not specified'}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Payment method details */}
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-semibold text-indigo-700 mb-3">Payment Details</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Method</span>
+                  <span className="font-medium">{formatMethodName(transactionData.paymentMethod)}</span>
+                </div>
+                {transactionData.selectedProvider && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Provider</span>
+                    <span className="font-medium">{transactionData.selectedProvider}</span>
+                  </div>
+                )}
                 {transactionData.isRecurring && (
-                  <>
-                    <div className="text-gray-500">Recurring:</div>
-                    <div className="font-medium text-right text-primary-600">
-                      {getRecurringFrequencyText(transactionData.recurringFrequency || 'monthly')}
-                    </div>
-                  </>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Recurring</span>
+                    <span className="font-medium text-secondary-600">{getRecurringFrequencyText(transactionData.recurringFrequency || 'monthly')}</span>
+                  </div>
                 )}
               </div>
             </div>
             
-            <div className="pt-2 border-t space-y-2">
-              <h3 className="text-lg font-medium">Recipient</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="text-gray-500">Name:</div>
-                <div className="font-medium text-right">{transactionData.recipientName || 'Not specified'}</div>
-                
-                <div className="text-gray-500">Contact:</div>
-                <div className="font-medium text-right">{transactionData.recipient || 'Not specified'}</div>
-                
-                <div className="text-gray-500">Payment method:</div>
-                <div className="font-medium text-right">
-                  {transactionData.paymentMethod?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} 
-                  {transactionData.selectedProvider && ` (${transactionData.selectedProvider.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())})`}
-                </div>
-              </div>
-            </div>
-            
+            {/* Recurring payment info */}
             {transactionData.isRecurring && (
-              <div className="pt-2 border-t mt-4">
-                <div className="bg-primary-50 rounded-lg p-3">
-                  <div className="flex items-start">
-                    <RepeatIcon className="text-primary-600 mt-0.5 mr-2 h-5 w-5" />
-                    <div>
-                      <h4 className="font-medium text-primary-800">Recurring Payment</h4>
-                      <p className="text-sm text-primary-700 mt-1">
-                        This payment will be sent {transactionData.recurringFrequency === 'weekly' ? 'every week' : 
-                        transactionData.recurringFrequency === 'biweekly' ? 'every 2 weeks' : 
-                        transactionData.recurringFrequency === 'monthly' ? 'every month' : 
-                        'every 3 months'} until cancelled.
-                      </p>
-                    </div>
+              <div className="bg-secondary-50 rounded-xl p-4 border border-secondary-100">
+                <div className="flex items-start">
+                  <RepeatIcon className="text-secondary-600 mt-0.5 mr-3 h-5 w-5" />
+                  <div>
+                    <h4 className="font-medium text-secondary-800">Recurring Payment</h4>
+                    <p className="text-sm text-secondary-700 mt-1">
+                      This payment will be sent {transactionData.recurringFrequency === 'weekly' ? 'every week' : 
+                      transactionData.recurringFrequency === 'biweekly' ? 'every 2 weeks' : 
+                      transactionData.recurringFrequency === 'monthly' ? 'every month' : 
+                      'every 3 months'} until cancelled.
+                    </p>
                   </div>
                 </div>
               </div>
             )}
+            
+            {/* Success message */}
+            <div className="bg-primary-50 rounded-xl p-4 border border-primary-100 flex items-start">
+              <CheckCircle className="text-primary-600 mt-0.5 mr-3 h-5 w-5" />
+              <div>
+                <h4 className="font-medium text-primary-800">Ready to Complete</h4>
+                <p className="text-sm text-primary-700 mt-1">
+                  All details have been verified. Click the button below to confirm and complete your payment.
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
@@ -166,7 +195,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <Button 
           variant="outline"
           onClick={onBack} 
-          className="w-1/2" 
+          className="w-1/2 border-secondary-300" 
           size="lg"
           disabled={isSubmitting}
         >
@@ -174,7 +203,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         </Button>
         <Button 
           onClick={onConfirm} 
-          className="w-1/2" 
+          className="w-1/2 bg-primary hover:bg-primary-600 group" 
           size="lg"
           disabled={isSubmitting}
         >
@@ -184,7 +213,10 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
               Processing...
             </>
           ) : (
-            'Confirm & Pay'
+            <>
+              Confirm & Pay
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </>
           )}
         </Button>
       </motion.div>
