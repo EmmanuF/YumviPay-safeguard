@@ -1,4 +1,3 @@
-
 /**
  * Format currency value with proper currency symbol and localization
  * @param amount Amount to format
@@ -49,4 +48,23 @@ export const formatNumberWithCommas = (value: number | string): string => {
   
   // Use Intl.NumberFormat for proper formatting
   return new Intl.NumberFormat().format(numericValue);
+};
+
+/**
+ * Format a date for display
+ * @param date - The date to format
+ * @returns Formatted date string
+ */
+export const formatDate = (date: Date | string | undefined): string => {
+  if (!date) return 'Unknown';
+  
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
