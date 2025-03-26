@@ -1,93 +1,36 @@
 
-import { toast } from "@/hooks/use-toast";
+/**
+ * Utility functions for transaction management
+ */
 
-// Generate a random transaction ID
+/**
+ * Generates a unique transaction ID
+ * Format: TXN-{timestamp}-{random}
+ */
 export const generateTransactionId = (): string => {
-  return Math.random().toString(36).substring(2, 10).toUpperCase();
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `TXN-${timestamp}-${random}`;
 };
 
-// Calculate fee (always returns 0 since transactions are free)
-export const calculateFee = (amount: string, country: string): string => {
-  return "0.00";
-};
-
-// Calculate total amount (equal to amount since fees are free)
-export const calculateTotal = (amount: string, fee: string): string => {
-  const numAmount = parseFloat(amount);
-  return numAmount.toFixed(2);
-};
-
-// Get estimated delivery based on destination country and payment method
-export const getEstimatedDelivery = (country: string, paymentMethod: string): string => {
-  if (paymentMethod.includes('mobile_money')) {
-    return 'Instant to 5 minutes';
-  } else if (paymentMethod.includes('bank_transfer')) {
-    return 'Instant to 15 minutes';
-  } else {
-    return 'Instant to 30 minutes';
+/**
+ * Formats a transaction status for display
+ */
+export const formatTransactionStatus = (status: string): string => {
+  switch (status) {
+    case 'pending':
+      return 'Pending';
+    case 'processing':
+      return 'Processing';
+    case 'completed':
+      return 'Completed';
+    case 'failed':
+      return 'Failed';
+    case 'cancelled':
+      return 'Cancelled';
+    case 'refunded':
+      return 'Refunded';
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
   }
-};
-
-// Utility function to show toast notifications
-export const showToast = (title: string, description: string, variant?: "default" | "destructive") => {
-  toast({
-    title,
-    description,
-    variant,
-  });
-};
-
-// Utility function to get consistent transaction amount from multiple sources
-export const getConsistentAmount = (
-  transactionData: any, 
-  fallbackToStorage: boolean = true
-): number => {
-  // Try multiple sources in order of preference
-  if (transactionData?.sendAmount && !isNaN(parseFloat(transactionData.sendAmount))) {
-    return parseFloat(transactionData.sendAmount);
-  }
-  
-  if (transactionData?.amount && !isNaN(parseFloat(transactionData.amount.toString()))) {
-    return parseFloat(transactionData.amount.toString());
-  }
-  
-  // Only check localStorage if fallbackToStorage is true
-  if (fallbackToStorage) {
-    const lastAmount = localStorage.getItem('lastTransactionAmount');
-    if (lastAmount && !isNaN(parseFloat(lastAmount))) {
-      return parseFloat(lastAmount);
-    }
-  }
-  
-  // Default value if all else fails
-  return 0;
-};
-
-// Utility function to consistently calculate converted amount
-export const calculateConvertedAmount = (amount: number, exchangeRate: number = 610): number => {
-  return amount * exchangeRate;
-};
-
-// Utility to ensure transaction data is consistent
-export const normalizeTransactionData = (data: any): any => {
-  if (!data) return null;
-  
-  // Get consistent amount
-  const amount = getConsistentAmount(data);
-  
-  // Use exchange rate from data or default
-  const exchangeRate = data.exchangeRate || 610;
-  
-  // Calculate converted amount
-  const convertedAmount = calculateConvertedAmount(amount, exchangeRate);
-  
-  // Return normalized data
-  return {
-    ...data,
-    amount: amount,
-    sendAmount: amount.toString(),
-    convertedAmount: convertedAmount,
-    receiveAmount: convertedAmount.toString(),
-    exchangeRate: exchangeRate,
-  };
 };
