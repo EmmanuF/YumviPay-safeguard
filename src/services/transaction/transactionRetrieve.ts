@@ -70,7 +70,7 @@ export const getTransactionById = async (id: string): Promise<Transaction | null
       
       if (data) {
         console.log('[DEBUG] Found transaction in Supabase');
-        return normalizeTransaction(data as Transaction);
+        return mapDatabaseTransactionToModel(data);
       }
     }
     
@@ -166,10 +166,11 @@ export const getAllTransactions = async (): Promise<Transaction[]> => {
         console.error('Error fetching transactions from Supabase:', error);
       }
       
-      if (data) {
+      if (data && Array.isArray(data)) {
         // Combine with stored transactions, removing duplicates
+        const dbTransactions = data.map(t => mapDatabaseTransactionToModel(t));
         const combinedTransactions = [
-          ...data.map(t => normalizeTransaction(t as Transaction)),
+          ...dbTransactions,
           ...storedTransactions.filter(st => !data.some(dt => dt.id === st.id))
         ];
         
@@ -212,7 +213,7 @@ export const getTransaction = async (id: string): Promise<Transaction | null> =>
  */
 export const getTransactions = async (ids?: string[]): Promise<Transaction[]> => {
   if (!ids || ids.length === 0) {
-    return getAllTransactions();
+    return await getAllTransactions();
   }
   
   try {
@@ -224,6 +225,38 @@ export const getTransactions = async (ids?: string[]): Promise<Transaction[]> =>
     console.error('Error retrieving transactions by IDs:', error);
     return [];
   }
+};
+
+/**
+ * Map database transaction object to our Transaction model
+ */
+const mapDatabaseTransactionToModel = (dbTransaction: any): Transaction => {
+  // Ensure we have proper field mappings from snake_case to camelCase
+  return {
+    id: dbTransaction.id,
+    amount: dbTransaction.amount,
+    recipientName: dbTransaction.recipient_name || 'Unknown',
+    recipientContact: dbTransaction.recipient_contact,
+    country: dbTransaction.country,
+    status: dbTransaction.status,
+    createdAt: new Date(dbTransaction.created_at),
+    updatedAt: new Date(dbTransaction.updated_at || dbTransaction.created_at),
+    completedAt: dbTransaction.completed_at ? new Date(dbTransaction.completed_at) : undefined,
+    estimatedDelivery: dbTransaction.estimated_delivery,
+    totalAmount: dbTransaction.total_amount || dbTransaction.amount,
+    sendAmount: dbTransaction.amount,
+    provider: dbTransaction.provider,
+    paymentMethod: dbTransaction.payment_method,
+    currency: dbTransaction.currency,
+    recipientCountry: dbTransaction.recipient_country || dbTransaction.country,
+    recipientCountryCode: dbTransaction.recipient_country_code,
+    failureReason: dbTransaction.failure_reason,
+    isRecurring: dbTransaction.is_recurring,
+    recurringPaymentId: dbTransaction.recurring_payment_id,
+    // Add other fields that might be in the DB but not in our model defaults
+    date: dbTransaction.created_at,
+    type: 'send'
+  };
 };
 
 /**
