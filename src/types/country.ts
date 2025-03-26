@@ -17,4 +17,5 @@ export interface PaymentMethod {
   icon: string;
   fees: string;
   processingTime: string;
+  providers?: string[]; // Add providers as an optional array of strings
 }

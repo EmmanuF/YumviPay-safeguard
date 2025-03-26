@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { PaymentMethod as CountryPaymentMethod } from '@/types/country';
+import { PaymentMethod } from '@/types/country';
 
 /**
  * Hook to get available payment methods for a specific country
  */
 export const usePaymentMethods = (countryCode: string) => {
-  const [paymentMethods, setPaymentMethods] = useState<CountryPaymentMethod[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
