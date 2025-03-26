@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { Transaction } from '@/types/transaction';
+import type { Transaction, TransactionStatus } from '@/types/transaction';
 import { getReliableAmount } from '@/utils/transactionAmountUtils';
 
 /**
@@ -50,12 +50,16 @@ export const createTransaction = async (transaction: Partial<Transaction>): Prom
     if (!userId) {
       console.log('No authenticated user, creating local transaction instead');
       const localId = transaction.id || `local-${Date.now()}`;
+      
+      // Ensure the status is a valid TransactionStatus type
+      const status: TransactionStatus = transaction.status as TransactionStatus || 'pending';
+      
       const localTransaction: Transaction = {
         id: localId,
         amount: transaction.amount?.toString() || '0',
         recipientName: transaction.recipientName || 'Unknown',
         country: transaction.country || 'CM',
-        status: 'pending',
+        status: status,
         createdAt: new Date(),
         updatedAt: new Date(),
         recipientContact: transaction.recipientContact,
@@ -93,12 +97,15 @@ export const createTransaction = async (transaction: Partial<Transaction>): Prom
       console.error('Error creating transaction:', error);
       
       // Fall back to local storage for offline usage
+      // Ensure status is a valid TransactionStatus
+      const validStatus: TransactionStatus = (transaction.status as TransactionStatus) || 'pending';
+      
       const localTransaction: Transaction = {
         id: transaction.id || `local-${Date.now()}`,
         amount: transaction.amount?.toString() || '0',
         recipientName: transaction.recipientName || 'Unknown',
         country: transaction.country || 'CM',
-        status: 'pending',
+        status: validStatus,
         createdAt: new Date(),
         // Include other fields
         recipientContact: transaction.recipientContact,
@@ -118,7 +125,7 @@ export const createTransaction = async (transaction: Partial<Transaction>): Prom
       amount: data.amount,
       recipientName: data.recipient_name,
       country: data.country,
-      status: data.status,
+      status: data.status as TransactionStatus,
       createdAt: new Date(data.created_at),
       updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
       // Include other fields
