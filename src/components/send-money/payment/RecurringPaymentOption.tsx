@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RepeatIcon, CheckCircle2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -9,27 +9,24 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface RecurringPaymentOptionProps {
-  transactionData: any;
-  onRecurringChange: (isRecurring: boolean, frequency: string) => void;
+  isRecurring: boolean;
+  frequency: string;
+  onToggleRecurring: (isRecurring: boolean) => void;
+  onChangeFrequency: (frequency: string) => void;
 }
 
 const RecurringPaymentOption: React.FC<RecurringPaymentOptionProps> = ({
-  transactionData,
-  onRecurringChange
+  isRecurring,
+  frequency,
+  onToggleRecurring,
+  onChangeFrequency
 }) => {
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [frequency, setFrequency] = useState('monthly');
-
   const handleRecurringToggle = (checked: boolean) => {
-    setIsRecurring(checked);
-    onRecurringChange(checked, frequency);
+    onToggleRecurring(checked);
   };
 
   const handleFrequencyChange = (value: string) => {
-    setFrequency(value);
-    if (isRecurring) {
-      onRecurringChange(isRecurring, value);
-    }
+    onChangeFrequency(value);
   };
 
   return (

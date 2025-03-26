@@ -156,7 +156,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               <h3 className="text-sm font-medium mb-2 text-muted-foreground">Available payment methods</h3>
               <CountryPaymentMethods
                 countryCode={transactionData.targetCountry || 'CM'}
-                paymentMethods={paymentMethods}
+                methods={paymentMethods}
                 isLoading={isLoading}
                 selectedMethod={transactionData.paymentMethod}
                 selectedProvider={transactionData.selectedProvider}
@@ -174,7 +174,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             <div className="mt-6">
               <QRCodeOption
                 transactionData={transactionData}
-                isSelected={false}
                 onSelect={() => {
                   // Not implemented in this version
                   toast.info('Coming soon', {
@@ -189,7 +188,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               <div className="mt-6">
                 <SavePreferenceToggle
                   checked={savePreference}
-                  onCheckedChange={handleSavePreference}
+                  onChange={handleSavePreference}
                 />
               </div>
             )}

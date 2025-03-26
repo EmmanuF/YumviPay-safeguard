@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { State, Action, ActionType, ToasterToast } from "./types";
+import { State, Action, actionTypes, ToasterToast } from "./types";
 
 // Create a state that lives outside of React
 export const memoryState: State = { toasts: [] };
@@ -19,21 +19,22 @@ const TOAST_REMOVE_DELAY = 1000000;
 
 const reducer = (state: ToasterToast[], action: Action): ToasterToast[] => {
   switch (action.type) {
-    case ActionType.ADD_TOAST:
-      return [action.toast, ...state].slice(0, TOAST_LIMIT);
+    case actionTypes.ADD_TOAST:
+      return [
+        { ...action.toast, id: action.toast.id, open: true },
+        ...state
+      ].slice(0, TOAST_LIMIT);
 
-    case ActionType.UPDATE_TOAST:
+    case actionTypes.UPDATE_TOAST:
       return state.map((t) =>
         t.id === action.toast.id ? { ...t, ...action.toast } : t
       );
 
-    case ActionType.DISMISS_TOAST: {
-      const { toastId } = action;
-
+    case actionTypes.DISMISS_TOAST: {
       // If there's a toast ID, dismiss a specific toast
-      if (toastId) {
+      if (action.toastId) {
         return state.map((t) =>
-          t.id === toastId
+          t.id === action.toastId
             ? {
                 ...t,
                 open: false,
@@ -49,15 +50,16 @@ const reducer = (state: ToasterToast[], action: Action): ToasterToast[] => {
       }));
     }
 
-    case ActionType.REMOVE_TOAST: {
-      const { toastId } = action;
-
-      if (toastId) {
-        return state.filter((t) => t.id !== toastId);
+    case actionTypes.REMOVE_TOAST: {
+      if (action.toastId) {
+        return state.filter((t) => t.id !== action.toastId);
       }
 
       return [];
     }
+    
+    default:
+      return state;
   }
 };
 
@@ -65,7 +67,7 @@ export const addToRemoveQueue = (toastId: string) => {
   if (memoryState.toasts.find((t) => t.id === toastId)?.open === false) {
     setTimeout(() => {
       dispatch({
-        type: ActionType.REMOVE_TOAST,
+        type: actionTypes.REMOVE_TOAST,
         toastId,
       });
     }, TOAST_REMOVE_DELAY);

@@ -6,15 +6,19 @@ import TransactionQRCode from '@/components/qrcode/TransactionQRCode';
 
 interface QRCodeOptionProps {
   transactionData: any;
+  onSelect?: () => void;
+  isSelected?: boolean;
   onScanComplete?: (data: any) => void;
 }
 
 const QRCodeOption: React.FC<QRCodeOptionProps> = ({
   transactionData,
+  onSelect,
+  isSelected = false,
   onScanComplete
 }) => {
   return (
-    <Card className="w-full">
+    <Card className={`w-full ${isSelected ? 'ring-2 ring-primary' : ''}`} onClick={onSelect}>
       <CardContent className="pt-6">
         <div className="flex items-center mb-4">
           <QrCode className="h-5 w-5 text-primary-600 mr-2" />

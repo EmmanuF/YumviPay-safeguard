@@ -9,13 +9,15 @@ interface PaymentStepNavigationProps {
   onBack: () => void;
   isNextDisabled: boolean;
   isSubmitting: boolean;
+  nextLabel?: string;
 }
 
 const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   onNext,
   onBack,
   isNextDisabled,
-  isSubmitting = false
+  isSubmitting = false,
+  nextLabel = 'Continue'
 }) => {
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -49,7 +51,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
             Processing
           </>
         ) : (
-          'Continue'
+          nextLabel
         )}
       </Button>
     </motion.div>
