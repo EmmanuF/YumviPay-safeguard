@@ -15,7 +15,7 @@ interface KadoRedirectParams {
   returnUrl?: string;
 }
 
-// Kado integration constants
+// Kado integration constants - Now using environment variable
 const KADO_BASE_URL = 'https://api.kado.money';
 const KADO_REDIRECT_URL = `${KADO_BASE_URL}/v1/payments/redirect`;
 const KADO_TEST_MODE = true; // Set to false in production
@@ -57,7 +57,9 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       country: params.country,
       payment_method: params.paymentMethod,
       transaction_id: params.transactionId,
-      return_url: params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`
+      return_url: params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`,
+      // Add widget ID from environment variables
+      api_key: import.meta.env.VITE_KADO_WIDGET_ID || ''
     });
     
     const redirectUrl = `${KADO_REDIRECT_URL}?${queryParams.toString()}`;
