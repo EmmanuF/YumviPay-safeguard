@@ -12,31 +12,10 @@ const HeroDescription: React.FC = () => {
       className="w-full max-w-3xl mx-auto"
     >
       <HeroCalculator />
-      <div className="mt-6">
-        <div className="mb-4 flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="bg-green-100 p-1 rounded-full">
-              <div className="text-green-600">✓</div>
-            </div>
-            <p className="text-sm text-gray-600">Fast transfers to 10+ African countries</p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="bg-green-100 p-1 rounded-full">
-              <div className="text-green-600">✓</div>
-            </div>
-            <p className="text-sm text-gray-600"><strong>100% FREE</strong> - No transaction fees ever</p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="bg-green-100 p-1 rounded-full">
-              <div className="text-green-600">✓</div>
-            </div>
-            <p className="text-sm text-gray-600">No hidden fees or exchange rate markups</p>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-start w-full">
+      
+      {/* Trusted by section - moved to the top */}
+      <div className="mt-6 mb-4 flex justify-between items-center">
+        <div className="flex items-center">
           <div className="flex">
             <img 
               src="https://randomuser.me/api/portraits/men/25.jpg" 
@@ -73,6 +52,30 @@ const HeroDescription: React.FC = () => {
             </div>
             <span className="text-xs font-medium ml-1">4.9/5</span>
           </motion.div>
+        </div>
+      </div>
+      
+      {/* Feature bullet points in a single horizontal line */}
+      <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
+        <div className="flex items-center gap-2">
+          <div className="bg-green-100 p-1 rounded-full">
+            <div className="text-green-600">✓</div>
+          </div>
+          <p className="text-sm text-gray-600">Fast transfers to 10+ African countries</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="bg-green-100 p-1 rounded-full">
+            <div className="text-green-600">✓</div>
+          </div>
+          <p className="text-sm text-gray-600"><strong>100% FREE</strong> - No transaction fees ever</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="bg-green-100 p-1 rounded-full">
+            <div className="text-green-600">✓</div>
+          </div>
+          <p className="text-sm text-gray-600">No hidden fees or exchange rate markups</p>
         </div>
       </div>
     </motion.div>
