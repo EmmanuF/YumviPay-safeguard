@@ -26,8 +26,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     onBack: typeof onBack 
   });
   
-  const handleNext = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleNext = () => {
     console.log('[PaymentStepNavigation] Next button clicked');
     if (typeof onNext === 'function') {
       console.log('[PaymentStepNavigation] Calling onNext function');
@@ -37,8 +36,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     }
   };
   
-  const handleBack = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleBack = () => {
     console.log('[PaymentStepNavigation] Back button clicked');
     if (typeof onBack === 'function') {
       console.log('[PaymentStepNavigation] Calling onBack function');

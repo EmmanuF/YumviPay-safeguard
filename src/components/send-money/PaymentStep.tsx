@@ -104,30 +104,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   
   const isNextDisabled = !transactionData.paymentMethod || !transactionData.selectedProvider;
   
-  // Ensuring we have the navigation functions
-  const handleNextClick = (e: React.MouseEvent) => {
-    console.log('[PaymentStep] handleNextClick called');
-    if (!isNextDisabled && typeof onNext === 'function') {
-      console.log('[PaymentStep] Calling onNext from PaymentStep');
-      onNext();
-    } else {
-      console.log('[PaymentStep] Next button disabled or onNext is not a function');
-      if (isNextDisabled) {
-        toast.error("Please select a payment method and provider before continuing");
-      }
-    }
-  };
-  
-  const handleBackClick = (e: React.MouseEvent) => {
-    console.log('[PaymentStep] handleBackClick called');
-    if (typeof onBack === 'function') {
-      console.log('[PaymentStep] Calling onBack from PaymentStep');
-      onBack();
-    } else {
-      console.log('[PaymentStep] onBack is not a function');
-    }
-  };
-  
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -145,13 +122,30 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
 
-  // Debug the navigation functions
-  console.log('[PaymentStep] Navigation functions before render:', { 
+  // Logging to ensure we have proper navigation functions
+  console.log('[PaymentStep] Navigation functions check:', { 
     onNext: typeof onNext, 
-    onBack: typeof onBack,
-    handleNextClick: typeof handleNextClick,
-    handleBackClick: typeof handleBackClick
+    onBack: typeof onBack
   });
+  
+  // Direct function references without additional wrapper
+  const handleNext = () => {
+    console.log('[PaymentStep] Direct handleNext called');
+    if (typeof onNext === 'function') {
+      onNext();
+    } else {
+      console.error('[PaymentStep] onNext is not available or not a function');
+    }
+  };
+  
+  const handleBack = () => {
+    console.log('[PaymentStep] Direct handleBack called');
+    if (typeof onBack === 'function') {
+      onBack();
+    } else {
+      console.error('[PaymentStep] onBack is not available or not a function');
+    }
+  };
 
   return (
     <motion.div 
@@ -205,8 +199,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       
       <div className="sticky bottom-0 pt-4 pb-2 bg-background">
         <PaymentStepNavigation 
-          onNext={onNext}
-          onBack={onBack}
+          onNext={handleNext}
+          onBack={handleBack}
           isNextDisabled={isNextDisabled}
           isSubmitting={isSubmitting}
           nextLabel="Continue"
