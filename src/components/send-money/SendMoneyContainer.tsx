@@ -22,13 +22,10 @@ import {
 import { cn } from '@/lib/utils';
 import PaymentMethodCard from '@/components/PaymentMethodCard';
 import { Building, Wallet, CreditCard, Contact2 } from 'lucide-react';
-import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 import { kadoRedirectService } from '@/services/kado/redirect';
+import { getTransactionData } from '@/utils/transactionDataStore';
 
 const formSchema = z.object({
-  amount: z.string().min(1, {
-    message: "Amount is required.",
-  }),
   country: z.string().min(1, {
     message: "Country is required.",
   }),
@@ -66,12 +63,13 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
   const { countries, isLoading: countriesLoading } = useCountries();
   const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods(selectedCountry);
   const [transactionId, setTransactionId] = useState('');
-  const [showCalculator, setShowCalculator] = useState(true);
-
+  
+  // Get the transaction data that was already set in the previous step
+  const storedTransactionData = getTransactionData();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: '',
       country: defaultCountryCode || '',
       paymentMethod: '',
       recipientName: '',
@@ -85,6 +83,14 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
       form.setValue('country', defaultCountryCode);
     }
   }, [defaultCountryCode, form]);
+
+  // If we're still in the initial data collection step, just call the continue handler
+  useEffect(() => {
+    if (needsInitialData && onInitialDataContinue && storedTransactionData) {
+      // Data is already available, no need to show the calculator again
+      onInitialDataContinue();
+    }
+  }, [needsInitialData, onInitialDataContinue, storedTransactionData]);
 
   const handleCountryChange = (value: string) => {
     setSelectedCountry(value);
@@ -117,15 +123,23 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
       const newTransactionId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       setTransactionId(newTransactionId);
 
+      // Get the amount and currency information from the stored transaction data
+      const amount = storedTransactionData?.amount?.toString() || "0";
+      
       // Store the transaction details in localStorage
       localStorage.setItem('pendingTransaction', JSON.stringify({
         ...values,
-        transactionId: newTransactionId
+        amount,
+        transactionId: newTransactionId,
+        sourceCurrency: storedTransactionData?.sourceCurrency || 'USD',
+        targetCurrency: storedTransactionData?.targetCurrency || 'XAF',
+        convertedAmount: storedTransactionData?.convertedAmount || 0,
+        exchangeRate: storedTransactionData?.exchangeRate || 610
       }));
 
       // Redirect to Kado
       await kadoRedirectService.redirectToKado({
-        amount: values.amount,
+        amount,
         recipientName: values.recipientName,
         recipientContact: values.recipientContact,
         country: values.country,
@@ -146,61 +160,40 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
     }
   };
 
-  // Handler for continuing after selecting amount and currencies
-  const handleCalculatorContinue = () => {
-    setShowCalculator(false);
-  };
-
-  if (needsInitialData) {
+  // If we're still loading initial data, but don't have it yet, show minimal UI
+  if (needsInitialData && !storedTransactionData) {
     return (
       <div className="container mx-auto mt-10">
         <Card>
           <CardHeader>
-            <CardTitle>{t('sendMoney.initialDataTitle')}</CardTitle>
-            <CardDescription>{t('sendMoney.initialDataDescription')}</CardDescription>
+            <CardTitle>{t('sendMoney.pleaseWait')}</CardTitle>
+            <CardDescription>{t('sendMoney.loadingData')}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ExchangeRateCalculator onContinue={onInitialDataContinue} />
+          <CardContent className="flex justify-center p-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (showCalculator) {
-    return (
-      <div className="container mx-auto mt-10">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('sendMoney.calculatorTitle')}</CardTitle>
-            <CardDescription>{t('sendMoney.calculatorDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ExchangeRateCalculator inlineMode onContinue={handleCalculatorContinue} />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+  // Display transaction form with pre-filled data
   return (
     <div className="container mx-auto mt-10">
       <Card>
         <CardHeader>
           <CardTitle>{t('transaction.send_money')}</CardTitle>
           <CardDescription>{t('sendMoney.description')}</CardDescription>
+          {storedTransactionData && (
+            <div className="mt-2 p-3 bg-muted rounded-lg">
+              <p className="font-medium">{t('transaction.amount')}: <span className="text-primary">{storedTransactionData.amount} {storedTransactionData.sourceCurrency}</span></p>
+              <p className="text-sm text-muted-foreground">{t('transaction.recipient_gets')}: {storedTransactionData.convertedAmount} {storedTransactionData.targetCurrency}</p>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {error && <div className="text-red-500">{error.toString()}</div>}
-
-            <div>
-              <Label htmlFor="amount">{t('transaction.amount')}</Label>
-              <Input id="amount" type="number" placeholder={t('sendMoney.amountPlaceholder')} {...form.register('amount')} />
-              {form.formState.errors.amount && (
-                <p className="text-red-500 text-sm">{form.formState.errors.amount.message}</p>
-              )}
-            </div>
 
             <div>
               <Label htmlFor="country">{t('sendMoney.countryLabel')}</Label>
