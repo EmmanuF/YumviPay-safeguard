@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Sparkles, TrendingUp } from 'lucide-react';
-import ExchangeRateCalculatorStub from '@/components/home/ExchangeRateCalculatorStub';
-import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
+import { ArrowRight } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
+import { useNavigate } from 'react-router-dom';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -29,127 +31,92 @@ const itemVariants = {
 };
 
 const HeroCalculator: React.FC = () => {
-  const { shouldUseComplexAnimations } = useDeviceOptimizations();
+  const navigate = useNavigate();
+  const { 
+    sendAmount, 
+    setSendAmount, 
+    receiveAmount, 
+    exchangeRate 
+  } = useExchangeRateCalculator();
+  
+  // Fixed values for the MVP version focused on Cameroon
+  const sourceCurrency = "USD";
+  const targetCurrency = "XAF";
+  
+  const handleContinue = () => {
+    navigate('/signup');
+  };
   
   return (
-    <div className="relative py-8 px-4 bg-[#F9F6FD] rounded-xl">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative"
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="relative bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+    >
+      <motion.h2 
+        variants={itemVariants}
+        className="text-2xl font-bold mb-6"
       >
-        {/* Enhanced background elements with gradients */}
-        <motion.div
-          variants={itemVariants}
-          className="absolute inset-0 bg-gradient-to-br from-indigo-100/40 to-secondary-100/30 rounded-2xl transform rotate-3 scale-[1.02] shadow-xl opacity-70"
-        />
-        <motion.div 
-          variants={itemVariants}
-          className="absolute inset-0 bg-gradient-to-tr from-indigo-50/20 to-secondary-200/20 rounded-2xl transform -rotate-1 scale-[1.01] opacity-60"
-        />
-        
-        {/* Decorative elements */}
-        <motion.div 
-          className="absolute -top-6 -left-6 w-12 h-12 bg-indigo-300 rounded-full opacity-70 z-0"
-          animate={{ 
-            y: [0, -8, 0],
-            scale: [1, 1.05, 1],
-            rotate: shouldUseComplexAnimations ? [0, 5, 0] : 0,
-          }}
-          transition={{ 
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut" 
-          }}
-        />
-        
-        <motion.div 
-          className="absolute top-1/4 -right-3 w-8 h-8 bg-primary-400 rounded-full opacity-60 z-0"
-          animate={{ 
-            x: [0, 5, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ 
-            duration: 2.5,
-            delay: 0.5,
-            repeat: Infinity,
-            ease: "easeInOut" 
-          }}
-        />
-        
-        <motion.div 
-          className="absolute -bottom-4 -right-4 w-16 h-16 bg-secondary-300 rounded-full opacity-70 z-0"
-          animate={{ 
-            y: [0, 8, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ 
-            duration: 4,
-            delay: 1,
-            repeat: Infinity,
-            ease: "easeInOut" 
-          }}
-        />
-
-        {/* Sparkle elements */}
-        {shouldUseComplexAnimations && (
-          <>
-            <motion.div
-              className="absolute top-10 right-20 z-10"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.7, 1, 0.7],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <Sparkles className="text-primary-400 h-6 w-6" />
-            </motion.div>
-            
-            <motion.div
-              className="absolute top-3/4 left-6 z-10"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.6, 1, 0.6],
-              }}
-              transition={{
-                duration: 2.5,
-                delay: 0.7,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <TrendingUp className="text-indigo-500 h-5 w-5" />
-            </motion.div>
-          </>
-        )}
-        
-        <motion.div
-          variants={itemVariants}
-          className="relative z-10 bg-white rounded-2xl shadow-lg"
-          whileHover={{ 
-            scale: 1.01, 
-            transition: { duration: 0.3 } 
-          }}
-        >
-          <ExchangeRateCalculatorStub />
-          
-          <motion.div
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-1 text-gray-500 text-sm cursor-pointer group"
-            whileHover={{ y: 2 }}
-            animate={{ y: [0, 4, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <span className="group-hover:text-indigo-600 transition-colors">See more rates</span>
-            <ChevronDown size={14} className="group-hover:text-indigo-600 transition-colors" />
-          </motion.div>
+        Calculate Your Transfer
+      </motion.h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <motion.div variants={itemVariants} className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">You Send</label>
+          <Input
+            type="number"
+            value={sendAmount}
+            onChange={(e) => setSendAmount(e.target.value)}
+            className="w-full p-3 border rounded-md"
+            placeholder="100"
+          />
+          <div className="p-3 border rounded-md flex items-center space-x-2">
+            <img 
+              src="https://flagcdn.com/w40/us.png" 
+              alt="US Flag" 
+              className="w-5 h-3.5 object-cover"
+            />
+            <span>United States (USD)</span>
+          </div>
         </motion.div>
+        
+        <motion.div variants={itemVariants} className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">They Receive</label>
+          <Input
+            type="text"
+            value={receiveAmount}
+            readOnly
+            className="w-full p-3 border rounded-md bg-gray-50"
+          />
+          <div className="p-3 border rounded-md flex items-center space-x-2">
+            <img 
+              src="https://flagcdn.com/w40/cm.png" 
+              alt="Cameroon Flag" 
+              className="w-5 h-3.5 object-cover"
+            />
+            <span>Cameroon (XAF)</span>
+          </div>
+        </motion.div>
+      </div>
+      
+      <motion.div variants={itemVariants} className="mb-4">
+        <Button 
+          onClick={handleContinue}
+          className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center"
+        >
+          <span className="mr-2">Send Now</span>
+          <ArrowRight className="h-5 w-5" />
+        </Button>
       </motion.div>
-    </div>
+      
+      <motion.div 
+        variants={itemVariants}
+        className="text-center text-sm text-gray-600"
+      >
+        Exchange Rate: 1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
+      </motion.div>
+    </motion.div>
   );
 };
 

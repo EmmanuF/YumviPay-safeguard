@@ -2,49 +2,57 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { ArrowDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const ExchangeRateCalculatorStub: React.FC = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="p-8 rounded-xl">
-      <h3 className="text-xl font-semibold mb-6 text-center">Send Money to Cameroon</h3>
+    <div className="p-6 rounded-xl bg-white">
+      <h3 className="text-2xl font-bold mb-6">Calculate Your Transfer</h3>
       
-      <div className="space-y-6">
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-2">You send</div>
-          <div className="font-medium text-xl flex justify-between items-center">
-            <span>100 USD</span>
-            <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded">United States</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">You Send</label>
+          <div className="p-3 border rounded-md bg-white">
+            100
+          </div>
+          <div className="p-3 border rounded-md flex items-center space-x-2">
+            <img 
+              src="https://flagcdn.com/w40/us.png" 
+              alt="US Flag" 
+              className="w-5 h-3.5 object-cover"
+            />
+            <span>United States (USD)</span>
           </div>
         </div>
         
-        <div className="flex justify-center">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <ArrowDown size={20} className="text-primary" />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">They Receive</label>
+          <div className="p-3 border rounded-md bg-gray-50">
+            60,743.30
+          </div>
+          <div className="p-3 border rounded-md flex items-center space-x-2">
+            <img 
+              src="https://flagcdn.com/w40/cm.png" 
+              alt="Cameroon Flag" 
+              className="w-5 h-3.5 object-cover"
+            />
+            <span>Cameroon (XAF)</span>
           </div>
         </div>
-        
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-2">They receive</div>
-          <div className="font-medium text-xl flex justify-between items-center">
-            <span>63,500 XAF</span>
-            <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded">Cameroon</span>
-          </div>
-        </div>
-        
-        <div className="text-sm text-center text-muted-foreground">
-          1 USD = 635 XAF
-        </div>
-        
-        <Button 
-          className="w-full mt-4" 
-          onClick={() => navigate('/signup')}
-          size="lg"
-        >
-          Get Started
-        </Button>
+      </div>
+      
+      <Button 
+        className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center mb-4"
+        onClick={() => navigate('/signup')}
+      >
+        <span className="mr-2">Send Now</span>
+        <ArrowRight className="h-5 w-5" />
+      </Button>
+      
+      <div className="text-center text-sm text-gray-600">
+        Exchange Rate: 1 USD = 607.4330 XAF
       </div>
     </div>
   );
