@@ -12,6 +12,7 @@ interface LoadingStateProps {
   error?: string | Error | null;
   timeout?: number;
   onRetry?: () => void;
+  retryAction?: () => void; // Added for backward compatibility
   transactionId?: string;
 }
 
@@ -21,11 +22,23 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   error = null,
   timeout = 10000,
   onRetry,
+  retryAction, // Handle both prop names
   transactionId
 }) => {
   const [timeoutReached, setTimeoutReached] = useState(false);
   const [hasData, setHasData] = useState(false);
   const navigate = useNavigate();
+  
+  // Combine both retry handlers for backward compatibility
+  const handleRetry = () => {
+    if (onRetry) {
+      onRetry();
+    } else if (retryAction) {
+      retryAction();
+    } else {
+      window.location.reload();
+    }
+  };
   
   // Check if we can recover transaction data
   useEffect(() => {
@@ -92,15 +105,6 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     } catch (error) {
       console.error('Error forcing transaction completion:', error);
       toast.error("Error Updating Transaction");
-    }
-  };
-  
-  // Retry by reloading the page
-  const handleRetry = () => {
-    if (onRetry) {
-      onRetry();
-    } else {
-      window.location.reload();
     }
   };
   

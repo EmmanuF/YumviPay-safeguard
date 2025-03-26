@@ -299,7 +299,7 @@ const TransactionStatus = () => {
       <div className="flex flex-col min-h-screen bg-background">
         <TransactionStatusHeader />
         <LoadingState 
-          retryAction={handleRetry}
+          onRetry={handleRetry} // Changed from retryAction to onRetry
           submessage={retryCount > 0 ? `Retry attempt ${retryCount}/${MAX_RETRY_ATTEMPTS}...` : undefined}
           transactionId={id}
         />
@@ -387,7 +387,7 @@ const TransactionStatus = () => {
       
       {loading ? (
         <LoadingState 
-          retryAction={handleRetry}
+          onRetry={handleRetry} // Changed from retryAction to onRetry
           submessage={retryCount > 0 ? `Retry attempt ${retryCount}/${MAX_RETRY_ATTEMPTS}...` : undefined}
           transactionId={id}
         />
