@@ -3,6 +3,19 @@
  * Transaction service to manage money transfers through Kado
  */
 
+// Import store functions directly to avoid name conflicts
+import { 
+  initializeTransactions,
+  generateMockTransactions,
+  getOfflineTransactions,
+  setOfflineTransactions,
+  addOfflineTransaction,
+  updateOfflineTransaction,
+  clearTransactionsStore,
+  getStoredTransactions,
+  createTransaction
+} from './store';
+
 // Re-export store functions
 export { 
   initializeTransactions,
