@@ -36,15 +36,11 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   };
 
   return (
-    <motion.div
-      variants={itemVariants}
-      className="pt-4 flex space-x-3 w-full"
-      style={{ display: 'flex' }}
-    >
+    <div className="grid grid-cols-2 gap-3 w-full">
       <Button 
         variant="outline"
         onClick={onBack} 
-        className="w-1/2" 
+        className="w-full" 
         size="lg"
         disabled={isSubmitting}
       >
@@ -52,7 +48,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
       </Button>
       <Button 
         onClick={onNext} 
-        className="w-1/2" 
+        className="w-full" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
       >
@@ -65,7 +61,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
           nextLabel
         )}
       </Button>
-    </motion.div>
+    </div>
   );
 };
 

@@ -127,9 +127,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-4"
+      className="space-y-4 flex flex-col"
     >
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="flex-grow">
         <Card className="border-0 shadow-lg bg-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Select Payment Method</CardTitle>
@@ -195,8 +195,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </Card>
       </motion.div>
       
-      {/* Explicitly render navigation with forced visibility */}
-      <motion.div variants={itemVariants} className="mt-6">
+      {/* Navigation buttons - separate from card content */}
+      <div className="sticky bottom-0 pt-4 pb-2 bg-background">
         <PaymentStepNavigation 
           onNext={onNext}
           onBack={onBack}
@@ -204,7 +204,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           isSubmitting={isSubmitting}
           nextLabel="Continue"
         />
-      </motion.div>
+      </div>
     </motion.div>
   );
 };
