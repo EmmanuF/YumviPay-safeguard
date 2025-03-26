@@ -1,5 +1,4 @@
 
-import { Transaction, TransactionStatus } from "@/types/transaction";
 import { updateTransactionStatus } from './updateStatus';
 
 /**

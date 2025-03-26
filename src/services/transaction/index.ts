@@ -9,9 +9,12 @@ import {
 } from './transactionRetrieve';
 
 import {
-  updateTransactionStatus,
-  simulateWebhook
+  updateTransactionStatus
 } from './update';
+
+import {
+  simulateWebhook
+} from './update/webhookSimulator';
 
 import {
   createTransaction

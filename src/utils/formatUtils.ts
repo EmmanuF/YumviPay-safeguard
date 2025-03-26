@@ -1,59 +1,52 @@
 
 /**
- * Format a date for display
- * @param date - The date to format
- * @returns Formatted date string
- */
-export const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Unknown';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  return dateObj.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-/**
- * Format currency for display
- * @param amount - The amount to format
- * @param currency - The currency code (default: USD)
+ * Format currency value with proper currency symbol and localization
+ * @param amount Amount to format
+ * @param currencyCode ISO currency code (USD, EUR, XAF, etc.)
+ * @param locale Locale for formatting (default: en-US)
  * @returns Formatted currency string
  */
-export const formatCurrency = (amount: string | number | undefined, currency: string = 'USD'): string => {
-  if (amount === undefined) return '$0.00';
+export const formatCurrency = (
+  amount: number | string,
+  currencyCode: string = 'USD',
+  locale: string = 'en-US'
+): string => {
+  // Handle string amounts
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  // Handle NaN or invalid values
+  if (isNaN(numericAmount)) {
+    return `0.00 ${currencyCode}`;
+  }
   
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency
-  }).format(numAmount);
+  try {
+    // Use Intl.NumberFormat for proper formatting
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericAmount);
+  } catch (error) {
+    // Fallback for unsupported currency codes
+    return `${numericAmount.toFixed(2)} ${currencyCode}`;
+  }
 };
 
 /**
- * Format a number with commas
- * @param value - The value to format
+ * Format large numbers with commas for better readability
+ * @param value Number to format
  * @returns Formatted number string
  */
-export const formatNumberWithCommas = (value: string | number): string => {
-  if (typeof value === 'string') {
-    const parsed = parseFloat(value);
-    if (isNaN(parsed)) return '0';
-    return parsed.toLocaleString();
+export const formatNumberWithCommas = (value: number | string): string => {
+  // Handle string values
+  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  
+  // Handle NaN or invalid values
+  if (isNaN(numericValue)) {
+    return '0';
   }
-  return value.toLocaleString();
-};
-
-/**
- * Clean a numeric string by removing commas
- * @param value - The string to clean
- * @returns Cleaned numeric string
- */
-export const cleanNumericString = (value: string): string => {
-  return value.replace(/,/g, '');
+  
+  // Use Intl.NumberFormat for proper formatting
+  return new Intl.NumberFormat().format(numericValue);
 };
