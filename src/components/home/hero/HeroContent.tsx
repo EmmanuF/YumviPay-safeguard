@@ -3,8 +3,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import HeroTitle from './HeroTitle';
 import HeroDescription from './HeroDescription';
-import HeroFeatureBullets from './HeroFeatureBullets';
-import HeroTrustIndicators from './HeroTrustIndicators';
 
 interface HeroContentProps {
   onGetStarted: () => void;
@@ -33,8 +31,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ onGetStarted }) => {
         <HeroTitle onGetStarted={onGetStarted} />
       </div>
       <HeroDescription />
-      <HeroFeatureBullets />
-      <HeroTrustIndicators />
     </motion.div>
   );
 };

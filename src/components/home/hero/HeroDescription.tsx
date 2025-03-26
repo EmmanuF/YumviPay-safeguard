@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { HeroCalculator, HeroFeatureBullets, HeroTrustIndicators } from './index';
+import { HeroCalculator } from './index';
 
 const HeroDescription: React.FC = () => {
   return (
@@ -13,8 +13,67 @@ const HeroDescription: React.FC = () => {
     >
       <HeroCalculator />
       <div className="mt-6">
-        <HeroFeatureBullets />
-        <HeroTrustIndicators />
+        <div className="mb-4 flex flex-wrap justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="bg-green-100 p-1 rounded-full">
+              <div className="text-green-600">✓</div>
+            </div>
+            <p className="text-sm text-gray-600">Fast transfers to 10+ African countries</p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <div className="bg-green-100 p-1 rounded-full">
+              <div className="text-green-600">✓</div>
+            </div>
+            <p className="text-sm text-gray-600"><strong>100% FREE</strong> - No transaction fees ever</p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <div className="bg-green-100 p-1 rounded-full">
+              <div className="text-green-600">✓</div>
+            </div>
+            <p className="text-sm text-gray-600">No hidden fees or exchange rate markups</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-start w-full">
+          <div className="flex">
+            <img 
+              src="https://randomuser.me/api/portraits/men/25.jpg" 
+              alt="User" 
+              className="w-10 h-10 rounded-full border-2 border-white shadow-md"
+            />
+            <img 
+              src="https://randomuser.me/api/portraits/women/67.jpg" 
+              alt="User" 
+              className="w-10 h-10 rounded-full border-2 border-white shadow-md -ml-2"
+            />
+            <img 
+              src="https://randomuser.me/api/portraits/women/90.jpg" 
+              alt="User" 
+              className="w-10 h-10 rounded-full border-2 border-white shadow-md -ml-2"
+            />
+          </div>
+          <div className="ml-3">
+            <div className="text-sm text-gray-500">Trusted by</div>
+            <div className="text-sm font-semibold">10K+ users globally</div>
+          </div>
+          
+          <motion.div 
+            className="ml-4 bg-white/80 px-3 py-1 rounded-full shadow-sm flex items-center"
+            whileHover={{ y: -2 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+          >
+            <div className="flex items-center">
+              <span className="text-amber-500">★</span>
+              <span className="text-amber-500">★</span>
+              <span className="text-amber-500">★</span>
+              <span className="text-amber-500">★</span>
+              <span className="text-amber-500">★</span>
+            </div>
+            <span className="text-xs font-medium ml-1">4.9/5</span>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );
