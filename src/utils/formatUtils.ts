@@ -1,70 +1,78 @@
-/**
- * Format currency value with proper currency symbol and localization
- * @param amount Amount to format
- * @param currencyCode ISO currency code (USD, EUR, XAF, etc.)
- * @param locale Locale for formatting (default: en-US)
- * @returns Formatted currency string
- */
+
+import { format, isValid, parseISO } from 'date-fns';
+
+export const formatNumber = (value: number, locale = 'en-US'): string => {
+  return new Intl.NumberFormat(locale).format(value);
+};
+
 export const formatCurrency = (
-  amount: number | string,
-  currencyCode: string = 'USD',
-  locale: string = 'en-US'
+  value: number,
+  currency = 'USD',
+  locale = 'en-US'
 ): string => {
-  // Handle string amounts
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  
-  // Handle NaN or invalid values
-  if (isNaN(numericAmount)) {
-    return `0.00 ${currencyCode}`;
-  }
-  
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
+export const formatPercentage = (
+  value: number,
+  locale = 'en-US',
+  minimumFractionDigits = 0,
+  maximumFractionDigits = 2
+): string => {
+  return new Intl.NumberFormat(locale, {
+    style: 'percent',
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(value / 100);
+};
+
+export const formatDate = (
+  date: Date | string | number,
+  dateFormat = 'MMM d, yyyy',
+  fallback = 'Invalid date'
+): string => {
   try {
-    // Use Intl.NumberFormat for proper formatting
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency: currencyCode,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(numericAmount);
+    if (!date) return fallback;
+    
+    // Parse string dates if needed
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    
+    // Validate date
+    if (!isValid(parsedDate)) return fallback;
+    
+    // Format the date
+    return format(parsedDate, dateFormat);
   } catch (error) {
-    // Fallback for unsupported currency codes
-    return `${numericAmount.toFixed(2)} ${currencyCode}`;
+    console.error('Error formatting date:', error);
+    return fallback;
   }
 };
 
-/**
- * Format large numbers with commas for better readability
- * @param value Number to format
- * @returns Formatted number string
- */
-export const formatNumberWithCommas = (value: number | string): string => {
-  // Handle string values
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+export const formatPhoneNumber = (
+  phoneNumber: string,
+  countryCode = 'US'
+): string => {
+  // Basic phone formatting - could be expanded for different countries
+  if (!phoneNumber) return '';
   
-  // Handle NaN or invalid values
-  if (isNaN(numericValue)) {
-    return '0';
+  // Strip non-numeric characters
+  const cleaned = phoneNumber.replace(/\D/g, '');
+  
+  // US phone format: (XXX) XXX-XXXX
+  if (countryCode === 'US' && cleaned.length === 10) {
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   }
   
-  // Use Intl.NumberFormat for proper formatting
-  return new Intl.NumberFormat().format(numericValue);
+  // Default formatting for other countries or formats
+  return phoneNumber;
 };
 
-/**
- * Format a date for display
- * @param date - The date to format
- * @returns Formatted date string
- */
-export const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Unknown';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  return dateObj.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+export const capitalizeFirstLetter = (string: string): string => {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };

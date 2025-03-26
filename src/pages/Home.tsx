@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/home/Navigation';
 import Hero from '@/components/home/Hero';
-import { Features } from '@/components/home/features';
+import Features from '@/components/home/features/Features';
 import HowItWorks from '@/components/home/HowItWorks';
 import CountryCoverage from '@/components/home/CountryCoverage';
 import Testimonials from '@/components/home/Testimonials';

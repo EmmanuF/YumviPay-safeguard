@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
-import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
+import ExchangeRateCalculatorStub from '@/components/home/ExchangeRateCalculatorStub';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
 const containerVariants = {
@@ -135,7 +135,7 @@ const HeroCalculator: React.FC = () => {
           transition: { duration: 0.3 } 
         }}
       >
-        <ExchangeRateCalculator />
+        <ExchangeRateCalculatorStub />
         
         <motion.div
           className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-1 text-gray-500 text-sm cursor-pointer group"
