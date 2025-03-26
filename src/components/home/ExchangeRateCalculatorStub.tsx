@@ -1,49 +1,63 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { ArrowDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Input } from "@/components/ui/input";
 
 const ExchangeRateCalculatorStub: React.FC = () => {
   const navigate = useNavigate();
+  const [amount, setAmount] = useState("100");
   
   return (
-    <div className="p-8 rounded-xl">
-      <h3 className="text-xl font-semibold mb-6 text-center">Send Money to Cameroon</h3>
+    <div className="p-8 md:p-10 bg-white rounded-xl shadow-lg max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-left">Calculate Your Transfer</h2>
       
       <div className="space-y-6">
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-2">You send</div>
-          <div className="font-medium text-xl flex justify-between items-center">
-            <span>100 USD</span>
-            <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded">United States</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="send-amount" className="block text-sm font-medium text-gray-700 mb-2">You Send</label>
+            <Input
+              id="send-amount"
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full text-lg py-3"
+            />
+            <select className="w-full mt-3 text-sm border border-gray-300 rounded-md py-3 px-3 bg-white">
+              <option value="USD">🇺🇸 United States (USD)</option>
+              <option value="EUR">🇪🇺 Euro (EUR)</option>
+              <option value="GBP">🇬🇧 United Kingdom (GBP)</option>
+            </select>
+          </div>
+          
+          <div>
+            <label htmlFor="receive-amount" className="block text-sm font-medium text-gray-700 mb-2">They Receive</label>
+            <Input
+              id="receive-amount"
+              type="text"
+              value="63,500"
+              readOnly
+              className="w-full text-lg py-3"
+            />
+            <select className="w-full mt-3 text-sm border border-gray-300 rounded-md py-3 px-3 bg-white">
+              <option value="XAF">🇨🇲 Cameroon (XAF)</option>
+              <option value="NGN">🇳🇬 Nigeria (NGN)</option>
+              <option value="GHS">🇬🇭 Ghana (GHS)</option>
+            </select>
           </div>
         </div>
         
-        <div className="flex justify-center">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <ArrowDown size={20} className="text-primary" />
-          </div>
-        </div>
-        
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-2">They receive</div>
-          <div className="font-medium text-xl flex justify-between items-center">
-            <span>63,500 XAF</span>
-            <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded">Cameroon</span>
-          </div>
-        </div>
-        
-        <div className="text-sm text-center text-muted-foreground">
-          1 USD = 635 XAF
+        <div className="text-sm text-center text-gray-600 mt-2">
+          Exchange Rate: 1 USD = 635 XAF
         </div>
         
         <Button 
-          className="w-full mt-4" 
+          className="w-full py-6 text-base font-semibold mt-4" 
           onClick={() => navigate('/signup')}
           size="lg"
         >
-          Get Started
+          Send Now <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
     </div>
