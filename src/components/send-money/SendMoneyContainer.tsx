@@ -272,7 +272,14 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
                         countries.map((country) => (
                           <SelectItem key={country.code} value={country.code}>
                             <div className="flex items-center">
-                              <span className="mr-2">{country.emoji}</span> 
+                              <img 
+                                src={country.flagUrl} 
+                                alt={`${country.name} flag`}
+                                className="w-5 h-3 object-cover rounded mr-2"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40x30?text=?';
+                                }}
+                              />
                               {country.name}
                             </div>
                           </SelectItem>
