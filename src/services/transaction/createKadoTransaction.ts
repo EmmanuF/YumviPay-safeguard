@@ -51,7 +51,7 @@ export const createKadoTransaction = async (data: KadoTransactionData) => {
       convertedAmount: data.convertedAmount,
       exchangeRate: data.exchangeRate,
       
-      // Custom display fields that will be stored but not part of the Transaction type
+      // Store formatted values as custom fields
       customFields: {
         displayAmount: formattedAmount,
         displayConvertedAmount: formattedConvertedAmount,

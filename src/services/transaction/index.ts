@@ -27,7 +27,7 @@ export { createKadoTransaction } from './createKadoTransaction';
 
 // Now add the missing transaction query functions
 export const getAllTransactions = async () => {
-  const stored = getStoredTransactions();
+  const stored = await getStoredTransactions();
   return stored || [];
 };
 
@@ -44,14 +44,17 @@ export const getTransactionById = async (id: string) => {
 export const updateTransactionStatus = async (
   id: string, 
   status: string, 
-  options?: { completedAt?: Date; failureReason?: string }
+  options?: { 
+    completedAt?: Date; 
+    failureReason?: string; 
+  }
 ) => {
   const allTransactions = await getAllTransactions();
   const transaction = allTransactions.find(tx => tx.id === id);
   
   if (!transaction) return null;
   
-  updateOfflineTransaction(id, {
+  await updateOfflineTransaction(id, {
     status,
     ...options,
     updatedAt: new Date()

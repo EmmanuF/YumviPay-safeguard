@@ -32,4 +32,5 @@ export interface Transaction {
   recurringPaymentId?: string;
   date?: string; // Added date property for backward compatibility
   type?: string; // Added type property for backward compatibility
+  customFields?: Record<string, any>; // Added customFields property for additional data
 }
