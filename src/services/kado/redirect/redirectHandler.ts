@@ -2,7 +2,7 @@
 import { isPlatform } from '@/utils/platformUtils';
 import { deepLinkService } from '@/services/deepLinkService';
 import { toast } from '@/hooks/use-toast';
-import { simulateKadoWebhook, updateTransactionStatus } from '@/services/transaction';
+import { simulateWebhook, updateTransactionStatus } from '@/services/transaction';
 import { createLoadingIndicator, removeLoadingIndicator } from './storageUtils';
 import { performBiometricCheck } from './biometricAuth';
 import { prepareTransaction } from './transactionPreparer';
@@ -48,7 +48,7 @@ export const handleKadoRedirect = async (params: KadoRedirectParams): Promise<vo
       await updateTransactionStatus(params.transactionId, 'processing');
       
       // Simulate webhook response in background
-      simulateKadoWebhook(params.transactionId).catch(err => {
+      simulateWebhook(params.transactionId).catch(err => {
         console.error('⚠️ Background webhook simulation error:', err);
       });
     } catch (updateError) {

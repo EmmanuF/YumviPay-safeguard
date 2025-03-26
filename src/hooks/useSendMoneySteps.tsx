@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -100,7 +99,7 @@ export const useSendMoneySteps = () => {
         window.__EMERGENCY_TRANSACTION = storageData;
         window.__TRANSACTION_ID = transactionId;
       } catch (e) {
-        console.error('❌ Error storing in window object:', e);
+        console.error('��� Error storing in window object:', e);
       }
       
       try {
@@ -197,8 +196,8 @@ export const useSendMoneySteps = () => {
               navigate(`/transaction/${transactionId}`);
               
               try {
-                const { simulateKadoWebhook } = await import('@/services/transaction');
-                simulateKadoWebhook(transactionId).catch(e => console.error('Webhook simulation error:', e));
+                const { simulateWebhook } = await import('@/services/transaction');
+                simulateWebhook(transactionId).catch(e => console.error('Webhook simulation error:', e));
               } catch (e) {}
               
               return;

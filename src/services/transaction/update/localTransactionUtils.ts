@@ -1,205 +1,82 @@
 
 import { Transaction, TransactionStatus } from "@/types/transaction";
 
-// Get a transaction from local storage with improved reliability
-export const getLocalTransaction = async (transactionId: string): Promise<Transaction | null> => {
+/**
+ * Get a transaction from local storage
+ */
+export const getLocalTransaction = (transactionId: string): Transaction | null => {
   try {
-    // First try direct localStorage access
-    const transactionKey = `transaction_${transactionId}`;
-    const rawStoredTransaction = localStorage.getItem(transactionKey);
+    const data = localStorage.getItem(`transaction_${transactionId}`);
+    if (!data) return null;
     
-    if (rawStoredTransaction) {
-      try {
-        console.log(`Found transaction ${transactionId} in localStorage`);
-        const storedTransaction = JSON.parse(rawStoredTransaction);
-        return {
-          id: storedTransaction.id || storedTransaction.transactionId || transactionId,
-          amount: storedTransaction.amount || '0',
-          fee: storedTransaction.fee || '0',
-          recipientId: storedTransaction.recipientId || '',
-          recipientName: storedTransaction.recipientName || 'Recipient',
-          recipientContact: storedTransaction.recipientContact || '',
-          paymentMethod: storedTransaction.paymentMethod || 'mobile_money',
-          provider: storedTransaction.provider || 'MTN Mobile Money',
-          country: storedTransaction.country || 'CM',
-          status: storedTransaction.status || 'pending',
-          createdAt: storedTransaction.createdAt ? new Date(storedTransaction.createdAt) : new Date(),
-          updatedAt: storedTransaction.updatedAt ? new Date(storedTransaction.updatedAt) : new Date(),
-          completedAt: storedTransaction.completedAt ? new Date(storedTransaction.completedAt) : undefined,
-          failureReason: storedTransaction.failureReason,
-          estimatedDelivery: storedTransaction.estimatedDelivery || 'Processing',
-          totalAmount: storedTransaction.totalAmount || storedTransaction.amount || '0'
-        };
-      } catch (parseError) {
-        console.error(`Error parsing stored transaction ${transactionId}:`, parseError);
-      }
-    }
+    const parsed = JSON.parse(data);
     
-    // If not found in localStorage, try the offline store
-    try {
-      const { getOfflineTransactions } = await import('../store');
-      
-      const transactions = getOfflineTransactions();
-      const transaction = transactions.find(t => t.id === transactionId);
-      
-      if (transaction) {
-        console.log(`Found transaction ${transactionId} in offline storage`);
-        return transaction;
-      }
-    } catch (offlineError) {
-      console.error(`Error accessing offline storage for ${transactionId}:`, offlineError);
-    }
-    
-    console.warn(`Transaction ${transactionId} not found in any local storage`);
-    return null;
+    // Ensure dates are Date objects
+    return {
+      ...parsed,
+      createdAt: parsed.createdAt ? new Date(parsed.createdAt) : new Date(),
+      updatedAt: parsed.updatedAt ? new Date(parsed.updatedAt) : undefined,
+      completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined
+    };
   } catch (error) {
-    console.error(`Error retrieving transaction ${transactionId} from local storage:`, error);
+    console.error(`Error getting local transaction ${transactionId}:`, error);
     return null;
   }
 };
 
-// Update a transaction in local storage with better error handling
+/**
+ * Update a transaction in local storage
+ */
 export const updateLocalTransaction = async (
   transactionId: string,
   status: TransactionStatus,
   options?: {
     completedAt?: Date;
     failureReason?: string;
+    [key: string]: any;
   }
-): Promise<boolean> => {
+): Promise<Transaction | null> => {
   try {
-    // First check direct localStorage access
-    const transactionKey = `transaction_${transactionId}`;
-    const rawStoredTransaction = localStorage.getItem(transactionKey);
-    
-    if (rawStoredTransaction) {
-      try {
-        const storedTransaction = JSON.parse(rawStoredTransaction);
-        const updatedTransaction = {
-          ...storedTransaction,
-          status,
-          updatedAt: new Date().toISOString(),
-          ...(options?.completedAt && { completedAt: options.completedAt.toISOString() }),
-          ...(options?.failureReason && { failureReason: options.failureReason })
-        };
-        
-        // Update in localStorage
-        localStorage.setItem(transactionKey, JSON.stringify(updatedTransaction));
-        console.log(`Transaction ${transactionId} updated in localStorage directly`);
-        
-        // Double-check that the update succeeded
-        const verifyUpdate = localStorage.getItem(transactionKey);
-        if (!verifyUpdate) {
-          console.error(`CRITICAL ERROR: Failed to verify localStorage update for ${transactionId}`);
-          return false;
-        }
-        
-        try {
-          // Also update in the offline store
-          const { getOfflineTransactions, setOfflineTransactions } = await import('../store');
-          const transactions = getOfflineTransactions();
-          const index = transactions.findIndex(t => t.id === transactionId);
-          
-          if (index >= 0) {
-            const offlineTransaction = {
-              ...transactions[index],
-              status,
-              updatedAt: new Date(),
-              ...(options?.completedAt && { completedAt: options.completedAt }),
-              ...(options?.failureReason && { failureReason: options.failureReason })
-            };
-            
-            transactions[index] = offlineTransaction;
-            setOfflineTransactions([...transactions]);
-            console.log(`Transaction ${transactionId} also updated in offline storage`);
-          }
-        } catch (offlineError) {
-          // Non-critical error, continue since localStorage update succeeded
-          console.error(`Error updating offline storage for ${transactionId}:`, offlineError);
-        }
-        
-        return true;
-      } catch (parseError) {
-        console.error(`Error parsing stored transaction ${transactionId}:`, parseError);
-        
-        // Try to fix corrupted data
-        try {
-          // Create a minimum valid transaction JSON
-          const basicTransaction = {
-            id: transactionId,
-            status,
-            updatedAt: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            ...(options?.completedAt && { completedAt: options.completedAt.toISOString() }),
-            ...(options?.failureReason && { failureReason: options.failureReason })
-          };
-          
-          localStorage.setItem(transactionKey, JSON.stringify(basicTransaction));
-          console.log(`Created repair transaction in localStorage for ${transactionId}`);
-          return true;
-        } catch (repairError) {
-          console.error(`Failed to repair localStorage for ${transactionId}:`, repairError);
-        }
-      }
+    const transaction = getLocalTransaction(transactionId);
+    if (!transaction) {
+      console.error(`No local transaction found for ${transactionId}`);
+      return null;
     }
     
-    // If direct localStorage access failed, try the offline store
-    try {
-      const { getOfflineTransactions, setOfflineTransactions } = await import('../store');
-      
-      const transactions = getOfflineTransactions();
-      const index = transactions.findIndex(t => t.id === transactionId);
-      
-      if (index >= 0) {
-        const updatedTransaction = {
-          ...transactions[index],
-          status,
-          updatedAt: new Date(),
-          ...(options?.completedAt && { completedAt: options.completedAt }),
-          ...(options?.failureReason && { failureReason: options.failureReason })
-        };
-        
-        transactions[index] = updatedTransaction;
-        setOfflineTransactions([...transactions]);
-        
-        // Also update in localStorage for redundancy
-        localStorage.setItem(transactionKey, JSON.stringify({
-          ...updatedTransaction,
-          updatedAt: updatedTransaction.updatedAt.toISOString(),
-          createdAt: updatedTransaction.createdAt.toISOString(),
-          ...(updatedTransaction.completedAt && { completedAt: updatedTransaction.completedAt.toISOString() })
-        }));
-        
-        console.log(`Transaction ${transactionId} updated in offline storage and localStorage`);
-        return true;
-      }
-    } catch (offlineStoreError) {
-      console.error(`Error accessing offline store for ${transactionId}:`, offlineStoreError);
-    }
-    
-    // If transaction doesn't exist in any storage, create a new one
-    console.log(`Transaction ${transactionId} not found in storage, creating new entry`);
-    const newTransaction = {
-      id: transactionId,
+    // Update the transaction
+    const updatedTransaction: Transaction = {
+      ...transaction,
       status,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      ...(options?.completedAt && { completedAt: options.completedAt.toISOString() }),
-      ...(options?.failureReason && { failureReason: options.failureReason }),
-      amount: '0',
-      recipientName: 'Unknown',
-      country: 'CM',
-      paymentMethod: 'mobile_money',
-      provider: 'MTN Mobile Money',
-      estimatedDelivery: status === 'completed' ? 'Delivered' : 'Processing',
-      totalAmount: '0'
+      updatedAt: new Date(),
+      ...(status === 'completed' && options?.completedAt ? { completedAt: options.completedAt } : {}),
+      ...(status === 'failed' && options?.failureReason ? { failureReason: options.failureReason } : {})
     };
     
-    localStorage.setItem(transactionKey, JSON.stringify(newTransaction));
-    console.log(`Created new transaction in localStorage for ${transactionId}`);
-    return true;
+    // Add any additional properties from options
+    if (options) {
+      Object.entries(options).forEach(([key, value]) => {
+        if (key !== 'completedAt' && key !== 'failureReason' && value !== undefined) {
+          (updatedTransaction as any)[key] = value;
+        }
+      });
+    }
+    
+    // Save the updated transaction
+    localStorage.setItem(
+      `transaction_${transactionId}`, 
+      JSON.stringify(updatedTransaction)
+    );
+    
+    // Create a backup
+    localStorage.setItem(
+      `transaction_backup_${transactionId}`, 
+      JSON.stringify(updatedTransaction)
+    );
+    
+    console.log(`Local transaction ${transactionId} updated to ${status}`);
+    return updatedTransaction;
   } catch (error) {
-    console.error(`Critical error updating transaction ${transactionId} in local storage:`, error);
-    return false;
+    console.error(`Error updating local transaction ${transactionId}:`, error);
+    return null;
   }
 };

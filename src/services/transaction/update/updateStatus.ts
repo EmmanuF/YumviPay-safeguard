@@ -1,138 +1,134 @@
 
 import { Transaction, TransactionStatus } from "@/types/transaction";
 import { supabase } from "@/integrations/supabase/client";
-import { isOffline, addPausedRequest } from "@/utils/networkUtils";
-import { updateLocalTransaction, getLocalTransaction } from './localTransactionUtils';
 
-// Helper function to check if a transaction exists
-export const checkTransactionExists = async (transactionId: string): Promise<boolean> => {
-  try {
-    // Try localStorage first
-    const localData = localStorage.getItem(`transaction_${transactionId}`);
-    if (localData) {
-      console.log(`Transaction ${transactionId} exists in localStorage`);
-      return true;
-    }
-    
-    // If not in localStorage, check offline storage
-    const { getOfflineTransactions } = await import('../store');
-    const transactions = getOfflineTransactions();
-    const transaction = transactions.find(t => t.id === transactionId);
-    
-    if (transaction) {
-      console.log(`Transaction ${transactionId} exists in offline storage`);
-      return true;
-    }
-    
-    console.warn(`Transaction ${transactionId} not found in any local storage!`);
-    return false;
-  } catch (error) {
-    console.error(`Error checking transaction existence for ${transactionId}:`, error);
-    return false;
-  }
-};
-
-// Update transaction status in Supabase and local storage with improved reliability
+/**
+ * Update a transaction's status
+ * @param transactionId Transaction ID
+ * @param status New status
+ * @param options Additional options
+ * @returns Updated transaction
+ */
 export const updateTransactionStatus = async (
-  transactionId: string,
+  transactionId: string, 
   status: TransactionStatus,
-  options?: {
-    completedAt?: Date;
+  options: {
     failureReason?: string;
-  }
+    completedAt?: Date;
+    [key: string]: any;
+  } = {}
 ): Promise<Transaction | null> => {
-  console.log(`Updating transaction ${transactionId} status to ${status}`);
-  
-  // Update local storage first for immediate feedback 
-  // This is critical for ensuring the UI shows the updated status
-  const locallyUpdated = await updateLocalTransaction(transactionId, status, options);
-  if (!locallyUpdated) {
-    console.error(`Failed to update transaction ${transactionId} locally!`);
-    // Still try Supabase if applicable
-  }
-  
-  // Skip Supabase update for non-UUID transaction IDs (our mock transactions)
-  const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(transactionId);
-  
-  // Prepare update data for database
-  const updateData: Record<string, any> = {
-    status,
-    updated_at: new Date().toISOString()
-  };
-  
-  // Add optional fields if provided
-  if (options?.completedAt) {
-    updateData.completed_at = options.completedAt.toISOString();
-  }
-  
-  if (options?.failureReason) {
-    updateData.failure_reason = options.failureReason;
-  }
-  
-  // If offline, queue Supabase update if it's a valid UUID
-  if (isOffline()) {
-    if (isValidUuid) {
-      addPausedRequest(async () => {
-        const { data, error } = await supabase
-          .from('transactions')
-          .update(updateData)
-          .eq('id', transactionId)
-          .select()
-          .single();
-          
-        if (error) {
-          console.error(`Error updating transaction ${transactionId}:`, error);
-          throw error;
-        }
-        
-        return data;
-      });
+  try {
+    console.log(`Updating transaction ${transactionId} to status: ${status}`, options);
+    
+    // Prepare the update data
+    const updateData: any = {
+      status,
+      updated_at: new Date().toISOString()
+    };
+    
+    // Add completed_at if completed
+    if (status === 'completed') {
+      updateData.completed_at = options.completedAt 
+        ? options.completedAt.toISOString() 
+        : new Date().toISOString();
     }
     
-    // Return the locally updated transaction
-    return getLocalTransaction(transactionId);
-  }
-  
-  // If online and it's a valid UUID, update Supabase
-  if (isValidUuid) {
-    try {
+    // Add failure_reason if failed
+    if (status === 'failed' && options.failureReason) {
+      updateData.failure_reason = options.failureReason;
+    }
+    
+    // Add any other options
+    Object.entries(options).forEach(([key, value]) => {
+      if (key !== 'failureReason' && key !== 'completedAt' && value !== undefined) {
+        // Convert Date objects to ISO strings
+        if (value instanceof Date) {
+          updateData[key] = value.toISOString();
+        } else {
+          updateData[key] = value;
+        }
+      }
+    });
+    
+    // Update the transaction in the database if we're not using a local transaction ID
+    // Local transaction IDs start with "TXN-" instead of being UUIDs
+    if (!transactionId.startsWith('TXN-')) {
       const { data, error } = await supabase
         .from('transactions')
         .update(updateData)
         .eq('id', transactionId)
-        .select()
+        .select('*')
         .single();
-        
+      
       if (error) {
-        console.error(`Error updating transaction ${transactionId}:`, error);
+        console.error('Error updating transaction status:', error);
       } else if (data) {
-        // Convert database record to Transaction object
+        // Convert database data to Transaction object
         return {
           id: data.id,
           amount: data.amount,
-          fee: data.fee,
-          recipientId: data.recipient_id,
           recipientName: data.recipient_name,
-          recipientContact: data.recipient_contact,
-          paymentMethod: data.payment_method,
-          provider: data.provider,
           country: data.country,
           status: data.status as TransactionStatus,
           createdAt: new Date(data.created_at),
-          updatedAt: new Date(data.updated_at),
+          updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
           completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
           failureReason: data.failure_reason,
+          // Include other fields
+          recipientContact: data.recipient_contact,
+          paymentMethod: data.payment_method,
+          provider: data.provider,
           estimatedDelivery: data.estimated_delivery,
           totalAmount: data.total_amount
         };
       }
-    } catch (error) {
-      console.error(`Error updating transaction ${transactionId} in Supabase:`, error);
     }
-  } else {
-    console.log(`Transaction ID ${transactionId} is not a valid UUID, using local storage only`);
+    
+    // Try to update in local storage regardless
+    const localTransaction = localStorage.getItem(`transaction_${transactionId}`);
+    if (localTransaction) {
+      const parsedTransaction = JSON.parse(localTransaction);
+      const updatedTransaction = {
+        ...parsedTransaction,
+        status,
+        updatedAt: new Date().toISOString(),
+        ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+        ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
+      };
+      
+      localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedTransaction));
+      console.log('Updated transaction in local storage:', updatedTransaction);
+      
+      return updatedTransaction as Transaction;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error in updateTransactionStatus:', error);
+    
+    // Emergency fallback to local storage
+    try {
+      const localTransaction = localStorage.getItem(`transaction_${transactionId}`);
+      if (localTransaction) {
+        const parsedTransaction = JSON.parse(localTransaction);
+        const updatedTransaction = {
+          ...parsedTransaction,
+          status,
+          updatedAt: new Date().toISOString(),
+          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
+        };
+        
+        localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedTransaction));
+        console.log('Emergency fallback: Updated in localStorage:', updatedTransaction);
+        
+        return updatedTransaction as Transaction;
+      }
+    } catch (e) {
+      console.error('Error updating in localStorage:', e);
+    }
+    
+    return null;
   }
-  
-  // Return the locally updated transaction
-  return getLocalTransaction(transactionId);
 };

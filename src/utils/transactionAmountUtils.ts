@@ -1,79 +1,58 @@
 
-/**
- * Utilities for handling transaction amounts with improved reliability
- */
+import { Transaction } from '@/types/transaction';
+import { formatCurrency } from './currencyFormatter';
 
-// Get a reliable amount from a transaction with multiple fallbacks
-export const getReliableAmount = (transaction: any, defaultAmount: number = 0): number => {
-  if (!transaction) return defaultAmount;
+/**
+ * Get a reliable amount from a transaction, handling various formats and fallbacks
+ */
+export const getReliableAmount = (transaction: Transaction | null, defaultValue = 0): number => {
+  if (!transaction) return defaultValue;
   
-  // Try all possible amount properties with type conversion
-  const possibleAmounts = [
-    transaction.amount,
-    transaction.sendAmount,
-    transaction.totalAmount,
-    localStorage.getItem(`transaction_amount_${transaction.id}`),
-    localStorage.getItem('lastTransactionAmount')
-  ];
+  // Check different possible amount fields
+  if (typeof transaction.amount === 'number') return transaction.amount;
+  if (typeof transaction.amount === 'string') return parseFloat(transaction.amount) || defaultValue;
+  if (typeof transaction.totalAmount === 'number') return transaction.totalAmount;
+  if (typeof transaction.totalAmount === 'string') return parseFloat(transaction.totalAmount) || defaultValue;
+  if (typeof transaction.sendAmount === 'number') return transaction.sendAmount;
+  if (typeof transaction.sendAmount === 'string') return parseFloat(transaction.sendAmount) || defaultValue;
   
-  // Convert to number and filter out NaN/0 values
-  const validAmounts = possibleAmounts
-    .map(amount => {
-      if (amount === null || amount === undefined) return NaN;
-      if (typeof amount === 'string') return parseFloat(amount);
-      return Number(amount);
-    })
-    .filter(amount => !isNaN(amount) && amount > 0);
-  
-  // Return first valid amount or default
-  return validAmounts.length > 0 ? validAmounts[0] : defaultAmount;
+  return defaultValue;
 };
 
-// Store transaction amount in multiple places for redundancy
-export const storeTransactionAmount = (amount: number, transactionId?: string): void => {
-  if (isNaN(amount) || amount <= 0) {
-    console.error('Invalid amount to store:', amount);
-    return;
-  }
-  
+/**
+ * Store transaction amount in multiple places for redundancy
+ */
+export const storeTransactionAmount = (amount: number, transactionId: string): void => {
   try {
     const amountStr = amount.toString();
-    
-    // Store in multiple keys for redundancy
-    localStorage.setItem('lastTransactionAmount', amountStr);
-    localStorage.setItem('transaction_amount', amountStr);
-    
-    if (transactionId) {
-      localStorage.setItem(`transaction_amount_${transactionId}`, amountStr);
-    }
-    
-    console.log(`Transaction amount ${amount} stored with redundancy`);
-  } catch (error) {
-    console.error('Error storing transaction amount:', error);
+    localStorage.setItem(`transaction_amount_${transactionId}`, amountStr);
+    localStorage.setItem(`amount_backup_${transactionId}`, amountStr);
+    localStorage.setItem(`transaction_${transactionId}_amount`, amountStr);
+  } catch (e) {
+    console.error('Error storing transaction amount:', e);
   }
 };
 
-// Format transaction amount with proper currency symbol and precision
-export const formatTransactionAmount = (amount: number, options: {
-  currency?: string;
-  locale?: string;
-  precision?: number;
-} = {}): string => {
-  const {
-    currency = 'USD',
-    locale = 'en-US',
-    precision = 2
-  } = options;
+/**
+ * Format transaction amount for display
+ */
+export const formatTransactionAmount = (
+  amount: number | string | undefined,
+  options: {
+    currency?: string;
+    locale?: string;
+  } = {}
+): string => {
+  if (amount === undefined) return '$0.00';
   
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: precision,
-      maximumFractionDigits: precision
-    }).format(amount);
-  } catch (error) {
-    console.error('Error formatting amount:', error);
-    return `${currency} ${amount.toFixed(precision)}`;
-  }
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const currency = options.currency || 'USD';
+  const locale = options.locale || 'en-US';
+  
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numAmount);
 };
