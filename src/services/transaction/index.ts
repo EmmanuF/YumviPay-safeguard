@@ -11,7 +11,7 @@ import {
 import {
   updateTransactionStatus,
   simulateKadoWebhook
-} from './transactionUpdate';
+} from './update';
 
 import {
   createTransaction
