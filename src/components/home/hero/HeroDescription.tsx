@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { HeroCalculator } from './index';
+import { HeroCalculator, HeroFeatureBullets, HeroTrustIndicators } from './index';
 
 const HeroDescription: React.FC = () => {
   return (
@@ -12,6 +12,10 @@ const HeroDescription: React.FC = () => {
       className="w-full max-w-3xl mx-auto"
     >
       <HeroCalculator />
+      <div className="mt-6">
+        <HeroFeatureBullets />
+        <HeroTrustIndicators />
+      </div>
     </motion.div>
   );
 };

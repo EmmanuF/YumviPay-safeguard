@@ -8,7 +8,7 @@ const HeroTrustIndicators: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-6 flex items-center"
+      className="mt-6 flex items-center justify-start w-full"
     >
       <div className="flex">
         <img 
