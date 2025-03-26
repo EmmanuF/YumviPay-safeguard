@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/card"
 import { cn } from '@/lib/utils';
 import PaymentMethodCard from '@/components/PaymentMethodCard';
-import { Bank, Wallet, CreditCard, Contact2 } from 'lucide-react';
+import { Building, Wallet, CreditCard, Contact2 } from 'lucide-react';
 import ExchangeRateCalculator from '@/components/ExchangeRateCalculator';
 import { kadoRedirectService } from '@/services/kado/redirect';
 
@@ -102,7 +103,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
       case 'mobile_money':
         return <Wallet className="h-6 w-6 text-green-500" />;
       case 'bank_transfer':
-        return <Bank className="h-6 w-6 text-blue-500" />;
+        return <Building className="h-6 w-6 text-blue-500" />;
       case 'credit_card':
         return <CreditCard className="h-6 w-6 text-purple-500" />;
       default:

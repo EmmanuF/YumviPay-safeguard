@@ -1,7 +1,7 @@
 
 // Re-export all Kado functionality
 export * from './types';
-export * from './redirect';
+export { kadoRedirectService } from './redirect';
 export * from './kadoWebhookService';
 export * from './kadoKycService';
 export * from './kadoApiService';
