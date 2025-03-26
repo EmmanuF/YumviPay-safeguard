@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -38,7 +37,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const { paymentMethods, isLoading } = usePaymentMethods(transactionData.targetCountry || 'CM');
   const selectedCountry = getCountryByCode(transactionData.targetCountry || 'CM');
   
-  // Get previously used payment methods from localStorage
   const [preferredMethods, setPreferredMethods] = useState<Array<{methodId: string; providerId: string}>>([]);
   
   useEffect(() => {
@@ -57,20 +55,18 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     
     if (save && transactionData.paymentMethod && transactionData.selectedProvider) {
       try {
-        // Check if already in preferences
         const existingIndex = preferredMethods.findIndex(
           p => p.methodId === transactionData.paymentMethod && p.providerId === transactionData.selectedProvider
         );
         
         if (existingIndex === -1) {
-          // Add to preferences
           const updatedPreferences = [
             {
               methodId: transactionData.paymentMethod,
               providerId: transactionData.selectedProvider
             },
             ...preferredMethods
-          ].slice(0, 3); // Keep only top 3
+          ].slice(0, 3);
           
           setPreferredMethods(updatedPreferences);
           localStorage.setItem('preferredPaymentMethods', JSON.stringify(updatedPreferences));
@@ -98,10 +94,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   };
   
-  // Check if any payment method is selected
   const isNextDisabled = !transactionData.paymentMethod || !transactionData.selectedProvider;
   
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -137,7 +131,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           </CardHeader>
           
           <CardContent className="pt-0">
-            {/* Previously used payment methods */}
             {preferredMethods.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-2 text-muted-foreground">Your preferred methods</h3>
@@ -151,7 +144,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               </div>
             )}
             
-            {/* Country payment methods */}
             <div>
               <h3 className="text-sm font-medium mb-2 text-muted-foreground">Available payment methods</h3>
               <CountryPaymentMethods
@@ -170,20 +162,18 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               />
             </div>
             
-            {/* QR Code option */}
             <div className="mt-6">
               <QRCodeOption
                 transactionData={transactionData}
-                onSelect={() => {
-                  // Not implemented in this version
-                  toast.info('Coming soon', {
-                    description: 'QR code payments will be available soon'
+                onScanComplete={(data) => {
+                  console.log("QR Code scan completed with data:", data);
+                  toast.info('QR code scanned successfully', {
+                    description: 'The recipient details have been filled in'
                   });
                 }}
               />
             </div>
             
-            {/* Save preference toggle */}
             {transactionData.paymentMethod && (
               <div className="mt-6">
                 <SavePreferenceToggle
@@ -196,13 +186,13 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
         </Card>
       </motion.div>
       
-      {/* Navigation */}
       <motion.div variants={itemVariants} className="mt-4">
         <PaymentStepNavigation 
           onNext={onNext}
           onBack={onBack}
           isNextDisabled={isNextDisabled}
           isSubmitting={isSubmitting}
+          nextLabel="Continue"
         />
       </motion.div>
     </motion.div>

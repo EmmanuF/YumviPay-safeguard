@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { getPaymentMethodById, getProviderById } from '@/data/cameroonPaymentProviders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,16 +13,22 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
-  selectedPaymentMethod: string | null;
+  methods: PaymentMethod[];
+  isLoading: boolean;
+  selectedMethod: string | null;
   selectedProvider: string | undefined;
-  onSelect: (methodId: string, providerId: string) => void;
+  onSelectMethod: (methodId: string, providerId: string) => void;
+  getMethodIcon?: (methodId: string) => React.ReactNode;
 }
 
 const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
   countryCode,
-  selectedPaymentMethod,
+  methods,
+  isLoading,
+  selectedMethod,
   selectedProvider,
-  onSelect
+  onSelectMethod,
+  getMethodIcon
 }) => {
   const { getCountryByCode } = useCountries();
   const [activeTab, setActiveTab] = useState<string>('mobile_money');
@@ -31,7 +36,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
   const { toast } = useToast();
   
   console.log("DEBUG - CountryPaymentMethods - countryCode:", countryCode);
-  console.log("DEBUG - CountryPaymentMethods - selectedPaymentMethod:", selectedPaymentMethod);
+  console.log("DEBUG - CountryPaymentMethods - selectedMethod:", selectedMethod);
   console.log("DEBUG - CountryPaymentMethods - selectedProvider:", selectedProvider);
   console.log("DEBUG - CountryPaymentMethods - country found:", country);
   
@@ -42,7 +47,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     });
   }
   
-  // Set initial active tab based on available payment methods
   useEffect(() => {
     if (country?.paymentMethods && country.paymentMethods.length > 0) {
       const firstMethodId = country.paymentMethods[0].id;
@@ -50,12 +54,11 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       setActiveTab(firstMethodId);
     }
     
-    // If there's a selected method, set it as active tab
-    if (selectedPaymentMethod) {
-      console.log(`DEBUG - Using selected method as active tab: "${selectedPaymentMethod}"`);
-      setActiveTab(selectedPaymentMethod);
+    if (selectedMethod) {
+      console.log(`DEBUG - Using selected method as active tab: "${selectedMethod}"`);
+      setActiveTab(selectedMethod);
     }
-  }, [country, selectedPaymentMethod]);
+  }, [country, selectedMethod]);
 
   if (!country) {
     console.error("DEBUG - Country not found for code:", countryCode);
@@ -71,19 +74,17 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     console.log("DEBUG - Tab changed to:", value);
     setActiveTab(value);
     
-    // Get the first provider for this payment method
     const providers = getProviderOptions(value, countryCode);
     console.log("DEBUG - Available providers for method:", providers);
     
     if (providers && providers.length > 0) {
-      // For bank_transfer, don't select any provider as it's coming soon
       if (value === 'bank_transfer') {
         console.log("DEBUG - Bank transfer selected, not selecting provider");
-        onSelect(value, '');
+        onSelectMethod(value, '');
         return;
       }
       console.log(`DEBUG - Selecting provider: ${providers[0].id} for method: ${value}`);
-      onSelect(value, providers[0].id);
+      onSelectMethod(value, providers[0].id);
     } else {
       console.error("DEBUG - No providers found for payment method:", value);
       toast({
@@ -94,7 +95,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     }
   };
 
-  // Get icon component based on icon name
   const getIconComponent = (iconName: string) => {
     switch (iconName?.toLowerCase()) {
       case 'smartphone':
@@ -108,12 +108,10 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     }
   };
 
-  // Check if method is coming soon
   const isMethodComingSoon = (methodId: string) => {
     return methodId === 'bank_transfer';
   };
 
-  // Check if provider is coming soon
   const isProviderComingSoon = (providerId: string) => {
     return providerId === 'yoomee_money' || providerId.includes('afriland') || providerId.includes('ecobank');
   };
@@ -126,7 +124,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       return <p className="text-sm text-muted-foreground py-2">No providers available</p>;
     }
     
-    // If the entire method is coming soon
     if (isMethodComingSoon(methodId)) {
       return (
         <div className="p-4 border border-amber-200 rounded-md bg-amber-50 mt-3">
@@ -144,7 +141,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     return (
       <RadioGroup 
         value={selectedProvider} 
-        onValueChange={(value) => onSelect(methodId, value)}
+        onValueChange={(value) => onSelectMethod(methodId, value)}
         className="space-y-3 mt-3"
       >
         {providers.map((provider) => {
