@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -6,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTransactionContinue } from '@/hooks/exchange-rate/useTransactionContinue';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,6 +33,7 @@ const itemVariants = {
 
 const HeroCalculator: React.FC = () => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { 
     sendAmount, 
     setSendAmount, 
@@ -43,9 +45,24 @@ const HeroCalculator: React.FC = () => {
   const sourceCurrency = "USD";
   const targetCurrency = "XAF";
   
-  const handleContinue = () => {
-    navigate('/signup');
-  };
+  // Use the transaction continue hook to properly handle the transaction flow
+  const { handleContinue, isProcessing } = useTransactionContinue({
+    sendAmount,
+    receiveAmount,
+    sourceCurrency,
+    targetCurrency,
+    exchangeRate,
+    onContinue: () => {
+      console.log("Transaction continue handler called");
+      // If user is logged in, go directly to send page
+      // otherwise go to signin with redirect
+      if (isLoggedIn) {
+        navigate('/send');
+      } else {
+        navigate('/signin', { state: { redirectTo: '/send' } });
+      }
+    }
+  });
   
   return (
     <motion.div
@@ -103,6 +120,7 @@ const HeroCalculator: React.FC = () => {
       <motion.div variants={itemVariants} className="mb-4">
         <Button 
           onClick={handleContinue}
+          disabled={isProcessing}
           className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center"
         >
           <span className="mr-2">Send Now</span>
