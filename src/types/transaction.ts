@@ -1,6 +1,6 @@
 
 // Transaction status types
-export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'offline-pending';
+export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'offline-pending' | 'refunded';
 
 // Transaction data interface
 export interface Transaction {

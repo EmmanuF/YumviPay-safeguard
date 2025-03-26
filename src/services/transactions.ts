@@ -1,6 +1,10 @@
 
-import { getTransactionById as getTransaction, getAllTransactions, getRecentTransactions } from './transaction';
 import { Transaction } from '@/types/transaction';
+import { 
+  getTransactionById as getTransaction, 
+  getAllTransactions, 
+  getRecentTransactions 
+} from '@/services/transaction';
 
 // Export the Transaction type for backwards compatibility
 export type { Transaction };
@@ -13,7 +17,11 @@ export type { Transaction };
  */
 export const getTransactionById = async (id: string): Promise<Transaction> => {
   try {
-    return await getTransaction(id);
+    const transaction = await getTransaction(id);
+    if (!transaction) {
+      throw new Error(`Transaction with ID ${id} not found`);
+    }
+    return transaction;
   } catch (error) {
     console.error(`Error retrieving transaction ${id}:`, error);
     throw error;

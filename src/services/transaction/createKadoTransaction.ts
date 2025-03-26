@@ -31,8 +31,8 @@ export const createKadoTransaction = async (data: KadoTransactionData) => {
     const transactionId = generateTransactionId();
     
     // Format the amount values
-    const formattedAmount = formatCurrency(data.amount, data.sourceCurrency, false);
-    const formattedConvertedAmount = formatCurrency(data.convertedAmount, data.targetCurrency, false);
+    const formattedAmount = formatCurrency(data.amount, data.sourceCurrency);
+    const formattedConvertedAmount = formatCurrency(data.convertedAmount, data.targetCurrency);
     
     // Create a transaction record
     const transaction = await createTransaction({
@@ -51,10 +51,12 @@ export const createKadoTransaction = async (data: KadoTransactionData) => {
       convertedAmount: data.convertedAmount,
       exchangeRate: data.exchangeRate,
       
-      // Display information
-      displayAmount: formattedAmount,
-      displayConvertedAmount: formattedConvertedAmount,
-      estimatedDelivery: 'Processing via Kado'
+      // Custom display fields that will be stored but not part of the Transaction type
+      customFields: {
+        displayAmount: formattedAmount,
+        displayConvertedAmount: formattedConvertedAmount,
+        estimatedDelivery: 'Processing via Kado'
+      }
     });
     
     console.log('Transaction created:', transaction);

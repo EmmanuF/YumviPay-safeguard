@@ -43,7 +43,7 @@ export const createTransaction = (
     updatedAt: new Date(),
     estimatedDelivery: getEstimatedDelivery(recipient.country, paymentMethod),
     totalAmount,
-    isRecurring: isRecurring,
+    isRecurring: isRecurring || false,
     recurringPaymentId
   };
   
