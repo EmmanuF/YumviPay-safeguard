@@ -1,3 +1,4 @@
+
 // French translations
 const frTranslations = {
   // General
@@ -8,8 +9,8 @@ const frTranslations = {
   'country.cameroon': 'Cameroun',
   
   // Payment Methods
-  'payment.mobile_money': 'Mobile Money',
-  'payment.bank_transfer': 'Virement Bancaire',
+  'payment.mobile_money': 'Envoyer via mobile money',
+  'payment.bank_transfer': 'Envoyer via virement bancaire',
   'payment.mtn_momo': 'MTN Mobile Money',
   'payment.orange_money': 'Orange Money',
   'payment.credit_card': 'Carte Bancaire',
@@ -17,12 +18,30 @@ const frTranslations = {
   // Transaction Flow
   'transaction.send_money': 'Envoyer de l\'Argent',
   'transaction.amount': 'Montant',
-  'transaction.recipient': 'Destinataire',
+  'transaction.recipient': 'Nom du Destinataire',
   'transaction.payment_method': 'Méthode de Paiement',
   'transaction.confirm': 'Confirmer le Transfert',
   'transaction.success': 'Transfert Réussi',
   'transaction.processing': 'Traitement en Cours',
   'transaction.failed': 'Échec du Transfert',
+  
+  // SendMoney component
+  'sendMoney.title': 'Envoyer de l\'Argent',
+  'sendMoney.description': 'Remplissez les détails ci-dessous pour envoyer de l\'argent',
+  'sendMoney.amountLabel': 'Montant',
+  'sendMoney.amountPlaceholder': 'Entrez le montant',
+  'sendMoney.countryLabel': 'Pays',
+  'sendMoney.countryPlaceholder': 'Sélectionnez le pays',
+  'sendMoney.paymentMethodLabel': 'Méthode de Paiement',
+  'sendMoney.recipientNameLabel': 'Nom du Destinataire',
+  'sendMoney.recipientNamePlaceholder': 'Entrez le nom du destinataire',
+  'sendMoney.recipientContactLabel': 'Contact du Destinataire',
+  'sendMoney.recipientContactPlaceholder': 'Entrez le numéro de téléphone du destinataire',
+  'sendMoney.submitButton': 'Envoyer de l\'Argent',
+  'sendMoney.initialDataTitle': 'Commençons Votre Transaction',
+  'sendMoney.initialDataDescription': 'D\'abord, sélectionnez votre montant et votre devise',
+  'sendMoney.calculatorTitle': 'Calculer le Taux de Change',
+  'sendMoney.calculatorDescription': 'Vérifiez combien votre destinataire recevra',
   
   // Mobile Money Specific
   'momo.number': 'Numéro Mobile',

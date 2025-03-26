@@ -1,3 +1,4 @@
+
 // English translations
 const enTranslations = {
   // General
@@ -8,8 +9,8 @@ const enTranslations = {
   'country.cameroon': 'Cameroon',
   
   // Payment Methods
-  'payment.mobile_money': 'Mobile Money',
-  'payment.bank_transfer': 'Bank Transfer',
+  'payment.mobile_money': 'Send via mobile money',
+  'payment.bank_transfer': 'Send via bank transfer',
   'payment.mtn_momo': 'MTN Mobile Money',
   'payment.orange_money': 'Orange Money',
   'payment.credit_card': 'Credit Card',
@@ -17,12 +18,30 @@ const enTranslations = {
   // Transaction Flow
   'transaction.send_money': 'Send Money',
   'transaction.amount': 'Amount',
-  'transaction.recipient': 'Recipient',
+  'transaction.recipient': 'Recipient Name',
   'transaction.payment_method': 'Payment Method',
   'transaction.confirm': 'Confirm Transfer',
   'transaction.success': 'Transfer Successful',
   'transaction.processing': 'Processing Transfer',
   'transaction.failed': 'Transfer Failed',
+  
+  // SendMoney component
+  'sendMoney.title': 'Send Money',
+  'sendMoney.description': 'Fill in the details below to send money',
+  'sendMoney.amountLabel': 'Amount',
+  'sendMoney.amountPlaceholder': 'Enter amount',
+  'sendMoney.countryLabel': 'Country',
+  'sendMoney.countryPlaceholder': 'Select country',
+  'sendMoney.paymentMethodLabel': 'Payment Method',
+  'sendMoney.recipientNameLabel': 'Recipient Name',
+  'sendMoney.recipientNamePlaceholder': 'Enter recipient name',
+  'sendMoney.recipientContactLabel': 'Recipient Contact',
+  'sendMoney.recipientContactPlaceholder': 'Enter recipient phone number',
+  'sendMoney.submitButton': 'Send Money',
+  'sendMoney.initialDataTitle': 'Let\'s Start Your Transaction',
+  'sendMoney.initialDataDescription': 'First, select your amount and currency',
+  'sendMoney.calculatorTitle': 'Calculate Exchange Rate',
+  'sendMoney.calculatorDescription': 'Check how much your recipient will receive',
   
   // Mobile Money Specific
   'momo.number': 'Mobile Number',

@@ -187,7 +187,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
     <div className="container mx-auto mt-10">
       <Card>
         <CardHeader>
-          <CardTitle>{t('sendMoney.title')}</CardTitle>
+          <CardTitle>{t('transaction.send_money')}</CardTitle>
           <CardDescription>{t('sendMoney.description')}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -195,7 +195,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
             {error && <div className="text-red-500">{error.toString()}</div>}
 
             <div>
-              <Label htmlFor="amount">{t('sendMoney.amountLabel')}</Label>
+              <Label htmlFor="amount">{t('transaction.amount')}</Label>
               <Input id="amount" type="number" placeholder={t('sendMoney.amountPlaceholder')} {...form.register('amount')} />
               {form.formState.errors.amount && (
                 <p className="text-red-500 text-sm">{form.formState.errors.amount.message}</p>
@@ -224,7 +224,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
             </div>
 
             <div>
-              <Label>{t('sendMoney.paymentMethodLabel')}</Label>
+              <Label>{t('transaction.payment_method')}</Label>
               {paymentMethodsLoading ? (
                 <p>Loading payment methods...</p>
               ) : (
@@ -233,7 +233,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
                     <PaymentMethodCard
                       key={method.id}
                       name={method.name}
-                      description={method.id === 'mobile_money' ? 'Send via mobile money' : 'Send via bank transfer'}
+                      description={method.id === 'mobile_money' ? t('payment.mobile_money') : t('payment.bank_transfer')}
                       icon={paymentMethodIcon(method.id)}
                       isSelected={selectedPaymentMethod === method.id}
                       onClick={() => handlePaymentMethodSelect(method.id)}
@@ -251,7 +251,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="recipientName">{t('sendMoney.recipientNameLabel')}</Label>
+              <Label htmlFor="recipientName">{t('transaction.recipient')}</Label>
               <Input id="recipientName" placeholder={t('sendMoney.recipientNamePlaceholder')} {...form.register('recipientName')} />
               {form.formState.errors.recipientName && (
                 <p className="text-red-500 text-sm">{form.formState.errors.recipientName.message}</p>
@@ -259,8 +259,8 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="recipientContact">{t('sendMoney.recipientContactLabel')}</Label>
-              <Input id="recipientContact" placeholder={t('sendMoney.recipientContactPlaceholder')} {...form.register('recipientContact')} />
+              <Label htmlFor="recipientContact">{t('momo.number')}</Label>
+              <Input id="recipientContact" placeholder={t('momo.enter_number')} {...form.register('recipientContact')} />
               {form.formState.errors.recipientContact && (
                 <p className="text-red-500 text-sm">{form.formState.errors.recipientContact.message}</p>
               )}
