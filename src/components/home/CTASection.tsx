@@ -47,15 +47,15 @@ const CTASection = () => {
       viewport={{ once: true }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="bg-primary-gradient text-white rounded-3xl overflow-hidden relative">
+        <div className="bg-primary-gradient rounded-3xl overflow-hidden shadow-xl relative">
           {/* Background decorative elements */}
           <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-xl"></div>
           <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-white/5 blur-xl"></div>
           
           <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative z-10">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
-              <p className="text-primary-100 mb-8 text-lg">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Ready to Get Started?</h2>
+              <p className="text-white/90 mb-8 text-lg">
                 Join thousands of customers who trust Yumvi-Pay for their money transfers to Africa
               </p>
               
@@ -67,7 +67,7 @@ const CTASection = () => {
               >
                 <Button 
                   onClick={() => navigate('/signup')}
-                  className="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-xl text-base"
+                  className="bg-white text-primary hover:bg-gray-100 font-semibold px-6 py-6 h-auto rounded-xl text-base"
                   size="lg"
                 >
                   Create Account
@@ -76,9 +76,9 @@ const CTASection = () => {
                 
                 <Button
                   variant="outline"
-                  className="border-white border-2 bg-white/10 text-white hover:bg-white hover:text-primary-600 font-semibold transition-colors"
+                  className="border-white border-2 bg-transparent text-white hover:bg-white/20 font-semibold px-6 py-6 h-auto rounded-xl text-base"
                   size="lg"
-                  onClick={() => navigate('/support/contact')}
+                  onClick={() => navigate('/contact')}
                 >
                   <Mail className="mr-2 h-5 w-5" />
                   Contact Us
@@ -86,38 +86,44 @@ const CTASection = () => {
               </motion.div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Get In Touch</h3>
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-semibold mb-4 text-white">Get In Touch</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
+                  <label htmlFor="name" className="text-white/90 text-sm mb-1 block">Your Name</label>
                   <Input
+                    id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Your Name"
+                    placeholder="Enter your name"
                     required
-                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white"
+                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white h-12"
                   />
                 </div>
                 
                 <div>
+                  <label htmlFor="email" className="text-white/90 text-sm mb-1 block">Your Email</label>
                   <Input
+                    id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Your Email"
+                    placeholder="Enter your email"
                     required
-                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white"
+                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white h-12"
                   />
                 </div>
                 
                 <div>
+                  <label htmlFor="message" className="text-white/90 text-sm mb-1 block">Your Message</label>
                   <Textarea
+                    id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Your Message"
+                    placeholder="How can we help you?"
                     required
                     rows={3}
                     className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white resize-none"
@@ -126,7 +132,7 @@ const CTASection = () => {
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-white text-primary-600 hover:bg-white/90" 
+                  className="w-full bg-white text-primary hover:bg-white/90 font-semibold h-12 mt-2" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
