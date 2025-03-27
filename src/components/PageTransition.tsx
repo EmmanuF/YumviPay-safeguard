@@ -60,6 +60,9 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     }
   };
   
+  // Add proper bottom padding based on device type
+  const paddingClass = isMobile ? "pb-20" : "pb-10";
+  
   return (
     <motion.div
       key={location.pathname}
@@ -67,7 +70,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full h-full pb-16" // Added bottom padding to account for navigation bar
+      className={`w-full h-full ${paddingClass}`}
     >
       {shouldUseComplexAnimations ? (
         <motion.div variants={childVariants}>

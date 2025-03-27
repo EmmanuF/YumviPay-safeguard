@@ -7,9 +7,11 @@ import Footer from './layout/Footer';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
+import TopNavigation from './TopNavigation';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -20,6 +22,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const location = useLocation();
   const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
+  const isMobile = useIsMobile();
   
   // Get device-specific optimizations
   const {
@@ -51,10 +54,17 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
     ? 'bg-gradient-to-b from-primary-100/90 to-primary-50/80 border border-white/40'
     : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-primary-100/80 to-white/70 border border-white/30 shadow-[0_8px_32px_rgba(110,54,229,0.15)]';
   
+  // On non-homepage routes, show different headers for mobile vs desktop
+  const isHomePage = location.pathname === '/';
+  const showMobileHeader = isMobile && !isHomePage;
+  
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
-      {/* Diagonal purple top design - only shown on non-home pages */}
-      {location.pathname !== '/' && (
+      {/* Top Navigation for desktop/web */}
+      <TopNavigation />
+      
+      {/* Diagonal purple top design - only shown on non-home pages for mobile */}
+      {showMobileHeader && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
           <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
           <div className="absolute top-0 left-0 right-0 h-24">
@@ -65,7 +75,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       <OfflineBanner />
       
-      {location.pathname !== '/' && (
+      {showMobileHeader && (
         <motion.div
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,7 +134,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         )}
       </AnimatePresence>
       
-      {/* Bottom Navigation - Now shown on all pages */}
+      {/* Bottom Navigation - Only shown on mobile */}
       <BottomNavigation />
       
       {/* Footer */}

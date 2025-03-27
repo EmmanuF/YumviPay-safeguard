@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, Users, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/auth';
 import { useLocale } from '@/contexts/LocaleContext';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const BottomNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,12 @@ const BottomNavigation: React.FC = () => {
   const { t } = useLocale();
   const [isNavigating, setIsNavigating] = useState(false);
   const currentPath = location.pathname;
+  const isMobile = useIsMobile();
+  
+  // If not on mobile, don't render the bottom navigation
+  if (!isMobile) {
+    return null;
+  }
 
   const navItems = [
     { 

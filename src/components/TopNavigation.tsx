@@ -1,0 +1,119 @@
+
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, Send, Clock, Users, User } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/auth';
+import { useLocale } from '@/contexts/LocaleContext';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import LocaleSwitcher from './LocaleSwitcher';
+
+const TopNavigation: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn } = useAuth();
+  const { t } = useLocale();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const isMobile = useIsMobile();
+  
+  // Don't show on mobile or on home page
+  if (isMobile || location.pathname === '/') {
+    return null;
+  }
+  
+  const navItems = [
+    { 
+      path: '/', 
+      label: t('nav.home'),
+      requiresAuth: false 
+    },
+    { 
+      path: '/send', 
+      label: t('nav.send'),
+      requiresAuth: true 
+    },
+    { 
+      path: '/recipients', 
+      label: t('nav.recipients'),
+      requiresAuth: true 
+    },
+  ];
+  
+  const handleNavigation = (path: string) => {
+    if (isNavigating || path === location.pathname) return;
+    
+    setIsNavigating(true);
+    navigate(path);
+    setTimeout(() => setIsNavigating(false), 500);
+  };
+  
+  const handleDashboardClick = () => {
+    if (isNavigating) return;
+    
+    setIsNavigating(true);
+    navigate('/dashboard');
+    setTimeout(() => setIsNavigating(false), 500);
+  };
+  
+  // Filter navItems based on authentication status
+  const displayNavItems = navItems.filter(item => !item.requiresAuth || isLoggedIn);
+
+  return (
+    <motion.div
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="bg-indigo-800 text-white py-3 z-50 relative"
+    >
+      <div className="container mx-auto flex items-center justify-between px-4">
+        {/* App Name/Logo */}
+        <div 
+          className="text-xl font-bold cursor-pointer"
+          onClick={() => navigate('/')}
+        >
+          Yumvi-Pay
+        </div>
+        
+        {/* Navigation Links */}
+        <div className="flex items-center space-x-8">
+          {displayNavItems.map((item) => (
+            <button
+              key={item.path}
+              onClick={() => handleNavigation(item.path)}
+              className={cn(
+                "text-sm font-medium transition-colors",
+                location.pathname === item.path
+                  ? "text-white font-semibold" 
+                  : "text-white/80 hover:text-white"
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Right Side */}
+        <div className="flex items-center space-x-4">
+          <LocaleSwitcher />
+          
+          <button
+            onClick={() => handleNavigation('/profile')}
+            className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+          >
+            {t('nav.profile')}
+          </button>
+          
+          <button
+            onClick={handleDashboardClick}
+            className="bg-white text-indigo-800 hover:bg-white/90 font-medium px-5 py-2 rounded-full transition-colors text-sm"
+          >
+            {t('nav.dashboard')}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default TopNavigation;

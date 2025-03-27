@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -80,16 +81,27 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     }, 50);
   };
   
-  if (isMobile) {
+  // Only show on mobile for home page
+  if (isMobile && location.pathname !== '/') {
     return null;
   }
   
+  // On homepage, show responsively based on design
+  // On other pages, only show on desktop (not mobile)
+  const isHomePage = location.pathname === '/';
+  
   return (
-    <header className="px-4 py-2 relative z-30">
+    <header className={cn(
+      "px-4 py-2 relative z-30",
+      !isHomePage && "bg-indigo-800 text-white"
+    )}>
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div 
-            className="text-2xl font-bold text-primary-700 cursor-pointer" 
+            className={cn(
+              "text-2xl font-bold cursor-pointer",
+              isHomePage ? "text-primary-700" : "text-white"
+            )} 
             onClick={() => !isNavigating && navigate('/')}
           >
             {t('app.name')}
@@ -103,9 +115,13 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               onClick={() => handleNavigation(item.path)}
               className={cn(
                 "text-sm font-medium transition-colors",
-                location.pathname === item.path 
-                  ? "text-primary-600 font-semibold" 
-                  : "text-primary-500 hover:text-primary-600"
+                isHomePage
+                  ? (location.pathname === item.path 
+                    ? "text-primary-600 font-semibold" 
+                    : "text-primary-500 hover:text-primary-600")
+                  : (location.pathname === item.path 
+                    ? "text-white font-semibold" 
+                    : "text-white/80 hover:text-white")
               )}
               disabled={isNavigating}
             >
@@ -120,7 +136,10 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           {!isLoggedIn ? (
             <button
               onClick={() => handleNavigation('/signin')}
-              className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+              className={cn(
+                "text-sm font-medium transition-colors",
+                isHomePage ? "text-primary-500 hover:text-primary-600" : "text-white/80 hover:text-white"
+              )}
               disabled={isNavigating}
             >
               {t('auth.signin')}
@@ -128,7 +147,10 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           ) : (
             <button
               onClick={() => handleNavigation('/profile')}
-              className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+              className={cn(
+                "text-sm font-medium transition-colors",
+                isHomePage ? "text-primary-500 hover:text-primary-600" : "text-white/80 hover:text-white"
+              )}
               disabled={isNavigating}
             >
               {t('nav.profile')}
@@ -138,7 +160,10 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           <button
             onClick={handleStarted}
             className={cn(
-              "bg-primary-500 hover:bg-primary-600 text-white font-medium px-5 py-2 rounded-full transition-colors text-sm",
+              isHomePage 
+                ? "bg-primary-500 hover:bg-primary-600 text-white" 
+                : "bg-white text-indigo-800 hover:bg-white/90",
+              "font-medium px-5 py-2 rounded-full transition-colors text-sm",
               isNavigating && "opacity-75 pointer-events-none"
             )}
             disabled={isNavigating}
@@ -148,41 +173,44 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         </div>
       </div>
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-sm"
-      >
-        {navItems.map((item) => (
-          <button
-            key={item.name}
-            onClick={() => handleNavigation(item.path)}
-            className="flex flex-col items-center justify-center relative"
-            disabled={isNavigating}
-          >
-            <div 
-              className={cn(
-                "p-2 rounded-full transition-all duration-300",
-                location.pathname === item.path 
-                  ? "text-primary-600 bg-primary-100/50" 
-                  : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/50",
-                isNavigating && "opacity-75"
-              )}
+      {/* Mobile navigation for home page */}
+      {isHomePage && isMobile && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-sm"
+        >
+          {navItems.map((item) => (
+            <button
+              key={item.name}
+              onClick={() => handleNavigation(item.path)}
+              className="flex flex-col items-center justify-center relative"
+              disabled={isNavigating}
             >
-              {item.icon}
-            </div>
-            <span className={cn(
-              "text-xs mt-1 font-medium",
-              location.pathname === item.path
-                ? "text-primary-600"
-                : "text-primary-500"
-            )}>
-              {item.name}
-            </span>
-          </button>
-        ))}
-      </motion.div>
+              <div 
+                className={cn(
+                  "p-2 rounded-full transition-all duration-300",
+                  location.pathname === item.path 
+                    ? "text-primary-600 bg-primary-100/50" 
+                    : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/50",
+                  isNavigating && "opacity-75"
+                )}
+              >
+                {item.icon}
+              </div>
+              <span className={cn(
+                "text-xs mt-1 font-medium",
+                location.pathname === item.path
+                  ? "text-primary-600"
+                  : "text-primary-500"
+              )}>
+                {item.name}
+              </span>
+            </button>
+          ))}
+        </motion.div>
+      )}
     </header>
   );
 };
