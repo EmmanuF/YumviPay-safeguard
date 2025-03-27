@@ -290,9 +290,10 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
               
               <div className="mt-2">
                 <CountrySelector
+                  label="Select Country"
                   value={selectedCountry}
-                  onValueChange={handleCountryChange}
-                  className="w-full"
+                  onChange={handleCountryChange}
+                  type="receive"
                 />
                 <p className="text-xs text-gray-500 mt-2 flex items-center">
                   <Info className="h-4 w-4 mr-1 text-primary-400" />
