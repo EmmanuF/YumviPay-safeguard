@@ -23,7 +23,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       iconColor: "text-primary-700",
       border: "border-primary-100",
       hoverShadow: "rgba(0, 128, 0, 0.2)",
-      titleGradient: "from-primary-700 to-primary-500"
+      titleGradient: "from-primary-700 to-primary-500",
+      glowColor: "primary"
     },
     purple: {
       gradient: "bg-gradient-to-br from-secondary-50 to-secondary-200",
@@ -31,7 +32,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       iconColor: "text-secondary-700",
       border: "border-secondary-100",
       hoverShadow: "rgba(138, 43, 226, 0.2)",
-      titleGradient: "from-secondary-700 to-secondary-500"
+      titleGradient: "from-secondary-700 to-secondary-500",
+      glowColor: "secondary"
     },
     orange: {
       gradient: "bg-gradient-to-br from-amber-50 to-amber-200",
@@ -39,7 +41,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       iconColor: "text-amber-700",
       border: "border-amber-100",
       hoverShadow: "rgba(245, 158, 11, 0.2)",
-      titleGradient: "from-amber-700 to-amber-500"
+      titleGradient: "from-amber-700 to-amber-500",
+      glowColor: "amber"
     }
   };
 
@@ -47,7 +50,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 
   return (
     <motion.div 
-      className={`rounded-2xl p-6 h-full ${scheme.gradient} border ${scheme.border} shadow-lg backdrop-blur-sm`}
+      className={`rounded-2xl p-5 h-full ${scheme.gradient} border ${scheme.border} shadow-lg backdrop-blur-sm`}
       whileHover={{ 
         y: -8,
         scale: 1.03,
@@ -64,11 +67,37 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       }}
       viewport={{ once: true, margin: "-50px" }}
     >
-      <div className={`w-16 h-16 rounded-full ${scheme.iconBg} flex items-center justify-center mb-5 shadow-md transform transition-transform duration-300 hover:rotate-12`}>
-        <div className={`${scheme.iconColor} text-xl`}>
+      <motion.div 
+        className={`w-16 h-16 rounded-full ${scheme.iconBg} flex items-center justify-center mb-5 shadow-md soft-glow-${scheme.glowColor}`}
+        whileHover={{ 
+          scale: 1.1, 
+          rotate: 5,
+          transition: { duration: 0.3, type: "spring" }
+        }}
+        animate={{ 
+          boxShadow: ['0 0 0 rgba(0,0,0,0)', `0 0 15px rgba(var(--${scheme.glowColor}-rgb), 0.3)`, '0 0 0 rgba(0,0,0,0)'],
+        }}
+        transition={{ 
+          duration: 2, 
+          repeat: Infinity,
+          repeatType: "reverse" 
+        }}
+      >
+        <motion.div 
+          className={`${scheme.iconColor} text-xl`}
+          animate={{ 
+            scale: [1, 1.1, 1],
+            opacity: [1, 0.8, 1]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        >
           {icon}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
       <h3 className={`text-xl font-bold mb-3 bg-gradient-to-r ${scheme.titleGradient} bg-clip-text text-transparent`}>{title}</h3>
       <p className="text-gray-700 leading-relaxed">{description}</p>
     </motion.div>

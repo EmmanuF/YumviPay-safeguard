@@ -448,3 +448,31 @@
   animation: bounce-subtle 2s ease-in-out infinite;
   will-change: transform;
 }
+
+/* New glow effects for feature icons */
+.soft-glow-primary {
+  filter: drop-shadow(0 0 5px rgba(var(--primary-rgb), 0.35));
+  transition: filter 0.3s ease;
+}
+
+.soft-glow-primary:hover {
+  filter: drop-shadow(0 0 10px rgba(var(--primary-rgb), 0.5));
+}
+
+.soft-glow-secondary {
+  filter: drop-shadow(0 0 5px rgba(var(--secondary-rgb), 0.35));
+  transition: filter 0.3s ease;
+}
+
+.soft-glow-secondary:hover {
+  filter: drop-shadow(0 0 10px rgba(var(--secondary-rgb), 0.5));
+}
+
+.soft-glow-amber {
+  filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.35));
+  transition: filter 0.3s ease;
+}
+
+.soft-glow-amber:hover {
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+}

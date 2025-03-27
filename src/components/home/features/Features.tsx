@@ -18,13 +18,13 @@ const Features = () => {
   return (
     <motion.div 
       id="features"
-      className="mt-20 mb-16"
+      className="mt-16 mb-14" // Reduced vertical padding for better desktop balance
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
     >
-      <div className="text-center mb-12">
+      <div className="text-center mb-10"> {/* Reduced bottom margin */}
         <motion.h2 
           className="text-3xl font-bold mb-3 text-gradient-primary"
           initial={{ opacity: 0, y: -20 }}
@@ -46,11 +46,11 @@ const Features = () => {
       </div>
 
       <motion.div 
-        className="grid md:grid-cols-3 gap-8"
+        className="grid md:grid-cols-3 gap-6 px-4 md:px-6" // Adjusted gap and added horizontal padding
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true }}
+        viewport={{ once: true, margin: "-100px" }} // Trigger animation earlier for smoother scrolling experience
       >
         <FeatureCard 
           icon={<ExchangeRateIcon />}
