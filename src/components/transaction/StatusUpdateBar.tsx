@@ -20,7 +20,7 @@ const StatusUpdateBar: React.FC<StatusUpdateBarProps> = ({
   className = '',
   status = 'pending'
 }) => {
-  const [isNotifying, setIsNotifying] = React.useState(true);
+  const [isNotifying, setIsNotifying] = React.useState(false); // Default to false to disable notifications
   
   // Calculate progress based on transaction status
   const getProgressValue = (status: TransactionStatus): number => {

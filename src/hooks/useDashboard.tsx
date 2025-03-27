@@ -65,15 +65,7 @@ export const useDashboard = () => {
         
         setTransactions(mockTransactions);
         
-        // Simulate receiving a transaction status update
-        setTimeout(() => {
-          addNotification({
-            title: 'Transaction Update',
-            message: 'Your transfer of $200 to Sarah Johnson is processing.',
-            type: 'info',
-            transactionId: 'tx_123457'
-          });
-        }, 3000);
+        // Removed the setTimeout that was triggering continuous transaction updates
         
         setIsLoading(false);
       } catch (error) {
