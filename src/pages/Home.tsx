@@ -44,8 +44,8 @@ const Home = () => {
             <div className="h-4 bg-indigo-500 transform origin-top-right"></div>
           </div>
           
-          {/* Light background section instead of yellow */}
-          <div className="bg-gradient-to-b from-muted to-white pt-16 relative z-10 hero-bg">
+          {/* Hero background section with improved positioning */}
+          <div className="pt-16 relative z-10 hero-bg">
             <div className="pt-6">
               <Navigation onGetStarted={handleGetStarted} />
               <Hero onGetStarted={handleGetStarted} />
