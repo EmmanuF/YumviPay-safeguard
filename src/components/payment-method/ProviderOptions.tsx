@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from '@/contexts/LocaleContext';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 import { Shield, Award, Clock } from 'lucide-react';
+import { getProviderLogoSrc } from '@/utils/providerLogos';
 
 interface ProviderOptionsProps {
   options: Array<{
@@ -37,6 +38,7 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
         // Get enhanced provider data
         const providerDetails = getProviderById(option.id);
         const isPopular = providerDetails?.popularityScore && providerDetails.popularityScore >= 4;
+        const logoSrc = getProviderLogoSrc(option.id);
         
         return (
           <motion.div
@@ -58,64 +60,25 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
               </div>
             )}
             
-            {providerDetails?.logoUrl ? (
-              <div className="mb-3 flex items-center justify-center h-12 w-full">
-                <img 
-                  src={providerDetails.logoUrl} 
-                  alt={option.name} 
-                  className="h-full object-contain max-w-[100px]" 
-                  onError={(e) => {
-                    console.error(`Failed to load provider image: ${option.id}`);
-                    // Fallback to a colored rectangle with text
-                    const target = e.currentTarget;
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 100;
-                    canvas.height = 60;
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) {
-                      // MTN yellow background
-                      if (option.id.includes('mtn')) {
-                        ctx.fillStyle = '#FFCC00';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = '#000000';
-                        ctx.font = 'bold 16px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText('MTN', canvas.width/2, canvas.height/2);
-                      } 
-                      // Orange brand color
-                      else if (option.id.includes('orange')) {
-                        ctx.fillStyle = '#FF6600';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.font = 'bold 16px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText('Orange', canvas.width/2, canvas.height/2);
-                      }
-                      // Generic fallback
-                      else {
-                        ctx.fillStyle = '#E2E8F0';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = '#64748B';
-                        ctx.font = 'bold 16px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(option.name, canvas.width/2, canvas.height/2);
-                      }
-                      target.src = canvas.toDataURL('image/png');
-                    }
-                  }}
-                />
-              </div>
-            ) : null}
+            <div className="mb-3 flex items-center justify-center h-12 w-full">
+              <img 
+                src={logoSrc}
+                alt={option.name} 
+                className="h-full object-contain max-w-[100px]" 
+                onError={(e) => {
+                  console.error(`Failed to load provider image: ${option.id}`);
+                  const target = e.currentTarget;
+                  target.src = generateProviderLogo(option.id);
+                }}
+              />
+            </div>
             
             <div className="text-center font-medium">
               {t(`payment.${option.id}`) || option.name}
             </div>
             
             {providerDetails?.processingTime && (
-              <div className="mt-1 text-xs text-gray-500 flex items-center justify-center">
+              <div className="mt-2 text-xs text-gray-600 flex items-center justify-center bg-gray-50 w-full py-1 px-2 rounded">
                 <Clock className="h-3 w-3 mr-1 text-amber-500" />
                 <span>Delivery: {providerDetails.processingTime}</span>
               </div>

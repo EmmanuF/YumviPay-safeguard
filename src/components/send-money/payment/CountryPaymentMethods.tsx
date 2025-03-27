@@ -11,6 +11,7 @@ import { Clock, AlertCircle, CreditCard, Smartphone, Building } from 'lucide-rea
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodCard from '@/components/payment-method/PaymentMethodCard';
 import { useToast } from '@/components/ui/use-toast';
+import { getProviderLogoSrc } from '@/utils/providerLogos';
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
@@ -149,6 +150,8 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       >
         {providers.map((provider) => {
           const comingSoon = isProviderComingSoon(provider.id);
+          const providerDetails = getProviderById(provider.id);
+          const logoSrc = getProviderLogoSrc(provider.id);
           
           return (
             <div 
@@ -161,20 +164,18 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                 <RadioGroupItem value={provider.id} id={provider.id} disabled={comingSoon} />
               )}
               <div className="flex items-center space-x-3 flex-1">
-                {provider.logoUrl && (
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                    <img 
-                      src={provider.logoUrl} 
-                      alt={provider.name} 
-                      className={`h-6 w-6 object-contain ${comingSoon ? "opacity-50" : ""}`} 
-                      onError={(e) => {
-                        console.error(`Failed to load image for provider: ${provider.name}`);
-                        e.currentTarget.src = 'https://via.placeholder.com/24';
-                      }}
-                    />
-                  </div>
-                )}
-                <div className="flex flex-col">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <img 
+                    src={logoSrc}
+                    alt={provider.name} 
+                    className={`h-6 w-6 object-contain ${comingSoon ? "opacity-50" : ""}`} 
+                    onError={(e) => {
+                      console.error(`Failed to load image for provider: ${provider.name}`);
+                      e.currentTarget.src = getProviderLogoSrc(provider.id);
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col flex-1">
                   <div className="flex items-center gap-2">
                     <Label 
                       htmlFor={provider.id} 
@@ -188,6 +189,12 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                       </Badge>
                     )}
                   </div>
+                  {providerDetails?.processingTime && !comingSoon && (
+                    <div className="text-xs text-gray-600 flex items-center mt-1">
+                      <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                      <span>Estimated delivery: {providerDetails.processingTime}</span>
+                    </div>
+                  )}
                   {comingSoon && (
                     <p className="text-xs text-gray-500 mt-0.5">
                       This payment option will be available soon
