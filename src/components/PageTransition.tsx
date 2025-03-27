@@ -67,7 +67,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full h-full"
+      className="w-full h-full pb-16" // Added bottom padding to account for navigation bar
     >
       {shouldUseComplexAnimations ? (
         <motion.div variants={childVariants}>

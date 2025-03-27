@@ -18,7 +18,6 @@ interface MobileAppLayoutProps {
 
 const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter = false }) => {
   const location = useLocation();
-  const isHome = location.pathname === '/';
   const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
   
@@ -55,7 +54,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
       {/* Diagonal purple top design - only shown on non-home pages */}
-      {!isHome && (
+      {location.pathname !== '/' && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
           <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
           <div className="absolute top-0 left-0 right-0 h-24">
@@ -66,7 +65,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       <OfflineBanner />
       
-      {!isHome && (
+      {location.pathname !== '/' && (
         <motion.div
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -82,7 +81,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         </motion.div>
       )}
       
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative z-10 pb-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -95,7 +94,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
               stiffness: animSettings.stiffness * 0.9,
               damping: animSettings.damping
             }}
-            className="w-full h-full pb-16" // Added bottom padding to account for the navigation bar
+            className="w-full h-full"
           >
             {children}
           </motion.div>
@@ -125,7 +124,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         )}
       </AnimatePresence>
       
-      {!isHome && <BottomNavigation />}
+      {/* Bottom Navigation - Now shown on all pages */}
+      <BottomNavigation />
       
       {/* Footer */}
       {!hideFooter && <Footer />}

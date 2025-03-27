@@ -9,6 +9,7 @@ import { LocaleProvider } from '@/contexts/LocaleContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { HelmetProvider } from 'react-helmet-async';
 import AppInitializer from '@/components/AppInitializer';
+import MobileAppLayout from '@/components/MobileAppLayout';
 import './App.css';
 
 // Core pages
@@ -52,62 +53,121 @@ function App() {
                 <AppInitializer />
                 <SessionTimeout />
                 <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/signup" element={<SignUp />} />
+                  {/* Wrap all routes with MobileAppLayout for consistent navigation */}
+                  <Route path="/" element={
+                    <MobileAppLayout>
+                      <Home />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/signin" element={
+                    <MobileAppLayout hideFooter>
+                      <SignIn />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/signup" element={
+                    <MobileAppLayout hideFooter>
+                      <SignUp />
+                    </MobileAppLayout>
+                  } />
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <MobileAppLayout>
+                        <Dashboard />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/profile" element={
                     <ProtectedRoute>
-                      <Profile />
+                      <MobileAppLayout>
+                        <Profile />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/send" element={
                     <ProtectedRoute>
-                      <SendMoney />
+                      <MobileAppLayout>
+                        <SendMoney />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/transactions" element={
                     <ProtectedRoute>
-                      <TransactionHistory />
+                      <MobileAppLayout>
+                        <TransactionHistory />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/recipients" element={
                     <ProtectedRoute>
-                      <Recipients />
+                      <MobileAppLayout>
+                        <Recipients />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   
                   {/* Transaction Routes */}
                   <Route path="/transaction/:transactionId" element={
                     <ProtectedRoute>
-                      <TransactionDetails />
+                      <MobileAppLayout>
+                        <TransactionDetails />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/transaction/new" element={
                     <ProtectedRoute>
-                      <TransactionStatus />
+                      <MobileAppLayout>
+                        <TransactionStatus />
+                      </MobileAppLayout>
                     </ProtectedRoute>
                   } />
                   
                   {/* Debug Routes */}
-                  <Route path="/debug/kado" element={<KadoConnectionDebugger />} />
+                  <Route path="/debug/kado" element={
+                    <MobileAppLayout>
+                      <KadoConnectionDebugger />
+                    </MobileAppLayout>
+                  } />
                   
                   {/* Footer Pages */}
-                  <Route path="/about" element={<AboutUs />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/about" element={
+                    <MobileAppLayout>
+                      <AboutUs />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/terms" element={
+                    <MobileAppLayout>
+                      <TermsOfService />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/privacy" element={
+                    <MobileAppLayout>
+                      <PrivacyPolicy />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/contact" element={
+                    <MobileAppLayout>
+                      <Contact />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/faq" element={
+                    <MobileAppLayout>
+                      <FAQ />
+                    </MobileAppLayout>
+                  } />
                   
                   {/* Country Pages */}
-                  <Route path="/country/:countryId" element={<CountryPage />} />
+                  <Route path="/country/:countryId" element={
+                    <MobileAppLayout>
+                      <CountryPage />
+                    </MobileAppLayout>
+                  } />
                   
                   {/* 404 Not Found */}
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="*" element={
+                    <MobileAppLayout>
+                      <NotFound />
+                    </MobileAppLayout>
+                  } />
                 </Routes>
                 <Toaster />
                 <SonnerToaster position="top-center" richColors closeButton />
