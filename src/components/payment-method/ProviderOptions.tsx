@@ -47,7 +47,7 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(option.id)}
             className={cn(
-              "p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center relative",
+              "p-4 rounded-lg border-2 cursor-pointer transition-all",
               selectedOption === option.id
                 ? "border-primary-500 bg-primary-50 text-primary-700 shadow-md"
                 : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
@@ -60,29 +60,33 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
               </div>
             )}
             
-            <div className="mb-3 flex items-center justify-center h-12 w-full">
-              <img 
-                src={logoSrc}
-                alt={option.name} 
-                className="h-full object-contain max-w-[100px]" 
-                onError={(e) => {
-                  console.error(`Failed to load provider image: ${option.id}`);
-                  const target = e.currentTarget;
-                  target.src = generateProviderLogo(option.id);
-                }}
-              />
-            </div>
-            
-            <div className="text-center font-medium">
-              {t(`payment.${option.id}`) || option.name}
-            </div>
-            
-            {providerDetails?.processingTime && (
-              <div className="mt-2 text-xs text-gray-600 flex items-center justify-center bg-gray-50 w-full py-1 px-2 rounded">
-                <Clock className="h-3 w-3 mr-1 text-amber-500" />
-                <span>Delivery: {providerDetails.processingTime}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col items-center">
+                <div className="mb-2 flex items-center justify-center h-14 w-14">
+                  <img 
+                    src={logoSrc}
+                    alt={option.name} 
+                    className="h-12 w-12 object-contain" 
+                    onError={(e) => {
+                      console.error(`Failed to load provider image: ${option.id}`);
+                      const target = e.currentTarget;
+                      target.src = generateProviderLogo(option.id);
+                    }}
+                  />
+                </div>
+                
+                <div className="text-center font-medium">
+                  {t(`payment.${option.id}`) || option.name}
+                </div>
               </div>
-            )}
+              
+              {providerDetails?.processingTime && (
+                <div className="text-xs text-gray-600 flex items-center justify-center bg-gray-50 py-1 px-2 rounded">
+                  <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                  <span>{providerDetails.processingTime}</span>
+                </div>
+              )}
+            </div>
           </motion.div>
         );
       })}

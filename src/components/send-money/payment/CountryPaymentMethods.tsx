@@ -163,44 +163,39 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
               {!comingSoon && (
                 <RadioGroupItem value={provider.id} id={provider.id} disabled={comingSoon} />
               )}
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                  <img 
-                    src={logoSrc}
-                    alt={provider.name} 
-                    className={`h-6 w-6 object-contain ${comingSoon ? "opacity-50" : ""}`} 
-                    onError={(e) => {
-                      console.error(`Failed to load image for provider: ${provider.name}`);
-                      e.currentTarget.src = getProviderLogoSrc(provider.id);
-                    }}
-                  />
-                </div>
-                <div className="flex flex-col flex-1">
-                  <div className="flex items-center gap-2">
-                    <Label 
-                      htmlFor={provider.id} 
-                      className={`font-medium cursor-pointer ${comingSoon ? "text-gray-500" : ""}`}
-                    >
-                      {provider.name}
-                    </Label>
-                    {comingSoon && (
-                      <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200 text-xs font-normal">
-                        <Clock className="h-3 w-3 mr-1" /> Coming Soon
-                      </Badge>
-                    )}
+              <div className="flex items-center justify-between flex-1">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                    <img 
+                      src={logoSrc}
+                      alt={provider.name} 
+                      className={`h-8 w-8 object-contain ${comingSoon ? "opacity-50" : ""}`} 
+                      onError={(e) => {
+                        console.error(`Failed to load image for provider: ${provider.name}`);
+                        e.currentTarget.src = getProviderLogoSrc(provider.id);
+                      }}
+                    />
                   </div>
-                  {providerDetails?.processingTime && !comingSoon && (
-                    <div className="text-xs text-gray-600 flex items-center mt-1">
-                      <Clock className="h-3 w-3 mr-1 text-amber-500" />
-                      <span>Estimated delivery: {providerDetails.processingTime}</span>
-                    </div>
-                  )}
-                  {comingSoon && (
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      This payment option will be available soon
-                    </p>
-                  )}
+                  <Label 
+                    htmlFor={provider.id} 
+                    className={`font-medium cursor-pointer ${comingSoon ? "text-gray-500" : ""}`}
+                  >
+                    {provider.name}
+                  </Label>
                 </div>
+                
+                {providerDetails?.processingTime && !comingSoon && (
+                  <div className="text-xs text-gray-600 flex items-center">
+                    <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                    <span>Estimated delivery: {providerDetails.processingTime}</span>
+                  </div>
+                )}
+                
+                {comingSoon && (
+                  <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200 text-xs font-normal">
+                    <Clock className="h-3 w-3 mr-1" /> Coming Soon
+                  </Badge>
+                )}
               </div>
             </div>
           );
