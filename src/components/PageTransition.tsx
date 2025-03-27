@@ -16,11 +16,11 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   
   const animSettings = getOptimizedAnimationSettings();
   
-  // Different animation variants based on device type
+  // Enhanced animation variants based on device type
   const variants = {
     initial: {
       opacity: 0,
-      y: isMobile ? 20 : 10, // Smaller shift on desktop for subtlety
+      y: isMobile ? 20 : 10, 
       scale: 0.98,
     },
     animate: {
@@ -31,7 +31,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
         duration: animSettings.duration,
         ease: [0.22, 1, 0.36, 1], // Custom cubic-bezier for smoother feel
         when: "beforeChildren",
-        staggerChildren: shouldUseComplexAnimations ? 0.1 : 0.05
+        staggerChildren: shouldUseComplexAnimations ? 0.08 : 0.04
       }
     },
     exit: {
@@ -39,23 +39,23 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       y: isMobile ? -10 : -5,
       scale: 0.98,
       transition: {
-        duration: animSettings.duration * 0.8,
+        duration: animSettings.duration * 0.7,
         ease: [0.22, 1, 0.36, 1]
       }
     }
   };
 
-  // More subtle variants for child animations
+  // Enhanced child variants for polished animations
   const childVariants = {
-    initial: { opacity: 0, y: 10 },
+    initial: { opacity: 0, y: 15 },
     animate: { 
       opacity: 1, 
       y: 0,
       transition: { 
         duration: animSettings.duration,
         type: "spring",
-        stiffness: animSettings.stiffness,
-        damping: animSettings.damping
+        stiffness: animSettings.stiffness * 1.2,
+        damping: animSettings.damping * 0.9
       }
     }
   };
