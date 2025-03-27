@@ -10,6 +10,17 @@ interface TransactionUpdateOptions {
   [key: string]: any;
 }
 
+// Define transaction status constants to avoid string literals and type issues
+const TRANSACTION_STATUS = {
+  PENDING: 'pending' as TransactionStatus,
+  PROCESSING: 'processing' as TransactionStatus,
+  COMPLETED: 'completed' as TransactionStatus,
+  FAILED: 'failed' as TransactionStatus,
+  CANCELLED: 'cancelled' as TransactionStatus,
+  OFFLINE_PENDING: 'offline-pending' as TransactionStatus,
+  REFUNDED: 'refunded' as TransactionStatus
+};
+
 /**
  * Update a transaction's status
  * @param transactionId Transaction ID
@@ -30,8 +41,7 @@ export const updateTransactionStatus = async (
       console.log(`Local transaction ID detected: ${transactionId}`);
       
       // Handle completed status specifically for local transactions
-      // Need to use type assertion since TypeScript doesn't know 'completed' is in TransactionStatus
-      if (status === 'completed' as TransactionStatus) {
+      if (status === TRANSACTION_STATUS.COMPLETED) {
         const completedTransaction = completeFallbackTransaction(transactionId);
         return completedTransaction;
       }
@@ -44,9 +54,8 @@ export const updateTransactionStatus = async (
           ...parsedTransaction,
           status,
           updatedAt: new Date().toISOString(),
-          // Need type assertion here as well
-          ...(status === 'completed' as TransactionStatus ? { completedAt: new Date().toISOString() } : {}),
-          ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
+          ...(status === TRANSACTION_STATUS.COMPLETED ? { completedAt: new Date().toISOString() } : {}),
+          ...(status === TRANSACTION_STATUS.FAILED && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
         localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedTransaction));
@@ -58,7 +67,7 @@ export const updateTransactionStatus = async (
           ...updatedTransaction,
           createdAt: new Date(updatedTransaction.createdAt),
           updatedAt: new Date(),
-          completedAt: status === 'completed' as TransactionStatus ? new Date() : undefined
+          completedAt: status === TRANSACTION_STATUS.COMPLETED ? new Date() : undefined
         };
       }
       
@@ -72,14 +81,14 @@ export const updateTransactionStatus = async (
     };
     
     // Add completed_at if completed
-    if (status === 'completed' as TransactionStatus) {
+    if (status === TRANSACTION_STATUS.COMPLETED) {
       updateData.completed_at = options.completedAt 
         ? options.completedAt.toISOString() 
         : new Date().toISOString();
     }
     
     // Add failure_reason if failed
-    if (status === 'failed' && options.failureReason) {
+    if (status === TRANSACTION_STATUS.FAILED && options.failureReason) {
       updateData.failure_reason = options.failureReason;
     }
     
@@ -159,8 +168,8 @@ export const updateTransactionStatus = async (
           ...parsedTransaction,
           status,
           updatedAt: new Date().toISOString(),
-          ...(status === 'completed' as TransactionStatus ? { completedAt: new Date().toISOString() } : {}),
-          ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
+          ...(status === TRANSACTION_STATUS.COMPLETED ? { completedAt: new Date().toISOString() } : {}),
+          ...(status === TRANSACTION_STATUS.FAILED && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
         localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedTransaction));
@@ -186,7 +195,7 @@ export const simulateWebhook = async (
 ): Promise<void> => {
   try {
     // Randomly set to completed or failed if no status is provided
-    const finalStatus: TransactionStatus = Math.random() > 0.3 ? 'completed' as TransactionStatus : 'failed' as TransactionStatus;
+    const finalStatus = Math.random() > 0.3 ? TRANSACTION_STATUS.COMPLETED : TRANSACTION_STATUS.FAILED;
     
     console.log(`📥 Processing Kado webhook: ${JSON.stringify({
       transaction_id: transactionId,
@@ -203,7 +212,7 @@ export const simulateWebhook = async (
     }, null, 2)}`);
     
     // Update the transaction status
-    if (finalStatus === 'completed' as TransactionStatus) {
+    if (finalStatus === TRANSACTION_STATUS.COMPLETED) {
       await updateTransactionStatus(transactionId, finalStatus, {
         completedAt: new Date()
       });
