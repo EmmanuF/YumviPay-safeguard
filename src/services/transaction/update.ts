@@ -183,7 +183,7 @@ export const simulateWebhook = async (
 ): Promise<void> => {
   try {
     // Randomly set to completed or failed if no status is provided
-    const finalStatus = Math.random() > 0.3 ? 'completed' : 'failed';
+    const finalStatus: TransactionStatus = Math.random() > 0.3 ? 'completed' : 'failed';
     
     console.log(`📥 Processing Kado webhook: ${JSON.stringify({
       transaction_id: transactionId,
@@ -201,7 +201,7 @@ export const simulateWebhook = async (
     
     // Update the transaction status
     if (finalStatus === 'completed') {
-      await updateTransactionStatus(transactionId, 'completed' as TransactionStatus, {
+      await updateTransactionStatus(transactionId, finalStatus, {
         completedAt: new Date()
       });
     } else {
@@ -215,7 +215,7 @@ export const simulateWebhook = async (
       
       const randomReason = failureReasons[Math.floor(Math.random() * failureReasons.length)];
       
-      await updateTransactionStatus(transactionId, 'failed' as TransactionStatus, {
+      await updateTransactionStatus(transactionId, finalStatus, {
         failureReason: randomReason
       });
     }
