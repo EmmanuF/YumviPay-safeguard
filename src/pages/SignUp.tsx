@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import PageTransition from '@/components/PageTransition';
 
 const formSchema = z.object({
@@ -34,9 +34,21 @@ const formSchema = z.object({
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  const { signUp } = useAuth();
+  const { signUp, isLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get the page they were trying to access
+  const redirectTo = location.state?.redirectTo || "/dashboard";
+
+  // Check if user is already logged in, redirect if they are
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log('User already logged in, redirecting to:', redirectTo);
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isLoggedIn, navigate, redirectTo]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,7 +67,7 @@ const SignUp = () => {
         title: "Registration successful!",
         description: "You have successfully registered.",
       });
-      navigate('/');
+      navigate(redirectTo, { replace: true });
     } catch (error: any) {
       toast({
         title: "Registration failed.",

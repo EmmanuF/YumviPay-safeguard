@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
 import { BiometricService } from '@/services/biometric';
@@ -31,9 +31,20 @@ const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn } = useAuth();
+  const { signIn, isLoggedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+
+  // Get the page they were trying to access
+  const redirectTo = location.state?.redirectTo || "/dashboard";
+
+  // Check if user is already logged in, redirect if they are
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log('User already logged in, redirecting to:', redirectTo);
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isLoggedIn, navigate, redirectTo]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,8 +82,9 @@ const SignIn = () => {
         title: "Login successful",
         description: "You have successfully logged in.",
       });
-      const redirectTo = location.state?.redirectTo || "/";
-      navigate(redirectTo);
+      
+      // Navigate to the originally requested page or default to dashboard
+      navigate(redirectTo, { replace: true });
     } catch (error: any) {
       toast({
         title: "Authentication Failed",
@@ -93,8 +105,7 @@ const SignIn = () => {
           title: "Biometric Login Successful",
           description: "You have successfully logged in using biometrics.",
         });
-        const redirectTo = location.state?.redirectTo || "/";
-        navigate(redirectTo);
+        navigate(redirectTo, { replace: true });
       })
       .catch((error) => {
         toast({
