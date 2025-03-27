@@ -116,8 +116,7 @@ const HowItWorks = () => {
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
                 <motion.div 
-                  className={`rounded-xl p-6 text-center relative border border-white/20 backdrop-blur-sm shadow-lg ${step.color.bg} overflow-hidden`}
-                  style={{ borderRadius: "1.5rem" }} // More rounded corners
+                  className={`rounded-2xl p-6 text-center relative border border-white/20 backdrop-blur-sm shadow-lg ${step.color.bg} overflow-hidden`}
                   variants={itemVariants}
                   whileHover={{ 
                     y: -10, 
@@ -127,9 +126,9 @@ const HowItWorks = () => {
                     transition: { duration: 0.3, ease: "easeOut" }
                   }}
                 >
-                  {/* Connection arrows between steps */}
+                  {/* Connection arrows between steps - improved visibility */}
                   {index < steps.length - 1 && (
-                    <div className="hidden md:flex absolute top-1/2 -right-3 z-10 transform -translate-y-1/2">
+                    <div className="hidden md:flex absolute top-1/2 -right-4 z-10 transform -translate-y-1/2">
                       <motion.div
                         animate={{ 
                           x: [0, 5, 0], 
@@ -140,15 +139,15 @@ const HowItWorks = () => {
                           repeat: Infinity,
                           repeatType: "reverse"
                         }}
-                        className="text-white"
+                        className="bg-white rounded-full p-1 shadow-md"
                       >
-                        <ChevronRight size={24} strokeWidth={3} />
+                        <ChevronRight size={24} className="text-gray-800" strokeWidth={3} />
                       </motion.div>
                     </div>
                   )}
                   
-                  <HoverCard>
-                    <HoverCardTrigger>
+                  <HoverCard openDelay={100} closeDelay={100}>
+                    <HoverCardTrigger asChild>
                       <div className="bg-white/30 backdrop-blur-md rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-5 shadow-md transform transition-transform duration-300 hover:rotate-12 border border-white/40 cursor-help">
                         <motion.div
                           animate={{ rotate: [0, 5, -5, 0] }}
@@ -163,22 +162,23 @@ const HowItWorks = () => {
                         </motion.div>
                       </div>
                     </HoverCardTrigger>
-                    <HoverCardContent className="p-3 bg-white/90 backdrop-blur-md border border-white/40 shadow-lg text-left">
-                      <p className="text-sm font-medium">{step.tooltip}</p>
+                    <HoverCardContent className="p-3 bg-white/90 backdrop-blur-md border border-white/40 shadow-lg text-left z-50">
+                      <p className="text-sm font-medium text-gray-800">{step.tooltip}</p>
                     </HoverCardContent>
                   </HoverCard>
                   
                   <h3 className="font-bold text-xl mb-3 text-white">{step.title}</h3>
                   <p className="text-white/90 leading-relaxed">{step.description}</p>
                   
+                  {/* Repositioned number indicator to fit inside the top-left corner better */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-white text-indigo-600 flex items-center justify-center text-lg font-bold shadow-lg border border-indigo-100 cursor-help">
+                      <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-white text-indigo-600 flex items-center justify-center text-lg font-bold shadow-lg border border-indigo-100 cursor-help">
                         {step.id}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="bg-white/90 backdrop-blur-md border border-white/40">
-                      <p className="text-sm">Step {step.id}</p>
+                      <p className="text-sm font-medium">Step {step.id}</p>
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
