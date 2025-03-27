@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { HeroCalculator } from './index';
 import TimeLocationGreeting from './TimeLocationGreeting';
 import PersonalizedWelcome from './PersonalizedWelcome';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle2 } from 'lucide-react';
 
 const HeroDescription: React.FC = () => {
   return (
@@ -64,28 +66,83 @@ const HeroDescription: React.FC = () => {
         </motion.div>
       </div>
       
-      {/* Feature bullet points in a single horizontal line with flex-nowrap */}
-      <div className="flex flex-nowrap justify-between items-center mt-4 space-x-2 overflow-x-auto">
-        <div className="flex items-center gap-1 whitespace-nowrap">
-          <div className="bg-green-100 p-1 rounded-full">
-            <div className="text-green-600">✓</div>
-          </div>
-          <p className="text-sm text-gray-600">Fast transfers to 10+ African countries</p>
-        </div>
-        
-        <div className="flex items-center gap-1 whitespace-nowrap">
-          <div className="bg-green-100 p-1 rounded-full">
-            <div className="text-green-600">✓</div>
-          </div>
-          <p className="text-sm text-gray-600"><strong>100% FREE</strong> - No transaction fees ever</p>
-        </div>
-        
-        <div className="flex items-center gap-1 whitespace-nowrap">
-          <div className="bg-green-100 p-1 rounded-full">
-            <div className="text-green-600">✓</div>
-          </div>
-          <p className="text-sm text-gray-600">No hidden fees or exchange rate markups</p>
-        </div>
+      {/* Feature cards in a grid with different colors and animations */}
+      <div className="grid grid-cols-2 gap-3 mt-6 mb-2">
+        <motion.div
+          whileHover={{ y: -4 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            duration: 0.4, 
+            delay: 0.1, 
+            type: "spring",
+            stiffness: 300
+          }}
+        >
+          <Card className="h-full border-0 bg-gradient-to-br from-primary-50 to-primary-100 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 flex items-start space-x-2">
+              <CheckCircle2 className="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm font-medium text-gray-700">Fast transfers to 10+ African countries</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ y: -4 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            duration: 0.4, 
+            delay: 0.2, 
+            type: "spring",
+            stiffness: 300
+          }}
+        >
+          <Card className="h-full border-0 bg-gradient-to-br from-secondary-50 to-secondary-100 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 flex items-start space-x-2">
+              <CheckCircle2 className="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm font-medium text-gray-700"><strong>100% FREE</strong> - No transaction fees ever</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ y: -4 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            duration: 0.4, 
+            delay: 0.3, 
+            type: "spring",
+            stiffness: 300
+          }}
+        >
+          <Card className="h-full border-0 bg-gradient-to-br from-amber-50 to-amber-100 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 flex items-start space-x-2">
+              <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm font-medium text-gray-700">No hidden fees or exchange rate markups</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ y: -4 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            duration: 0.4, 
+            delay: 0.4, 
+            type: "spring",
+            stiffness: 300
+          }}
+        >
+          <Card className="h-full border-0 bg-gradient-to-br from-indigo-50 to-indigo-100 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 flex items-start space-x-2">
+              <CheckCircle2 className="h-5 w-5 text-indigo-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm font-medium text-gray-700">Easy mobile transfers with fast delivery</p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </motion.div>
   );
