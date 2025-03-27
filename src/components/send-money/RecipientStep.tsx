@@ -279,8 +279,9 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   };
 
   const getPhoneNumberPlaceholder = (countryCode: string) => {
+    if (countryCode === 'CM') return "+237 6XX XX XX XX";
+    
     switch (countryCode) {
-      case 'CM': return "+237 6XX XXX XXX";
       case 'US': return "+1 (XXX) XXX-XXXX";
       case 'GB': return "+44 XXXX XXXXXX";
       case 'NG': return "+234 XXX XXX XXXX";
@@ -442,26 +443,14 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           Phone Number <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         
-                        <FormDescription className="text-sm text-gray-600 ml-9 mb-3 space-y-2">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span>Format:</span>
-                            <Badge variant="outline" className="text-xs font-normal bg-primary-50/80 border-primary-100">
-                              {getPhoneNumberPlaceholder(selectedCountry)}
-                            </Badge>
-                          </div>
-                          
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span>Popular providers:</span>
-                            <Badge variant="outline" className="text-xs font-normal bg-secondary-50/50 border-secondary-100">
-                              {getPopularProviders(selectedCountry)}
-                            </Badge>
-                          </div>
+                        <FormDescription className="text-sm text-gray-600 ml-9 mb-3">
+                          Enter the recipient's mobile number including country code
                         </FormDescription>
                         
                         <FormControl>
                           <div className="relative mt-1">
                             <Input 
-                              placeholder={getPhoneNumberPlaceholder(selectedCountry)} 
+                              placeholder={selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
                               className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
                               {...field} 
                               onChange={(e) => {
@@ -489,7 +478,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                                     <div className="font-medium mb-2 text-secondary-700">For {getCountryName(selectedCountry)}:</div>
                                     <ul className="list-disc list-inside pl-2 space-y-1.5 text-gray-700">
                                       <li>Country code: <span className="font-medium">{getCountryCallingCode(selectedCountry)}</span></li>
-                                      <li>Format: <span className="font-medium">{getPhoneNumberPlaceholder(selectedCountry)}</span></li>
                                       <li>Example: <span className="font-medium">{getPhoneNumberPlaceholder(selectedCountry).replace(/X/g, '9')}</span></li>
                                     </ul>
                                   </div>
@@ -535,7 +523,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                         <FormControl>
                           <div className="relative mt-1">
                             <Input 
-                              placeholder={getPhoneNumberPlaceholder(selectedCountry)} 
+                              placeholder={selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
                               className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
                               {...field} 
                               onChange={(e) => {

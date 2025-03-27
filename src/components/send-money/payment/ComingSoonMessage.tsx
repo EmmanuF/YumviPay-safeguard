@@ -24,4 +24,3 @@ const ComingSoonMessage: React.FC<ComingSoonMessageProps> = ({ message }) => {
 };
 
 export default ComingSoonMessage;
-
