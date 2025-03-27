@@ -201,7 +201,7 @@ export const simulateWebhook = async (
     
     // Update the transaction status
     if (finalStatus === 'completed') {
-      await updateTransactionStatus(transactionId, 'completed', {
+      await updateTransactionStatus(transactionId, 'completed' as TransactionStatus, {
         completedAt: new Date()
       });
     } else {
@@ -215,7 +215,7 @@ export const simulateWebhook = async (
       
       const randomReason = failureReasons[Math.floor(Math.random() * failureReasons.length)];
       
-      await updateTransactionStatus(transactionId, 'failed', {
+      await updateTransactionStatus(transactionId, 'failed' as TransactionStatus, {
         failureReason: randomReason
       });
     }
