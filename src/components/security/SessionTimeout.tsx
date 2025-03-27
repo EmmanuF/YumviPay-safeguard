@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/components/ui/use-toast';
 import { LAST_AUTH_CHECK_KEY } from '@/services/auth/constants';
 
@@ -30,16 +30,13 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Update last activity timestamp when user interacts with the page
   const updateActivity = useCallback(() => {
     setLastActivity(Date.now());
     setShowWarning(false);
     
-    // Also update the cached auth check timestamp to keep them in sync
     localStorage.setItem(LAST_AUTH_CHECK_KEY, Date.now().toString());
   }, []);
   
-  // Log out the user
   const handleTimeout = useCallback(async () => {
     if (!isLoggedIn) {
       setShowWarning(false);
@@ -57,19 +54,16 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
     } catch (error) {
       console.error('Error signing out:', error);
       
-      // Force redirect to signin even if signOut fails
       navigate('/signin');
     }
     
     setShowWarning(false);
   }, [isLoggedIn, signOut, navigate, toast]);
   
-  // Continue the session and refresh auth state
   const continueSession = useCallback(async () => {
     updateActivity();
     
     try {
-      // Try to refresh the auth state in the background
       await refreshAuthState();
       
       toast({
@@ -79,17 +73,12 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       });
     } catch (error) {
       console.error('Error refreshing auth state:', error);
-      
-      // Even if refresh fails, allow user to continue using the app
-      // as long as they're interacting with it
     }
   }, [updateActivity, refreshAuthState, toast]);
   
-  // Set up event listeners for user activity
   useEffect(() => {
     if (!isLoggedIn) return;
     
-    // Expanded list of events to detect user activity
     const events = [
       'mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart',
       'click', 'keydown', 'touchmove', 'focus', 'input', 'change',
@@ -100,7 +89,6 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       window.addEventListener(event, updateActivity);
     });
     
-    // Listen for navigation between pages
     const handleRouteChange = () => {
       console.log('Route changed, updating activity timestamp');
       updateActivity();
@@ -109,7 +97,6 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
     window.addEventListener('popstate', handleRouteChange);
     window.addEventListener('navigation', handleRouteChange);
     
-    // Update activity on component mount
     updateActivity();
     
     return () => {
@@ -121,7 +108,6 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
     };
   }, [isLoggedIn, updateActivity]);
   
-  // Check for timeout
   useEffect(() => {
     if (!isLoggedIn) return;
     
@@ -131,39 +117,33 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       const now = Date.now();
       const elapsed = now - lastActivity;
       
-      // Log activity checks less frequently to avoid console spam
       if (elapsed > timeout - warningTime * 2) {
         console.log(`Session check: ${Math.round(elapsed / 1000)}s since last activity`, 
           { warning: showWarning, timeout: Math.round(timeout / 1000), lastActivity: new Date(lastActivity).toISOString() });
       }
       
       if (elapsed >= timeout) {
-        // Session timed out
         console.log('Session timeout reached, logging out');
         handleTimeout();
       } else if (elapsed >= timeout - warningTime && !showWarning) {
-        // Show warning
         console.log('Showing session timeout warning');
         setShowWarning(true);
         setTimeLeft(Math.ceil((timeout - elapsed) / 1000));
       } else if (showWarning) {
-        // Update time left
         setTimeLeft(Math.ceil((timeout - elapsed) / 1000));
       }
     };
     
-    // Check every minute when far from timeout, more frequently when close
     intervalId = window.setInterval(() => {
       const elapsed = Date.now() - lastActivity;
       
       if (elapsed > timeout - warningTime - 30000 || showWarning) {
-        // Check every second when close to warning or when warning is shown
         clearInterval(intervalId);
         intervalId = window.setInterval(checkActivity, 1000);
       } else {
         checkActivity();
       }
-    }, 60000); // Check every minute
+    }, 60000);
     
     return () => clearInterval(intervalId);
   }, [isLoggedIn, lastActivity, timeout, warningTime, showWarning, handleTimeout]);

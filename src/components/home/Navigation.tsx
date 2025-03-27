@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { useLocale } from '@/contexts/LocaleContext';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -80,7 +80,6 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     }, 50);
   };
   
-  // Don't render this navigation on mobile as we'll use BottomNavigation
   if (isMobile) {
     return null;
   }

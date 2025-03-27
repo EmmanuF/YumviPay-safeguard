@@ -1,7 +1,6 @@
-
-import React, { ReactNode, useEffect, useState, useCallback } from 'react';
+import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
@@ -18,12 +17,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   
-  // Memoize the checkAuth function to avoid recreating it on every render
   const checkAuth = useCallback(async () => {
     try {
       console.log('Checking auth in ProtectedRoute for', location.pathname);
       
-      // If we already know the user is logged in from context, trust it
       if (isLoggedIn && !authLoading) {
         console.log('User is already logged in according to context');
         setIsAuthenticated(true);
@@ -31,21 +28,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         return;
       }
       
-      // Check if we have cached authentication that's recent (within last 10 minutes)
       const lastAuthCheck = localStorage.getItem(LAST_AUTH_CHECK_KEY);
       if (lastAuthCheck) {
         const lastChecked = parseInt(lastAuthCheck);
-        const isRecent = Date.now() - lastChecked < 10 * 60 * 1000; // 10 minutes
+        const isRecent = Date.now() - lastChecked < 10 * 60 * 1000;
         
         if (isRecent) {
-          // Get cached session state
           const cachedAuthState = localStorage.getItem(CACHED_AUTH_STATE_KEY);
           if (cachedAuthState === 'authenticated') {
             console.log('Using cached authentication state (authenticated)');
             setIsAuthenticated(true);
             setIsChecking(false);
             
-            // Refresh auth state in the background, but don't wait for it
             refreshAuthState().catch(err => {
               console.warn('Background auth refresh failed:', err);
             });
@@ -55,14 +49,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         }
       }
       
-      // Create a timeout that resolves after 5 seconds
       const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
         setTimeout(() => {
           resolve({ data: { session: null } });
-        }, 5000); // 5 seconds timeout
+        }, 5000);
       });
       
-      // Race the auth check against the timeout
       const { data } = await Promise.race([
         supabase.auth.getSession(),
         timeoutPromise
@@ -71,12 +63,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       const isAuthValid = !!data.session;
       console.log('Auth check result:', isAuthValid ? 'Authenticated' : 'Not authenticated');
       
-      // Cache the result
       localStorage.setItem(LAST_AUTH_CHECK_KEY, Date.now().toString());
       localStorage.setItem(CACHED_AUTH_STATE_KEY, isAuthValid ? 'authenticated' : 'unauthenticated');
       
       if (isAuthValid) {
-        // Force a context refresh to ensure it's in sync
         await refreshAuthState();
       }
       
@@ -93,10 +83,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     } catch (error: any) {
       console.error('Error checking authentication:', error);
       
-      // Check if we have any cached auth state we can use
       const cachedAuthState = localStorage.getItem(CACHED_AUTH_STATE_KEY);
       const lastCheck = parseInt(localStorage.getItem(LAST_AUTH_CHECK_KEY) || '0');
-      const isRecentCache = lastCheck && (Date.now() - lastCheck < 60 * 60 * 1000); // 60 minutes
+      const isRecentCache = lastCheck && (Date.now() - lastCheck < 60 * 60 * 1000);
       
       if (cachedAuthState === 'authenticated' && isRecentCache) {
         console.log('Using cached auth state due to error');
@@ -121,12 +110,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, [authError, toast, location.pathname, isLoggedIn, authLoading, refreshAuthState]);
   
-  // Check auth when the component mounts or when dependencies change
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
   
-  // Listen for auth state changes from Supabase
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed in ProtectedRoute:', event);
@@ -143,7 +130,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
   }, []);
   
-  // Show loading state while checking authentication
   if (authLoading || isChecking) {
     return <LoadingState 
       message="Verifying authentication..." 
@@ -153,7 +139,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   
   if (!isLoggedIn && !isAuthenticated) {
     console.log('Not authenticated, redirecting to signin from', location.pathname);
-    // Store the current path to redirect back after login
     return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
   }
   
