@@ -106,7 +106,7 @@ const SendMoney: React.FC = () => {
       <Header title="Send Money" showBackButton onBackClick={handleBack} />
       
       {/* Enhanced Stepper component with animations */}
-      <div className="bg-white shadow-sm relative overflow-hidden">
+      <div className="bg-white shadow-sm relative overflow-hidden sticky top-0 z-10">
         {/* Decorative background element */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
         
@@ -174,8 +174,8 @@ const SendMoney: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex-1 p-4 bg-muted/10 pb-24">
-        <div className="container mx-auto max-w-md">
+      <div className="flex-1 p-4 sm:p-6 bg-muted/10 pb-24">
+        <div className="container mx-auto max-w-3xl">
           <motion.div
             variants={itemVariants}
             className="w-full"

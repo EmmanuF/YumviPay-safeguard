@@ -8,8 +8,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
-import { User, Phone, Info, Users, Star, StarOff } from 'lucide-react';
+import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle } from 'lucide-react';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CountrySelector } from '@/components/country-selector';
+import { useCountries } from '@/hooks/useCountries';
 
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -17,7 +23,8 @@ const formSchema = z.object({
     .regex(/^\+?[0-9\s\-\(\)]{6,20}$/, { 
       message: "Phone must include country code (e.g., +237)." 
     }),
-  saveToFavorites: z.boolean().default(false)
+  saveToFavorites: z.boolean().default(false),
+  countryCode: z.string().optional()
 });
 
 interface RecipientStepProps {
@@ -33,18 +40,95 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   onNext,
   onBack
 }) => {
-  const formatPhoneNumber = (value: string) => {
+  const { getCountryByCode } = useCountries();
+  const [selectedCountry, setSelectedCountry] = useState(transactionData?.targetCountry || 'CM');
+  
+  // Format phone number based on country code
+  const formatPhoneNumber = (value: string, countryCode: string = 'CM') => {
+    // Strip non-numeric characters except for + at the beginning
     let cleaned = value.replace(/[^\d+]/g, '');
     
     if (cleaned.startsWith('+')) {
       cleaned = '+' + cleaned.substring(1).replace(/\+/g, '');
     }
     
-    if (cleaned.startsWith('+') && cleaned.length > 3) {
-      return `${cleaned.substring(0, 4)} ${cleaned.substring(4).replace(/(.{3})/g, '$1 ').trim()}`;
+    // If no country code is provided, add the default one
+    if (!cleaned.startsWith('+')) {
+      // Get country calling code based on country code
+      const countryCallingCode = getCountryCallingCode(countryCode);
+      cleaned = countryCallingCode + cleaned;
     }
     
-    return cleaned;
+    // Format based on country
+    const formatted = formatByCountry(cleaned, countryCode);
+    return formatted;
+  };
+  
+  // Get country calling code
+  const getCountryCallingCode = (countryCode: string) => {
+    const callingCodes: Record<string, string> = {
+      'CM': '+237',
+      'US': '+1',
+      'GB': '+44',
+      'NG': '+234',
+      'KE': '+254',
+      'GH': '+233',
+      'SN': '+221',
+      'CI': '+225',
+      'ZA': '+27',
+    };
+    
+    return callingCodes[countryCode] || '+';
+  };
+  
+  // Format phone number based on country-specific patterns
+  const formatByCountry = (number: string, countryCode: string) => {
+    // If it doesn't start with +, we can't format it properly
+    if (!number.startsWith('+')) return number;
+    
+    // Remove all spaces first
+    const digitsOnly = number.replace(/\s+/g, '');
+    
+    switch (countryCode) {
+      case 'CM': // Cameroon: +237 6XX XX XX XX
+        if (digitsOnly.startsWith('+237')) {
+          const base = digitsOnly.substring(0, 4); // +237
+          const rest = digitsOnly.substring(4);
+          if (rest.length <= 2) return `${base} ${rest}`;
+          if (rest.length <= 4) return `${base} ${rest.substring(0, 2)} ${rest.substring(2)}`;
+          if (rest.length <= 6) return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4)}`;
+          return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4, 6)} ${rest.substring(6)}`;
+        }
+        break;
+      case 'US': // USA: +1 (XXX) XXX-XXXX
+        if (digitsOnly.startsWith('+1')) {
+          const base = digitsOnly.substring(0, 2); // +1
+          const rest = digitsOnly.substring(2);
+          if (rest.length <= 3) return `${base} (${rest}`;
+          if (rest.length <= 6) return `${base} (${rest.substring(0, 3)}) ${rest.substring(3)}`;
+          return `${base} (${rest.substring(0, 3)}) ${rest.substring(3, 6)}-${rest.substring(6)}`;
+        }
+        break;
+      case 'GB': // UK: +44 XXXX XXXXXX
+        if (digitsOnly.startsWith('+44')) {
+          const base = digitsOnly.substring(0, 3); // +44
+          const rest = digitsOnly.substring(3);
+          if (rest.length <= 4) return `${base} ${rest}`;
+          return `${base} ${rest.substring(0, 4)} ${rest.substring(4)}`;
+        }
+        break;
+      default:
+        // Generic international format: +XXX XXX XXX XXX
+        const countryCode = digitsOnly.match(/^\+\d{1,3}/)?.[0] || '';
+        if (countryCode) {
+          const rest = digitsOnly.substring(countryCode.length);
+          return rest.length > 0 
+            ? `${countryCode} ${rest.replace(/(\d{3})/g, '$1 ').trim()}`
+            : countryCode;
+        }
+    }
+    
+    return number;
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,10 +136,16 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     defaultValues: {
       recipientName: transactionData?.recipientName || "",
       recipientContact: transactionData?.recipientContact || transactionData?.recipient || "",
-      saveToFavorites: transactionData?.saveToFavorites || false
+      saveToFavorites: transactionData?.saveToFavorites || false,
+      countryCode: selectedCountry
     },
     mode: "onChange" // This ensures validation runs on every change
   });
+
+  // Update country code when selected country changes
+  useEffect(() => {
+    form.setValue('countryCode', selectedCountry);
+  }, [selectedCountry, form]);
 
   // Submit handler with enhanced logging
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -64,7 +154,8 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       recipientName: values.recipientName,
       recipientContact: values.recipientContact,
       recipient: values.recipientContact,
-      saveToFavorites: values.saveToFavorites
+      saveToFavorites: values.saveToFavorites,
+      targetCountry: values.countryCode
     });
     
     console.log("Calling onNext() after form submission");
@@ -119,6 +210,49 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     });
   }, [form.formState.isValid, form.formState.isDirty, form.formState.errors]);
 
+  // Handle country selection
+  const handleCountryChange = (code: string) => {
+    setSelectedCountry(code);
+    
+    // Update the phone number format if it exists
+    const currentPhone = form.getValues('recipientContact');
+    if (currentPhone) {
+      const formattedPhone = formatPhoneNumber(currentPhone, code);
+      form.setValue('recipientContact', formattedPhone, { shouldValidate: true });
+    }
+  };
+
+  const getCountryName = (code: string) => {
+    const country = getCountryByCode(code);
+    return country?.name || code;
+  };
+
+  // Get an example phone number format based on country
+  const getPhoneNumberPlaceholder = (countryCode: string) => {
+    switch (countryCode) {
+      case 'CM': return "+237 6XX XXX XXX";
+      case 'US': return "+1 (XXX) XXX-XXXX";
+      case 'GB': return "+44 XXXX XXXXXX";
+      case 'NG': return "+234 XXX XXX XXXX";
+      case 'GH': return "+233 XX XXX XXXX";
+      case 'ZA': return "+27 XX XXX XXXX";
+      default: return "+XXX XXX XXX XXX";
+    }
+  };
+
+  // Example method to get popular service providers by country (for helper text)
+  const getPopularProviders = (countryCode: string) => {
+    switch (countryCode) {
+      case 'CM': return "MTN, Orange";
+      case 'US': return "AT&T, Verizon, T-Mobile";
+      case 'GB': return "Vodafone, EE, O2";
+      case 'NG': return "MTN, Airtel, Glo";
+      case 'GH': return "MTN, Vodafone, AirtelTigo";
+      case 'ZA': return "Vodacom, MTN, Cell C";
+      default: return "Multiple providers";
+    }
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -128,7 +262,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     >
       <motion.div variants={itemVariants}>
         <Card className="glass-effect border-primary-100/30 shadow-lg">
-          <CardContent className="p-6">
+          <CardContent className="p-6 sm:p-8">
             <motion.h2 
               className="text-2xl font-bold text-center text-gradient-primary mb-2"
               initial={{ y: -10, opacity: 0 }}
@@ -141,8 +275,31 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
               initial={{ y: -5, opacity: 0 }}
               animate={{ y: 0, opacity: 1, transition: { delay: 0.3 } }}
             >
-              Choose a recipient or add a new one
+              Enter details for your recipient
             </motion.p>
+
+            {/* Country selector */}
+            <motion.div
+              variants={itemVariants}
+              className="mb-6 bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80"
+            >
+              <div className="flex items-center mb-3">
+                <Globe className="h-5 w-5 mr-2 text-primary" />
+                <h3 className="text-primary-600 font-medium text-base">Recipient's Country</h3>
+              </div>
+              
+              <div className="mt-2">
+                <CountrySelector
+                  defaultValue={selectedCountry}
+                  onValueChange={handleCountryChange}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500 mt-2 flex items-center">
+                  <Info className="h-4 w-4 mr-1 text-primary-400" />
+                  Using {getCountryName(selectedCountry)} phone number format
+                </p>
+              </div>
+            </motion.div>
 
             <Form {...form}>
               <div className="space-y-6">
@@ -159,19 +316,33 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           <User className="h-5 w-5 mr-2 text-primary" />
                           Recipient Name <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
+                        <FormDescription className="text-sm text-gray-500 ml-7 mb-2">
+                          Enter the full name as it appears on their government ID.
+                        </FormDescription>
                         <FormControl>
-                          <div className="relative mt-2">
+                          <div className="relative mt-1">
                             <Input 
-                              placeholder="Full name of recipient" 
+                              placeholder="e.g. John Doe" 
                               className="pl-3 form-control-modern h-12 text-base bg-white/80 backdrop-blur-sm border-primary-100/50 focus-visible:ring-primary-400/30"
                               {...field} 
                             />
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-help">
+                                    <HelpCircle className="h-4 w-4" />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p className="text-xs">
+                                    For security and compliance reasons, the recipient's name must match their official ID.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                         </FormControl>
-                        <FormDescription className="text-xs text-gray-500 ml-6 mt-2">
-                          Enter the full name as it appears on their ID.
-                        </FormDescription>
-                        <FormMessage className="text-sm text-red-500 ml-6 mt-1" />
+                        <FormMessage className="text-sm text-red-500 ml-7 mt-1" />
                       </FormItem>
                     </motion.div>
                   )}
@@ -190,26 +361,53 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           <Phone className="h-5 w-5 mr-2 text-primary" />
                           Phone Number <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
+                        <FormDescription className="text-sm text-gray-500 ml-7 mb-2 flex flex-wrap items-center gap-1">
+                          <span>Format:</span>
+                          <Badge variant="outline" className="text-xs font-normal bg-primary-50">
+                            {getPhoneNumberPlaceholder(selectedCountry)}
+                          </Badge>
+                          <span className="ml-1">Popular providers:</span>
+                          <Badge variant="outline" className="text-xs font-normal bg-secondary-50/50">
+                            {getPopularProviders(selectedCountry)}
+                          </Badge>
+                        </FormDescription>
                         <FormControl>
-                          <div className="relative mt-2">
+                          <div className="relative mt-1">
                             <Input 
-                              placeholder="+237 6XX XXX XXX" 
+                              placeholder={getPhoneNumberPlaceholder(selectedCountry)} 
                               className="pl-3 form-control-modern h-12 text-base bg-white/80 backdrop-blur-sm border-primary-100/50 focus-visible:ring-primary-400/30"
                               {...field} 
                               onChange={(e) => {
-                                const formatted = formatPhoneNumber(e.target.value);
+                                const formatted = formatPhoneNumber(e.target.value, selectedCountry);
                                 field.onChange(formatted);
                               }}
                             />
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                              <Info className="h-4 w-4" />
-                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer">
+                                  <Info className="h-4 w-4" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80" align="end">
+                                <div className="space-y-2">
+                                  <h4 className="font-medium">Phone Number Format</h4>
+                                  <p className="text-xs text-gray-600">
+                                    Enter the recipient's phone number with country code. This number will receive transaction notifications and may be used for verification.
+                                  </p>
+                                  <div className="text-xs p-2 bg-primary-50/50 rounded border border-primary-100/50">
+                                    <div className="font-medium mb-1">For {getCountryName(selectedCountry)}:</div>
+                                    <ul className="list-disc list-inside pl-2 space-y-1">
+                                      <li>Country code: {getCountryCallingCode(selectedCountry)}</li>
+                                      <li>Format: {getPhoneNumberPlaceholder(selectedCountry)}</li>
+                                      <li>Example: {getPhoneNumberPlaceholder(selectedCountry).replace(/X/g, '9')}</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </div>
                         </FormControl>
-                        <FormDescription className="text-xs text-gray-500 ml-6 mt-2">
-                          Must include country code (+237 for Cameroon)
-                        </FormDescription>
-                        <FormMessage className="text-sm text-red-500 ml-6 mt-1" />
+                        <FormMessage className="text-sm text-red-500 ml-7 mt-1" />
                       </FormItem>
                     </motion.div>
                   )}
@@ -234,7 +432,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           <div>
                             <FormLabel className="text-primary-600 font-medium text-base">Save to Favorites</FormLabel>
                             <FormDescription className="text-xs text-gray-500">
-                              Add this recipient to your frequent contacts
+                              Add this recipient to your frequent contacts for faster transfers
                             </FormDescription>
                           </div>
                         </div>
@@ -249,6 +447,21 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                     </motion.div>
                   )}
                 />
+
+                {isFormValid && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Alert className="bg-green-50 border-green-200 text-green-800">
+                      <AlertDescription className="flex items-center">
+                        <Check className="h-4 w-4 mr-2" />
+                        All information looks good! You can proceed to the next step.
+                      </AlertDescription>
+                    </Alert>
+                  </motion.div>
+                )}
 
                 <PaymentStepNavigation 
                   onNext={handleNextClick}

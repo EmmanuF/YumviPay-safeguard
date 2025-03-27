@@ -3,13 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Wallet, CreditCard, Building, ChevronDown, ChevronUp, Check, AlertTriangle, ArrowRight, Sparkles } from 'lucide-react';
+import { Wallet, CreditCard, Building, ChevronDown, ChevronUp, Check, AlertTriangle, ArrowRight, Sparkles, Info, Clock } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCountries } from '@/hooks/useCountries';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
+import CountryPaymentMethods from './payment/CountryPaymentMethods';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 interface PaymentStepProps {
   transactionData: any;
@@ -54,6 +57,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   const [recurringFrequency, setRecurringFrequency] = useState<string>(transactionData?.recurringFrequency || 'monthly');
   const [isRecurringExpanded, setIsRecurringExpanded] = useState<boolean>(isRecurring);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(transactionData?.termsAccepted || false);
+  const countryCode = transactionData?.targetCountry || 'CM';
   
   // Hard-coded payment methods for demo (normally would come from API)
   const paymentMethods = [
@@ -61,19 +65,30 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       id: 'mobile_money',
       name: 'Mobile Money',
       description: 'Fast transfers directly to mobile wallets',
-      providers: ['MTN Mobile Money', 'Orange Money', 'YoMoney']
+      providers: [
+        { id: 'mtn_mobile_money', name: 'MTN Mobile Money', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/New-mtn-logo.svg/180px-New-mtn-logo.svg.png' }, 
+        { id: 'orange_money', name: 'Orange Money', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/8e/Orange_logo.svg/250px-Orange_logo.svg.png' }, 
+        { id: 'yoomee_money', name: 'YooMee Money', logo: '' }
+      ]
     },
     {
       id: 'bank_transfer',
       name: 'Bank Transfer',
       description: 'Transfer to bank accounts',
-      providers: ['Ecobank', 'Afriland First Bank', 'BGFI Bank']
+      providers: [
+        { id: 'ecobank', name: 'Ecobank', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1c/Ecobank_Image.jpg/220px-Ecobank_Image.jpg' }, 
+        { id: 'afriland', name: 'Afriland First Bank', logo: '' }, 
+        { id: 'bgfi', name: 'BGFI Bank', logo: '' }
+      ]
     },
     {
       id: 'card',
       name: 'Card Payment',
       description: 'Pay with credit or debit card',
-      providers: ['Visa', 'Mastercard']
+      providers: [
+        { id: 'visa', name: 'Visa', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/800px-Visa_Inc._logo.svg.png' }, 
+        { id: 'mastercard', name: 'Mastercard', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/800px-Mastercard-logo.svg.png' }
+      ]
     }
   ];
 
@@ -115,15 +130,17 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   }, [selectedMethod, selectedProvider, isRecurring, recurringFrequency, termsAccepted, updateTransactionData]);
 
-  // Handle method selection
+  // Handle method selection and provider selection
   const handleMethodSelect = (methodId: string) => {
     setSelectedMethod(methodId);
     setSelectedProvider(''); // Reset provider when method changes
   };
 
-  // Handle provider selection
-  const handleProviderSelect = (provider: string) => {
-    setSelectedProvider(provider);
+  // Handle method and provider selection via CountryPaymentMethods
+  const handlePaymentSelect = (methodId: string, providerId: string) => {
+    console.log(`Selected method: ${methodId}, provider: ${providerId}`);
+    setSelectedMethod(methodId);
+    setSelectedProvider(providerId);
   };
 
   // Toggle recurring payment option
@@ -135,6 +152,40 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   // Check if next button should be enabled
   const isNextDisabled = !selectedMethod || !selectedProvider || !termsAccepted;
 
+  // Calculate estimated delivery based on method
+  const getEstimatedDelivery = () => {
+    if (selectedMethod === 'mobile_money') return 'Instant - 10 minutes';
+    if (selectedMethod === 'bank_transfer') return '1-3 business days';
+    if (selectedMethod === 'card') return 'Instant - 2 hours';
+    return 'Varies by method';
+  };
+
+  // Format transaction fee
+  const getTransactionFee = () => {
+    if (selectedMethod === 'mobile_money') return '2.5%';
+    if (selectedMethod === 'bank_transfer') return '1.75%';
+    if (selectedMethod === 'card') return '3.2% + $0.30';
+    return 'Varies by method';
+  };
+
+  // Get the provider name from ID
+  const getProviderName = (providerId: string) => {
+    for (const method of paymentMethods) {
+      const provider = method.providers?.find(p => p.id === providerId);
+      if (provider) return provider.name;
+    }
+    return providerId;
+  };
+
+  // Get provider logo URL
+  const getProviderLogo = (providerId: string) => {
+    for (const method of paymentMethods) {
+      const provider = method.providers?.find(p => p.id === providerId);
+      if (provider && provider.logo) return provider.logo;
+    }
+    return undefined;
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -144,7 +195,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     >
       <motion.div variants={itemVariants}>
         <Card className="glass-effect border-primary-100/30 shadow-lg">
-          <CardContent className="p-6">
+          <CardContent className="p-6 sm:p-8">
             <motion.h2 
               className="text-2xl font-bold text-center text-gradient-primary mb-2"
               initial={{ y: -10, opacity: 0 }}
@@ -160,77 +211,99 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               Select how you'd like to pay for this transfer
             </motion.p>
 
-            {/* Payment Methods - premium design */}
-            <div className="space-y-4 mb-8">
-              {paymentMethods.map((method, index) => (
-                <motion.div 
-                  key={method.id}
-                  className={`p-5 rounded-xl border transition-all duration-300 card-hover ${
-                    selectedMethod === method.id 
-                      ? 'border-primary bg-primary-50/50 shadow-lg' 
-                      : 'border-gray-200/80 bg-white/80 backdrop-blur-sm'
-                  }`}
-                  onClick={() => handleMethodSelect(method.id)}
-                  variants={itemVariants}
-                  custom={index}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-full shadow-md ${
-                      selectedMethod === method.id 
-                        ? 'bg-primary-100/80 text-primary' 
-                        : 'bg-white text-gray-500'
-                    }`}>
-                      {getPaymentIcon(method.id)}
+            {/* Country-specific payment methods with enhanced spacing and visuals */}
+            <motion.div 
+              variants={itemVariants}
+              className="mb-8"
+            >
+              <CountryPaymentMethods
+                countryCode={countryCode}
+                selectedPaymentMethod={selectedMethod}
+                selectedProvider={selectedProvider}
+                onSelect={handlePaymentSelect}
+              />
+            </motion.div>
+
+            {/* Payment Method Details - only shown when method and provider selected */}
+            {selectedMethod && selectedProvider && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                transition={{ duration: 0.3 }}
+                className="bg-primary-50/30 backdrop-blur-sm rounded-xl p-5 border border-primary-100/30 mb-6"
+              >
+                <h3 className="font-medium text-primary-700 mb-3 flex items-center">
+                  <Info className="h-5 w-5 mr-2 text-primary-500" />
+                  Payment Details
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
+                    <div className="mr-3 bg-primary-100/60 p-2 rounded-full">
+                      {getPaymentIcon(selectedMethod)}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-primary-700">{method.name}</h3>
-                      <p className="text-gray-600 text-sm">{method.description}</p>
-                    </div>
-                    <div className="h-6 w-6 rounded-full border-2 border-primary flex items-center justify-center">
-                      {selectedMethod === method.id && (
-                        <motion.div 
-                          className="h-3 w-3 rounded-full bg-primary"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                        />
-                      )}
+                    <div>
+                      <p className="text-sm text-gray-500">Payment Method</p>
+                      <p className="font-medium text-primary-800">{paymentMethods.find(m => m.id === selectedMethod)?.name}</p>
                     </div>
                   </div>
-
-                  {/* Provider selection - shown only when method is selected with animation */}
-                  {selectedMethod === method.id && method.providers && (
-                    <motion.div 
-                      className="mt-4 pl-14"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Label className="text-sm font-medium text-primary-700 mb-2 block">
-                        Select Provider
-                      </Label>
-                      <Select 
-                        value={selectedProvider} 
-                        onValueChange={handleProviderSelect}
-                      >
-                        <SelectTrigger className="w-full bg-white border-primary-100/50 focus:ring-primary-500/30">
-                          <SelectValue placeholder="Choose provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {method.providers.map((provider) => (
-                            <SelectItem key={provider} value={provider}>
-                              {provider}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
+                  
+                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
+                    <div className="mr-3 bg-blue-100/60 p-2 rounded-full overflow-hidden">
+                      {getProviderLogo(selectedProvider) ? (
+                        <img 
+                          src={getProviderLogo(selectedProvider)} 
+                          alt={getProviderName(selectedProvider)}
+                          className="h-6 w-6 object-contain"
+                        />
+                      ) : (
+                        <Building className="h-6 w-6 text-blue-500" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Provider</p>
+                      <p className="font-medium text-blue-800">{getProviderName(selectedProvider)}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
+                    <div className="mr-3 bg-amber-100/60 p-2 rounded-full">
+                      <Clock className="h-6 w-6 text-amber-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Estimated Delivery</p>
+                      <p className="font-medium text-amber-800">{getEstimatedDelivery()}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
+                    <div className="mr-3 bg-green-100/60 p-2 rounded-full">
+                      <Badge className="h-6 w-6 text-green-500 p-1">$</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Transaction Fee</p>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p className="font-medium text-green-800 flex items-center">
+                              {getTransactionFee()}
+                              <Info className="h-4 w-4 ml-1 text-gray-400" />
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">
+                              This fee is charged by the payment provider and may vary based on your location and transaction amount.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Recurring Payment Option - with premium styling */}
             <motion.div 
@@ -266,7 +339,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-secondary-50/60 backdrop-blur-sm rounded-xl p-5 border border-secondary-100/60 mt-2"
+                    className="bg-secondary-50/60 backdrop-blur-sm rounded-xl p-5 border border-secondary-100/60 mt-3"
                   >
                     <h4 className="font-medium text-secondary-700 mb-3 flex items-center">
                       <ChevronDown className="h-4 w-4 mr-1 text-secondary" />
@@ -288,8 +361,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                       </SelectContent>
                     </Select>
                     
-                    <p className="text-xs text-gray-600 mt-3">
+                    <p className="text-sm text-gray-600 mt-3 bg-white/40 p-3 rounded-lg border border-secondary-100/20">
+                      <Info className="h-4 w-4 inline-block mr-1 text-secondary-400" />
                       You can cancel recurring payments anytime from your transaction history.
+                      The payment will be processed automatically on the same day each period.
                     </p>
                   </motion.div>
                 )}
@@ -322,7 +397,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                     >
                       I confirm that all recipient details are correct and I authorize this payment.
                       <div className="text-xs text-yellow-600 mt-1">
-                        By proceeding, you agree to our Terms of Service.
+                        By proceeding, you agree to our Terms of Service and acknowledge our Privacy Policy.
                       </div>
                     </Label>
                   </div>
