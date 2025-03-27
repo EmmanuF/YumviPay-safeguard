@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -58,6 +59,33 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
     ? 'bg-gradient-to-br from-background via-background to-muted/30' 
     : 'bg-background';
 
+  // Page transition variants
+  const pageVariants = {
+    initial: { 
+      opacity: 0, 
+      x: isMobile ? 10 : 0, 
+      scale: 0.98 
+    },
+    animate: { 
+      opacity: 1, 
+      x: 0, 
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      x: isMobile ? -10 : 0, 
+      scale: 0.98,
+      transition: {
+        duration: 0.2,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    }
+  };
+
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground}`}>
       <TopNavigation />
@@ -97,15 +125,10 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ 
-              duration: animSettings.duration * 1.2,
-              type: "spring",
-              stiffness: animSettings.stiffness * 0.9,
-              damping: animSettings.damping
-            }}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="w-full h-full"
           >
             {children}

@@ -64,7 +64,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     }
   };
   
-  // Add proper bottom padding based on device type
+  // Add proper bottom padding based on device type to account for bottom navigation
   const paddingClass = isMobile ? "pb-20" : "pb-10";
   
   return (

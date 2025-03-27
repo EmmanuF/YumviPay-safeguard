@@ -9,6 +9,7 @@ import { NavItem, NavigationProps } from './types';
 import DesktopNavigation from './DesktopNavigation';
 import MobileNavigation from './MobileNavigation';
 import ActionButtons from './ActionButtons';
+import { useAuth } from '@/contexts/auth';
 
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const { t } = useLocale();
   const isMobile = useIsMobile();
   const [isNavigating, setIsNavigating] = useState(false);
+  const { isLoggedIn } = useAuth();
   
   const navItems: NavItem[] = [
     {

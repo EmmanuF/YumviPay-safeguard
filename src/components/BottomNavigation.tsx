@@ -97,11 +97,17 @@ const BottomNavigation: React.FC = () => {
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "flex flex-col items-center justify-center py-1 px-2 rounded-lg",
+                "flex flex-col items-center justify-center py-1 px-2 rounded-lg mobile-touch-target",
                 "transition-all duration-200",
                 isNavigating && "pointer-events-none"
               )}
               whileTap={{ scale: 0.9 }}
+              whileHover={{ y: -3 }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 20
+              }}
             >
               <div className={cn(
                 "p-2 rounded-full transition-all duration-300",
