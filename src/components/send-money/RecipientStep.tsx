@@ -27,12 +27,23 @@ const formSchema = z.object({
     .regex(/^\+?[0-9\s\-\(\)]{6,20}$/, { 
       message: "Phone must include country code (e.g., +237)." 
     }),
+  confirmRecipientContact: z.string().min(6, { message: "Valid phone number required." })
+    .regex(/^\+?[0-9\s\-\(\)]{6,20}$/, { 
+      message: "Phone must include country code (e.g., +237)." 
+    }),
   saveToFavorites: z.boolean().default(false),
   countryCode: z.string().optional(),
   nameMatchConfirmed: z.boolean().default(false)
     .refine(val => val === true, {
       message: "You must confirm the recipient name matches their official ID"
     })
+}).refine((data) => {
+  const phone1 = data.recipientContact.replace(/\s+/g, '');
+  const phone2 = data.confirmRecipientContact.replace(/\s+/g, '');
+  return phone1 === phone2;
+}, {
+  message: "Phone numbers do not match",
+  path: ["confirmRecipientContact"]
 });
 
 interface RecipientStepProps {
@@ -139,6 +150,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     defaultValues: {
       recipientName: transactionData?.recipientName || "",
       recipientContact: transactionData?.recipientContact || transactionData?.recipient || "",
+      confirmRecipientContact: transactionData?.recipientContact || transactionData?.recipient || "",
       saveToFavorites: transactionData?.saveToFavorites || false,
       countryCode: selectedCountry,
       nameMatchConfirmed: transactionData?.nameMatchConfirmed || false
@@ -182,6 +194,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     if (contact.phoneNumber) {
       const formattedPhone = formatPhoneNumber(contact.phoneNumber, selectedCountry);
       form.setValue('recipientContact', formattedPhone, { shouldValidate: true });
+      form.setValue('confirmRecipientContact', formattedPhone, { shouldValidate: true });
     }
     
     if (contact.name) {
@@ -487,6 +500,53 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                         </FormControl>
                         
                         {form.formState.errors.recipientContact && (
+                          <div className="mt-2 text-sm text-red-500 flex items-center">
+                            <AlertCircle className="h-3.5 w-3.5 mr-1.5" />
+                            <FormMessage className="ml-0" />
+                          </div>
+                        )}
+                      </FormItem>
+                    </motion.div>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmRecipientContact"
+                  render={({ field }) => (
+                    <motion.div
+                      variants={itemVariants}
+                      className="card-hover transform transition-all duration-200 hover:translate-y-[-2px]"
+                    >
+                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-secondary-300/30 via-secondary-500/50 to-secondary-300/30"></div>
+                        
+                        <FormLabel className="flex items-center text-primary-600 font-medium text-base mb-2">
+                          <div className="bg-secondary-50 p-1.5 rounded-full mr-2">
+                            <Phone className="h-4 w-4 text-secondary-600" />
+                          </div>
+                          Confirm Phone Number <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
+                        
+                        <FormDescription className="text-sm text-gray-600 ml-9 mb-3">
+                          Please enter the phone number again to confirm
+                        </FormDescription>
+                        
+                        <FormControl>
+                          <div className="relative mt-1">
+                            <Input 
+                              placeholder={getPhoneNumberPlaceholder(selectedCountry)} 
+                              className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
+                              {...field} 
+                              onChange={(e) => {
+                                const formatted = formatPhoneNumber(e.target.value, selectedCountry);
+                                field.onChange(formatted);
+                              }}
+                            />
+                          </div>
+                        </FormControl>
+                        
+                        {form.formState.errors.confirmRecipientContact && (
                           <div className="mt-2 text-sm text-red-500 flex items-center">
                             <AlertCircle className="h-3.5 w-3.5 mr-1.5" />
                             <FormMessage className="ml-0" />
