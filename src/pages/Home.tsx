@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -39,13 +38,13 @@ const Home = () => {
           {/* Indigo header base layer */}
           <div className="absolute top-0 left-0 right-0 z-20">
             {/* Top solid section */}
-            <div className="h-20 bg-indigo-600 purple-dots-bg"></div>
+            <div className="h-20 bg-indigo-600"></div>
             
             {/* Additional bottom layer for smoother transition */}
             <div className="h-4 bg-indigo-500 transform origin-top-right"></div>
           </div>
           
-          {/* Light background section with purple dots */}
+          {/* Light background section instead of yellow */}
           <div className="bg-gradient-to-b from-muted to-white pt-16 relative z-10 hero-bg">
             <div className="pt-6">
               <Navigation onGetStarted={handleGetStarted} />

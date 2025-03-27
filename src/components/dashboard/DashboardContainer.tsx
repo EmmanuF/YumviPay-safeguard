@@ -26,15 +26,12 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({ children }) => 
   };
   
   return (
-    <div className="px-4 py-3 flex-1 bg-gradient-to-b from-white to-primary-50/30 pb-16 relative">
-      {/* Add purple dots background */}
-      <div className="absolute inset-0 purple-dots-bg pointer-events-none"></div>
-      
+    <div className="px-4 py-3 flex-1 bg-gradient-to-b from-white to-primary-50/30 pb-16">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-md mx-auto relative z-10"
+        className="max-w-md mx-auto"
       >
         {children}
       </motion.div>
