@@ -23,35 +23,8 @@ const HeroDescription: React.FC = () => {
         </div>
       </div>
 
-      {/* Calculator component with premium floating effect */}
-      <motion.div
-        initial={{ y: 10 }}
-        animate={{ y: [0, -8, 0] }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          repeatType: "reverse",
-          ease: "easeInOut"
-        }}
-        className="relative"
-      >
-        {/* Soft glow behind calculator */}
-        <div className="absolute -inset-3 bg-gradient-to-r from-primary-200/20 via-secondary-200/20 to-amber-200/20 rounded-xl blur-xl opacity-70 -z-10" />
-        
-        {/* Shadow that moves slightly differently than the calculator */}
-        <motion.div 
-          className="absolute -inset-1 rounded-xl bg-black/5 -z-10"
-          animate={{ y: [5, -2, 5] }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut"
-          }}
-        />
-        
-        <HeroCalculator />
-      </motion.div>
+      {/* Calculator component first */}
+      <HeroCalculator />
 
       {/* Trusted by section - moved below the calculator */}
       <div className="mt-4 mb-4 flex items-center">

@@ -1,3 +1,4 @@
+
 /* Glass morphism effect with updated color scheme */
 .glass-effect {
   @apply backdrop-blur-md bg-white/90 border border-white/30 rounded-xl;
@@ -391,56 +392,4 @@
   .bg-vibrant-gradient {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   }
-}
-
-/* Enhanced hero background styles */
-.hero-bg {
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 50% 50%, #F9F6FD 0%, #FDFDFD 100%);
-  z-index: -10;
-}
-
-.hero-background-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Dotted pattern overlay for hero */
-.dotted-pattern {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: radial-gradient(rgba(138, 43, 226, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  z-index: -5;
-}
-
-/* Ultra subtle mesh grid */
-.mesh-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(rgba(138, 43, 226, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(138, 43, 226, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-  z-index: -5;
 }
