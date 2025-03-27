@@ -17,8 +17,23 @@ const Footer = () => {
   const isMobile = useIsMobile();
   
   return (
-    <footer className="bg-gradient-to-b from-white to-gray-50 pt-12 pb-6">
-      <div className="container mx-auto px-5">
+    <footer className="bg-gradient-to-b from-indigo-800/95 to-indigo-900 pt-16 pb-6 relative">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="footer-bubble footer-bubble-1"></div>
+        <div className="footer-bubble footer-bubble-2"></div>
+        <div className="footer-bubble footer-bubble-3"></div>
+        {/* Animated lines */}
+        <div className="footer-line footer-line-1"></div>
+        <div className="footer-line footer-line-2"></div>
+        <div className="footer-line footer-line-3"></div>
+      </div>
+
+      {/* Subtle top separator */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-300/20 via-primary-300/60 to-primary-300/20"></div>
+      <div className="absolute top-1 left-0 w-full h-8 bg-gradient-to-b from-white/10 to-transparent"></div>
+      
+      <div className="container mx-auto px-5 relative z-10">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           {/* Company Information Column */}
