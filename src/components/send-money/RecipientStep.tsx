@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
-import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle } from 'lucide-react';
+import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle, Check } from 'lucide-react';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -290,7 +290,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
               
               <div className="mt-2">
                 <CountrySelector
-                  defaultValue={selectedCountry}
+                  value={selectedCountry}
                   onValueChange={handleCountryChange}
                   className="w-full"
                 />
