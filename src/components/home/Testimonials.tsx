@@ -32,7 +32,7 @@ const Testimonials = () => {
       id: 2,
       name: "Marie L.",
       location: "Canada to Cameroon",
-      avatar: null,
+      avatar: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=150&h=150",
       rating: 5,
       text: "I've tried several transfer services, but Yumvi-Pay offers the best rates and fastest delivery to Cameroon. Highly recommended!"
     },
@@ -40,7 +40,7 @@ const Testimonials = () => {
       id: 3,
       name: "Samuel K.",
       location: "UK to Nigeria",
-      avatar: null,
+      avatar: "https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop&w=150&h=150",
       rating: 4,
       text: "Very easy to use, transparent fees, and excellent customer service. The mobile app makes everything so convenient."
     }
@@ -174,10 +174,10 @@ const Testimonials = () => {
 const TestimonialCard = ({ testimonial }) => {
   return (
     <div 
-      className="bg-white rounded-xl p-8 shadow-lg border border-secondary-100/50 relative h-full"
+      className="testimony-card bg-white rounded-xl p-8 shadow-lg border border-secondary-100/50 relative h-full"
       style={{ minHeight: '320px' }}
     >
-      <Quote className="absolute top-6 right-6 text-primary-400 h-8 w-8 opacity-70" /> {/* Improved contrast */}
+      <Quote className="absolute top-6 right-6 text-primary-600 h-8 w-8 opacity-80" /> {/* Improved contrast */}
       
       <div className="flex items-center mb-5">
         {[...Array(5)].map((_, i) => (
@@ -191,9 +191,9 @@ const TestimonialCard = ({ testimonial }) => {
       <p className="text-gray-700 mb-6 text-lg leading-relaxed italic">"{testimonial.text}"</p>
       
       <div className="mt-6 pt-4 border-t border-gray-100 flex items-center">
-        <Avatar className="h-12 w-12 border-2 border-primary-100 mr-4">
+        <Avatar className="h-12 w-12 border-2 border-primary-100 mr-4 overflow-hidden">
           {testimonial.avatar ? (
-            <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+            <AvatarImage src={testimonial.avatar} alt={testimonial.name} className="object-cover" />
           ) : (
             <AvatarFallback className="bg-primary-100 text-primary-700">
               <User className="h-6 w-6" />
