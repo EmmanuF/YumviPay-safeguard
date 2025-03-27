@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
-import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle, Check } from 'lucide-react';
+import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle, Check, AlertCircle } from 'lucide-react';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -306,21 +306,27 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   render={({ field }) => (
                     <motion.div
                       variants={itemVariants}
-                      className="card-hover"
+                      className="card-hover transform transition-all duration-200 hover:translate-y-[-2px]"
                     >
-                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
-                        <FormLabel className="flex items-center text-primary-600 font-medium text-base">
-                          <User className="h-5 w-5 mr-2 text-primary" />
+                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-300/30 via-primary-500/50 to-primary-300/30"></div>
+                        
+                        <FormLabel className="flex items-center text-primary-600 font-medium text-base mb-2">
+                          <div className="bg-primary-50 p-1.5 rounded-full mr-2">
+                            <User className="h-4 w-4 text-primary" />
+                          </div>
                           Recipient Name <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
-                        <FormDescription className="text-sm text-gray-500 ml-7 mb-2">
-                          Enter the full name as it appears on their government ID.
+                        
+                        <FormDescription className="text-sm text-gray-600 ml-9 mb-3">
+                          Enter the full name as it appears on their government ID
                         </FormDescription>
+                        
                         <FormControl>
                           <div className="relative mt-1">
                             <Input 
                               placeholder="e.g. John Doe" 
-                              className="pl-3 form-control-modern h-12 text-base bg-white border-primary-100/50 focus-visible:ring-primary-400/30"
+                              className="pl-4 form-control-modern h-12 text-base bg-white border-primary-100/50 focus-visible:ring-primary-400/30 transition-all duration-200"
                               {...field} 
                             />
                             <TooltipProvider>
@@ -330,16 +336,22 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                                     <HelpCircle className="h-4 w-4" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="max-w-xs">
+                                <TooltipContent className="max-w-xs bg-white p-3 shadow-lg border border-gray-100">
                                   <p className="text-xs">
-                                    For security and compliance reasons, the recipient's name must match their official ID.
+                                    For security and compliance reasons, the recipient's name must match their official ID exactly.
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
                         </FormControl>
-                        <FormMessage className="text-sm text-red-500 ml-7 mt-1" />
+                        
+                        {form.formState.errors.recipientName && (
+                          <div className="mt-2 text-sm text-red-500 flex items-center">
+                            <AlertCircle className="h-3.5 w-3.5 mr-1.5" />
+                            <FormMessage className="ml-0" />
+                          </div>
+                        )}
                       </FormItem>
                     </motion.div>
                   )}
@@ -351,52 +363,67 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   render={({ field }) => (
                     <motion.div
                       variants={itemVariants}
-                      className="card-hover"
+                      className="card-hover transform transition-all duration-200 hover:translate-y-[-2px]"
                     >
-                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
-                        <FormLabel className="flex items-center text-primary-600 font-medium text-base">
-                          <Phone className="h-5 w-5 mr-2 text-primary" />
+                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-secondary-300/30 via-secondary-500/50 to-secondary-300/30"></div>
+                        
+                        <FormLabel className="flex items-center text-primary-600 font-medium text-base mb-2">
+                          <div className="bg-secondary-50 p-1.5 rounded-full mr-2">
+                            <Phone className="h-4 w-4 text-secondary-600" />
+                          </div>
                           Phone Number <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
-                        <FormDescription className="text-sm text-gray-500 ml-7 mb-2 flex flex-wrap items-center gap-1">
-                          <span>Format:</span>
-                          <Badge variant="outline" className="text-xs font-normal bg-primary-50">
-                            {getPhoneNumberPlaceholder(selectedCountry)}
-                          </Badge>
-                          <span className="ml-1">Popular providers:</span>
-                          <Badge variant="outline" className="text-xs font-normal bg-secondary-50/50">
-                            {getPopularProviders(selectedCountry)}
-                          </Badge>
+                        
+                        <FormDescription className="text-sm text-gray-600 ml-9 mb-3 space-y-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span>Format:</span>
+                            <Badge variant="outline" className="text-xs font-normal bg-primary-50/80 border-primary-100">
+                              {getPhoneNumberPlaceholder(selectedCountry)}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span>Popular providers:</span>
+                            <Badge variant="outline" className="text-xs font-normal bg-secondary-50/50 border-secondary-100">
+                              {getPopularProviders(selectedCountry)}
+                            </Badge>
+                          </div>
                         </FormDescription>
+                        
                         <FormControl>
                           <div className="relative mt-1">
                             <Input 
                               placeholder={getPhoneNumberPlaceholder(selectedCountry)} 
-                              className="pl-3 form-control-modern h-12 text-base bg-white border-primary-100/50 focus-visible:ring-primary-400/30"
+                              className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
                               {...field} 
                               onChange={(e) => {
                                 const formatted = formatPhoneNumber(e.target.value, selectedCountry);
                                 field.onChange(formatted);
                               }}
                             />
+                            
                             <Popover>
                               <PopoverTrigger asChild>
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer">
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer hover:text-secondary-500 transition-colors">
                                   <Info className="h-4 w-4" />
                                 </div>
                               </PopoverTrigger>
-                              <PopoverContent className="w-80" align="end">
-                                <div className="space-y-2">
-                                  <h4 className="font-medium">Phone Number Format</h4>
+                              <PopoverContent className="w-80 p-4 bg-white shadow-lg border border-gray-100" align="end">
+                                <div className="space-y-3">
+                                  <h4 className="font-medium text-gray-800 flex items-center">
+                                    <Phone className="h-4 w-4 mr-2 text-secondary-500" />
+                                    Phone Number Format
+                                  </h4>
                                   <p className="text-xs text-gray-600">
                                     Enter the recipient's phone number with country code. This number will receive transaction notifications and may be used for verification.
                                   </p>
-                                  <div className="text-xs p-2 bg-primary-50/50 rounded border border-primary-100/50">
-                                    <div className="font-medium mb-1">For {getCountryName(selectedCountry)}:</div>
-                                    <ul className="list-disc list-inside pl-2 space-y-1">
-                                      <li>Country code: {getCountryCallingCode(selectedCountry)}</li>
-                                      <li>Format: {getPhoneNumberPlaceholder(selectedCountry)}</li>
-                                      <li>Example: {getPhoneNumberPlaceholder(selectedCountry).replace(/X/g, '9')}</li>
+                                  <div className="text-xs p-3 bg-secondary-50/50 rounded-lg border border-secondary-100/50">
+                                    <div className="font-medium mb-2 text-secondary-700">For {getCountryName(selectedCountry)}:</div>
+                                    <ul className="list-disc list-inside pl-2 space-y-1.5 text-gray-700">
+                                      <li>Country code: <span className="font-medium">{getCountryCallingCode(selectedCountry)}</span></li>
+                                      <li>Format: <span className="font-medium">{getPhoneNumberPlaceholder(selectedCountry)}</span></li>
+                                      <li>Example: <span className="font-medium">{getPhoneNumberPlaceholder(selectedCountry).replace(/X/g, '9')}</span></li>
                                     </ul>
                                   </div>
                                 </div>
@@ -404,7 +431,13 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                             </Popover>
                           </div>
                         </FormControl>
-                        <FormMessage className="text-sm text-red-500 ml-7 mt-1" />
+                        
+                        {form.formState.errors.recipientContact && (
+                          <div className="mt-2 text-sm text-red-500 flex items-center">
+                            <AlertCircle className="h-3.5 w-3.5 mr-1.5" />
+                            <FormMessage className="ml-0" />
+                          </div>
+                        )}
                       </FormItem>
                     </motion.div>
                   )}
@@ -421,11 +454,13 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                     >
                       <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between">
                         <div className="flex items-center">
-                          {field.value ? (
-                            <Star className="h-5 w-5 mr-3 text-yellow-500" />
-                          ) : (
-                            <StarOff className="h-5 w-5 mr-3 text-gray-400" />
-                          )}
+                          <div className="bg-yellow-50 p-2 rounded-full mr-3">
+                            {field.value ? (
+                              <Star className="h-4 w-4 text-yellow-500" />
+                            ) : (
+                              <StarOff className="h-4 w-4 text-gray-400" />
+                            )}
+                          </div>
                           <div>
                             <FormLabel className="text-primary-600 font-medium text-base">Save to Favorites</FormLabel>
                             <FormDescription className="text-xs text-gray-500">
@@ -437,7 +472,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           <Switch
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            className="data-[state=checked]:bg-primary"
+                            className="data-[state=checked]:bg-yellow-500"
                           />
                         </FormControl>
                       </FormItem>
@@ -477,9 +512,11 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                     transition={{ duration: 0.3 }}
                     className="mt-6"
                   >
-                    <Alert className="bg-green-50 border-green-200 text-green-800">
-                      <AlertDescription className="flex items-center">
-                        <Check className="h-4 w-4 mr-2" />
+                    <Alert className="bg-green-50 border-green-200 text-green-800 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-green-400/30 via-green-500 to-green-400/30"></div>
+                      
+                      <AlertDescription className="flex items-center pt-1">
+                        <Check className="h-4 w-4 mr-2 text-green-600" />
                         All information looks good! You can proceed to the next step.
                       </AlertDescription>
                     </Alert>
