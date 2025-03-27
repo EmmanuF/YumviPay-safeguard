@@ -103,7 +103,7 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       console.log(`🔄 Redirecting to return URL: ${returnUrl}`);
       
       // Use navigate utility to handle the redirect with replaceState
-      navigate(returnUrl, { replace: true });
+      navigate(returnUrl);
       
       // Simulate a webhook call 3 seconds later
       setTimeout(() => {
@@ -143,7 +143,7 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     
     // Even on error, navigate to transaction page with error state
     const transactionUrl = `/transaction/${params.transactionId}?error=redirect_failed`;
-    navigate(transactionUrl, { replace: true });
+    navigate(transactionUrl);
     
     throw new Error(`Failed to redirect to Kado: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
