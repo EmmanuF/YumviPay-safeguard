@@ -22,7 +22,7 @@ export const mtnMobileMoneyProviders: PaymentProvider[] = [
     logoUrl: '/assets/providers/mtn-logo.png',
     isAvailable: true,
     isRecommended: true,
-    processingTime: 'Instant',
+    processingTime: '1-5 minutes',
     popularityScore: 5,
     instructions: [
       'Enter the recipient\'s MTN mobile number',
@@ -40,7 +40,7 @@ export const orangeMoneyProviders: PaymentProvider[] = [
     logoUrl: '/assets/providers/orange-logo.png',
     isAvailable: true,
     isRecommended: true,
-    processingTime: 'Instant',
+    processingTime: '5-10 minutes',
     popularityScore: 4,
     instructions: [
       'Enter the recipient\'s Orange mobile number',

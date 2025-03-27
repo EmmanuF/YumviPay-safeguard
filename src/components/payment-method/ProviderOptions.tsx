@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/contexts/LocaleContext';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
-import { Shield, Award } from 'lucide-react';
+import { Shield, Award, Clock } from 'lucide-react';
 
 interface ProviderOptionsProps {
   options: Array<{
@@ -64,6 +64,48 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
                   src={providerDetails.logoUrl} 
                   alt={option.name} 
                   className="h-full object-contain max-w-[100px]" 
+                  onError={(e) => {
+                    console.error(`Failed to load provider image: ${option.id}`);
+                    // Fallback to a colored rectangle with text
+                    const target = e.currentTarget;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100;
+                    canvas.height = 60;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                      // MTN yellow background
+                      if (option.id.includes('mtn')) {
+                        ctx.fillStyle = '#FFCC00';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#000000';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('MTN', canvas.width/2, canvas.height/2);
+                      } 
+                      // Orange brand color
+                      else if (option.id.includes('orange')) {
+                        ctx.fillStyle = '#FF6600';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('Orange', canvas.width/2, canvas.height/2);
+                      }
+                      // Generic fallback
+                      else {
+                        ctx.fillStyle = '#E2E8F0';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#64748B';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(option.name, canvas.width/2, canvas.height/2);
+                      }
+                      target.src = canvas.toDataURL('image/png');
+                    }
+                  }}
                 />
               </div>
             ) : null}
@@ -74,8 +116,8 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
             
             {providerDetails?.processingTime && (
               <div className="mt-1 text-xs text-gray-500 flex items-center justify-center">
-                <Shield className="h-3 w-3 mr-1 text-green-500" />
-                {providerDetails.processingTime}
+                <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                <span>Delivery: {providerDetails.processingTime}</span>
               </div>
             )}
           </motion.div>

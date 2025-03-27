@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -152,40 +151,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   // Check if next button should be enabled
   const isNextDisabled = !selectedMethod || !selectedProvider || !termsAccepted;
 
-  // Calculate estimated delivery based on method
-  const getEstimatedDelivery = () => {
-    if (selectedMethod === 'mobile_money') return 'Instant - 10 minutes';
-    if (selectedMethod === 'bank_transfer') return '1-3 business days';
-    if (selectedMethod === 'card') return 'Instant - 2 hours';
-    return 'Varies by method';
-  };
-
-  // Format transaction fee
-  const getTransactionFee = () => {
-    if (selectedMethod === 'mobile_money') return '2.5%';
-    if (selectedMethod === 'bank_transfer') return '1.75%';
-    if (selectedMethod === 'card') return '3.2% + $0.30';
-    return 'Varies by method';
-  };
-
-  // Get the provider name from ID
-  const getProviderName = (providerId: string) => {
-    for (const method of paymentMethods) {
-      const provider = method.providers?.find(p => p.id === providerId);
-      if (provider) return provider.name;
-    }
-    return providerId;
-  };
-
-  // Get provider logo URL
-  const getProviderLogo = (providerId: string) => {
-    for (const method of paymentMethods) {
-      const provider = method.providers?.find(p => p.id === providerId);
-      if (provider && provider.logo) return provider.logo;
-    }
-    return undefined;
-  };
-
   return (
     <motion.div
       variants={containerVariants}
@@ -223,87 +188,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 onSelect={handlePaymentSelect}
               />
             </motion.div>
-
-            {/* Payment Method Details - only shown when method and provider selected */}
-            {selectedMethod && selectedProvider && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                transition={{ duration: 0.3 }}
-                className="bg-primary-50/30 backdrop-blur-sm rounded-xl p-5 border border-primary-100/30 mb-6"
-              >
-                <h3 className="font-medium text-primary-700 mb-3 flex items-center">
-                  <Info className="h-5 w-5 mr-2 text-primary-500" />
-                  Payment Details
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
-                    <div className="mr-3 bg-primary-100/60 p-2 rounded-full">
-                      {getPaymentIcon(selectedMethod)}
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Payment Method</p>
-                      <p className="font-medium text-primary-800">{paymentMethods.find(m => m.id === selectedMethod)?.name}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
-                    <div className="mr-3 bg-blue-100/60 p-2 rounded-full overflow-hidden">
-                      {getProviderLogo(selectedProvider) ? (
-                        <img 
-                          src={getProviderLogo(selectedProvider)} 
-                          alt={getProviderName(selectedProvider)}
-                          className="h-6 w-6 object-contain"
-                        />
-                      ) : (
-                        <Building className="h-6 w-6 text-blue-500" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Provider</p>
-                      <p className="font-medium text-blue-800">{getProviderName(selectedProvider)}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
-                    <div className="mr-3 bg-amber-100/60 p-2 rounded-full">
-                      <Clock className="h-6 w-6 text-amber-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Estimated Delivery</p>
-                      <p className="font-medium text-amber-800">{getEstimatedDelivery()}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center p-3 bg-white/60 backdrop-blur-sm rounded-lg">
-                    <div className="mr-3 bg-green-100/60 p-2 rounded-full">
-                      <Badge className="h-6 w-6 text-green-500 p-1">$</Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Transaction Fee</p>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <p className="font-medium text-green-800 flex items-center">
-                              {getTransactionFee()}
-                              <Info className="h-4 w-4 ml-1 text-gray-400" />
-                            </p>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">
-                              This fee is charged by the payment provider and may vary based on your location and transaction amount.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
 
             {/* Recurring Payment Option - with premium styling */}
             <motion.div 
