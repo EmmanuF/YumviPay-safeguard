@@ -9,4 +9,5 @@ export interface Recipient {
   lastUsed?: Date;
   usageCount?: number; // Track frequency of use
   verified?: boolean; // Track verification status
+  nameMatchConfirmed?: boolean; // New field to confirm recipient name matches ID
 }
