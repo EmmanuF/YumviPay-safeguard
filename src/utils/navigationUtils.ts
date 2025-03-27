@@ -1,82 +1,57 @@
 
 /**
- * Simple navigation utility that uses window.location directly
- * This avoids react-router-dom issues when navigating during redirects
+ * Navigation utilities to improve reliability of route changes
  */
 
 /**
- * Navigate to a new URL directly
- * @param path The path to navigate to
- * @param options Navigation options
+ * Navigate to a new route with better error handling
+ * and support for query parameters
  */
-export const navigate = (
-  path: string, 
-  options?: { 
-    replace?: boolean, 
-    state?: Record<string, any>
-  }
-): void => {
+export const navigate = (to: string): void => {
   try {
-    console.log(`🧭 Navigating to: ${path}`, options);
-    
-    // Handle state by storing it in sessionStorage temporarily
-    if (options?.state) {
-      const stateKey = `nav_state_${Date.now()}`;
-      sessionStorage.setItem(stateKey, JSON.stringify(options.state));
+    // Check if we have access to the History API
+    if (window.history && window.history.pushState) {
+      console.log(`🧭 Navigating to: ${to}`);
       
-      // Add state key as query parameter
-      const hasQuery = path.includes('?');
-      path = `${path}${hasQuery ? '&' : '?'}stateKey=${stateKey}`;
-    }
-    
-    // Use the appropriate method based on replace option
-    if (options?.replace) {
-      window.location.replace(path);
+      // Get the current history object
+      const history = window.history;
+      
+      // Update URL and push state
+      const newUrl = to.startsWith('/') 
+        ? to 
+        : `/${to}`;
+      
+      history.pushState({}, '', newUrl);
+      
+      // Dispatch a popstate event for React Router to detect
+      const popStateEvent = new PopStateEvent('popstate', { state: {} });
+      window.dispatchEvent(popStateEvent);
+      
+      // Also dispatch a custom event for any other listeners
+      const navigationEvent = new CustomEvent('navigation', { 
+        detail: { route: to } 
+      });
+      window.dispatchEvent(navigationEvent);
+      
+      // Scroll to top for better UX
+      window.scrollTo(0, 0);
     } else {
-      window.location.href = path;
+      // Fallback to traditional navigation
+      console.log(`🧭 Navigating to: ${to} (traditional fallback)`);
+      window.location.href = to;
     }
   } catch (error) {
     console.error('Navigation error:', error);
-    // Fallback to simpler navigation without state
-    window.location.href = path;
-  }
-};
-
-/**
- * Get state passed from direct navigation
- * @returns The state object or null if none exists
- */
-export const getNavigationState = (): Record<string, any> | null => {
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const stateKey = urlParams.get('stateKey');
     
-    if (stateKey) {
-      const stateJson = sessionStorage.getItem(stateKey);
-      if (stateJson) {
-        // Clean up after retrieving
-        sessionStorage.removeItem(stateKey);
-        return JSON.parse(stateJson);
-      }
+    // Failsafe fallback
+    try {
+      window.location.href = to;
+    } catch (e) {
+      console.error('Critical navigation failure:', e);
     }
-    
-    return null;
-  } catch (error) {
-    console.error('Error retrieving navigation state:', error);
-    return null;
   }
 };
 
-/**
- * Get URL parameters as an object
- */
-export const getUrlParams = (): Record<string, string> => {
-  const params: Record<string, string> = {};
-  const searchParams = new URLSearchParams(window.location.search);
-  
-  for (const [key, value] of searchParams.entries()) {
-    params[key] = value;
-  }
-  
-  return params;
+export default {
+  navigate
 };
