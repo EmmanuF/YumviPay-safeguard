@@ -96,7 +96,7 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       try {
         document.body.removeChild(loadingDiv);
       } catch (e) {
-        console.error('Error removing loading overlay:', e);
+        console.error('Error removing loading div:', e);
       }
       
       const returnUrl = params.returnUrl || `/transaction/${params.transactionId}`;
@@ -110,8 +110,8 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       setTimeout(() => {
         try {
           import('@/services/transaction').then(module => {
-            // FIX: Change function call to match expected arguments
-            module.simulateWebhook(params.transactionId, 'completed')
+            // FIX: Remove the second argument from simulateWebhook call since it only expects transactionId
+            module.simulateWebhook(params.transactionId)
               .catch(e => console.error('Webhook simulation error:', e));
           });
         } catch (e) {
