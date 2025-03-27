@@ -6,8 +6,8 @@
  */
 export const generateProviderLogo = (providerId: string): string => {
   const canvas = document.createElement('canvas');
-  canvas.width = 240;  // Increased dimensions for better rectangle shape
-  canvas.height = 140;
+  canvas.width = 320;  // Increased dimensions for better rectangle shape
+  canvas.height = 180;
   const ctx = canvas.getContext('2d');
   
   if (!ctx) return '';
@@ -17,7 +17,7 @@ export const generateProviderLogo = (providerId: string): string => {
     ctx.fillStyle = '#FFCC00';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 48px Arial';  // Increased font size
+    ctx.font = 'bold 64px Arial';  // Increased font size
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('MTN', canvas.width/2, canvas.height/2);
@@ -27,7 +27,7 @@ export const generateProviderLogo = (providerId: string): string => {
     ctx.fillStyle = '#FF6600';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 42px Arial';  // Increased font size
+    ctx.font = 'bold 56px Arial';  // Increased font size
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('Orange', canvas.width/2, canvas.height/2);
@@ -37,7 +37,7 @@ export const generateProviderLogo = (providerId: string): string => {
     ctx.fillStyle = '#E2E8F0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#64748B';
-    ctx.font = 'bold 32px Arial';  // Increased font size
+    ctx.font = 'bold 42px Arial';  // Increased font size
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const displayName = providerId.replace(/_/g, ' ').replace(/-/g, ' ');

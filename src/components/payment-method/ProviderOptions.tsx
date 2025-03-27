@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from '@/contexts/LocaleContext';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 import { Shield, Award, Clock } from 'lucide-react';
-import { getProviderLogoSrc, generateProviderLogo } from '@/utils/providerLogos';
+import { getProviderLogoSrc } from '@/utils/providerLogos';
 
 interface ProviderOptionsProps {
   options: Array<{
@@ -62,7 +62,7 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-36 h-24 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                <div className="w-48 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                   <img 
                     src={logoSrc}
                     alt={option.name} 
