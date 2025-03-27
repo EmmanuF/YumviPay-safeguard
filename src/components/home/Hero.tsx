@@ -13,14 +13,48 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const [showGreeting, setShowGreeting] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
 
-  // Toggle visibility of greeting every 10 seconds
+  // Sequence the greetings with a delayed transition
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setShowGreeting(prev => !prev);
-    }, 10000);
+    // Show location greeting first
+    setShowGreeting(true);
+    setShowWelcome(false);
     
-    return () => clearInterval(intervalId);
+    // After 5 seconds, transition to welcome message
+    const greetingTimer = setTimeout(() => {
+      setShowGreeting(false);
+      
+      // Small delay before showing welcome
+      const welcomeTimer = setTimeout(() => {
+        setShowWelcome(true);
+      }, 500);
+      
+      return () => clearTimeout(welcomeTimer);
+    }, 5000);
+    
+    // Repeat the sequence every 15 seconds
+    const sequenceTimer = setInterval(() => {
+      setShowWelcome(false);
+      
+      setTimeout(() => {
+        setShowGreeting(true);
+        
+        // After 5 seconds, hide greeting and show welcome
+        setTimeout(() => {
+          setShowGreeting(false);
+          
+          setTimeout(() => {
+            setShowWelcome(true);
+          }, 500);
+        }, 5000);
+      }, 500);
+    }, 15000);
+    
+    return () => {
+      clearTimeout(greetingTimer);
+      clearInterval(sequenceTimer);
+    };
   }, []);
 
   const handleGetStarted = () => {
@@ -37,33 +71,60 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
         <HeroBackground />
       </div>
       
-      {/* Animated greeting at the top - enhanced with better styling */}
-      <AnimatePresence mode="wait">
-        {showGreeting && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ 
-              duration: 0.6, 
-              ease: [0.22, 1, 0.36, 1],
-              type: "spring",
-              stiffness: 100
-            }}
-            className="glass-effect max-w-md mx-auto mb-8 p-3.5 rounded-xl shadow-lg text-center"
-          >
+      {/* Animated greeting section with sequence animation */}
+      <div className="relative h-16 mb-8">
+        <AnimatePresence mode="wait">
+          {showGreeting && (
             <motion.div 
-              className="flex flex-col space-y-2"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
+              key="location-greeting"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ 
+                duration: 0.6, 
+                ease: [0.22, 1, 0.36, 1],
+                type: "spring",
+                stiffness: 100
+              }}
+              className="glass-effect absolute w-full max-w-md mx-auto left-0 right-0 p-3.5 rounded-xl shadow-lg text-center"
             >
-              <TimeLocationGreeting />
-              <PersonalizedWelcome />
+              <motion.div 
+                className="flex flex-col space-y-2"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+              >
+                <TimeLocationGreeting />
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+          
+          {showWelcome && (
+            <motion.div 
+              key="welcome-greeting"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ 
+                duration: 0.6, 
+                ease: [0.22, 1, 0.36, 1],
+                type: "spring",
+                stiffness: 100
+              }}
+              className="glass-effect absolute w-full max-w-md mx-auto left-0 right-0 p-3.5 rounded-xl shadow-lg text-center"
+            >
+              <motion.div 
+                className="flex flex-col space-y-2"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+              >
+                <PersonalizedWelcome />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       
       <div className="flex flex-col items-center relative z-10">
         {/* Hero content */}

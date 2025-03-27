@@ -26,12 +26,22 @@ const PersonalizedWelcome: React.FC<PersonalizedWelcomeProps> = ({
         stiffness: 300,
         damping: 20 
       }}
-      className="flex items-center font-medium"
+      className="flex items-center justify-center font-medium"
     >
       <motion.div
         whileHover={{ scale: 1.2, rotate: 15 }}
-        transition={{ type: "spring", stiffness: 500, damping: 10 }}
-        className="mr-2"
+        animate={{
+          scale: [1, 1.2, 1],
+          rotate: [0, 10, 0]
+        }}
+        transition={{ 
+          duration: 2,
+          ease: "easeInOut",
+          times: [0, 0.5, 1],
+          repeat: Infinity,
+          repeatDelay: 2
+        }}
+        className="mr-2 bg-primary-50 p-1.5 rounded-full"
       >
         <User className="w-4 h-4 text-primary-500" />
       </motion.div>
@@ -50,6 +60,7 @@ const PersonalizedWelcome: React.FC<PersonalizedWelcomeProps> = ({
           color: "transparent",
           backgroundSize: "200% 100%"
         }}
+        className="text-lg font-semibold"
       >
         Welcome back, {displayName}
       </motion.span>

@@ -100,7 +100,7 @@ const TimeLocationGreeting: React.FC = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex items-center text-sm font-medium"
+      className="flex items-center justify-center text-sm font-medium"
     >
       <motion.div 
         className="flex items-center gap-1.5 mr-2"
