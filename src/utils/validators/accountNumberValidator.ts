@@ -24,6 +24,7 @@ export const validateCameroonMobileNumber = (
     };
   }
   
+  // Clean the number by removing spaces and country code
   const cleanedNumber = number.replace(/\s/g, '').replace(/^\+237/, '').replace(/^237/, '');
   
   // Check basic format first - must be 9 digits starting with 6

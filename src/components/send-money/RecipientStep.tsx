@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +12,6 @@ import { useCountries } from '@/hooks/useCountries';
 import NameMatchConfirmation from '@/components/send-money/payment/NameMatchConfirmation';
 import { importContacts, Contact as ContactType } from '@/services/contacts';
 
-// Import the new components
 import {
   ContactsButton,
   ContactsDialog,
@@ -115,7 +113,8 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           if (rest.length <= 2) return `${base} ${rest}`;
           if (rest.length <= 4) return `${base} ${rest.substring(0, 2)} ${rest.substring(2)}`;
           if (rest.length <= 6) return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4)}`;
-          return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4, 6)} ${rest.substring(6)}`;
+          if (rest.length <= 9) return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4, 6)} ${rest.substring(6)}`;
+          return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4, 6)} ${rest.substring(6, 9)}`;
         }
         break;
       case 'US': 
@@ -290,9 +289,8 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   };
 
   const getPhoneMaxLength = (countryCode: string): number => {
-    // Return the maximum input length (including country code and spaces)
     switch (countryCode) {
-      case 'CM': return 16; // +237 6XX XX XX XX
+      case 'CM': return 19; // +237 6XX XX XX XX (9 digits + spaces + country code)
       case 'US': return 16; // +1 (XXX) XXX-XXXX
       case 'GB': return 16; // +44 XXXX XXXXXX
       case 'NG': return 17; // +234 XXX XXX XXXX
