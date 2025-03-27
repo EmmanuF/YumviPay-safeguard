@@ -65,7 +65,7 @@ const CountrySelector: React.FC<CountrySelectorProps> = ({
         {label}
       </label>
       
-      <div className="relative">
+      <div className="relative" style={{ zIndex: isOpen ? 50 : 10 }}>
         <SelectedCountry 
           country={selectedCountry || null}
           onClick={() => setIsOpen(!isOpen)}

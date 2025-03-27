@@ -36,8 +36,9 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.2 }}
-      className="absolute z-50 mt-1 w-full rounded-xl bg-white border border-gray-200 
+      className="absolute z-[100] mt-1 w-full rounded-xl bg-white border border-gray-200 
                  shadow-lg overflow-hidden"
+      style={{ position: 'absolute', zIndex: 100 }} 
     >
       <div className="sticky top-0 bg-white p-2 border-b border-gray-100 z-10">
         <SearchInput 

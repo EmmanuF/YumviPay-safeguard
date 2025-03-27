@@ -34,8 +34,8 @@ const CountryOption: React.FC<CountryOptionProps> = ({
           (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40x30?text=?';
         }}
       />
-      <span className="text-sm font-medium truncate">{country.name}</span>
-      <span className="ml-2 text-xs text-gray-500">({country.code})</span>
+      <span className="text-sm font-medium truncate max-w-[70%]">{country.name}</span>
+      <span className="ml-2 text-xs text-gray-500 flex-shrink-0">({country.code})</span>
     </button>
   );
 };

@@ -281,7 +281,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
             {/* Country selector */}
             <motion.div
               variants={itemVariants}
-              className="mb-6 bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80"
+              className="mb-6 bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative z-20"
             >
               <div className="flex items-center mb-3">
                 <Globe className="h-5 w-5 mr-2 text-primary" />
