@@ -37,7 +37,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
         <HeroBackground />
       </div>
       
-      {/* Animated greeting at the top */}
+      {/* Animated greeting at the top - enhanced with better styling */}
       <AnimatePresence mode="wait">
         {showGreeting && (
           <motion.div 
@@ -50,12 +50,17 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
               type: "spring",
               stiffness: 100
             }}
-            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm p-3 mb-6 border border-gray-100 max-w-md mx-auto"
+            className="glass-effect max-w-md mx-auto mb-8 p-3.5 rounded-xl shadow-lg text-center"
           >
-            <div className="flex flex-col space-y-1">
+            <motion.div 
+              className="flex flex-col space-y-2"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+            >
               <TimeLocationGreeting />
               <PersonalizedWelcome />
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

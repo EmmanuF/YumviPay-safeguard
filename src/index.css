@@ -4,7 +4,7 @@
 @import './styles/animations.css';
 @import './styles/effects.css';
 
-/* Hero background styles */
+/* Hero background styles with enhanced glass effect */
 .hero-bg {
   position: relative;
   overflow: hidden;
@@ -12,33 +12,57 @@
   isolation: isolate;
 }
 
-/* Glass effect styles */
+/* Glass effect styles with enhanced shadows */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 8px 32px rgba(31, 38, 135, 0.1),
+    0 4px 8px rgba(31, 38, 135, 0.05);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 20px rgba(31, 38, 135, 0.1);
+  box-shadow: 
+    0 4px 20px rgba(31, 38, 135, 0.1),
+    0 2px 8px rgba(31, 38, 135, 0.08);
 }
 
 /* Enhanced touch targets for mobile */
 @media (max-width: 768px) {
   .mobile-touch-target {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem;
+    min-height: 48px;  /* Increased from 44px */
+    min-width: 48px;   /* Increased from 44px */
+    padding: 0.625rem; /* Increased from 0.5rem */
   }
   
   .mobile-nav-spacing > * {
-    margin: 0 0.5rem;
+    margin: 0 0.75rem;  /* Increased from 0.5rem */
   }
+}
+
+/* Subtle animations for UI elements */
+.pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* Enhanced card hover effects */
+.enhance-on-hover {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.enhance-on-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 24px -8px rgba(0, 128, 0, 0.15);
 }

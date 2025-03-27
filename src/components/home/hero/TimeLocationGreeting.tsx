@@ -100,10 +100,10 @@ const TimeLocationGreeting: React.FC = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex items-center text-sm"
+      className="flex items-center text-sm font-medium"
     >
       <motion.div 
-        className="flex items-center gap-1.5 mr-1.5"
+        className="flex items-center gap-1.5 mr-2"
         initial={{ x: -20 }}
         animate={{ x: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -120,13 +120,16 @@ const TimeLocationGreeting: React.FC = () => {
             repeat: Infinity,
             repeatDelay: 3
           }}
+          className="bg-amber-50 p-1.5 rounded-full"
         >
           {greeting.icon}
         </motion.div>
-        <span className="font-medium text-gray-800">{greeting.message}</span>
+        <span className="font-medium text-gray-800 bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
+          {greeting.message}
+        </span>
       </motion.div>
       <motion.div 
-        className="flex items-center gap-1"
+        className="flex items-center gap-1.5"
         initial={{ x: 20 }}
         animate={{ x: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
@@ -142,10 +145,13 @@ const TimeLocationGreeting: React.FC = () => {
             repeat: Infinity,
             repeatDelay: 2
           }}
+          className="bg-primary-50 p-1.5 rounded-full"
         >
           <MapPin className="w-3.5 h-3.5 text-primary-500" />
         </motion.div>
-        <span className="font-medium text-gray-800">{location}</span>
+        <span className="font-medium text-gray-800 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+          {location}
+        </span>
       </motion.div>
     </motion.div>
   );

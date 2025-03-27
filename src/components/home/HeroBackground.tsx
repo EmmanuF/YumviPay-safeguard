@@ -8,6 +8,7 @@ interface Bubble {
   opacity: number;
   speedX: number;
   speedY: number;
+  color: string;
 }
 
 const HeroBackground: React.FC = () => {
@@ -28,58 +29,77 @@ const HeroBackground: React.FC = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     
-    // Create bubbles with light purple color - increased number and visibility
+    // Create bubbles with more varied colors and sizes
     const bubbles: Bubble[] = [];
-    // Increase density of bubbles significantly
     const bubblesCount = Math.floor(canvas.width * canvas.height / 6000); 
+    
+    // Color palette for bubbles
+    const colors = [
+      'rgba(180, 140, 240, 0.25)', // Light purple
+      'rgba(160, 120, 250, 0.2)',  // Medium purple
+      'rgba(140, 100, 230, 0.15)', // Deeper purple
+      'rgba(200, 180, 250, 0.3)',  // Very light purple
+      'rgba(190, 220, 255, 0.2)'   // Light blue tint
+    ];
     
     for (let i = 0; i < bubblesCount; i++) {
       bubbles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        // Increase size range for better visibility
-        radius: Math.random() * 8 + 3, 
-        // Increase opacity range for better visibility (15-30%)
-        opacity: Math.random() * 0.15 + 0.15, 
+        radius: Math.random() * 10 + 3, 
+        opacity: Math.random() * 0.15 + 0.15,
         speedX: (Math.random() - 0.5) * 0.4,
-        speedY: (Math.random() - 0.5) * 0.4
+        speedY: (Math.random() - 0.5) * 0.4,
+        color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
+    
+    // Gradient animation variables
+    let gradientAngle = 0;
     
     const drawBubbles = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw background gradient with slightly deeper color
+      // Draw animated gradient background
+      gradientAngle = (gradientAngle + 0.2) % 360;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 3;
+      
+      // Create moving gradient
       const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 3,
+        centerX + Math.sin(gradientAngle * 0.01) * 100,
+        centerY + Math.cos(gradientAngle * 0.01) * 50,
         0,
-        canvas.width / 2,
-        canvas.height / 3,
+        centerX,
+        centerY,
         canvas.width * 0.7
       );
-      // Make the center color slightly more vibrant
+      
       gradient.addColorStop(0, '#F5EEFE');
       gradient.addColorStop(1, '#FFFFFF');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw bubbles with more vibrant purple
+      // Draw bubbles with custom colors
       for (const bubble of bubbles) {
         ctx.beginPath();
         ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-        // Use a slightly more vibrant purple color
-        ctx.fillStyle = `rgba(198, 162, 247, ${bubble.opacity})`;
+        ctx.fillStyle = bubble.color;
         ctx.fill();
         
-        // Move bubbles
-        bubble.x += bubble.speedX;
-        bubble.y += bubble.speedY;
+        // Move bubbles with slight acceleration based on position
+        bubble.x += bubble.speedX + Math.sin(gradientAngle * 0.01) * 0.1;
+        bubble.y += bubble.speedY + Math.cos(gradientAngle * 0.01) * 0.1;
         
         // Bounce off edges
         if (bubble.x < 0 || bubble.x > canvas.width) bubble.speedX *= -1;
         if (bubble.y < 0 || bubble.y > canvas.height) bubble.speedY *= -1;
+        
+        // Occasionally change bubble size slightly for pulsing effect
+        if (Math.random() < 0.01) {
+          bubble.radius = bubble.radius * (0.95 + Math.random() * 0.1);
+        }
       }
       
       requestAnimationFrame(drawBubbles);
