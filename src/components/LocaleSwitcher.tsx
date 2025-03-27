@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
@@ -10,43 +11,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 
-// Custom stylized globe icon that better matches the brand
-const StylizedGlobe = () => {
-  return (
-    <motion.svg 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      whileHover={{ rotate: [0, 10, -10, 0] }}
-      transition={{ duration: 0.6 }}
-    >
-      {/* Main circle (globe) */}
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      
-      {/* Decorative brand elements - subtle indigo gradients */}
-      <circle cx="12" cy="12" r="9.5" stroke="url(#globe-gradient)" strokeWidth="0.5" strokeOpacity="0.6" />
-      
-      {/* Latitude lines with curves to match brand style */}
-      <path d="M12 2C15 5 17 8.5 12 12C7 8.5 9 5 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M12 22C15 19 17 15.5 12 12C7 15.5 9 19 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      
-      {/* Longitude lines with varying thickness */}
-      <path d="M2 12H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M4 7H20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M4 17H20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      
-      {/* Brand gradient definition */}
-      <defs>
-        <linearGradient id="globe-gradient" x1="2" y1="12" x2="22" y2="12" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6366f1" />
-          <stop offset="1" stopColor="#a5b4fc" />
-        </linearGradient>
-      </defs>
-    </motion.svg>
-  );
+// Country flag icons for language selection
+const LanguageFlags: Record<Locale, { flag: string, label: string }> = {
+  en: { 
+    flag: '🇺🇸', 
+    label: 'English'
+  },
+  fr: { 
+    flag: '🇫🇷', 
+    label: 'Français'
+  }
 };
 
 const LocaleSwitcher: React.FC = () => {
@@ -76,30 +52,33 @@ const LocaleSwitcher: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant={isMobile ? "secondary" : "ghost"} 
-          size="icon"
-          className={`relative ${isMobile ? "bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white/90" : "hover:bg-white/20"}`}
+          size="sm"
+          className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-md h-auto ${
+            isMobile 
+              ? "bg-white/90 text-gray-800 backdrop-blur-sm shadow-sm hover:bg-white/95" 
+              : "hover:bg-white/20 text-gray-800"
+          }`}
         >
-          <StylizedGlobe />
+          <span className="text-base">{LanguageFlags[currentLocale].flag}</span>
+          <span className="text-sm font-medium">{LanguageFlags[currentLocale].label}</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-70" />
           <span className="sr-only">{t('settings.language')}</span>
-          <motion.div 
-            className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-primary-500 text-[8px] font-bold flex items-center justify-center text-white"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.2 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            {currentLocale === 'en' ? 'EN' : 'FR'}
-          </motion.div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white/90 backdrop-blur-md border border-primary-100/30 shadow-lg">
+      <DropdownMenuContent 
+        align="end" 
+        className="bg-white/95 backdrop-blur-md border border-primary-100/30 shadow-lg"
+      >
         {locales.map((l) => (
           <DropdownMenuItem
             key={l.key}
-            className={`px-4 py-2.5 ${currentLocale === l.key ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50/50"}`}
+            className={`px-4 py-2.5 flex items-center gap-2 ${
+              currentLocale === l.key ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50/50"
+            }`}
             onClick={() => handleLanguageChange(l.key)}
           >
-            {l.label}
+            <span className="text-base">{LanguageFlags[l.key].flag}</span>
+            <span>{l.label}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
