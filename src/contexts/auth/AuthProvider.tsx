@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   getAuthState, 
@@ -65,7 +66,8 @@ const useAuthRefresh = (setAuthState: React.Dispatch<React.SetStateAction<AuthSt
           authError: 'Temporary authentication service disruption. Using cached state.'
         }));
         
-        return authState; // Reference the current state
+        // Return current auth state from the component
+        return null;
       } else {
         setAuthState(prev => ({
           ...prev,
@@ -82,7 +84,7 @@ const useAuthRefresh = (setAuthState: React.Dispatch<React.SetStateAction<AuthSt
 };
 
 // Custom hook for handling authentication events
-const useAuthEvents = (refreshAuthState: () => Promise<void>, setAuthState: React.Dispatch<React.SetStateAction<AuthState>>) => {
+const useAuthEvents = (refreshAuthState: () => Promise<void>, setAuthState: React.Dispatch<React.SetStateAction<AuthState>>, authState: AuthState) => {
   useEffect(() => {
     console.log('Setting up auth provider...');
     let hasCompletedInitialLoad = false;
@@ -267,7 +269,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const refreshAuthState = useAuthRefresh(setAuthState);
   const { signIn, signUp, signOut } = useAuthActions(setAuthState, refreshAuthState);
 
-  useAuthEvents(refreshAuthState, setAuthState);
+  useAuthEvents(refreshAuthState, setAuthState, authState);
 
   // Export the context value
   const contextValue: AuthContextType = {
