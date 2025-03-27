@@ -74,7 +74,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       {/* Diagonal purple top design - only shown on non-home pages for mobile */}
       {showMobileHeader && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600">
+          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600 purple-dots-bg">
             {/* Decorative elements for premium look */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-400/30 via-primary-400 to-primary-400/30"></div>
             <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary-400/20"></div>

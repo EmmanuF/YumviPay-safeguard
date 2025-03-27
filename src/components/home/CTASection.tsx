@@ -47,10 +47,13 @@ const CTASection = () => {
       viewport={{ once: true }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="bg-primary-500 text-white rounded-2xl overflow-hidden relative shadow-xl">
+        <div className="bg-indigo-600 text-white rounded-2xl overflow-hidden relative shadow-xl">
           {/* Decorative elements with better visibility */}
           <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/20 blur-xl"></div>
           <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-white/15 blur-xl"></div>
+          
+          {/* Add purple dots pattern */}
+          <div className="absolute inset-0 purple-dots-bg opacity-20"></div>
           
           <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative z-10">
             <div>
@@ -67,7 +70,7 @@ const CTASection = () => {
               >
                 <Button 
                   onClick={() => navigate('/signup')}
-                  className="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-6 rounded-xl text-base shadow-md"
+                  className="bg-white text-indigo-600 hover:bg-gray-100 font-medium px-6 py-6 rounded-xl text-base shadow-md"
                   size="lg"
                 >
                   Create Account
@@ -76,7 +79,7 @@ const CTASection = () => {
                 
                 <Button
                   variant="outline"
-                  className="border-white border-2 bg-white/10 text-white hover:bg-white hover:text-primary-600 font-semibold transition-colors shadow-md py-6"
+                  className="border-white border-2 bg-white/10 text-white hover:bg-white hover:text-indigo-600 font-semibold transition-colors shadow-md py-6"
                   size="lg"
                   onClick={() => navigate('/support/contact')}
                 >
@@ -126,7 +129,7 @@ const CTASection = () => {
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-white text-primary-600 hover:bg-white/90 py-6 shadow-md" 
+                  className="w-full bg-white text-indigo-600 hover:bg-white/90 py-6 shadow-md" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
