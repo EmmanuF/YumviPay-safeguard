@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
-import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle, Check, AlertCircle } from 'lucide-react';
+import { User, Phone, Info, Users, Star, StarOff, Globe, HelpCircle, Check, AlertCircle, Contact } from 'lucide-react';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -16,6 +16,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CountrySelector } from '@/components/country-selector';
 import { useCountries } from '@/hooks/useCountries';
 import NameMatchConfirmation from '@/components/send-money/payment/NameMatchConfirmation';
+import { Button } from '@/components/ui/button';
+import { importContacts, Contact as ContactType } from '@/services/contacts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -47,6 +51,10 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   const { getCountryByCode } = useCountries();
   const [selectedCountry, setSelectedCountry] = useState(transactionData?.targetCountry || 'CM');
   const [showNameMatchError, setShowNameMatchError] = useState(false);
+  const [showContactsDialog, setShowContactsDialog] = useState(false);
+  const [contacts, setContacts] = useState<ContactType[]>([]);
+  const [isLoadingContacts, setIsLoadingContacts] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const formatPhoneNumber = (value: string, countryCode: string = 'CM') => {
     let cleaned = value.replace(/[^\d+]/g, '');
@@ -156,6 +164,37 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     console.log("Calling onNext() after form submission");
     onNext();
   };
+
+  const handleLoadContacts = async () => {
+    setIsLoadingContacts(true);
+    try {
+      const fetchedContacts = await importContacts();
+      setContacts(fetchedContacts);
+    } catch (error) {
+      console.error('Error loading contacts:', error);
+    } finally {
+      setIsLoadingContacts(false);
+    }
+    setShowContactsDialog(true);
+  };
+
+  const handleContactSelect = (contact: ContactType) => {
+    if (contact.phoneNumber) {
+      const formattedPhone = formatPhoneNumber(contact.phoneNumber, selectedCountry);
+      form.setValue('recipientContact', formattedPhone, { shouldValidate: true });
+    }
+    
+    if (contact.name) {
+      form.setValue('recipientName', contact.name, { shouldValidate: true });
+    }
+    
+    setShowContactsDialog(false);
+  };
+
+  const filteredContacts = contacts.filter(contact => 
+    contact.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (contact.phoneNumber && contact.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -274,6 +313,21 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
             >
               Enter details for your recipient
             </motion.p>
+
+            <motion.div 
+              variants={itemVariants}
+              className="mb-6 flex justify-center"
+            >
+              <Button 
+                variant="outline" 
+                onClick={handleLoadContacts}
+                className="flex items-center gap-2 w-full mb-4"
+                size="lg"
+              >
+                <Users className="h-5 w-5 text-primary" />
+                <span>Select from Contacts</span>
+              </Button>
+            </motion.div>
 
             <motion.div
               variants={itemVariants}
@@ -534,6 +588,61 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           </CardContent>
         </Card>
       </motion.div>
+
+      <Dialog open={showContactsDialog} onOpenChange={setShowContactsDialog}>
+        <DialogContent className="sm:max-w-md max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="text-center">Select a Contact</DialogTitle>
+          </DialogHeader>
+          
+          <div className="mb-4">
+            <Input
+              placeholder="Search contacts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          
+          {isLoadingContacts ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <ScrollArea className="max-h-[50vh] pr-4">
+              {filteredContacts.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredContacts.map((contact) => (
+                    <motion.div
+                      key={contact.id}
+                      className="p-3 border border-gray-100 rounded-lg hover:bg-primary-50 cursor-pointer"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleContactSelect(contact)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="bg-primary-100 rounded-full p-2">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{contact.name}</p>
+                          {contact.phoneNumber && (
+                            <p className="text-sm text-gray-500">{contact.phoneNumber}</p>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center p-8">
+                  <p className="text-gray-500">No contacts found</p>
+                </div>
+              )}
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
