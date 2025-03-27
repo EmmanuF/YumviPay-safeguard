@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeroContent } from './hero';
 import HeroBackground from './HeroBackground';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TimeLocationGreeting, PersonalizedWelcome } from './hero';
 
 interface HeroProps {
   onGetStarted?: () => void;
@@ -10,6 +12,16 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
+  const [showGreeting, setShowGreeting] = useState(true);
+
+  // Toggle visibility of greeting every 10 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setShowGreeting(prev => !prev);
+    }, 10000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleGetStarted = () => {
     if (onGetStarted) {
@@ -24,6 +36,30 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <HeroBackground />
       </div>
+      
+      {/* Animated greeting at the top */}
+      <AnimatePresence mode="wait">
+        {showGreeting && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ 
+              duration: 0.6, 
+              ease: [0.22, 1, 0.36, 1],
+              type: "spring",
+              stiffness: 100
+            }}
+            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm p-3 mb-6 border border-gray-100 max-w-md mx-auto"
+          >
+            <div className="flex flex-col space-y-1">
+              <TimeLocationGreeting />
+              <PersonalizedWelcome />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <div className="flex flex-col items-center relative z-10">
         {/* Hero content */}
         <HeroContent onGetStarted={handleGetStarted} />

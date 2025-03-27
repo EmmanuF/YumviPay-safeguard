@@ -1,9 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { HeroCalculator } from './index';
-import TimeLocationGreeting from './TimeLocationGreeting';
-import PersonalizedWelcome from './PersonalizedWelcome';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
 
@@ -15,14 +12,6 @@ const HeroDescription: React.FC = () => {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-3xl mx-auto"
     >
-      {/* Greeting section moved to top of calculator as a banner */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm p-3 mb-4 border border-gray-100">
-        <div className="flex flex-col space-y-1">
-          <TimeLocationGreeting />
-          <PersonalizedWelcome />
-        </div>
-      </div>
-
       {/* Calculator component first */}
       <HeroCalculator />
 

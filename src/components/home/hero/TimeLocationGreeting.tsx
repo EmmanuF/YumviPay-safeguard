@@ -100,16 +100,53 @@ const TimeLocationGreeting: React.FC = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex items-center text-sm text-muted-foreground"
+      className="flex items-center text-sm"
     >
-      <div className="flex items-center gap-1.5 mr-1.5">
-        {greeting.icon}
-        <span>{greeting.message}</span>
-      </div>
-      <div className="flex items-center gap-1">
-        <MapPin className="w-3.5 h-3.5" />
-        <span>{location}</span>
-      </div>
+      <motion.div 
+        className="flex items-center gap-1.5 mr-1.5"
+        initial={{ x: -20 }}
+        animate={{ x: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <motion.div
+          animate={{ 
+            rotate: [0, 15, 0, -15, 0],
+            scale: [1, 1.2, 1, 1.2, 1]
+          }}
+          transition={{ 
+            duration: 2,
+            ease: "easeInOut",
+            times: [0, 0.25, 0.5, 0.75, 1],
+            repeat: Infinity,
+            repeatDelay: 3
+          }}
+        >
+          {greeting.icon}
+        </motion.div>
+        <span className="font-medium text-gray-800">{greeting.message}</span>
+      </motion.div>
+      <motion.div 
+        className="flex items-center gap-1"
+        initial={{ x: 20 }}
+        animate={{ x: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+      >
+        <motion.div
+          animate={{ 
+            y: [0, -3, 0, 3, 0],
+          }}
+          transition={{ 
+            duration: 2,
+            ease: "easeInOut",
+            times: [0, 0.25, 0.5, 0.75, 1],
+            repeat: Infinity,
+            repeatDelay: 2
+          }}
+        >
+          <MapPin className="w-3.5 h-3.5 text-primary-500" />
+        </motion.div>
+        <span className="font-medium text-gray-800">{location}</span>
+      </motion.div>
     </motion.div>
   );
 };
