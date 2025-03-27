@@ -1,10 +1,24 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Quote, User } from 'lucide-react';
+import { Star, Quote, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useInterval } from '@/hooks/useInterval';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Testimonials = () => {
+  const isMobile = useIsMobile();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [autoplay, setAutoplay] = useState(true);
+  
   const testimonials = [
     {
       id: 1,
@@ -31,6 +45,20 @@ const Testimonials = () => {
       text: "Very easy to use, transparent fees, and excellent customer service. The mobile app makes everything so convenient."
     }
   ];
+
+  // Pause autoplay when user interacts with carousel
+  const pauseAutoplay = () => {
+    setAutoplay(false);
+    // Resume autoplay after 5 seconds of inactivity
+    setTimeout(() => setAutoplay(true), 5000);
+  };
+
+  // Set up autoplay interval
+  useInterval(() => {
+    if (autoplay) {
+      setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    }
+  }, 5000);
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -72,53 +100,61 @@ const Testimonials = () => {
           </motion.div>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <motion.div 
-              key={testimonial.id}
-              className="bg-white rounded-xl p-8 shadow-lg border border-secondary-100/50 relative"
-              variants={cardVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ 
-                y: -8, 
-                boxShadow: "0 20px 40px -12px rgba(110, 54, 229, 0.25)",
-                transition: { type: "spring", stiffness: 400, damping: 17 }
+        {/* Mobile Carousel View */}
+        {isMobile ? (
+          <div className="px-4 mobile-optimized">
+            <Carousel 
+              className="w-full"
+              onMouseEnter={pauseAutoplay}
+              onTouchStart={pauseAutoplay}
+              setApi={(api) => {
+                if (api && currentSlide !== api.selectedScrollSnap()) {
+                  api.scrollTo(currentSlide);
+                }
               }}
             >
-              <Quote className="absolute top-6 right-6 text-primary-200 h-8 w-8 opacity-40" />
-              
-              <div className="flex items-center mb-5">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+              <CarouselContent>
+                {testimonials.map((testimonial, index) => (
+                  <CarouselItem key={testimonial.id}>
+                    <TestimonialCard testimonial={testimonial} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex items-center justify-center gap-2 mt-6">
+                {testimonials.map((_, index) => (
+                  <Button 
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    className={`w-2 h-2 p-0 rounded-full ${
+                      currentSlide === index ? 'bg-primary-600' : 'bg-gray-300'
+                    }`}
+                    onClick={() => {
+                      setCurrentSlide(index);
+                      pauseAutoplay();
+                    }}
                   />
                 ))}
               </div>
-              
-              <p className="text-gray-700 mb-6 text-lg leading-relaxed italic">"{testimonial.text}"</p>
-              
-              <div className="mt-6 pt-4 border-t border-gray-100 flex items-center">
-                <Avatar className="h-12 w-12 border-2 border-primary-100 mr-4">
-                  {testimonial.avatar ? (
-                    <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-                  ) : (
-                    <AvatarFallback className="bg-primary-100 text-primary-700">
-                      <User className="h-6 w-6" />
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                  <p className="text-sm text-gray-500">{testimonial.location}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+            </Carousel>
+          </div>
+        ) : (
+          /* Desktop Grid View */
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={testimonial.id}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <TestimonialCard testimonial={testimonial} />
+              </motion.div>
+            ))}
+          </div>
+        )}
         
         <motion.div 
           className="mt-12 text-center"
@@ -131,6 +167,45 @@ const Testimonials = () => {
         </motion.div>
       </div>
     </motion.div>
+  );
+};
+
+// Extracted Testimonial Card component for reuse
+const TestimonialCard = ({ testimonial }) => {
+  return (
+    <div 
+      className="bg-white rounded-xl p-8 shadow-lg border border-secondary-100/50 relative h-full"
+      style={{ minHeight: '320px' }}
+    >
+      <Quote className="absolute top-6 right-6 text-primary-400 h-8 w-8 opacity-70" /> {/* Improved contrast */}
+      
+      <div className="flex items-center mb-5">
+        {[...Array(5)].map((_, i) => (
+          <Star 
+            key={i} 
+            className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+          />
+        ))}
+      </div>
+      
+      <p className="text-gray-700 mb-6 text-lg leading-relaxed italic">"{testimonial.text}"</p>
+      
+      <div className="mt-6 pt-4 border-t border-gray-100 flex items-center">
+        <Avatar className="h-12 w-12 border-2 border-primary-100 mr-4">
+          {testimonial.avatar ? (
+            <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+          ) : (
+            <AvatarFallback className="bg-primary-100 text-primary-700">
+              <User className="h-6 w-6" />
+            </AvatarFallback>
+          )}
+        </Avatar>
+        <div>
+          <p className="font-semibold text-gray-900">{testimonial.name}</p>
+          <p className="text-sm text-gray-500">{testimonial.location}</p>
+        </div>
+      </div>
+    </div>
   );
 };
 
