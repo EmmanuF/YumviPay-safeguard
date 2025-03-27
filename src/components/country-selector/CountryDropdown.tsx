@@ -37,7 +37,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.2 }}
       className="absolute z-50 mt-1 w-full rounded-xl bg-white border border-gray-200 
-                 shadow-lg max-h-60 overflow-hidden"
+                 shadow-lg overflow-hidden"
     >
       <div className="sticky top-0 bg-white p-2 border-b border-gray-100 z-10">
         <SearchInput 
@@ -46,7 +46,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
         />
       </div>
       
-      <div className="overflow-y-auto max-h-[15rem] overscroll-contain">
+      <div className="overflow-y-auto max-h-80 overscroll-contain">
         {isLoading ? (
           <div className="p-4 text-center text-gray-500">Loading countries...</div>
         ) : filteredCountries?.length === 0 ? (

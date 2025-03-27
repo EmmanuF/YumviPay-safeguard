@@ -281,7 +281,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
             {/* Country selector */}
             <motion.div
               variants={itemVariants}
-              className="mb-6 bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80"
+              className="mb-6 bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80"
             >
               <div className="flex items-center mb-3">
                 <Globe className="h-5 w-5 mr-2 text-primary" />
@@ -312,7 +312,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                       variants={itemVariants}
                       className="card-hover"
                     >
-                      <FormItem className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
+                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
                         <FormLabel className="flex items-center text-primary-600 font-medium text-base">
                           <User className="h-5 w-5 mr-2 text-primary" />
                           Recipient Name <span className="text-red-500 ml-1">*</span>
@@ -324,7 +324,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           <div className="relative mt-1">
                             <Input 
                               placeholder="e.g. John Doe" 
-                              className="pl-3 form-control-modern h-12 text-base bg-white/80 backdrop-blur-sm border-primary-100/50 focus-visible:ring-primary-400/30"
+                              className="pl-3 form-control-modern h-12 text-base bg-white border-primary-100/50 focus-visible:ring-primary-400/30"
                               {...field} 
                             />
                             <TooltipProvider>
@@ -357,7 +357,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                       variants={itemVariants}
                       className="card-hover"
                     >
-                      <FormItem className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
+                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
                         <FormLabel className="flex items-center text-primary-600 font-medium text-base">
                           <Phone className="h-5 w-5 mr-2 text-primary" />
                           Phone Number <span className="text-red-500 ml-1">*</span>
@@ -376,7 +376,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           <div className="relative mt-1">
                             <Input 
                               placeholder={getPhoneNumberPlaceholder(selectedCountry)} 
-                              className="pl-3 form-control-modern h-12 text-base bg-white/80 backdrop-blur-sm border-primary-100/50 focus-visible:ring-primary-400/30"
+                              className="pl-3 form-control-modern h-12 text-base bg-white border-primary-100/50 focus-visible:ring-primary-400/30"
                               {...field} 
                               onChange={(e) => {
                                 const formatted = formatPhoneNumber(e.target.value, selectedCountry);
@@ -423,7 +423,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                       className="card-hover"
                       whileHover={{ scale: 1.02 }}
                     >
-                      <FormItem className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between">
+                      <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between">
                         <div className="flex items-center">
                           {field.value ? (
                             <Star className="h-5 w-5 mr-3 text-yellow-500" />
