@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from '@/contexts/LocaleContext';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 import { Shield, Award, Clock } from 'lucide-react';
-import { getProviderLogoSrc } from '@/utils/providerLogos';
+import { getProviderLogoSrc, generateProviderLogo } from '@/utils/providerLogos';
 
 interface ProviderOptionsProps {
   options: Array<{
