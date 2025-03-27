@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { getPaymentMethodById, getProviderById } from '@/data/cameroonPaymentProviders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +42,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     });
   }
   
-  // Set initial active tab based on available payment methods
   useEffect(() => {
     if (country?.paymentMethods && country.paymentMethods.length > 0) {
       const firstMethodId = country.paymentMethods[0].id;
@@ -51,7 +49,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       setActiveTab(firstMethodId);
     }
     
-    // If there's a selected method, set it as active tab
     if (selectedPaymentMethod) {
       console.log(`DEBUG - Using selected method as active tab: "${selectedPaymentMethod}"`);
       setActiveTab(selectedPaymentMethod);
@@ -72,12 +69,10 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     console.log("DEBUG - Tab changed to:", value);
     setActiveTab(value);
     
-    // Get the first provider for this payment method
     const providers = getProviderOptions(value, countryCode);
     console.log("DEBUG - Available providers for method:", providers);
     
     if (providers && providers.length > 0) {
-      // For bank_transfer, don't select any provider as it's coming soon
       if (value === 'bank_transfer') {
         console.log("DEBUG - Bank transfer selected, not selecting provider");
         onSelect(value, '');
@@ -95,7 +90,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     }
   };
 
-  // Get icon component based on icon name
   const getIconComponent = (iconName: string) => {
     switch (iconName?.toLowerCase()) {
       case 'smartphone':
@@ -109,12 +103,10 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
     }
   };
 
-  // Check if method is coming soon
   const isMethodComingSoon = (methodId: string) => {
     return methodId === 'bank_transfer';
   };
 
-  // Check if provider is coming soon
   const isProviderComingSoon = (providerId: string) => {
     return providerId === 'yoomee_money' || providerId.includes('afriland') || providerId.includes('ecobank');
   };
@@ -127,7 +119,6 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       return <p className="text-sm text-muted-foreground py-2">No providers available</p>;
     }
     
-    // If the entire method is coming soon
     if (isMethodComingSoon(methodId)) {
       return (
         <div className="p-4 border border-amber-200 rounded-md bg-amber-50 mt-3">
@@ -165,15 +156,11 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
               )}
               <div className="flex items-center justify-between flex-1">
                 <div className="flex items-center space-x-4">
-                  <div className="w-28 h-20 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <div className="w-36 h-24 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                     <img 
                       src={logoSrc}
                       alt={provider.name} 
-                      className={`max-h-16 max-w-24 object-contain ${comingSoon ? "opacity-50" : ""}`} 
-                      onError={(e) => {
-                        console.error(`Failed to load image for provider: ${provider.name}`);
-                        e.currentTarget.src = logoSrc;
-                      }}
+                      className={`w-full h-full object-contain ${comingSoon ? "opacity-50" : ""}`} 
                     />
                   </div>
                   <Label 

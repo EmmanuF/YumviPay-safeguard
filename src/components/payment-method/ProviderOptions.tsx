@@ -62,16 +62,11 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-28 h-20 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                <div className="w-36 h-24 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                   <img 
                     src={logoSrc}
                     alt={option.name} 
-                    className="max-h-16 max-w-24 object-contain" 
-                    onError={(e) => {
-                      console.error(`Failed to load provider image: ${option.id}`);
-                      const target = e.currentTarget;
-                      target.src = generateProviderLogo(option.id);
-                    }}
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 
