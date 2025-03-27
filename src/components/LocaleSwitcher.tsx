@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
@@ -27,14 +26,25 @@ const StylizedGlobe = () => {
       {/* Main circle (globe) */}
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       
-      {/* Latitude lines */}
-      <path d="M12 2C14.5 5 17 8.5 12 12C7 8.5 9.5 5 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M12 22C14.5 19 17 15.5 12 12C7 15.5 9.5 19 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Decorative brand elements - subtle indigo gradients */}
+      <circle cx="12" cy="12" r="9.5" stroke="url(#globe-gradient)" strokeWidth="0.5" strokeOpacity="0.6" />
       
-      {/* Longitude lines */}
+      {/* Latitude lines with curves to match brand style */}
+      <path d="M12 2C15 5 17 8.5 12 12C7 8.5 9 5 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12 22C15 19 17 15.5 12 12C7 15.5 9 19 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      
+      {/* Longitude lines with varying thickness */}
       <path d="M2 12H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M4 7H20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M4 17H20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      
+      {/* Brand gradient definition */}
+      <defs>
+        <linearGradient id="globe-gradient" x1="2" y1="12" x2="22" y2="12" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#6366f1" />
+          <stop offset="1" stopColor="#a5b4fc" />
+        </linearGradient>
+      </defs>
     </motion.svg>
   );
 };
