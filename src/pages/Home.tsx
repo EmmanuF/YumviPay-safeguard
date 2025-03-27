@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -45,14 +44,14 @@ const Home = () => {
             <div className="h-4 bg-indigo-500 transform origin-top-right"></div>
           </div>
           
-          {/* Premium background section with hero */}
-          <div className="relative bg-gradient-to-b from-muted to-white pt-16 z-10 min-h-[90vh] overflow-hidden">
+          {/* Premium background section with hero - added min-height to ensure visibility */}
+          <div className="relative bg-transparent pt-16 z-10 min-h-[90vh] overflow-hidden">
             <div className="pt-6">
               <Navigation onGetStarted={handleGetStarted} />
               <Hero onGetStarted={handleGetStarted} />
             </div>
             
-            {/* Curved separator */}
+            {/* Curved separator - improved visibility */}
             <div className="absolute bottom-0 left-0 right-0 h-16 overflow-hidden">
               <svg 
                 className="absolute bottom-0 w-full h-auto" 

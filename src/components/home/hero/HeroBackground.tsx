@@ -12,19 +12,23 @@ const HeroBackground: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight * 0.85; // Cover hero section
+    // Fix: Set explicit dimensions and style
+    canvas.width = window.innerWidth;
+    canvas.height = Math.max(window.innerHeight * 0.85, 700); // Ensure minimum height
+    
+    let width = canvas.width;
+    let height = canvas.height;
     
     // Particles array
     const particles: Particle[] = [];
     const particleCount = width < 768 ? 30 : 60; // Fewer particles on mobile
     
-    // Colors from our theme
+    // Colors from our theme - made more vibrant
     const colors = [
-      'rgba(75, 0, 130, 0.2)', // Indigo
-      'rgba(138, 43, 226, 0.15)', // Violet
-      'rgba(0, 128, 0, 0.15)', // Green
-      'rgba(110, 54, 229, 0.15)', // Purple
+      'rgba(75, 0, 130, 0.3)', // Indigo
+      'rgba(138, 43, 226, 0.25)', // Violet
+      'rgba(0, 128, 0, 0.25)', // Green
+      'rgba(110, 54, 229, 0.25)', // Purple
     ];
     
     // Particle class
@@ -39,9 +43,9 @@ const HeroBackground: React.FC = () => {
       constructor() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.size = Math.random() * 15 + 5;
-        this.speedX = Math.random() * 0.2 - 0.1;
-        this.speedY = Math.random() * 0.2 - 0.1;
+        this.size = Math.random() * 20 + 5; // Larger particles
+        this.speedX = Math.random() * 0.3 - 0.15; // Faster movement
+        this.speedY = Math.random() * 0.3 - 0.15;
         this.color = colors[Math.floor(Math.random() * colors.length)];
       }
       
@@ -78,20 +82,20 @@ const HeroBackground: React.FC = () => {
     const animate = () => {
       if (!ctx) return;
       
-      // Clear canvas with radial gradient
+      // Clear canvas with enhanced radial gradient
       const gradient = ctx.createRadialGradient(
         width / 2, height / 2, 0,
         width / 2, height / 2, Math.max(width, height) / 1.5
       );
-      gradient.addColorStop(0, '#F9F6FD'); // Soft lavender
-      gradient.addColorStop(1, '#FDFDFD'); // Off-white
+      gradient.addColorStop(0, '#F5F0FE'); // More vibrant lavender
+      gradient.addColorStop(1, '#FAFAFA'); // Slightly off-white
       
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
       
-      // Draw mesh grid (very subtle)
-      ctx.strokeStyle = 'rgba(138, 43, 226, 0.03)';
-      ctx.lineWidth = 0.5;
+      // Draw mesh grid (more visible)
+      ctx.strokeStyle = 'rgba(138, 43, 226, 0.05)';
+      ctx.lineWidth = 0.8;
       
       // Horizontal lines
       const gridSize = 40;
@@ -123,8 +127,10 @@ const HeroBackground: React.FC = () => {
     
     // Handle window resize
     const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight * 0.85;
+      canvas.width = window.innerWidth;
+      canvas.height = Math.max(window.innerHeight * 0.85, 700);
+      width = canvas.width;
+      height = canvas.height;
     };
     
     window.addEventListener('resize', handleResize);
@@ -139,26 +145,28 @@ const HeroBackground: React.FC = () => {
     <div className="hero-background-container">
       <canvas 
         ref={canvasRef} 
-        className="absolute top-0 left-0 w-full h-[85vh] -z-10"
+        className="absolute top-0 left-0 w-full h-[85vh] min-h-[700px]"
         style={{ 
-          mixBlendMode: 'soft-light',
+          mixBlendMode: 'normal', // Changed from soft-light to ensure visibility
+          opacity: 1,
+          zIndex: -10
         }}
       />
       
-      {/* Additional decorative elements */}
-      <div className="absolute top-[10%] right-[5%] w-64 h-64 rounded-full bg-primary-300/10 blur-3xl" />
-      <div className="absolute top-[30%] left-[10%] w-40 h-40 rounded-full bg-secondary-300/10 blur-3xl" />
-      <div className="absolute bottom-[15%] right-[20%] w-56 h-56 rounded-full bg-amber-300/10 blur-3xl" />
+      {/* Enhanced decorative elements - more visible and vibrant */}
+      <div className="absolute top-[10%] right-[5%] w-64 h-64 rounded-full bg-primary-300/20 blur-3xl" />
+      <div className="absolute top-[30%] left-[10%] w-48 h-48 rounded-full bg-secondary-300/25 blur-3xl" />
+      <div className="absolute bottom-[15%] right-[20%] w-64 h-64 rounded-full bg-amber-300/20 blur-3xl" />
       
-      {/* Moving blobs with framer-motion (subtle animation) */}
+      {/* Moving blobs with framer-motion (enhanced animation) */}
       <motion.div 
-        className="absolute top-[15%] left-[15%] w-32 h-32 rounded-full bg-gradient-to-r from-primary-100/20 to-secondary-100/20 blur-2xl"
+        className="absolute top-[15%] left-[15%] w-40 h-40 rounded-full bg-gradient-to-r from-primary-100/30 to-secondary-100/30 blur-2xl"
         animate={{ 
-          x: [0, 20, 0],
-          y: [0, 10, 0],
+          x: [0, 30, 0],
+          y: [0, 15, 0],
         }}
         transition={{
-          duration: 15,
+          duration: 12,
           repeat: Infinity,
           repeatType: "reverse",
           ease: "easeInOut"
@@ -166,13 +174,13 @@ const HeroBackground: React.FC = () => {
       />
       
       <motion.div 
-        className="absolute bottom-[20%] left-[25%] w-48 h-48 rounded-full bg-gradient-to-r from-secondary-100/10 to-amber-100/10 blur-2xl"
+        className="absolute bottom-[20%] left-[25%] w-56 h-56 rounded-full bg-gradient-to-r from-secondary-100/20 to-amber-100/20 blur-2xl"
         animate={{ 
-          x: [0, -30, 0],
-          y: [0, -15, 0],
+          x: [0, -40, 0],
+          y: [0, -20, 0],
         }}
         transition={{
-          duration: 18,
+          duration: 15,
           repeat: Infinity,
           repeatType: "reverse",
           ease: "easeInOut"
