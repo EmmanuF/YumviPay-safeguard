@@ -2,7 +2,13 @@
 /* Import base theme styles */
 @import './styles/theme.css';
 @import './styles/animations.css';
-@import './styles/effects.css';
+/* Removing the nonexistent effects.css import and adding our new refactored files */
+@import './styles/glass-effects.css';
+@import './styles/card-styles.css';
+@import './styles/text-effects.css'; 
+@import './styles/animations-extended.css';
+@import './styles/interactive-elements.css';
+@import './styles/shapes.css';
 
 /* Hero background styles with enhanced glass effect */
 .hero-bg {
