@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/home/Navigation';
@@ -12,9 +12,41 @@ import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 import DebugTools from '@/components/home/DebugTools';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 const Home = () => {
   const navigate = useNavigate();
+  const featuresRef = useScrollAnimation();
+  const howItWorksRef = useScrollAnimation();
+  const countryCoverageRef = useScrollAnimation();
+  const testimonialsRef = useScrollAnimation();
+  const appDownloadRef = useScrollAnimation({ threshold: 0.1 });
+  const ctaSectionRef = useScrollAnimation({ threshold: 0.1 });
+  
+  // Add scroll animation to each section
+  useEffect(() => {
+    // Initialize scroll observer for elements with the animate-on-scroll class
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    
+    // Get all elements with the animate-on-scroll class
+    const animatedElements = document.querySelectorAll('.animate-on-scroll');
+    animatedElements.forEach(el => observer.observe(el));
+    
+    // Get all staggered child animations
+    const staggeredElements = document.querySelectorAll('.stagger-children');
+    staggeredElements.forEach(el => observer.observe(el));
+    
+    return () => {
+      animatedElements.forEach(el => observer.unobserve(el));
+      staggeredElements.forEach(el => observer.unobserve(el));
+    };
+  }, []);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -63,12 +95,29 @@ const Home = () => {
               animate="visible"
               className="mt-2 md:mt-6"
             >
-              <Features />
-              <HowItWorks />
-              <CountryCoverage />
-              <Testimonials />
-              <AppDownload />
-              <CTASection />
+              <div ref={featuresRef} className="animate-on-scroll">
+                <Features />
+              </div>
+              
+              <div ref={howItWorksRef} className="animate-on-scroll">
+                <HowItWorks />
+              </div>
+              
+              <div ref={countryCoverageRef} className="animate-on-scroll">
+                <CountryCoverage />
+              </div>
+              
+              <div ref={testimonialsRef} className="animate-on-scroll">
+                <Testimonials />
+              </div>
+              
+              <div ref={appDownloadRef} className="animate-on-scroll">
+                <AppDownload />
+              </div>
+              
+              <div ref={ctaSectionRef} className="animate-on-scroll">
+                <CTASection />
+              </div>
             </motion.div>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -12,6 +11,7 @@ import { useNetwork } from '@/contexts/NetworkContext';
 import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ScrollToTopButton from './ScrollToTopButton';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -24,20 +24,16 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
   const isMobile = useIsMobile();
   
-  // Get device-specific optimizations
   const {
     getOptimizationClasses,
     getOptimizedAnimationSettings,
     glassEffectIntensity
   } = useDeviceOptimizations();
   
-  // Optimized animation settings
   const animSettings = getOptimizedAnimationSettings();
   
-  // Show offline indicator on scroll
   useEffect(() => {
     const handleScroll = () => {
-      // If offline and scrolled down, show the indicator
       if ((isOffline || offlineModeActive) && window.scrollY > 100) {
         setShowOfflineIndicator(true);
       } else {
@@ -49,33 +45,26 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOffline, offlineModeActive]);
   
-  // Enhanced glass effects with different intensities
   const glassClass = glassEffectIntensity === 'light' 
     ? 'bg-gradient-to-b from-primary-100/90 to-primary-50/80 border border-white/40'
     : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-primary-100/80 to-white/70 border border-white/30 shadow-[0_8px_32px_rgba(110,54,229,0.15)]';
   
-  // On non-homepage routes, show different headers for mobile vs desktop
   const isHomePage = location.pathname === '/';
   const showMobileHeader = isMobile && !isHomePage;
   
-  // Determine if we're on the send money page for special background
   const isSendMoneyPage = location.pathname.includes('/send');
 
-  // Special background for send money page
   const pageBackground = isSendMoneyPage 
     ? 'bg-gradient-to-br from-background via-background to-muted/30' 
     : 'bg-background';
 
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground}`}>
-      {/* Top Navigation for desktop/web */}
       <TopNavigation />
       
-      {/* Diagonal purple top design - only shown on non-home pages for mobile */}
       {showMobileHeader && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
           <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600">
-            {/* Decorative elements for premium look */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-400/30 via-primary-400 to-primary-400/30"></div>
             <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary-400/20"></div>
             <div className="absolute top-4 right-10 w-16 h-16 rounded-full bg-primary-400/10"></div>
@@ -124,7 +113,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         </AnimatePresence>
       </main>
       
-      {/* Floating offline indicator that appears when scrolling */}
+      <ScrollToTopButton />
+      
       <AnimatePresence>
         {showOfflineIndicator && (
           <motion.div 
@@ -147,10 +137,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         )}
       </AnimatePresence>
       
-      {/* Bottom Navigation - Only shown on mobile */}
       <BottomNavigation />
       
-      {/* Footer */}
       {!hideFooter && <Footer />}
       
       <Toaster 

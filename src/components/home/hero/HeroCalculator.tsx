@@ -8,6 +8,7 @@ import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTransactionContinue } from '@/hooks/exchange-rate/useTransactionContinue';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,6 +36,7 @@ const itemVariants = {
 const HeroCalculator: React.FC = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const isMobile = useIsMobile();
   const { 
     sendAmount, 
     setSendAmount, 
@@ -79,16 +81,20 @@ const HeroCalculator: React.FC = () => {
     }
   };
   
+  // Enhanced spacing for mobile
+  const calculatorPadding = isMobile ? "p-5 md:p-8" : "p-6 md:p-8";
+  const calculatorMargin = isMobile ? "mb-5 md:mb-6" : "mb-6";
+  
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="relative glass-effect p-6 md:p-8 border border-white/30 rounded-xl shadow-lg backdrop-blur-lg"
+      className={`relative glass-effect ${calculatorPadding} border border-white/30 rounded-xl shadow-lg backdrop-blur-lg`}
     >
       <motion.h2 
         variants={itemVariants}
-        className="text-2xl font-bold mb-6 text-gradient-primary"
+        className={`text-2xl font-bold ${calculatorMargin} text-gradient-primary`}
       >
         Calculate Your Transfer
       </motion.h2>
@@ -100,10 +106,10 @@ const HeroCalculator: React.FC = () => {
             type="number"
             value={sendAmount}
             onChange={(e) => setSendAmount(e.target.value)}
-            className="w-full p-3 border rounded-md bg-white/80 shadow-sm focus:ring-2 focus:ring-primary-300"
+            className="w-full p-3 border rounded-lg bg-white/80 shadow-sm focus:ring-2 focus:ring-primary-300"
             placeholder="100"
           />
-          <div className="p-3 border rounded-md flex items-center space-x-2 bg-white/70 shadow-sm">
+          <div className="p-3 border rounded-lg flex items-center space-x-2 bg-white/70 shadow-sm">
             <img 
               src="https://flagcdn.com/w40/us.png" 
               alt="US Flag" 
@@ -119,9 +125,9 @@ const HeroCalculator: React.FC = () => {
             type="text"
             value={receiveAmount}
             readOnly
-            className="w-full p-3 border rounded-md bg-white/60 shadow-sm"
+            className="w-full p-3 border rounded-lg bg-white/60 shadow-sm"
           />
-          <div className="p-3 border rounded-md flex items-center space-x-2 bg-white/70 shadow-sm">
+          <div className="p-3 border rounded-lg flex items-center space-x-2 bg-white/70 shadow-sm">
             <img 
               src="https://flagcdn.com/w40/cm.png" 
               alt="Cameroon Flag" 
@@ -135,7 +141,7 @@ const HeroCalculator: React.FC = () => {
       <motion.div variants={itemVariants} className="mb-5">
         <Button 
           onClick={handleContinue}
-          className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center shadow-md shadow-primary-200/40 transition-all hover:shadow-lg hover:shadow-primary-300/40"
+          className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center shadow-md shadow-primary-200/40 transition-all hover:shadow-lg hover:shadow-primary-300/40 rounded-xl"
         >
           <span className="mr-2">Send Now</span>
           <ArrowRight className="h-5 w-5" />
