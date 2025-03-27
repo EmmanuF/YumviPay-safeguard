@@ -12,6 +12,8 @@ import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import CountryPaymentMethods from './payment/CountryPaymentMethods';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import NameMatchConfirmation from './payment/NameMatchConfirmation';
+import ComingSoonMessage from './payment/ComingSoonMessage';
 
 interface PaymentStepProps {
   transactionData: any;
@@ -255,38 +257,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               </AnimatePresence>
             </motion.div>
 
-            {/* Terms and Conditions Confirmation - premium design */}
+            {/* Terms and Conditions Confirmation - enhanced design */}
             <motion.div 
-              className="bg-yellow-50/80 backdrop-blur-sm border border-yellow-200/80 rounded-xl p-5 mb-6"
               variants={itemVariants}
+              className="mb-6 relative overflow-hidden"
             >
-              <div className="flex">
-                <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="font-medium text-yellow-800 mb-1">Confirm Details</h3>
-                  <p className="text-sm text-yellow-700 mb-3">
-                    Please double-check that all details are correct before proceeding.
-                  </p>
-                  
-                  <div className="flex items-start space-x-2">
-                    <Checkbox 
-                      id="terms" 
-                      className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-yellow-500 mt-1"
-                      checked={termsAccepted}
-                      onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                    />
-                    <Label 
-                      htmlFor="terms" 
-                      className="text-sm font-normal text-yellow-800 cursor-pointer"
-                    >
-                      I confirm that all recipient details are correct and I authorize this payment.
-                      <div className="text-xs text-yellow-600 mt-1">
-                        By proceeding, you agree to our Terms of Service and acknowledge our Privacy Policy.
-                      </div>
-                    </Label>
-                  </div>
-                </div>
-              </div>
+              <NameMatchConfirmation
+                isChecked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                showError={!termsAccepted && isSubmitting}
+              />
             </motion.div>
 
             {/* Navigation Buttons */}
