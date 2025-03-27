@@ -37,7 +37,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
         <HeroBackground />
       </div>
       
-      {/* Animated greeting at the top - enhanced with better styling */}
+      {/* Animated greeting at the top - enhanced with more visible styling */}
       <AnimatePresence mode="wait">
         {showGreeting && (
           <motion.div 
@@ -50,7 +50,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
               type: "spring",
               stiffness: 100
             }}
-            className="glass-effect max-w-md mx-auto mb-8 p-3.5 rounded-xl shadow-lg text-center"
+            className="glass-effect max-w-md mx-auto mb-8 p-4 rounded-xl shadow-xl text-center border border-white/40"
           >
             <motion.div 
               className="flex flex-col space-y-2"

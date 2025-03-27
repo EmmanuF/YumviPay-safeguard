@@ -29,27 +29,27 @@ const HeroBackground: React.FC = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     
-    // Create bubbles with more varied colors and sizes
+    // Create more bubbles with enhanced visual properties
     const bubbles: Bubble[] = [];
-    const bubblesCount = Math.floor(canvas.width * canvas.height / 6000); 
+    const bubblesCount = Math.floor(canvas.width * canvas.height / 5000); // Increase bubble count
     
-    // Color palette for bubbles
+    // Enhanced color palette for bubbles
     const colors = [
-      'rgba(180, 140, 240, 0.25)', // Light purple
-      'rgba(160, 120, 250, 0.2)',  // Medium purple
-      'rgba(140, 100, 230, 0.15)', // Deeper purple
-      'rgba(200, 180, 250, 0.3)',  // Very light purple
-      'rgba(190, 220, 255, 0.2)'   // Light blue tint
+      'rgba(180, 140, 240, 0.3)', // Light purple (more opaque)
+      'rgba(160, 120, 250, 0.25)',  // Medium purple
+      'rgba(140, 100, 230, 0.2)', // Deeper purple
+      'rgba(200, 180, 250, 0.35)',  // Very light purple (more visible)
+      'rgba(190, 220, 255, 0.25)'   // Light blue tint
     ];
     
     for (let i = 0; i < bubblesCount; i++) {
       bubbles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: Math.random() * 10 + 3, 
-        opacity: Math.random() * 0.15 + 0.15,
-        speedX: (Math.random() - 0.5) * 0.4,
-        speedY: (Math.random() - 0.5) * 0.4,
+        radius: Math.random() * 15 + 5, // Larger bubbles
+        opacity: Math.random() * 0.2 + 0.2, // More opaque
+        speedX: (Math.random() - 0.5) * 0.5, // Slightly faster
+        speedY: (Math.random() - 0.5) * 0.5, // Slightly faster
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
@@ -62,14 +62,14 @@ const HeroBackground: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Draw animated gradient background
-      gradientAngle = (gradientAngle + 0.2) % 360;
+      gradientAngle = (gradientAngle + 0.3) % 360; // Slightly faster gradient animation
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 3;
       
-      // Create moving gradient
+      // Create more dynamic moving gradient
       const gradient = ctx.createRadialGradient(
-        centerX + Math.sin(gradientAngle * 0.01) * 100,
-        centerY + Math.cos(gradientAngle * 0.01) * 50,
+        centerX + Math.sin(gradientAngle * 0.015) * 120,
+        centerY + Math.cos(gradientAngle * 0.015) * 60,
         0,
         centerX,
         centerY,
@@ -77,28 +77,35 @@ const HeroBackground: React.FC = () => {
       );
       
       gradient.addColorStop(0, '#F5EEFE');
+      gradient.addColorStop(0.5, '#F2EBFD');
       gradient.addColorStop(1, '#FFFFFF');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw bubbles with custom colors
+      // Draw bubbles with enhanced visual properties
       for (const bubble of bubbles) {
         ctx.beginPath();
         ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
         ctx.fillStyle = bubble.color;
         ctx.fill();
         
-        // Move bubbles with slight acceleration based on position
-        bubble.x += bubble.speedX + Math.sin(gradientAngle * 0.01) * 0.1;
-        bubble.y += bubble.speedY + Math.cos(gradientAngle * 0.01) * 0.1;
+        // Add subtle glow effect
+        ctx.shadowColor = bubble.color;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // Move bubbles with enhanced motion
+        bubble.x += bubble.speedX + Math.sin(gradientAngle * 0.015) * 0.15;
+        bubble.y += bubble.speedY + Math.cos(gradientAngle * 0.015) * 0.15;
         
         // Bounce off edges
         if (bubble.x < 0 || bubble.x > canvas.width) bubble.speedX *= -1;
         if (bubble.y < 0 || bubble.y > canvas.height) bubble.speedY *= -1;
         
-        // Occasionally change bubble size slightly for pulsing effect
-        if (Math.random() < 0.01) {
-          bubble.radius = bubble.radius * (0.95 + Math.random() * 0.1);
+        // Occasionally change bubble size for pulsing effect
+        if (Math.random() < 0.02) {
+          bubble.radius = bubble.radius * (0.95 + Math.random() * 0.12);
         }
       }
       
