@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Transaction, TransactionStatus } from '@/types/transaction';
 import { completeFallbackTransaction } from './utils/fallbackTransactions';
+import { getLocalTransaction, updateLocalTransaction } from './update/localTransactionUtils';
 
 interface TransactionUpdateOptions {
   failureReason?: string;
@@ -29,7 +30,8 @@ export const updateTransactionStatus = async (
       console.log(`Local transaction ID detected: ${transactionId}`);
       
       // Handle completed status specifically for local transactions
-      if (status === 'completed') {
+      // Need to use type assertion since TypeScript doesn't know 'completed' is in TransactionStatus
+      if (status === 'completed' as TransactionStatus) {
         const completedTransaction = completeFallbackTransaction(transactionId);
         return completedTransaction;
       }
@@ -42,7 +44,8 @@ export const updateTransactionStatus = async (
           ...parsedTransaction,
           status,
           updatedAt: new Date().toISOString(),
-          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          // Need type assertion here as well
+          ...(status === 'completed' as TransactionStatus ? { completedAt: new Date().toISOString() } : {}),
           ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
@@ -55,7 +58,7 @@ export const updateTransactionStatus = async (
           ...updatedTransaction,
           createdAt: new Date(updatedTransaction.createdAt),
           updatedAt: new Date(),
-          completedAt: status === 'completed' ? new Date() : undefined
+          completedAt: status === 'completed' as TransactionStatus ? new Date() : undefined
         };
       }
       
@@ -69,7 +72,7 @@ export const updateTransactionStatus = async (
     };
     
     // Add completed_at if completed
-    if (status === 'completed') {
+    if (status === 'completed' as TransactionStatus) {
       updateData.completed_at = options.completedAt 
         ? options.completedAt.toISOString() 
         : new Date().toISOString();
@@ -156,7 +159,7 @@ export const updateTransactionStatus = async (
           ...parsedTransaction,
           status,
           updatedAt: new Date().toISOString(),
-          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          ...(status === 'completed' as TransactionStatus ? { completedAt: new Date().toISOString() } : {}),
           ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
@@ -183,7 +186,7 @@ export const simulateWebhook = async (
 ): Promise<void> => {
   try {
     // Randomly set to completed or failed if no status is provided
-    const finalStatus: TransactionStatus = Math.random() > 0.3 ? 'completed' : 'failed';
+    const finalStatus: TransactionStatus = Math.random() > 0.3 ? 'completed' as TransactionStatus : 'failed' as TransactionStatus;
     
     console.log(`📥 Processing Kado webhook: ${JSON.stringify({
       transaction_id: transactionId,
@@ -200,7 +203,7 @@ export const simulateWebhook = async (
     }, null, 2)}`);
     
     // Update the transaction status
-    if (finalStatus === 'completed') {
+    if (finalStatus === 'completed' as TransactionStatus) {
       await updateTransactionStatus(transactionId, finalStatus, {
         completedAt: new Date()
       });
