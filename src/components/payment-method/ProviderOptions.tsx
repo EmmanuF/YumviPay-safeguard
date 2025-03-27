@@ -33,7 +33,7 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
   }, [options, selectedOption, onSelect]);
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-4">
       {options.map((option) => {
         // Get enhanced provider data
         const providerDetails = getProviderById(option.id);
@@ -61,12 +61,12 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
             )}
             
             <div className="flex items-center justify-between">
-              <div className="flex flex-col items-center">
-                <div className="mb-2 flex items-center justify-center h-14 w-14">
+              <div className="flex items-center space-x-4">
+                <div className="w-28 h-20 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                   <img 
                     src={logoSrc}
                     alt={option.name} 
-                    className="h-12 w-12 object-contain" 
+                    className="max-h-16 max-w-24 object-contain" 
                     onError={(e) => {
                       console.error(`Failed to load provider image: ${option.id}`);
                       const target = e.currentTarget;
@@ -75,14 +75,14 @@ const ProviderOptions: React.FC<ProviderOptionsProps> = ({
                   />
                 </div>
                 
-                <div className="text-center font-medium">
+                <div className="font-medium">
                   {t(`payment.${option.id}`) || option.name}
                 </div>
               </div>
               
               {providerDetails?.processingTime && (
-                <div className="text-xs text-gray-600 flex items-center justify-center bg-gray-50 py-1 px-2 rounded">
-                  <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                <div className="text-sm text-gray-600 flex items-center bg-gray-50 py-1.5 px-3 rounded-full">
+                  <Clock className="h-4 w-4 mr-1.5 text-amber-500" />
                   <span>{providerDetails.processingTime}</span>
                 </div>
               )}

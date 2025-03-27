@@ -146,7 +146,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       <RadioGroup 
         value={selectedProvider} 
         onValueChange={(value) => onSelect(methodId, value)}
-        className="space-y-3 mt-3"
+        className="space-y-4 mt-4"
       >
         {providers.map((provider) => {
           const comingSoon = isProviderComingSoon(provider.id);
@@ -156,7 +156,7 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
           return (
             <div 
               key={provider.id} 
-              className={`flex items-center space-x-3 border p-3 rounded-md ${
+              className={`flex items-center space-x-3 border p-4 rounded-md ${
                 comingSoon ? "bg-gray-50 border-gray-200" : ""
               }`}
             >
@@ -164,15 +164,15 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                 <RadioGroupItem value={provider.id} id={provider.id} disabled={comingSoon} />
               )}
               <div className="flex items-center justify-between flex-1">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                <div className="flex items-center space-x-4">
+                  <div className="w-28 h-20 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                     <img 
                       src={logoSrc}
                       alt={provider.name} 
-                      className={`h-8 w-8 object-contain ${comingSoon ? "opacity-50" : ""}`} 
+                      className={`max-h-16 max-w-24 object-contain ${comingSoon ? "opacity-50" : ""}`} 
                       onError={(e) => {
                         console.error(`Failed to load image for provider: ${provider.name}`);
-                        e.currentTarget.src = getProviderLogoSrc(provider.id);
+                        e.currentTarget.src = logoSrc;
                       }}
                     />
                   </div>
@@ -185,9 +185,9 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                 </div>
                 
                 {providerDetails?.processingTime && !comingSoon && (
-                  <div className="text-xs text-gray-600 flex items-center">
-                    <Clock className="h-3 w-3 mr-1 text-amber-500" />
-                    <span>Estimated delivery: {providerDetails.processingTime}</span>
+                  <div className="text-sm text-gray-600 flex items-center bg-gray-50 py-1.5 px-3 rounded-full">
+                    <Clock className="h-4 w-4 mr-1.5 text-amber-500" />
+                    <span>{providerDetails.processingTime}</span>
                   </div>
                 )}
                 
