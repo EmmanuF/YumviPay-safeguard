@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Send, Clock, User, UserPlus, Globe } from 'lucide-react';
+import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth';
@@ -92,10 +92,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   
   return (
     <header className={cn(
-      "px-4 py-3 relative z-30",
-      !isHomePage 
-        ? "bg-indigo-800 text-white shadow-xl" 
-        : "bg-transparent"
+      "px-4 py-2 relative z-30",
+      !isHomePage ? "bg-indigo-800 text-white shadow-md" : "bg-transparent"
     )}>
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
@@ -116,7 +114,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
               key={item.name}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "text-sm font-medium transition-colors px-3 py-2 rounded-md",
+                "text-sm font-medium transition-colors px-2 py-1.5 rounded-md",
                 isHomePage
                   ? (location.pathname === item.path 
                     ? "text-primary-600 font-semibold bg-primary-50/50" 
@@ -133,22 +131,13 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         </div>
         
         <div className="flex items-center space-x-5">
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-              "cursor-pointer rounded-full p-2", 
-              isHomePage ? "bg-primary-50/30" : "bg-white/10"
-            )}
-          >
-            <LocaleSwitcher />
-          </motion.div>
+          <LocaleSwitcher />
           
           {!isLoggedIn ? (
             <button
               onClick={() => handleNavigation('/signin')}
               className={cn(
-                "text-sm font-medium transition-colors px-4 py-2 rounded-md",
+                "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
                 isHomePage ? "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30" : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               disabled={isNavigating}
@@ -159,7 +148,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             <button
               onClick={() => handleNavigation('/profile')}
               className={cn(
-                "text-sm font-medium transition-colors px-4 py-2 rounded-md",
+                "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
                 isHomePage ? "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30" : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               disabled={isNavigating}
@@ -168,21 +157,19 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             </button>
           )}
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={handleStarted}
             className={cn(
               isHomePage 
-                ? "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20" 
-                : "bg-white text-indigo-800 hover:bg-white/90 shadow-lg shadow-black/5",
-              "font-medium px-6 py-2.5 rounded-full transition-colors text-sm",
+                ? "bg-primary-500 hover:bg-primary-600 text-white shadow-md shadow-primary-500/20" 
+                : "bg-white text-indigo-800 hover:bg-white/90 shadow-md shadow-black/5",
+              "font-medium px-5 py-2 rounded-full transition-colors text-sm",
               isNavigating && "opacity-75 pointer-events-none"
             )}
             disabled={isNavigating}
           >
             {isLoggedIn ? t('nav.dashboard') : t('auth.signup')}
-          </motion.button>
+          </button>
         </div>
       </div>
       
@@ -192,22 +179,20 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="glass-effect py-4 px-6 flex justify-around rounded-xl md:hidden mt-6 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-xl"
+          className="glass-effect py-3 px-5 flex justify-around rounded-xl md:hidden mt-5 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-lg"
         >
           {navItems.map((item) => (
-            <motion.button
+            <button
               key={item.name}
               onClick={() => handleNavigation(item.path)}
-              className="flex flex-col items-center justify-center relative px-4"
+              className="flex flex-col items-center justify-center relative px-3"
               disabled={isNavigating}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.95 }}
             >
               <div 
                 className={cn(
-                  "p-3 rounded-full transition-all duration-300",
+                  "p-2.5 rounded-full transition-all duration-300",
                   location.pathname === item.path 
-                    ? "text-primary-600 bg-primary-100/80 shadow-md" 
+                    ? "text-primary-600 bg-primary-100/80 shadow-sm" 
                     : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/80",
                   isNavigating && "opacity-75"
                 )}
@@ -215,14 +200,14 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
                 {item.icon}
               </div>
               <span className={cn(
-                "text-xs mt-1.5 font-medium",
+                "text-xs mt-1 font-medium",
                 location.pathname === item.path
                   ? "text-primary-600"
                   : "text-primary-500"
               )}>
                 {item.name}
               </span>
-            </motion.button>
+            </button>
           ))}
         </motion.div>
       )}
