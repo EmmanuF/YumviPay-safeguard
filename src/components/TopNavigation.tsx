@@ -64,7 +64,7 @@ const TopNavigation: React.FC = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="bg-indigo-800 text-white py-3 z-50 relative"
+      className="bg-indigo-800 text-white py-3 z-50 relative shadow-md"
     >
       <div className="container mx-auto flex items-center justify-between px-4">
         {/* App Name/Logo */}
@@ -76,16 +76,16 @@ const TopNavigation: React.FC = () => {
         </div>
         
         {/* Navigation Links */}
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center space-x-10">
           {displayNavItems.map((item) => (
             <button
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "text-sm font-medium transition-colors",
+                "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
                 location.pathname === item.path
-                  ? "text-white font-semibold" 
-                  : "text-white/80 hover:text-white"
+                  ? "text-white font-semibold bg-white/10" 
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
             >
               {item.label}
@@ -94,19 +94,19 @@ const TopNavigation: React.FC = () => {
         </div>
         
         {/* Right Side */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-5">
           <LocaleSwitcher />
           
           <button
             onClick={() => handleNavigation('/profile')}
-            className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            className="text-sm font-medium text-white/80 hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/10"
           >
             {t('nav.profile')}
           </button>
           
           <button
             onClick={handleDashboardClick}
-            className="bg-white text-indigo-800 hover:bg-white/90 font-medium px-5 py-2 rounded-full transition-colors text-sm"
+            className="bg-white text-indigo-800 hover:bg-white/90 font-medium px-5 py-2 rounded-full transition-colors text-sm shadow-sm"
           >
             {t('nav.dashboard')}
           </button>

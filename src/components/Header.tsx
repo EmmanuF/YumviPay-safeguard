@@ -40,13 +40,13 @@ const Header: React.FC<HeaderProps> = ({
   const rightComponent = rightElement || rightContent;
 
   return (
-    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent' : 'bg-transparent border-b border-white/20'}`}>
+    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent' : 'bg-white/10 backdrop-blur-md border-b border-white/20 shadow-sm'}`}>
       <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
         <div className="flex items-center">
           {showBackButton && (
             <button
               onClick={handleBackClick}
-              className="mr-3 rounded-full p-1 hover:bg-white/10 transition-colors"
+              className="mr-3 rounded-full p-1.5 hover:bg-white/10 transition-colors"
               aria-label="Go back"
             >
               <ChevronLeft className="h-6 w-6 text-white" />
@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
           </h1>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <LocaleSwitcher />
           {rightComponent || <HeaderRight showNotification={showNotification} />}
         </div>

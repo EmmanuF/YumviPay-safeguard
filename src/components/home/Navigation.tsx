@@ -93,7 +93,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   return (
     <header className={cn(
       "px-4 py-2 relative z-30",
-      !isHomePage && "bg-indigo-800 text-white"
+      !isHomePage ? "bg-indigo-800 text-white shadow-md" : "bg-transparent"
     )}>
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
@@ -108,20 +108,20 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           </div>
         </div>
         
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-10">
           {navItems.slice(0, 3).map((item) => (
             <button
               key={item.name}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "text-sm font-medium transition-colors",
+                "text-sm font-medium transition-colors px-2 py-1.5 rounded-md",
                 isHomePage
                   ? (location.pathname === item.path 
-                    ? "text-primary-600 font-semibold" 
-                    : "text-primary-500 hover:text-primary-600")
+                    ? "text-primary-600 font-semibold bg-primary-50/50" 
+                    : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30")
                   : (location.pathname === item.path 
-                    ? "text-white font-semibold" 
-                    : "text-white/80 hover:text-white")
+                    ? "text-white font-semibold bg-white/10" 
+                    : "text-white/80 hover:text-white hover:bg-white/10")
               )}
               disabled={isNavigating}
             >
@@ -130,15 +130,15 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           ))}
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-5">
           <LocaleSwitcher />
           
           {!isLoggedIn ? (
             <button
               onClick={() => handleNavigation('/signin')}
               className={cn(
-                "text-sm font-medium transition-colors",
-                isHomePage ? "text-primary-500 hover:text-primary-600" : "text-white/80 hover:text-white"
+                "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
+                isHomePage ? "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30" : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               disabled={isNavigating}
             >
@@ -148,8 +148,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             <button
               onClick={() => handleNavigation('/profile')}
               className={cn(
-                "text-sm font-medium transition-colors",
-                isHomePage ? "text-primary-500 hover:text-primary-600" : "text-white/80 hover:text-white"
+                "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
+                isHomePage ? "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30" : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               disabled={isNavigating}
             >
@@ -161,8 +161,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
             onClick={handleStarted}
             className={cn(
               isHomePage 
-                ? "bg-primary-500 hover:bg-primary-600 text-white" 
-                : "bg-white text-indigo-800 hover:bg-white/90",
+                ? "bg-primary-500 hover:bg-primary-600 text-white shadow-md shadow-primary-500/20" 
+                : "bg-white text-indigo-800 hover:bg-white/90 shadow-md shadow-black/5",
               "font-medium px-5 py-2 rounded-full transition-colors text-sm",
               isNavigating && "opacity-75 pointer-events-none"
             )}
@@ -173,27 +173,27 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         </div>
       </div>
       
-      {/* Mobile navigation for home page */}
+      {/* Mobile navigation for home page - enhanced with better spacing and visual depth */}
       {isHomePage && isMobile && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="glass-effect py-2 px-4 flex justify-around rounded-xl md:hidden mt-4 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-sm"
+          className="glass-effect py-3 px-5 flex justify-around rounded-xl md:hidden mt-5 bg-gradient-to-b from-primary-50/90 to-white/80 backdrop-blur-md border border-primary-100/30 shadow-lg"
         >
           {navItems.map((item) => (
             <button
               key={item.name}
               onClick={() => handleNavigation(item.path)}
-              className="flex flex-col items-center justify-center relative"
+              className="flex flex-col items-center justify-center relative px-3"
               disabled={isNavigating}
             >
               <div 
                 className={cn(
-                  "p-2 rounded-full transition-all duration-300",
+                  "p-2.5 rounded-full transition-all duration-300",
                   location.pathname === item.path 
-                    ? "text-primary-600 bg-primary-100/50" 
-                    : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/50",
+                    ? "text-primary-600 bg-primary-100/80 shadow-sm" 
+                    : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/80",
                   isNavigating && "opacity-75"
                 )}
               >
