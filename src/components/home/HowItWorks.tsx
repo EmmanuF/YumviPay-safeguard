@@ -116,7 +116,7 @@ const HowItWorks = () => {
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
                 <motion.div 
-                  className={`rounded-2xl p-6 text-center relative border border-white/20 backdrop-blur-sm shadow-lg ${step.color.bg} overflow-hidden`}
+                  className={`rounded-3xl p-6 text-center relative border border-white/20 backdrop-blur-sm shadow-lg ${step.color.bg} overflow-hidden`}
                   variants={itemVariants}
                   whileHover={{ 
                     y: -10, 
@@ -128,20 +128,21 @@ const HowItWorks = () => {
                 >
                   {/* Connection arrows between steps - improved visibility */}
                   {index < steps.length - 1 && (
-                    <div className="hidden md:flex absolute top-1/2 -right-4 z-10 transform -translate-y-1/2">
+                    <div className="hidden md:flex absolute top-1/2 -right-3 z-20 transform -translate-y-1/2">
+                      <div className="connector-line w-[30px] h-[3px] bg-white/80 absolute top-1/2 transform -translate-y-1/2 right-[14px] shadow-[0_0_8px_rgba(255,255,255,0.6)]"></div>
                       <motion.div
                         animate={{ 
                           x: [0, 5, 0], 
-                          opacity: [0.7, 1, 0.7]
+                          opacity: [0.8, 1, 0.8]
                         }}
                         transition={{ 
                           duration: 1.5, 
                           repeat: Infinity,
                           repeatType: "reverse"
                         }}
-                        className="bg-white rounded-full p-1 shadow-md"
+                        className="bg-white rounded-full p-1 shadow-md z-20 relative shadow-[0_0_10px_rgba(255,255,255,0.7)]"
                       >
-                        <ChevronRight size={24} className="text-gray-800" strokeWidth={3} />
+                        <ChevronRight size={20} className="text-gray-800" strokeWidth={3} />
                       </motion.div>
                     </div>
                   )}
@@ -162,7 +163,7 @@ const HowItWorks = () => {
                         </motion.div>
                       </div>
                     </HoverCardTrigger>
-                    <HoverCardContent className="p-3 bg-white/90 backdrop-blur-md border border-white/40 shadow-lg text-left z-50">
+                    <HoverCardContent className="p-3 w-64 bg-white shadow-lg border border-gray-200 rounded-lg z-50 text-left">
                       <p className="text-sm font-medium text-gray-800">{step.tooltip}</p>
                     </HoverCardContent>
                   </HoverCard>
@@ -170,10 +171,10 @@ const HowItWorks = () => {
                   <h3 className="font-bold text-xl mb-3 text-white">{step.title}</h3>
                   <p className="text-white/90 leading-relaxed">{step.description}</p>
                   
-                  {/* Repositioned number indicator to fit inside the top-left corner better */}
+                  {/* Repositioned number indicator with improved visibility */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-white text-indigo-600 flex items-center justify-center text-lg font-bold shadow-lg border border-indigo-100 cursor-help">
+                      <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/90 text-indigo-600 flex items-center justify-center text-lg font-bold shadow-md border border-white cursor-help">
                         {step.id}
                       </div>
                     </TooltipTrigger>

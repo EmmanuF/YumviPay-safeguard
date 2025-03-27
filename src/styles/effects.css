@@ -1,4 +1,3 @@
-
 /* Glass morphism effect with updated color scheme */
 .glass-effect {
   @apply backdrop-blur-md bg-white/80 border border-white/30 rounded-xl;
@@ -428,7 +427,7 @@
   background: white;
   border-radius: 50%;
   padding: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 15px rgba(255, 255, 255, 0.8);
 }
 
 .connector-arrow-icon {
@@ -445,6 +444,32 @@
     transform: translateX(3px);
     opacity: 1;
   }
+}
+
+/* Enhanced connector line with glow */
+.connector-line {
+  position: relative;
+  overflow: visible;
+}
+
+.connector-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(2px);
+  z-index: -1;
+}
+
+/* Fix for HoverCard and Tooltip content */
+.radix-hover-card-content,
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+  background-color: white !important;
+  color: #333 !important;
 }
 
 @layer utilities {
