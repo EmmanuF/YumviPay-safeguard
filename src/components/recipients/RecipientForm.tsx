@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
@@ -25,7 +26,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
   const [country, setCountry] = useState(recipient?.country || 'CM');
   const [isFavorite, setIsFavorite] = useState(recipient?.isFavorite || false);
   const [category, setCategory] = useState(recipient?.category || 'other');
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(recipient?.nameMatchConfirmed || false);
   const [showConfirmationError, setShowConfirmationError] = useState(false);
   const [errors, setErrors] = useState({
     name: '',
@@ -39,6 +40,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
       setCountry(recipient.country);
       setIsFavorite(recipient.isFavorite);
       setCategory(recipient.category || 'other');
+      setIsConfirmed(recipient.nameMatchConfirmed || false);
     }
   }, [recipient]);
 
@@ -76,7 +78,8 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
         contact,
         country,
         isFavorite,
-        category
+        category,
+        nameMatchConfirmed: isConfirmed
       });
     }
   };

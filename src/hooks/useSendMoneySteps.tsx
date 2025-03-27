@@ -125,14 +125,28 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
-          console.log('✅ Transitioning to payment step');
-          setCurrentStep('payment');
-          break;
-        case 'payment':
-          // Check if name match is confirmed in transaction data
+          // Verify the name match confirmation before proceeding
           const pendingTransaction = localStorage.getItem('pendingTransaction');
           if (pendingTransaction) {
             const data = JSON.parse(pendingTransaction);
+            
+            if (!data.nameMatchConfirmed) {
+              toast.error("Confirmation Required", {
+                description: "Please confirm that the recipient details match their official ID before proceeding.",
+              });
+              return;
+            }
+          }
+          
+          console.log('✅ Transitioning to payment step');
+          setCurrentStep('payment');
+          break;
+          
+        case 'payment':
+          // Also check name match confirmation here
+          const paymentTransaction = localStorage.getItem('pendingTransaction');
+          if (paymentTransaction) {
+            const data = JSON.parse(paymentTransaction);
             
             if (!data.nameMatchConfirmed) {
               toast.error("Confirmation Required", {
@@ -145,6 +159,7 @@ export const useSendMoneySteps = () => {
           console.log('✅ Transitioning to confirmation step');
           setCurrentStep('confirmation');
           break;
+          
         case 'confirmation':
           setIsSubmitting(true);
           console.log('🚀 Submitting transaction...');

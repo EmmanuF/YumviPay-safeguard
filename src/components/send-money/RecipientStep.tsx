@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CountrySelector } from '@/components/country-selector';
 import { useCountries } from '@/hooks/useCountries';
+import NameMatchConfirmation from '@/components/send-money/payment/NameMatchConfirmation';
 
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -24,7 +24,11 @@ const formSchema = z.object({
       message: "Phone must include country code (e.g., +237)." 
     }),
   saveToFavorites: z.boolean().default(false),
-  countryCode: z.string().optional()
+  countryCode: z.string().optional(),
+  nameMatchConfirmed: z.boolean().default(false)
+    .refine(val => val === true, {
+      message: "You must confirm the recipient name matches their official ID"
+    })
 });
 
 interface RecipientStepProps {
@@ -42,29 +46,24 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
 }) => {
   const { getCountryByCode } = useCountries();
   const [selectedCountry, setSelectedCountry] = useState(transactionData?.targetCountry || 'CM');
+  const [showNameMatchError, setShowNameMatchError] = useState(false);
   
-  // Format phone number based on country code
   const formatPhoneNumber = (value: string, countryCode: string = 'CM') => {
-    // Strip non-numeric characters except for + at the beginning
     let cleaned = value.replace(/[^\d+]/g, '');
     
     if (cleaned.startsWith('+')) {
       cleaned = '+' + cleaned.substring(1).replace(/\+/g, '');
     }
     
-    // If no country code is provided, add the default one
     if (!cleaned.startsWith('+')) {
-      // Get country calling code based on country code
       const countryCallingCode = getCountryCallingCode(countryCode);
       cleaned = countryCallingCode + cleaned;
     }
     
-    // Format based on country
     const formatted = formatByCountry(cleaned, countryCode);
     return formatted;
   };
-  
-  // Get country calling code
+
   const getCountryCallingCode = (countryCode: string) => {
     const callingCodes: Record<string, string> = {
       'CM': '+237',
@@ -80,19 +79,16 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     
     return callingCodes[countryCode] || '+';
   };
-  
-  // Format phone number based on country-specific patterns
+
   const formatByCountry = (number: string, countryCode: string) => {
-    // If it doesn't start with +, we can't format it properly
     if (!number.startsWith('+')) return number;
     
-    // Remove all spaces first
     const digitsOnly = number.replace(/\s+/g, '');
     
     switch (countryCode) {
-      case 'CM': // Cameroon: +237 6XX XX XX XX
+      case 'CM': 
         if (digitsOnly.startsWith('+237')) {
-          const base = digitsOnly.substring(0, 4); // +237
+          const base = digitsOnly.substring(0, 4);
           const rest = digitsOnly.substring(4);
           if (rest.length <= 2) return `${base} ${rest}`;
           if (rest.length <= 4) return `${base} ${rest.substring(0, 2)} ${rest.substring(2)}`;
@@ -100,25 +96,24 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           return `${base} ${rest.substring(0, 2)} ${rest.substring(2, 4)} ${rest.substring(4, 6)} ${rest.substring(6)}`;
         }
         break;
-      case 'US': // USA: +1 (XXX) XXX-XXXX
+      case 'US': 
         if (digitsOnly.startsWith('+1')) {
-          const base = digitsOnly.substring(0, 2); // +1
+          const base = digitsOnly.substring(0, 2);
           const rest = digitsOnly.substring(2);
           if (rest.length <= 3) return `${base} (${rest}`;
           if (rest.length <= 6) return `${base} (${rest.substring(0, 3)}) ${rest.substring(3)}`;
           return `${base} (${rest.substring(0, 3)}) ${rest.substring(3, 6)}-${rest.substring(6)}`;
         }
         break;
-      case 'GB': // UK: +44 XXXX XXXXXX
+      case 'GB': 
         if (digitsOnly.startsWith('+44')) {
-          const base = digitsOnly.substring(0, 3); // +44
+          const base = digitsOnly.substring(0, 3);
           const rest = digitsOnly.substring(3);
           if (rest.length <= 4) return `${base} ${rest}`;
           return `${base} ${rest.substring(0, 4)} ${rest.substring(4)}`;
         }
         break;
       default:
-        // Generic international format: +XXX XXX XXX XXX
         const countryCode = digitsOnly.match(/^\+\d{1,3}/)?.[0] || '';
         if (countryCode) {
           const rest = digitsOnly.substring(countryCode.length);
@@ -137,17 +132,16 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       recipientName: transactionData?.recipientName || "",
       recipientContact: transactionData?.recipientContact || transactionData?.recipient || "",
       saveToFavorites: transactionData?.saveToFavorites || false,
-      countryCode: selectedCountry
+      countryCode: selectedCountry,
+      nameMatchConfirmed: transactionData?.nameMatchConfirmed || false
     },
-    mode: "onChange" // This ensures validation runs on every change
+    mode: "onChange"
   });
 
-  // Update country code when selected country changes
   useEffect(() => {
     form.setValue('countryCode', selectedCountry);
   }, [selectedCountry, form]);
 
-  // Submit handler with enhanced logging
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log("Form submitted with values:", values);
     updateTransactionData({
@@ -155,7 +149,8 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       recipientContact: values.recipientContact,
       recipient: values.recipientContact,
       saveToFavorites: values.saveToFavorites,
-      targetCountry: values.countryCode
+      targetCountry: values.countryCode,
+      nameMatchConfirmed: values.nameMatchConfirmed
     });
     
     console.log("Calling onNext() after form submission");
@@ -179,7 +174,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
-  // Enhanced button handlers with detailed logging
   const handleBackClick = () => {
     console.log("Back button clicked in RecipientStep with data:", form.getValues());
     onBack();
@@ -188,7 +182,15 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
   const handleNextClick = () => {
     console.log("Next button clicked in RecipientStep with data:", form.getValues());
     
-    // Manually trigger form validation before submission
+    const nameConfirmed = form.getValues('nameMatchConfirmed');
+    if (!nameConfirmed) {
+      setShowNameMatchError(true);
+      form.setError('nameMatchConfirmed', { 
+        type: 'manual', 
+        message: 'You must confirm the recipient details are correct'
+      });
+    }
+    
     form.trigger().then(isValid => {
       console.log("Form validation result:", isValid);
       if (isValid) {
@@ -201,7 +203,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
 
   const isFormValid = form.formState.isValid;
   
-  // Log form state changes for debugging
   useEffect(() => {
     console.log("Form state updated:", { 
       isValid: form.formState.isValid, 
@@ -210,11 +211,9 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     });
   }, [form.formState.isValid, form.formState.isDirty, form.formState.errors]);
 
-  // Handle country selection
   const handleCountryChange = (code: string) => {
     setSelectedCountry(code);
     
-    // Update the phone number format if it exists
     const currentPhone = form.getValues('recipientContact');
     if (currentPhone) {
       const formattedPhone = formatPhoneNumber(currentPhone, code);
@@ -227,7 +226,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     return country?.name || code;
   };
 
-  // Get an example phone number format based on country
   const getPhoneNumberPlaceholder = (countryCode: string) => {
     switch (countryCode) {
       case 'CM': return "+237 6XX XXX XXX";
@@ -240,7 +238,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
-  // Example method to get popular service providers by country (for helper text)
   const getPopularProviders = (countryCode: string) => {
     switch (countryCode) {
       case 'CM': return "MTN, Orange";
@@ -258,7 +255,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-6 pb-20" // Added padding at bottom to ensure buttons are visible
+      className="space-y-6 pb-20"
     >
       <motion.div variants={itemVariants}>
         <Card className="glass-effect border-primary-100/30 shadow-lg">
@@ -278,7 +275,6 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
               Enter details for your recipient
             </motion.p>
 
-            {/* Country selector */}
             <motion.div
               variants={itemVariants}
               className="mb-6 bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative z-20"
@@ -449,11 +445,37 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="nameMatchConfirmed"
+                  render={({ field }) => (
+                    <motion.div
+                      variants={itemVariants}
+                      className="mt-6"
+                    >
+                      <NameMatchConfirmation
+                        isChecked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          if (checked) setShowNameMatchError(false);
+                        }}
+                        showError={showNameMatchError}
+                      />
+                      {form.formState.errors.nameMatchConfirmed && (
+                        <p className="text-xs text-red-500 mt-1 ml-7">
+                          {form.formState.errors.nameMatchConfirmed.message}
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+                />
+
                 {isFormValid && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
+                    className="mt-6"
                   >
                     <Alert className="bg-green-50 border-green-200 text-green-800">
                       <AlertDescription className="flex items-center">
