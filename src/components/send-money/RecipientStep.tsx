@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
@@ -291,6 +292,19 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     }
   };
 
+  const getPhoneMaxLength = (countryCode: string): number => {
+    // Return the maximum input length (including country code and spaces)
+    switch (countryCode) {
+      case 'CM': return 16; // +237 6XX XX XX XX
+      case 'US': return 16; // +1 (XXX) XXX-XXXX
+      case 'GB': return 16; // +44 XXXX XXXXXX
+      case 'NG': return 17; // +234 XXX XXX XXXX
+      case 'GH': return 16; // +233 XX XXX XXXX
+      case 'ZA': return 16; // +27 XX XXX XXXX
+      default: return 20;
+    }
+  };
+
   const getPopularProviders = (countryCode: string) => {
     switch (countryCode) {
       case 'CM': return "MTN, Orange";
@@ -443,15 +457,12 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                           Phone Number <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         
-                        <FormDescription className="text-sm text-gray-600 ml-9 mb-3">
-                          Enter the recipient's mobile number including country code
-                        </FormDescription>
-                        
                         <FormControl>
                           <div className="relative mt-1">
                             <Input 
                               placeholder={selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
                               className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
+                              maxLength={getPhoneMaxLength(selectedCountry)}
                               {...field} 
                               onChange={(e) => {
                                 const formatted = formatPhoneNumber(e.target.value, selectedCountry);
@@ -472,7 +483,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                                     Phone Number Format
                                   </h4>
                                   <p className="text-xs text-gray-600">
-                                    Enter the recipient's phone number with country code. This number will receive transaction notifications and may be used for verification.
+                                    This number will receive transaction notifications and may be used for verification.
                                   </p>
                                   <div className="text-xs p-3 bg-secondary-50/50 rounded-lg border border-secondary-100/50">
                                     <div className="font-medium mb-2 text-secondary-700">For {getCountryName(selectedCountry)}:</div>
@@ -525,6 +536,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                             <Input 
                               placeholder={selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
                               className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
+                              maxLength={getPhoneMaxLength(selectedCountry)}
                               {...field} 
                               onChange={(e) => {
                                 const formatted = formatPhoneNumber(e.target.value, selectedCountry);
