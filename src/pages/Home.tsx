@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,7 +7,7 @@ import Hero from '@/components/home/Hero';
 import Features from '@/components/home/features/Features';
 import HowItWorks from '@/components/home/HowItWorks';
 import CountryCoverage from '@/components/home/CountryCoverage';
-import Testimonials from '@/components/home/Testimonials';
+import { Testimonials } from '@/components/home/testimonials';
 import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
