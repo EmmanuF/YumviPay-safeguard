@@ -1,4 +1,6 @@
 
+import { LAST_AUTH_CHECK_KEY } from '@/services/auth/constants';
+
 /**
  * Navigation utilities to improve reliability of route changes
  */
@@ -26,6 +28,11 @@ export const navigate = (to: string, preserveAuthState = true): void => {
         authStatePreserved: true,
         timestamp: Date.now(),
       } : {};
+      
+      // Always update the auth check timestamp when navigating
+      if (preserveAuthState) {
+        localStorage.setItem(LAST_AUTH_CHECK_KEY, Date.now().toString());
+      }
       
       history.pushState(stateObj, '', newUrl);
       

@@ -1,9 +1,12 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Preferences } from '@capacitor/preferences';
-
-// Keys for storage
-const AUTH_STATE_KEY = 'yumvi_auth_state';
+import { 
+  AUTH_STATE_KEY, 
+  LAST_AUTH_CHECK_KEY, 
+  CACHED_AUTH_STATE_KEY,
+  SESSION_EXPIRES_AT_KEY 
+} from './constants';
 
 // Log out user
 export const logoutUser = async (): Promise<void> => {
@@ -18,19 +21,24 @@ export const logoutUser = async (): Promise<void> => {
         user: null,
         isAuthenticated: false,
         hasCompletedOnboarding: true, // Keep onboarding state
+        sessionExpiresAt: null,
       }),
     });
     
     // Also clear any auth cache we might have
-    localStorage.removeItem('lastAuthCheck');
-    localStorage.removeItem('cachedAuthState');
+    localStorage.removeItem(LAST_AUTH_CHECK_KEY);
+    localStorage.removeItem(CACHED_AUTH_STATE_KEY);
+    localStorage.removeItem(SESSION_EXPIRES_AT_KEY);
     
     // Now sign out from Supabase
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    const { error } = await supabase.auth.signOut({
+      scope: 'local' // Only sign out on this device
+    });
     
-    // Final cleanup of any session data
-    localStorage.removeItem('sessionExpiresAt');
+    if (error) {
+      console.error('Error during sign out from Supabase:', error);
+      throw error;
+    }
     
     console.log('User logged out successfully');
   } catch (error) {

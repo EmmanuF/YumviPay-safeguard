@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
+import { LAST_AUTH_CHECK_KEY, CACHED_AUTH_STATE_KEY } from '@/services/auth/constants';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -30,15 +31,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         return;
       }
       
-      // Check if we have cached authentication that's recent (within last 30 minutes)
-      const lastAuthCheck = localStorage.getItem('lastAuthCheck');
+      // Check if we have cached authentication that's recent (within last 10 minutes)
+      const lastAuthCheck = localStorage.getItem(LAST_AUTH_CHECK_KEY);
       if (lastAuthCheck) {
         const lastChecked = parseInt(lastAuthCheck);
-        const isRecent = Date.now() - lastChecked < 30 * 60 * 1000; // 30 minutes
+        const isRecent = Date.now() - lastChecked < 10 * 60 * 1000; // 10 minutes
         
         if (isRecent) {
           // Get cached session state
-          const cachedAuthState = localStorage.getItem('cachedAuthState');
+          const cachedAuthState = localStorage.getItem(CACHED_AUTH_STATE_KEY);
           if (cachedAuthState === 'authenticated') {
             console.log('Using cached authentication state (authenticated)');
             setIsAuthenticated(true);
@@ -71,8 +72,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       console.log('Auth check result:', isAuthValid ? 'Authenticated' : 'Not authenticated');
       
       // Cache the result
-      localStorage.setItem('lastAuthCheck', Date.now().toString());
-      localStorage.setItem('cachedAuthState', isAuthValid ? 'authenticated' : 'unauthenticated');
+      localStorage.setItem(LAST_AUTH_CHECK_KEY, Date.now().toString());
+      localStorage.setItem(CACHED_AUTH_STATE_KEY, isAuthValid ? 'authenticated' : 'unauthenticated');
+      
+      if (isAuthValid) {
+        // Force a context refresh to ensure it's in sync
+        await refreshAuthState();
+      }
       
       setIsAuthenticated(isAuthValid);
       
@@ -88,8 +94,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       console.error('Error checking authentication:', error);
       
       // Check if we have any cached auth state we can use
-      const cachedAuthState = localStorage.getItem('cachedAuthState');
-      const lastCheck = parseInt(localStorage.getItem('lastAuthCheck') || '0');
+      const cachedAuthState = localStorage.getItem(CACHED_AUTH_STATE_KEY);
+      const lastCheck = parseInt(localStorage.getItem(LAST_AUTH_CHECK_KEY) || '0');
       const isRecentCache = lastCheck && (Date.now() - lastCheck < 60 * 60 * 1000); // 60 minutes
       
       if (cachedAuthState === 'authenticated' && isRecentCache) {
@@ -118,26 +124,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Check auth when the component mounts or when dependencies change
   useEffect(() => {
     checkAuth();
-    
-    // Listen for navigation events to potentially refresh auth state
-    const handleNavigation = () => {
-      const location = window.location.pathname;
-      console.log(`Navigation detected to: ${location}, checking auth state`);
+  }, [checkAuth]);
+  
+  // Listen for auth state changes from Supabase
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed in ProtectedRoute:', event);
       
-      // Only do a lightweight check here
-      const cachedAuthState = localStorage.getItem('cachedAuthState');
-      const isAuthenticated = cachedAuthState === 'authenticated';
-      setIsAuthenticated(isAuthenticated);
-    };
-    
-    window.addEventListener('navigation', handleNavigation);
-    window.addEventListener('popstate', handleNavigation);
+      if (event === 'SIGNED_IN') {
+        setIsAuthenticated(true);
+      } else if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+      }
+    });
     
     return () => {
-      window.removeEventListener('navigation', handleNavigation);
-      window.removeEventListener('popstate', handleNavigation);
+      subscription.unsubscribe();
     };
-  }, [checkAuth]);
+  }, []);
   
   // Show loading state while checking authentication
   if (authLoading || isChecking) {

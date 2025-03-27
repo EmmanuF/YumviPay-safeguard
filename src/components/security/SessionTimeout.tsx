@@ -11,16 +11,17 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
+import { LAST_AUTH_CHECK_KEY } from '@/services/auth/constants';
 
 interface SessionTimeoutProps {
-  timeout?: number; // in milliseconds, default 60 minutes
-  warningTime?: number; // in milliseconds, default 2 minutes
+  timeout?: number; // in milliseconds, default 2 hours
+  warningTime?: number; // in milliseconds, default 5 minutes
 }
 
 const SessionTimeout: React.FC<SessionTimeoutProps> = ({ 
-  timeout = 2 * 60 * 60 * 1000, // 2 hours (increased from 60 minutes)
-  warningTime = 5 * 60 * 1000 // 5 minutes (increased from 2 minutes)
+  timeout = 3 * 60 * 60 * 1000, // 3 hours (increased for better UX)
+  warningTime = 10 * 60 * 1000 // 10 minutes (increased for better UX)
 }) => {
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
   const [showWarning, setShowWarning] = useState<boolean>(false);
@@ -35,7 +36,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
     setShowWarning(false);
     
     // Also update the cached auth check timestamp to keep them in sync
-    localStorage.setItem('lastAuthCheck', Date.now().toString());
+    localStorage.setItem(LAST_AUTH_CHECK_KEY, Date.now().toString());
   }, []);
   
   // Log out the user
@@ -162,7 +163,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       } else {
         checkActivity();
       }
-    }, 60000); // Check every minute instead of 10 seconds
+    }, 60000); // Check every minute
     
     return () => clearInterval(intervalId);
   }, [isLoggedIn, lastActivity, timeout, warningTime, showWarning, handleTimeout]);
