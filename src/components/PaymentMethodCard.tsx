@@ -1,10 +1,12 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronDown, AlertTriangle } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import RecipientInfo from './payment-method/RecipientInfo';
+import NameMatchConfirmation from './send-money/payment/NameMatchConfirmation';
 
 interface PaymentMethodCardProps {
   name: string;
@@ -30,6 +32,8 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   const [selectedOption, setSelectedOption] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [showConfirmationError, setShowConfirmationError] = useState(false);
 
   const handleClick = () => {
     onClick();
@@ -45,6 +49,17 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
 
   const handleOptionSelect = (optionId: string) => {
     setSelectedOption(optionId);
+  };
+
+  const handleRecipientNameChange = (value: string) => {
+    setRecipientName(value);
+    // Reset confirmation when name changes
+    setIsConfirmed(false);
+    setShowConfirmationError(false);
+  };
+
+  const handleAccountNumberChange = (value: string) => {
+    setAccountNumber(value);
   };
 
   return (
@@ -121,37 +136,22 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
             </div>
           </div>
           
-          <div className="mb-4">
-            <Label htmlFor="recipientName" className="text-sm font-medium mb-2 block">
-              Recipient Name
-            </Label>
-            <Input
-              id="recipientName"
-              placeholder="Enter recipient's full name"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-              className="w-full"
-            />
-            <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 rounded-md">
-              <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-amber-800">
-                Important: The recipient name must exactly match the name registered on their {name.toLowerCase().includes('bank') ? 'bank account' : 'mobile money account'}. Mismatched names may cause transaction delays or funds being sent to the wrong person.
-              </p>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <Label htmlFor="accountNumber" className="text-sm font-medium mb-2 block">
-              {name.toLowerCase().includes('bank') ? 'Account Number' : 'Mobile Number'}
-            </Label>
-            <Input
-              id="accountNumber"
-              placeholder={name.toLowerCase().includes('bank') ? "Enter account number" : "Enter mobile number"}
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              className="w-full"
-            />
-          </div>
+          {/* Use the RecipientInfo component */}
+          <RecipientInfo
+            methodName={name}
+            recipientName={recipientName}
+            accountNumber={accountNumber}
+            onRecipientNameChange={handleRecipientNameChange}
+            onAccountNumberChange={handleAccountNumberChange}
+            providerId={selectedOption}
+          />
+          
+          {/* Name match confirmation checkbox */}
+          <NameMatchConfirmation
+            isChecked={isConfirmed}
+            onCheckedChange={setIsConfirmed}
+            showError={showConfirmationError}
+          />
         </motion.div>
       )}
     </div>

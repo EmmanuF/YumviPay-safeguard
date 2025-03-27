@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -130,6 +129,19 @@ export const useSendMoneySteps = () => {
           setCurrentStep('payment');
           break;
         case 'payment':
+          // Check if name match is confirmed in transaction data
+          const pendingTransaction = localStorage.getItem('pendingTransaction');
+          if (pendingTransaction) {
+            const data = JSON.parse(pendingTransaction);
+            
+            if (!data.nameMatchConfirmed) {
+              toast.error("Confirmation Required", {
+                description: "Please confirm that the recipient details are correct before proceeding.",
+              });
+              return;
+            }
+          }
+          
           console.log('✅ Transitioning to confirmation step');
           setCurrentStep('confirmation');
           break;

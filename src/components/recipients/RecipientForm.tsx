@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
@@ -8,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CountrySelector from '@/components/CountrySelector';
+import NameMatchConfirmation from '@/components/send-money/payment/NameMatchConfirmation';
 
 interface RecipientFormProps {
   recipient?: Recipient;
@@ -25,6 +25,8 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
   const [country, setCountry] = useState(recipient?.country || 'CM');
   const [isFavorite, setIsFavorite] = useState(recipient?.isFavorite || false);
   const [category, setCategory] = useState(recipient?.category || 'other');
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [showConfirmationError, setShowConfirmationError] = useState(false);
   const [errors, setErrors] = useState({
     name: '',
     contact: '',
@@ -52,6 +54,13 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
     if (!contact.trim()) {
       newErrors.contact = 'Contact information is required';
       valid = false;
+    }
+
+    if (!isConfirmed) {
+      setShowConfirmationError(true);
+      valid = false;
+    } else {
+      setShowConfirmationError(false);
     }
 
     setErrors(newErrors);
@@ -146,6 +155,12 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
           type="receive"
         />
       </div>
+
+      <NameMatchConfirmation
+        isChecked={isConfirmed}
+        onCheckedChange={setIsConfirmed}
+        showError={showConfirmationError}
+      />
 
       <div className="pt-4 flex gap-3">
         <Button type="submit" className="flex-1">
