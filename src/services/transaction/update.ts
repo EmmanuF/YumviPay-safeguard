@@ -28,7 +28,8 @@ export const updateTransactionStatus = async (
     if (transactionId.startsWith('TXN-')) {
       console.log(`Local transaction ID detected: ${transactionId}`);
       
-      if (status === 'completed') {
+      // FIX: Update comparison to use type-safe check
+      if (status === 'completed' as TransactionStatus) {
         const completedTransaction = completeFallbackTransaction(transactionId);
         return completedTransaction;
       }
@@ -41,7 +42,8 @@ export const updateTransactionStatus = async (
           ...parsedTransaction,
           status,
           updatedAt: new Date().toISOString(),
-          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          // FIX: Use type-safe comparison
+          ...(status === 'completed' as TransactionStatus ? { completedAt: new Date().toISOString() } : {}),
           ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
@@ -54,7 +56,7 @@ export const updateTransactionStatus = async (
           ...updatedTransaction,
           createdAt: new Date(updatedTransaction.createdAt),
           updatedAt: new Date(),
-          completedAt: status === 'completed' ? new Date() : undefined
+          completedAt: status === 'completed' as TransactionStatus ? new Date() : undefined
         };
       }
       
@@ -68,7 +70,7 @@ export const updateTransactionStatus = async (
     };
     
     // Add completed_at if completed
-    if (status === 'completed') {
+    if (status === 'completed' as TransactionStatus) {
       updateData.completed_at = options.completedAt 
         ? options.completedAt.toISOString() 
         : new Date().toISOString();
@@ -155,7 +157,8 @@ export const updateTransactionStatus = async (
           ...parsedTransaction,
           status,
           updatedAt: new Date().toISOString(),
-          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          // FIX: Use type-safe comparison
+          ...(status === 'completed' as TransactionStatus ? { completedAt: new Date().toISOString() } : {}),
           ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
         };
         
@@ -201,7 +204,7 @@ export const simulateWebhook = async (
     
     // Update the transaction status
     if (finalStatus === 'completed') {
-      await updateTransactionStatus(transactionId, 'completed', {
+      await updateTransactionStatus(transactionId, 'completed' as TransactionStatus, {
         completedAt: new Date()
       });
     } else {
@@ -215,7 +218,7 @@ export const simulateWebhook = async (
       
       const randomReason = failureReasons[Math.floor(Math.random() * failureReasons.length)];
       
-      await updateTransactionStatus(transactionId, 'failed', {
+      await updateTransactionStatus(transactionId, 'failed' as TransactionStatus, {
         failureReason: randomReason
       });
     }

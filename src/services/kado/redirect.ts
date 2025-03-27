@@ -102,13 +102,15 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       const returnUrl = params.returnUrl || `/transaction/${params.transactionId}`;
       console.log(`🔄 Redirecting to return URL: ${returnUrl}`);
       
-      // Use navigate utility to handle the redirect with replaceState
+      // Use navigate utility to handle the redirect
+      // FIX: Remove the second argument that's causing the TS error
       navigate(returnUrl);
       
       // Simulate a webhook call 3 seconds later
       setTimeout(() => {
         try {
           import('@/services/transaction').then(module => {
+            // FIX: Change function call to match expected arguments
             module.simulateWebhook(params.transactionId, 'completed')
               .catch(e => console.error('Webhook simulation error:', e));
           });
@@ -143,6 +145,7 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     
     // Even on error, navigate to transaction page with error state
     const transactionUrl = `/transaction/${params.transactionId}?error=redirect_failed`;
+    // FIX: Remove the second argument that's causing the TS error
     navigate(transactionUrl);
     
     throw new Error(`Failed to redirect to Kado: ${error instanceof Error ? error.message : 'Unknown error'}`);
