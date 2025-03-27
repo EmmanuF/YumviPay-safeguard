@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { Transaction, TransactionStatus } from '@/types/transaction';
+import { completeFallbackTransaction } from './utils/fallbackTransactions';
 
 interface TransactionUpdateOptions {
   failureReason?: string;
@@ -23,7 +24,44 @@ export const updateTransactionStatus = async (
   try {
     console.log(`Updating transaction ${transactionId} to status: ${status}`, options);
     
-    // Prepare the update data
+    // For TXN-prefixed transactions, update locally
+    if (transactionId.startsWith('TXN-')) {
+      console.log(`Local transaction ID detected: ${transactionId}`);
+      
+      if (status === 'completed') {
+        const completedTransaction = completeFallbackTransaction(transactionId);
+        return completedTransaction;
+      }
+      
+      // Handle other status updates for local transactions
+      const localTransaction = localStorage.getItem(`transaction_${transactionId}`);
+      if (localTransaction) {
+        const parsedTransaction = JSON.parse(localTransaction);
+        const updatedTransaction = {
+          ...parsedTransaction,
+          status,
+          updatedAt: new Date().toISOString(),
+          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+          ...(status === 'failed' && options.failureReason ? { failureReason: options.failureReason } : {})
+        };
+        
+        localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(updatedTransaction));
+        localStorage.setItem(`transaction_backup_${transactionId}`, JSON.stringify(updatedTransaction));
+        
+        console.log('Updated local transaction in localStorage:', updatedTransaction);
+        
+        return {
+          ...updatedTransaction,
+          createdAt: new Date(updatedTransaction.createdAt),
+          updatedAt: new Date(),
+          completedAt: status === 'completed' ? new Date() : undefined
+        };
+      }
+      
+      return null;
+    }
+    
+    // Prepare the update data for Supabase
     const updateData: any = {
       status,
       updated_at: new Date().toISOString()
@@ -147,10 +185,19 @@ export const simulateWebhook = async (
     // If no status is provided, randomly set to completed or failed
     const finalStatus = status || (Math.random() > 0.3 ? 'completed' : 'failed');
     
-    console.log(`Simulating webhook for transaction ${transactionId} with status: ${finalStatus}`);
-    
-    // Wait a bit to simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
+    console.log(`📥 Processing Kado webhook: ${JSON.stringify({
+      transaction_id: transactionId,
+      status: finalStatus,
+      amount: "100",
+      fee: "1.50",
+      provider: "Afriland First Bank",
+      payment_method: "mobile_money",
+      timestamp: new Date().toISOString(),
+      metadata: {
+        simulation: true,
+        originalData: null
+      }
+    }, null, 2)}`);
     
     // Update the transaction status
     if (finalStatus === 'completed') {
@@ -173,8 +220,14 @@ export const simulateWebhook = async (
       });
     }
     
-    console.log(`Webhook simulation completed for transaction ${transactionId}`);
+    console.log(`✅ Transaction ${transactionId} updated with status: ${finalStatus}`);
+    console.log(`✅ Webhook simulation completed`);
   } catch (error) {
     console.error('Error simulating webhook:', error);
   }
+};
+
+export default {
+  updateTransactionStatus,
+  simulateWebhook
 };

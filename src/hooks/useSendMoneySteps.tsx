@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { toast } from 'sonner';
 import { useKado } from '@/services/kado/useKado';
 import { generateTransactionId } from '@/utils/transactionUtils';
+import { createFallbackTransaction } from '@/services/transaction/utils/fallbackTransactions';
 
 export type SendMoneyStep = 'recipient' | 'payment' | 'confirmation' | 'complete';
 
@@ -96,8 +97,9 @@ export const useSendMoneySteps = () => {
       
       // Safely access window properties with proper TypeScript handling
       try {
-        // Add emergency transaction data to window for fallback recovery
+        // @ts-ignore - Emergency data access
         window.__EMERGENCY_TRANSACTION = storageData;
+        // @ts-ignore - Emergency data access
         window.__TRANSACTION_ID = transactionId;
       } catch (e) {
         console.error('❌ Error storing in window object:', e);
@@ -155,6 +157,10 @@ export const useSendMoneySteps = () => {
             const transactionData = JSON.parse(pendingTransaction);
             console.log('📊 Transaction data retrieved:', transactionData);
             
+            // Create a fallback transaction immediately
+            const fallback = createFallbackTransaction(transactionId);
+            console.log('Created fallback transaction before redirect:', fallback);
+            
             const stored = storeTransactionData(transactionId, transactionData);
             if (!stored) {
               console.error('❌ Failed to store transaction data reliably');
@@ -183,25 +189,39 @@ export const useSendMoneySteps = () => {
             `;
             document.body.appendChild(loadingDiv);
             
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             const testMode = true;
             
             if (testMode) {
-              console.log('🧪 TEST MODE: Skipping Kado redirect, going directly to transaction page');
-              
-              await new Promise(resolve => setTimeout(resolve, 500));
+              console.log('🧪 TEST MODE: Using Kado redirect service directly');
               
               try {
-                document.body.removeChild(loadingDiv);
-              } catch (e) {}
-              
-              navigate(`/transaction/${transactionId}`);
-              
-              try {
-                const { simulateWebhook } = await import('@/services/transaction');
-                simulateWebhook(transactionId).catch(e => console.error('Webhook simulation error:', e));
-              } catch (e) {}
+                const { kadoRedirectService } = await import('@/services/kado/redirect');
+                
+                await kadoRedirectService.redirectToKado({
+                  amount: transactionData.amount.toString(),
+                  recipientName: transactionData.recipientName || 'Recipient',
+                  recipientContact: transactionData.recipientContact || transactionData.recipient || '',
+                  country: transactionData.targetCountry || 'CM',
+                  paymentMethod: transactionData.paymentMethod || 'mobile_money',
+                  transactionId,
+                  returnUrl: `/transaction/${transactionId}`
+                });
+                
+                // If we get here, the redirect didn't happen - force navigation
+                navigate(`/transaction/${transactionId}`, { replace: true });
+              } catch (e) {
+                console.error('Error using direct Kado redirect service:', e);
+                // Fallback to transaction page
+                navigate(`/transaction/${transactionId}`, { replace: true });
+              } finally {
+                try {
+                  document.body.removeChild(loadingDiv);
+                } catch (e) {
+                  console.error('Error removing loading div:', e);
+                }
+              }
               
               return;
             }
