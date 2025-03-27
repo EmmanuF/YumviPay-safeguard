@@ -6,34 +6,71 @@ interface FeatureCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
+  colorScheme?: 'green' | 'purple' | 'orange';
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({ 
+  title, 
+  description, 
+  icon, 
+  colorScheme = 'green' 
+}) => {
+  // Define color schemes for different cards
+  const colors = {
+    green: {
+      gradient: "bg-gradient-to-br from-primary-50 to-primary-200",
+      iconBg: "bg-gradient-to-br from-primary-200 to-primary-400",
+      iconColor: "text-primary-700",
+      border: "border-primary-100",
+      hoverShadow: "rgba(0, 128, 0, 0.2)",
+      titleGradient: "from-primary-700 to-primary-500"
+    },
+    purple: {
+      gradient: "bg-gradient-to-br from-secondary-50 to-secondary-200",
+      iconBg: "bg-gradient-to-br from-secondary-200 to-secondary-400",
+      iconColor: "text-secondary-700",
+      border: "border-secondary-100",
+      hoverShadow: "rgba(138, 43, 226, 0.2)",
+      titleGradient: "from-secondary-700 to-secondary-500"
+    },
+    orange: {
+      gradient: "bg-gradient-to-br from-amber-50 to-amber-200",
+      iconBg: "bg-gradient-to-br from-amber-200 to-amber-400",
+      iconColor: "text-amber-700",
+      border: "border-amber-100",
+      hoverShadow: "rgba(245, 158, 11, 0.2)",
+      titleGradient: "from-amber-700 to-amber-500"
+    }
+  };
+
+  const scheme = colors[colorScheme];
+
   return (
     <motion.div 
-      className="glass-effect rounded-2xl p-6 h-full"
+      className={`rounded-2xl p-6 h-full ${scheme.gradient} border ${scheme.border} shadow-lg backdrop-blur-sm`}
       whileHover={{ 
-        y: -5,
-        boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)",
-        transition: { duration: 0.2, ease: "easeOut" }
+        y: -8,
+        scale: 1.03,
+        boxShadow: `0 20px 30px ${scheme.hoverShadow}`,
+        transition: { duration: 0.3, ease: "easeOut" }
       }}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ 
-        duration: 0.5,
+        duration: 0.7,
         type: "spring",
         stiffness: 100,
         damping: 10
       }}
       viewport={{ once: true, margin: "-50px" }}
     >
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center mb-4 shadow-sm">
-        <div className="text-primary-600">
+      <div className={`w-16 h-16 rounded-full ${scheme.iconBg} flex items-center justify-center mb-5 shadow-md transform transition-transform duration-300 hover:rotate-12`}>
+        <div className={`${scheme.iconColor} text-xl`}>
           {icon}
         </div>
       </div>
-      <h3 className="text-lg font-semibold mb-2 text-gradient-primary">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <h3 className={`text-xl font-bold mb-3 bg-gradient-to-r ${scheme.titleGradient} bg-clip-text text-transparent`}>{title}</h3>
+      <p className="text-gray-700 leading-relaxed">{description}</p>
     </motion.div>
   );
 };

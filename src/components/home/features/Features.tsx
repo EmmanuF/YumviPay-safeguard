@@ -9,7 +9,7 @@ const Features = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.3,
         delayChildren: 0.3
       }
     }
@@ -46,7 +46,7 @@ const Features = () => {
       </div>
 
       <motion.div 
-        className="grid md:grid-cols-3 gap-6"
+        className="grid md:grid-cols-3 gap-8"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
@@ -56,18 +56,21 @@ const Features = () => {
           icon={<ExchangeRateIcon />}
           title="Best Exchange Rates"
           description="We offer competitive exchange rates that ensure your money goes further when sending to Africa."
+          colorScheme="green"
         />
         
         <FeatureCard 
           icon={<TransparencyIcon />}
           title="Simple & Transparent"
           description="Know exactly how much your recipient will get before you send, with no hidden fees or charges."
+          colorScheme="purple"
         />
         
         <FeatureCard 
           icon={<SecureKycIcon />}
           title="Secure & Fast KYC"
           description="Our integrated verification ensures safe and quick transactions with minimal waiting time."
+          colorScheme="orange"
         />
       </motion.div>
     </motion.div>
