@@ -21,8 +21,11 @@ const HeroDescription: React.FC = () => {
         </div>
       </div>
 
-      {/* Trusted by section - kept at top */}
-      <div className="mb-4 flex items-center">
+      {/* Calculator component first */}
+      <HeroCalculator />
+
+      {/* Trusted by section - moved below the calculator */}
+      <div className="mt-4 mb-4 flex items-center">
         <div className="flex">
           <img 
             src="https://randomuser.me/api/portraits/men/25.jpg" 
@@ -60,8 +63,6 @@ const HeroDescription: React.FC = () => {
           <span className="text-xs font-medium ml-1">4.9/5</span>
         </motion.div>
       </div>
-
-      <HeroCalculator />
       
       {/* Feature bullet points in a single horizontal line with flex-nowrap */}
       <div className="flex flex-nowrap justify-between items-center mt-4 space-x-2 overflow-x-auto">
