@@ -11,14 +11,14 @@ const FormHeader: React.FC<FormHeaderProps> = ({ title, subtitle }) => {
   return (
     <>
       <motion.h2 
-        className="text-2xl font-bold text-center text-primary mb-3"
+        className="text-2xl font-bold text-center text-gradient-primary mb-2"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1, transition: { delay: 0.2 } }}
       >
         {title}
       </motion.h2>
       <motion.p 
-        className="text-center text-muted-foreground mb-6 max-w-md mx-auto"
+        className="text-center text-muted-foreground mb-8"
         initial={{ y: -5, opacity: 0 }}
         animate={{ y: 0, opacity: 1, transition: { delay: 0.3 } }}
       >
