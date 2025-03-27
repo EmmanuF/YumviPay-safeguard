@@ -28,18 +28,21 @@ const HeroBackground: React.FC = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     
-    // Create bubbles with light purple color
+    // Create bubbles with light purple color - increased number and visibility
     const bubbles: Bubble[] = [];
-    const bubblesCount = Math.floor(canvas.width * canvas.height / 15000);
+    // Increase density of bubbles significantly
+    const bubblesCount = Math.floor(canvas.width * canvas.height / 6000); 
     
     for (let i = 0; i < bubblesCount; i++) {
       bubbles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: Math.random() * 5 + 2,
-        opacity: Math.random() * 0.15 + 0.05, // 5-15% opacity
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3
+        // Increase size range for better visibility
+        radius: Math.random() * 8 + 3, 
+        // Increase opacity range for better visibility (15-30%)
+        opacity: Math.random() * 0.15 + 0.15, 
+        speedX: (Math.random() - 0.5) * 0.4,
+        speedY: (Math.random() - 0.5) * 0.4
       });
     }
     
@@ -47,7 +50,7 @@ const HeroBackground: React.FC = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw background gradient
+      // Draw background gradient with slightly deeper color
       const gradient = ctx.createRadialGradient(
         canvas.width / 2,
         canvas.height / 3,
@@ -56,16 +59,18 @@ const HeroBackground: React.FC = () => {
         canvas.height / 3,
         canvas.width * 0.7
       );
-      gradient.addColorStop(0, '#F9F6FD');
+      // Make the center color slightly more vibrant
+      gradient.addColorStop(0, '#F5EEFE');
       gradient.addColorStop(1, '#FFFFFF');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw bubbles
+      // Draw bubbles with more vibrant purple
       for (const bubble of bubbles) {
         ctx.beginPath();
         ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(214, 188, 250, ${bubble.opacity})`;
+        // Use a slightly more vibrant purple color
+        ctx.fillStyle = `rgba(198, 162, 247, ${bubble.opacity})`;
         ctx.fill();
         
         // Move bubbles

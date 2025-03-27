@@ -8,7 +8,7 @@
 .hero-bg {
   position: relative;
   overflow: hidden;
-  background-color: #F9F6FD;
+  background-color: #F2EBFD; /* Slightly deeper background color */
   isolation: isolate;
 }
 
