@@ -2,10 +2,14 @@
 /* Import all CSS files */
 @import './layout.css';
 @import './animations.css';
+@import './animations-extended.css';
 @import './components.css';
 @import './utilities.css';
 @import './theme.css';
 @import './forms.css';
 @import './responsive.css';
-@import './effects.css';
-
+@import './glass-effects.css';
+@import './card-styles.css';
+@import './text-effects.css';
+@import './interactive-elements.css';
+@import './shapes.css';

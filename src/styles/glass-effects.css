@@ -1,0 +1,62 @@
+
+/* Glass morphism effect with updated color scheme */
+.glass-effect {
+  @apply backdrop-blur-md bg-white/80 border border-white/30 rounded-xl;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.glass-effect:hover {
+  @apply border-primary-100/50 bg-white/85;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+}
+
+/* Frosted card effect for premium sections */
+.frosted-card {
+  @apply backdrop-blur-lg bg-white/70 rounded-xl;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* Futuristic glassmorphism effects for premium cards */
+.glassmorphism-premium {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Layered glass effect for premium UI */
+.glass-card-layered {
+  position: relative;
+}
+
+.glass-card-layered::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: inherit;
+  z-index: -1;
+  backdrop-filter: blur(5px);
+}
+
+.glass-card-layered::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: inherit;
+  z-index: -2;
+  backdrop-filter: blur(3px);
+}
