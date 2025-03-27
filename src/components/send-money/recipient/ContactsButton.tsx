@@ -24,11 +24,11 @@ const ContactsButton: React.FC<ContactsButtonProps> = ({ onClick }) => {
       <Button 
         variant="outline" 
         onClick={onClick}
-        className="flex items-center gap-2 w-full mb-4"
+        className="flex items-center gap-2 w-full mb-4 border-2 border-primary-200 bg-white shadow-sm py-6 hover:bg-primary-50 hover:border-primary-300 text-primary-700"
         size="lg"
       >
-        <Users className="h-5 w-5 text-primary" />
-        <span>Select from Contacts</span>
+        <Users className="h-5 w-5 text-primary-500" />
+        <span className="font-medium">Select from Contacts</span>
       </Button>
     </motion.div>
   );

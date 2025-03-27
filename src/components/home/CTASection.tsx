@@ -47,15 +47,15 @@ const CTASection = () => {
       viewport={{ once: true }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="bg-primary-gradient text-white rounded-3xl overflow-hidden relative">
-          {/* Background decorative elements */}
-          <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-xl"></div>
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-white/5 blur-xl"></div>
+        <div className="bg-primary-500 text-white rounded-2xl overflow-hidden relative shadow-xl">
+          {/* Decorative elements with better visibility */}
+          <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/20 blur-xl"></div>
+          <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-white/15 blur-xl"></div>
           
           <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative z-10">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
-              <p className="text-primary-100 mb-8 text-lg">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-sm">Ready to Get Started?</h2>
+              <p className="text-white text-opacity-90 mb-8 text-lg">
                 Join thousands of customers who trust Yumvi-Pay for their money transfers to Africa
               </p>
               
@@ -67,7 +67,7 @@ const CTASection = () => {
               >
                 <Button 
                   onClick={() => navigate('/signup')}
-                  className="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-xl text-base"
+                  className="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-6 rounded-xl text-base shadow-md"
                   size="lg"
                 >
                   Create Account
@@ -76,7 +76,7 @@ const CTASection = () => {
                 
                 <Button
                   variant="outline"
-                  className="border-white border-2 bg-white/10 text-white hover:bg-white hover:text-primary-600 font-semibold transition-colors"
+                  className="border-white border-2 bg-white/10 text-white hover:bg-white hover:text-primary-600 font-semibold transition-colors shadow-md py-6"
                   size="lg"
                   onClick={() => navigate('/support/contact')}
                 >
@@ -86,8 +86,8 @@ const CTASection = () => {
               </motion.div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Get In Touch</h3>
+            <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-semibold mb-4 text-white">Get In Touch</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Input
@@ -96,7 +96,7 @@ const CTASection = () => {
                     onChange={handleChange}
                     placeholder="Your Name"
                     required
-                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white"
+                    className="bg-white/30 border-white/20 text-white placeholder:text-white/70 focus:border-white shadow-md h-12"
                   />
                 </div>
                 
@@ -108,7 +108,7 @@ const CTASection = () => {
                     onChange={handleChange}
                     placeholder="Your Email"
                     required
-                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white"
+                    className="bg-white/30 border-white/20 text-white placeholder:text-white/70 focus:border-white shadow-md h-12"
                   />
                 </div>
                 
@@ -120,13 +120,13 @@ const CTASection = () => {
                     placeholder="Your Message"
                     required
                     rows={3}
-                    className="bg-white/20 border-white/10 text-white placeholder:text-white/60 focus:border-white resize-none"
+                    className="bg-white/30 border-white/20 text-white placeholder:text-white/70 focus:border-white shadow-md resize-none"
                   />
                 </div>
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-white text-primary-600 hover:bg-white/90" 
+                  className="w-full bg-white text-primary-600 hover:bg-white/90 py-6 shadow-md" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
