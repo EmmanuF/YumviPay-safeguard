@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
@@ -73,13 +72,10 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     }, 50);
   };
   
-  // Only show on mobile for home page
   if (isMobile && location.pathname !== '/') {
     return null;
   }
   
-  // On homepage, show responsively based on design
-  // On other pages, only show on desktop (not mobile)
   const isHomePage = location.pathname === '/';
   
   return (
@@ -115,7 +111,6 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
         />
       </div>
       
-      {/* Mobile navigation for home page */}
       {isHomePage && isMobile && (
         <MobileNavigation 
           navItems={navItems}
