@@ -103,3 +103,26 @@
     50% { opacity: 0.3; }
   }
 }
+
+/* Store badge animations */
+.btn-store-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-store-badge::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(30deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { left: -60%; }
+  100% { left: 160%; }
+}
