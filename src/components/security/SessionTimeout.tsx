@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,13 +19,13 @@ interface SessionTimeoutProps {
 }
 
 const SessionTimeout: React.FC<SessionTimeoutProps> = ({ 
-  timeout = 60 * 60 * 1000, // 60 minutes (increased from 15)
-  warningTime = 2 * 60 * 1000 // 2 minutes (increased from 1)
+  timeout = 2 * 60 * 60 * 1000, // 2 hours (increased from 60 minutes)
+  warningTime = 5 * 60 * 1000 // 5 minutes (increased from 2 minutes)
 }) => {
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
   const [showWarning, setShowWarning] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const { signOut, isLoggedIn } = useAuth();
+  const { signOut, isLoggedIn, refreshAuthState } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -34,31 +33,62 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
   const updateActivity = useCallback(() => {
     setLastActivity(Date.now());
     setShowWarning(false);
+    
+    // Also update the cached auth check timestamp to keep them in sync
+    localStorage.setItem('lastAuthCheck', Date.now().toString());
   }, []);
   
   // Log out the user
   const handleTimeout = useCallback(async () => {
-    if (isLoggedIn) {
-      try {
-        await signOut();
-        toast({
-          title: 'Session Expired',
-          description: 'You have been logged out due to inactivity',
-          variant: 'default',
-        });
-        navigate('/signin');
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
+    if (!isLoggedIn) {
+      setShowWarning(false);
+      return;
     }
+    
+    try {
+      await signOut();
+      toast({
+        title: 'Session Expired',
+        description: 'You have been logged out due to inactivity',
+        variant: 'default',
+      });
+      navigate('/signin');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      
+      // Force redirect to signin even if signOut fails
+      navigate('/signin');
+    }
+    
     setShowWarning(false);
   }, [isLoggedIn, signOut, navigate, toast]);
+  
+  // Continue the session and refresh auth state
+  const continueSession = useCallback(async () => {
+    updateActivity();
+    
+    try {
+      // Try to refresh the auth state in the background
+      await refreshAuthState();
+      
+      toast({
+        title: 'Session Extended',
+        description: 'Your session has been extended',
+        variant: 'default',
+      });
+    } catch (error) {
+      console.error('Error refreshing auth state:', error);
+      
+      // Even if refresh fails, allow user to continue using the app
+      // as long as they're interacting with it
+    }
+  }, [updateActivity, refreshAuthState, toast]);
   
   // Set up event listeners for user activity
   useEffect(() => {
     if (!isLoggedIn) return;
     
-    // Expanded list of events to detect user activity more accurately
+    // Expanded list of events to detect user activity
     const events = [
       'mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart',
       'click', 'keydown', 'touchmove', 'focus', 'input', 'change',
@@ -69,14 +99,14 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       window.addEventListener(event, updateActivity);
     });
     
-    // Additionally update activity when user navigates between pages
+    // Listen for navigation between pages
     const handleRouteChange = () => {
       console.log('Route changed, updating activity timestamp');
       updateActivity();
     };
     
-    // Listen for popstate event (browser back/forward navigation)
     window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('navigation', handleRouteChange);
     
     // Update activity on component mount
     updateActivity();
@@ -86,6 +116,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
         window.removeEventListener(event, updateActivity);
       });
       window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('navigation', handleRouteChange);
     };
   }, [isLoggedIn, updateActivity]);
   
@@ -99,7 +130,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       const now = Date.now();
       const elapsed = now - lastActivity;
       
-      // Log activity checks with less frequency to avoid console spam
+      // Log activity checks less frequently to avoid console spam
       if (elapsed > timeout - warningTime * 2) {
         console.log(`Session check: ${Math.round(elapsed / 1000)}s since last activity`, 
           { warning: showWarning, timeout: Math.round(timeout / 1000), lastActivity: new Date(lastActivity).toISOString() });
@@ -120,7 +151,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       }
     };
     
-    // Only check every 10 seconds when far from timeout, more frequently when close
+    // Check every minute when far from timeout, more frequently when close
     intervalId = window.setInterval(() => {
       const elapsed = Date.now() - lastActivity;
       
@@ -131,7 +162,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
       } else {
         checkActivity();
       }
-    }, 10000);
+    }, 60000); // Check every minute instead of 10 seconds
     
     return () => clearInterval(intervalId);
   }, [isLoggedIn, lastActivity, timeout, warningTime, showWarning, handleTimeout]);
@@ -151,7 +182,7 @@ const SessionTimeout: React.FC<SessionTimeoutProps> = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleTimeout}>Log Out</AlertDialogCancel>
-          <AlertDialogAction onClick={updateActivity}>Continue Session</AlertDialogAction>
+          <AlertDialogAction onClick={continueSession}>Continue Session</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

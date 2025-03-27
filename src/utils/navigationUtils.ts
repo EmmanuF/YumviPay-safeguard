@@ -7,7 +7,7 @@
  * Navigate to a new route with better error handling
  * and support for query parameters
  */
-export const navigate = (to: string): void => {
+export const navigate = (to: string, preserveAuthState = true): void => {
   try {
     // Check if we have access to the History API
     if (window.history && window.history.pushState) {
@@ -21,20 +21,31 @@ export const navigate = (to: string): void => {
         ? to 
         : `/${to}`;
       
-      history.pushState({}, '', newUrl);
+      // If we want to preserve auth state, add it to the state object
+      const stateObj = preserveAuthState ? {
+        authStatePreserved: true,
+        timestamp: Date.now(),
+      } : {};
+      
+      history.pushState(stateObj, '', newUrl);
       
       // Dispatch a popstate event for React Router to detect
-      const popStateEvent = new PopStateEvent('popstate', { state: {} });
+      const popStateEvent = new PopStateEvent('popstate', { state: stateObj });
       window.dispatchEvent(popStateEvent);
       
       // Also dispatch a custom event for any other listeners
       const navigationEvent = new CustomEvent('navigation', { 
-        detail: { route: to } 
+        detail: { route: to, preserveAuthState } 
       });
       window.dispatchEvent(navigationEvent);
       
       // Scroll to top for better UX
       window.scrollTo(0, 0);
+      
+      // Update the last navigation timestamp to help with auth state management
+      if (preserveAuthState) {
+        localStorage.setItem('lastNavigationTimestamp', Date.now().toString());
+      }
     } else {
       // Fallback to traditional navigation
       console.log(`🧭 Navigating to: ${to} (traditional fallback)`);

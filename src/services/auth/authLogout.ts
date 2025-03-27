@@ -8,10 +8,10 @@ const AUTH_STATE_KEY = 'yumvi_auth_state';
 // Log out user
 export const logoutUser = async (): Promise<void> => {
   try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    console.log('Logging out user...');
     
-    // Clear local storage data as well
+    // First clear local storage data before the Supabase signOut
+    // to ensure we don't have any race conditions
     await Preferences.set({
       key: AUTH_STATE_KEY,
       value: JSON.stringify({
@@ -20,6 +20,19 @@ export const logoutUser = async (): Promise<void> => {
         hasCompletedOnboarding: true, // Keep onboarding state
       }),
     });
+    
+    // Also clear any auth cache we might have
+    localStorage.removeItem('lastAuthCheck');
+    localStorage.removeItem('cachedAuthState');
+    
+    // Now sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
+    // Final cleanup of any session data
+    localStorage.removeItem('sessionExpiresAt');
+    
+    console.log('User logged out successfully');
   } catch (error) {
     console.error('Error logging out:', error);
     throw new Error('Logout failed');
