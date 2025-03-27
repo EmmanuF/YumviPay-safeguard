@@ -58,15 +58,28 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const isHomePage = location.pathname === '/';
   const showMobileHeader = isMobile && !isHomePage;
   
+  // Determine if we're on the send money page for special background
+  const isSendMoneyPage = location.pathname.includes('/send');
+
+  // Special background for send money page
+  const pageBackground = isSendMoneyPage 
+    ? 'bg-gradient-to-br from-background via-background to-muted/30' 
+    : 'bg-background';
+
   return (
-    <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()}`}>
+    <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground}`}>
       {/* Top Navigation for desktop/web */}
       <TopNavigation />
       
       {/* Diagonal purple top design - only shown on non-home pages for mobile */}
       {showMobileHeader && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600"></div>
+          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600">
+            {/* Decorative elements for premium look */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-400/30 via-primary-400 to-primary-400/30"></div>
+            <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary-400/20"></div>
+            <div className="absolute top-4 right-10 w-16 h-16 rounded-full bg-primary-400/10"></div>
+          </div>
           <div className="absolute top-0 left-0 right-0 h-24">
             <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
           </div>

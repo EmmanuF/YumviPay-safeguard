@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Wallet, CreditCard, Building, ChevronDown, ChevronUp, Check, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Wallet, CreditCard, Building, ChevronDown, ChevronUp, Check, AlertTriangle, ArrowRight, Sparkles } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -77,12 +77,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   ];
 
-  // Animation variants
+  // Animation variants with staggered children
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { staggerChildren: 0.1 }
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
     }
   };
 
@@ -91,7 +94,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     visible: { 
       y: 0, 
       opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
+      transition: { 
+        type: 'spring', 
+        stiffness: 300, 
+        damping: 24 
+      }
     }
   };
 
@@ -136,52 +143,79 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       className="space-y-6"
     >
       <motion.div variants={itemVariants}>
-        <Card className="shadow-lg border border-secondary-100/30">
+        <Card className="glass-effect border-primary-100/30 shadow-lg">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-center text-indigo-800 mb-6">
+            <motion.h2 
+              className="text-2xl font-bold text-center text-gradient-primary mb-2"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1, transition: { delay: 0.1 } }}
+            >
               Choose Payment Method
-            </h2>
-            <p className="text-center text-muted-foreground mb-6">
+            </motion.h2>
+            <motion.p 
+              className="text-center text-muted-foreground mb-8"
+              initial={{ y: -5, opacity: 0 }}
+              animate={{ y: 0, opacity: 1, transition: { delay: 0.2 } }}
+            >
               Select how you'd like to pay for this transfer
-            </p>
+            </motion.p>
 
-            {/* Payment Methods */}
-            <div className="space-y-4 mb-6">
-              {paymentMethods.map((method) => (
-                <div 
+            {/* Payment Methods - premium design */}
+            <div className="space-y-4 mb-8">
+              {paymentMethods.map((method, index) => (
+                <motion.div 
                   key={method.id}
-                  className={`p-4 rounded-xl border ${selectedMethod === method.id 
-                    ? 'border-primary bg-primary-50/30 shadow-md' 
-                    : 'border-gray-200 bg-white'
-                  } transition-all duration-200 hover:shadow-md cursor-pointer`}
+                  className={`p-5 rounded-xl border transition-all duration-300 card-hover ${
+                    selectedMethod === method.id 
+                      ? 'border-primary bg-primary-50/50 shadow-lg' 
+                      : 'border-gray-200/80 bg-white/80 backdrop-blur-sm'
+                  }`}
                   onClick={() => handleMethodSelect(method.id)}
+                  variants={itemVariants}
+                  custom={index}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="bg-white p-3 rounded-full shadow-sm">
+                    <div className={`p-3 rounded-full shadow-md ${
+                      selectedMethod === method.id 
+                        ? 'bg-primary-100/80 text-primary' 
+                        : 'bg-white text-gray-500'
+                    }`}>
                       {getPaymentIcon(method.id)}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-indigo-700">{method.name}</h3>
+                      <h3 className="font-semibold text-lg text-primary-700">{method.name}</h3>
                       <p className="text-gray-600 text-sm">{method.description}</p>
                     </div>
-                    <div className="h-5 w-5 rounded-full border border-primary flex items-center justify-center">
+                    <div className="h-6 w-6 rounded-full border-2 border-primary flex items-center justify-center">
                       {selectedMethod === method.id && (
-                        <div className="h-3 w-3 rounded-full bg-primary"></div>
+                        <motion.div 
+                          className="h-3 w-3 rounded-full bg-primary"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        />
                       )}
                     </div>
                   </div>
 
-                  {/* Provider selection - shown only when method is selected */}
+                  {/* Provider selection - shown only when method is selected with animation */}
                   {selectedMethod === method.id && method.providers && (
-                    <div className="mt-4 pl-14">
-                      <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                    <motion.div 
+                      className="mt-4 pl-14"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Label className="text-sm font-medium text-primary-700 mb-2 block">
                         Select Provider
                       </Label>
                       <Select 
                         value={selectedProvider} 
                         onValueChange={handleProviderSelect}
                       >
-                        <SelectTrigger className="w-full bg-white">
+                        <SelectTrigger className="w-full bg-white border-primary-100/50 focus:ring-primary-500/30">
                           <SelectValue placeholder="Choose provider" />
                         </SelectTrigger>
                         <SelectContent>
@@ -192,64 +226,81 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
 
-            {/* Recurring Payment Option */}
-            <div className="mb-6">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 flex items-center justify-between mb-2">
-                <div>
-                  <h3 className="font-medium text-indigo-600">Make this a recurring payment</h3>
-                  <p className="text-sm text-gray-500">Schedule automatic payments</p>
+            {/* Recurring Payment Option - with premium styling */}
+            <motion.div 
+              className="mb-6"
+              variants={itemVariants}
+            >
+              <motion.div 
+                className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center">
+                  <div className="bg-secondary-100 p-2 rounded-full mr-3">
+                    <Sparkles className="h-5 w-5 text-secondary-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-primary-600">Make this a recurring payment</h3>
+                    <p className="text-sm text-gray-500">Schedule automatic payments</p>
+                  </div>
                 </div>
                 <Switch
                   checked={isRecurring}
                   onCheckedChange={handleRecurringToggle}
                   className="data-[state=checked]:bg-secondary"
                 />
-              </div>
+              </motion.div>
 
               {/* Recurring options - expanded when toggle is on */}
-              {isRecurringExpanded && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-secondary-50/40 rounded-xl p-4 border border-secondary-100"
-                >
-                  <h4 className="font-medium text-secondary-700 mb-2 flex items-center">
-                    <ChevronDown className="h-4 w-4 mr-1 text-secondary" />
-                    Payment Frequency
-                  </h4>
-                  
-                  <Select 
-                    value={recurringFrequency} 
-                    onValueChange={setRecurringFrequency}
+              <AnimatePresence>
+                {isRecurringExpanded && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-secondary-50/60 backdrop-blur-sm rounded-xl p-5 border border-secondary-100/60 mt-2"
                   >
-                    <SelectTrigger className="w-full bg-white border-secondary-200">
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="quarterly">Every 3 Months</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <p className="text-xs text-gray-500 mt-2">
-                    You can cancel recurring payments anytime from your transaction history.
-                  </p>
-                </motion.div>
-              )}
-            </div>
+                    <h4 className="font-medium text-secondary-700 mb-3 flex items-center">
+                      <ChevronDown className="h-4 w-4 mr-1 text-secondary" />
+                      Payment Frequency
+                    </h4>
+                    
+                    <Select 
+                      value={recurringFrequency} 
+                      onValueChange={setRecurringFrequency}
+                    >
+                      <SelectTrigger className="w-full bg-white/80 border-secondary-200/60 focus:ring-secondary-500/30">
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Every 3 Months</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <p className="text-xs text-gray-600 mt-3">
+                      You can cancel recurring payments anytime from your transaction history.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-            {/* Terms and Conditions Confirmation */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+            {/* Terms and Conditions Confirmation - premium design */}
+            <motion.div 
+              className="bg-yellow-50/80 backdrop-blur-sm border border-yellow-200/80 rounded-xl p-5 mb-6"
+              variants={itemVariants}
+            >
               <div className="flex">
                 <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
                 <div>
@@ -277,7 +328,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Navigation Buttons */}
             <PaymentStepNavigation

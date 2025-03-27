@@ -1,146 +1,298 @@
 
-/* Form control enhancements with improved visuals */
+/* Premium form styling */
 .form-control-modern {
-  @apply bg-secondary-50/70 backdrop-blur-sm border border-secondary-100/80 
-         rounded-xl py-3 px-4 w-full focus:ring-2 focus:ring-primary-300/50 
-         focus:border-primary-300/50 focus:outline-none transition-all duration-200;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Input with floating label - enhanced for better UX */
-.floating-input {
-  position: relative;
+.form-control-modern:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px -3px rgba(0, 128, 0, 0.1);
 }
 
-.floating-input input {
-  @apply h-14 pt-4;
+/* Card hover effects for premium feel */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.floating-input label {
-  @apply absolute left-4 top-4 text-gray-500 transition-all duration-200 pointer-events-none;
-  transform-origin: left top;
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(0, 128, 0, 0.15);
 }
 
-.floating-input input:focus + label,
-.floating-input input:not(:placeholder-shown) + label {
-  @apply transform -translate-y-3 scale-75 text-primary-500;
+/* Button hover effects with premium interactions */
+.btn-hover-effect {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Form validation styles */
-.input-valid {
-  @apply border-green-500 focus:border-green-500 focus:ring-green-500/50;
+.btn-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(0, 128, 0, 0.2);
 }
 
-.input-invalid {
-  @apply border-red-500 focus:border-red-500 focus:ring-red-500/50;
+.btn-hover-effect:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px -2px rgba(0, 128, 0, 0.15);
 }
 
-.validation-message {
-  @apply mt-1 text-xs;
+/* Text gradient effects */
+.text-gradient-primary {
+  background: linear-gradient(45deg, var(--primary) 0%, var(--primary-300) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-.validation-message.valid {
-  @apply text-green-600 flex items-center;
+.text-gradient-secondary {
+  background: linear-gradient(45deg, var(--secondary) 0%, var(--secondary-300) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-.validation-message.invalid {
-  @apply text-red-600 flex items-center;
+/* Glass cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 }
 
-.validation-icon {
-  @apply mr-1 h-3.5 w-3.5;
+/* Form focus states */
+input:focus-visible, 
+select:focus-visible, 
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-200);
+  border-color: var(--primary-400);
 }
 
-/* Requirements list */
-.requirements-list {
-  @apply text-xs text-gray-500 mt-2;
+/* Custom checkbox animation */
+.custom-checkbox {
+  transition: all 0.2s ease;
 }
 
-.requirements-list ul {
-  @apply list-disc pl-4 mt-1;
-}
-
-/* Animated checkbox */
-.animated-checkbox input:checked ~ .checkmark {
-  @apply bg-primary;
-  animation: checkbox-pop 0.3s forwards;
+.custom-checkbox:checked {
+  animation: checkbox-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes checkbox-pop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.5;
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Toggle switch enhancements */
+[data-state="checked"].custom-switch {
+  animation: switch-on 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes switch-on {
+  0% { transform: scale(0.8); background-color: var(--primary-300); }
+  50% { transform: scale(1.1); background-color: var(--primary); }
+  100% { transform: scale(1); background-color: var(--primary); }
+}
+
+/* Futuristic input styling */
+.input-futuristic {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.input-futuristic:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-300);
+  box-shadow: 0 0 0 4px var(--primary-100), 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle label animations */
+.floating-label {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.input-container:focus-within .floating-label {
+  transform: translateY(-24px) scale(0.85);
+  color: var(--primary);
+}
+
+/* Shimmer effect for loading states */
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
   }
-  50% {
-    transform: scale(1.1);
+}
+
+/* Pulse effect for buttons */
+.pulse-effect {
+  position: relative;
+}
+
+.pulse-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 var(--primary-300);
+  animation: pulse 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
   }
 }
 
-/* Custom-styled radio buttons */
-.custom-radio {
-  @apply relative inline-flex items-center cursor-pointer;
+/* Success checkmark animation */
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
 }
 
-.custom-radio input {
-  @apply absolute opacity-0;
+.success-checkmark .check-icon {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  border-radius: 50%;
+  box-sizing: content-box;
+  border: 4px solid var(--primary);
 }
 
-.custom-radio .radio-mark {
-  @apply h-5 w-5 border border-gray-300 rounded-full flex items-center justify-center transition-all;
+.success-checkmark .check-icon::before {
+  top: 3px;
+  left: -2px;
+  width: 30px;
+  transform-origin: 100% 50%;
+  border-radius: 100px 0 0 100px;
 }
 
-.custom-radio input:checked ~ .radio-mark {
-  @apply border-2 border-primary;
+.success-checkmark .check-icon::after {
+  top: 0;
+  left: 30px;
+  width: 60px;
+  transform-origin: 0 50%;
+  border-radius: 0 100px 100px 0;
+  animation: rotate-circle 4.25s ease-in;
 }
 
-.custom-radio input:checked ~ .radio-mark::after {
-  content: "";
-  @apply block h-2.5 w-2.5 rounded-full bg-primary;
-  animation: radio-pop 0.2s ease-out;
+.success-checkmark .check-icon::before, .success-checkmark .check-icon::after {
+  content: '';
+  height: 100px;
+  position: absolute;
+  background: #FFFFFF;
+  transform: rotate(-45deg);
 }
 
-@keyframes radio-pop {
+.success-checkmark .check-icon .icon-line {
+  height: 5px;
+  background-color: var(--primary);
+  display: block;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 10;
+}
+
+.success-checkmark .check-icon .icon-line.line-tip {
+  top: 46px;
+  left: 14px;
+  width: 25px;
+  transform: rotate(45deg);
+  animation: icon-line-tip 0.75s;
+}
+
+.success-checkmark .check-icon .icon-line.line-long {
+  top: 38px;
+  right: 8px;
+  width: 47px;
+  transform: rotate(-45deg);
+  animation: icon-line-long 0.75s;
+}
+
+@keyframes icon-line-tip {
   0% {
-    transform: scale(0);
-    opacity: 0;
+    width: 0;
+    left: 1px;
+    top: 19px;
+  }
+  54% {
+    width: 0;
+    left: 1px;
+    top: 19px;
+  }
+  70% {
+    width: 50px;
+    left: -8px;
+    top: 37px;
+  }
+  84% {
+    width: 17px;
+    left: 21px;
+    top: 48px;
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+    width: 25px;
+    left: 14px;
+    top: 45px;
   }
 }
 
-/* Form section with glass effect */
-.form-section-glass {
-  @apply backdrop-blur-sm bg-white/90 border border-white/30 rounded-xl p-6 shadow-lg;
-}
-
-/* Accent highlights for important fields */
-.accent-field {
-  @apply border-l-4 border-primary pl-3;
-}
-
-/* Switch toggle enhancements */
-.enhanced-switch {
-  @apply w-12 h-6 rounded-full relative transition-all duration-200;
-}
-
-.enhanced-switch .thumb {
-  @apply w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-all duration-200;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-.enhanced-switch.on {
-  @apply bg-primary;
-}
-
-.enhanced-switch.on .thumb {
-  left: calc(100% - 22px);
-}
-
-.enhanced-switch.off {
-  @apply bg-gray-300;
+@keyframes icon-line-long {
+  0% {
+    width: 0;
+    right: 46px;
+    top: 54px;
+  }
+  65% {
+    width: 0;
+    right: 46px;
+    top: 54px;
+  }
+  84% {
+    width: 55px;
+    right: 0px;
+    top: 35px;
+  }
+  100% {
+    width: 47px;
+    right: 8px;
+    top: 38px;
+  }
 }

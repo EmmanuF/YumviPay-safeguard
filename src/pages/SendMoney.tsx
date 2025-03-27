@@ -3,13 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import Header from '@/components/Header';
-import BottomNavigation from '@/components/BottomNavigation';
 import { motion } from 'framer-motion';
 import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
 import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
-import { Check } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 
-// Define stepper steps
+// Define stepper steps with enhanced naming
 const steps = [
   { id: 'recipient', label: 'Recipient' },
   { id: 'payment', label: 'Payment' },
@@ -70,51 +69,103 @@ const SendMoney: React.FC = () => {
   // Get current step index
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
   
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    }
+  };
+  
   // Log when the current step changes
   useEffect(() => {
     console.log("SendMoney page: Current step changed to", currentStep);
   }, [currentStep]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <motion.div 
+      className="flex flex-col min-h-screen bg-gradient-to-br from-background to-muted/40"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <Header title="Send Money" showBackButton onBackClick={handleBack} />
       
-      {/* Stepper component */}
-      <div className="bg-white shadow-sm">
-        <div className="container px-4 py-4">
+      {/* Enhanced Stepper component with animations */}
+      <div className="bg-white shadow-sm relative overflow-hidden">
+        {/* Decorative background element */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
+        
+        <div className="container px-4 py-6">
           <div className="flex justify-between items-center">
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
-                {/* Step circle */}
+                {/* Step circle with enhanced styling */}
                 <div className="flex flex-col items-center">
-                  <div 
-                    className={`rounded-full w-8 h-8 flex items-center justify-center ${
+                  <motion.div 
+                    className={`rounded-full w-10 h-10 flex items-center justify-center shadow-md ${
                       index < currentStepIndex 
                         ? 'bg-primary text-white' 
                         : index === currentStepIndex 
-                          ? 'bg-secondary text-white' 
-                          : 'bg-gray-200 text-gray-600'
+                          ? 'bg-gradient-to-br from-primary to-primary-700 text-white' 
+                          : 'bg-gray-100 text-gray-500 border border-gray-200'
                     }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ 
+                      scale: 1, 
+                      opacity: 1,
+                      transition: { delay: 0.1 * index }
+                    }}
                   >
                     {index < currentStepIndex ? (
-                      <Check className="h-4 w-4" />
+                      <Check className="h-5 w-5" />
                     ) : (
-                      <span>{index + 1}</span>
+                      <span className="font-medium">{index + 1}</span>
                     )}
-                  </div>
-                  <span className="text-xs mt-1 text-gray-600">{step.label}</span>
+                  </motion.div>
+                  <motion.span 
+                    className="text-xs mt-2 font-medium"
+                    initial={{ opacity: 0 }}
+                    animate={{ 
+                      opacity: 1,
+                      transition: { delay: 0.1 * index + 0.2 }
+                    }}
+                  >
+                    {step.label}
+                  </motion.span>
                 </div>
                 
-                {/* Connector line (except after last step) */}
+                {/* Connector line with animation */}
                 {index < steps.length - 1 && (
-                  <div className="flex-1 mx-1 h-px bg-gray-300 relative">
-                    <div 
-                      className="absolute inset-0 bg-primary transition-all duration-300 ease-in-out"
-                      style={{ 
-                        width: index < currentStepIndex ? '100%' : '0%',
-                        opacity: index < currentStepIndex ? 1 : 0.3
+                  <div className="flex-1 mx-2 h-px bg-gray-200 relative">
+                    <motion.div 
+                      className="absolute inset-0 bg-primary"
+                      initial={{ width: "0%" }}
+                      animate={{ 
+                        width: index < currentStepIndex ? "100%" : "0%",
+                        transition: { 
+                          duration: 0.5, 
+                          ease: "easeInOut",
+                          delay: index < currentStepIndex ? 0.3 + (0.1 * index) : 0
+                        }
                       }}
-                    ></div>
+                    ></motion.div>
                   </div>
                 )}
               </React.Fragment>
@@ -123,12 +174,10 @@ const SendMoney: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex-1 p-4 bg-muted/30 pb-24">
+      <div className="flex-1 p-4 bg-muted/10 pb-24">
         <div className="container mx-auto max-w-md">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            variants={itemVariants}
             className="w-full"
           >
             <SendMoneyStepRenderer
@@ -143,9 +192,7 @@ const SendMoney: React.FC = () => {
           </motion.div>
         </div>
       </div>
-      
-      <BottomNavigation />
-    </div>
+    </motion.div>
   );
 };
 

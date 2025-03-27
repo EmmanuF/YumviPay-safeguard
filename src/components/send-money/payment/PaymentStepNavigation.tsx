@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface PaymentStepNavigationProps {
   onNext: () => void;
@@ -22,7 +22,7 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
     visible: { 
       y: 0, 
       opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
+      transition: { type: 'spring', stiffness: 300, damping: 24, delay: 0.4 }
     }
   };
 
@@ -38,21 +38,25 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   };
 
   return (
-    <motion.div variants={itemVariants} className="w-full pt-6 flex gap-4 mb-20 mt-8 sticky bottom-0 z-10 bg-background">
+    <motion.div 
+      variants={itemVariants} 
+      className="w-full pt-6 flex gap-4 mb-20 mt-8 sticky bottom-0 z-10 bg-gradient-to-t from-background via-background to-transparent pb-4"
+    >
       <Button 
         type="button"
         variant="outline"
         onClick={handleBackClick} 
-        className="flex-1 border-secondary-300 h-14" 
+        className="flex-1 border-primary-200 hover:border-primary-300 h-14 text-base group btn-hover-effect" 
         size="lg"
         disabled={isSubmitting}
       >
+        <ArrowLeft className="mr-2 h-5 w-5 transition-transform group-hover:-translate-x-1" />
         Back
       </Button>
       <Button 
         type="button"
         onClick={handleNextClick} 
-        className="flex-1 bg-primary hover:bg-primary-600 group h-14" 
+        className="flex-1 bg-gradient-to-br from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 group h-14 text-base shadow-md btn-hover-effect" 
         size="lg"
         disabled={isSubmitting || isNextDisabled}
       >

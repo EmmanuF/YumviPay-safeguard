@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "@/components/ui/switch";
-import { User, Phone, Info } from 'lucide-react';
+import { User, Phone, Info, Users, Star, StarOff } from 'lucide-react';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 
 const formSchema = z.object({
@@ -75,7 +75,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { staggerChildren: 0.1 }
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
   };
 
@@ -127,40 +127,53 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       className="space-y-6 pb-20" // Added padding at bottom to ensure buttons are visible
     >
       <motion.div variants={itemVariants}>
-        <Card className="shadow-lg border border-secondary-100/30">
+        <Card className="glass-effect border-primary-100/30 shadow-lg">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-center text-indigo-800 mb-6">
+            <motion.h2 
+              className="text-2xl font-bold text-center text-gradient-primary mb-2"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1, transition: { delay: 0.2 } }}
+            >
               Who are you sending to?
-            </h2>
-            <p className="text-center text-muted-foreground mb-6">
+            </motion.h2>
+            <motion.p 
+              className="text-center text-muted-foreground mb-8"
+              initial={{ y: -5, opacity: 0 }}
+              animate={{ y: 0, opacity: 1, transition: { delay: 0.3 } }}
+            >
               Choose a recipient or add a new one
-            </p>
+            </motion.p>
 
             <Form {...form}>
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <FormField
                   control={form.control}
                   name="recipientName"
                   render={({ field }) => (
-                    <FormItem className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                      <FormLabel className="flex items-center text-indigo-600 font-medium">
-                        <User className="h-4 w-4 mr-2" />
-                        Recipient Name <span className="text-red-500 ml-1">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            placeholder="Full name of recipient" 
-                            className="pl-3 form-control-modern"
-                            {...field} 
-                          />
-                        </div>
-                      </FormControl>
-                      <FormDescription className="text-xs text-gray-500 ml-6">
-                        Enter the full name as it appears on their ID.
-                      </FormDescription>
-                      <FormMessage className="text-sm text-red-500 ml-6" />
-                    </FormItem>
+                    <motion.div
+                      variants={itemVariants}
+                      className="card-hover"
+                    >
+                      <FormItem className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
+                        <FormLabel className="flex items-center text-primary-600 font-medium text-base">
+                          <User className="h-5 w-5 mr-2 text-primary" />
+                          Recipient Name <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative mt-2">
+                            <Input 
+                              placeholder="Full name of recipient" 
+                              className="pl-3 form-control-modern h-12 text-base bg-white/80 backdrop-blur-sm border-primary-100/50 focus-visible:ring-primary-400/30"
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormDescription className="text-xs text-gray-500 ml-6 mt-2">
+                          Enter the full name as it appears on their ID.
+                        </FormDescription>
+                        <FormMessage className="text-sm text-red-500 ml-6 mt-1" />
+                      </FormItem>
+                    </motion.div>
                   )}
                 />
 
@@ -168,32 +181,37 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   control={form.control}
                   name="recipientContact"
                   render={({ field }) => (
-                    <FormItem className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                      <FormLabel className="flex items-center text-indigo-600 font-medium">
-                        <Phone className="h-4 w-4 mr-2" />
-                        Phone Number <span className="text-red-500 ml-1">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            placeholder="+237 6XX XXX XXX" 
-                            className="pl-3 form-control-modern"
-                            {...field} 
-                            onChange={(e) => {
-                              const formatted = formatPhoneNumber(e.target.value);
-                              field.onChange(formatted);
-                            }}
-                          />
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                            <Info className="h-4 w-4" />
+                    <motion.div
+                      variants={itemVariants}
+                      className="card-hover"
+                    >
+                      <FormItem className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80">
+                        <FormLabel className="flex items-center text-primary-600 font-medium text-base">
+                          <Phone className="h-5 w-5 mr-2 text-primary" />
+                          Phone Number <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative mt-2">
+                            <Input 
+                              placeholder="+237 6XX XXX XXX" 
+                              className="pl-3 form-control-modern h-12 text-base bg-white/80 backdrop-blur-sm border-primary-100/50 focus-visible:ring-primary-400/30"
+                              {...field} 
+                              onChange={(e) => {
+                                const formatted = formatPhoneNumber(e.target.value);
+                                field.onChange(formatted);
+                              }}
+                            />
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                              <Info className="h-4 w-4" />
+                            </div>
                           </div>
-                        </div>
-                      </FormControl>
-                      <FormDescription className="text-xs text-gray-500 ml-6">
-                        Must include country code (+237 for Cameroon)
-                      </FormDescription>
-                      <FormMessage className="text-sm text-red-500 ml-6" />
-                    </FormItem>
+                        </FormControl>
+                        <FormDescription className="text-xs text-gray-500 ml-6 mt-2">
+                          Must include country code (+237 for Cameroon)
+                        </FormDescription>
+                        <FormMessage className="text-sm text-red-500 ml-6 mt-1" />
+                      </FormItem>
+                    </motion.div>
                   )}
                 />
 
@@ -201,21 +219,34 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                   control={form.control}
                   name="saveToFavorites"
                   render={({ field }) => (
-                    <FormItem className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
-                      <div>
-                        <FormLabel className="text-indigo-600 font-medium">Save to Favorites</FormLabel>
-                        <FormDescription className="text-xs text-gray-500">
-                          Add this recipient to your frequent contacts
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-primary"
-                        />
-                      </FormControl>
-                    </FormItem>
+                    <motion.div
+                      variants={itemVariants}
+                      className="card-hover"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <FormItem className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between">
+                        <div className="flex items-center">
+                          {field.value ? (
+                            <Star className="h-5 w-5 mr-3 text-yellow-500" />
+                          ) : (
+                            <StarOff className="h-5 w-5 mr-3 text-gray-400" />
+                          )}
+                          <div>
+                            <FormLabel className="text-primary-600 font-medium text-base">Save to Favorites</FormLabel>
+                            <FormDescription className="text-xs text-gray-500">
+                              Add this recipient to your frequent contacts
+                            </FormDescription>
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-primary"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </motion.div>
                   )}
                 />
 
