@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
           authError: 'Temporary authentication service disruption. Using cached state.'
         }));
         
-        return prev;
+        return authState; // Fix: Replace 'prev' with 'authState' to reference the current state
       } else {
         setAuthState(prev => ({
           ...prev,
@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         throw error;
       }
     }
-  }, []);
+  }, [authState]); // Add authState as a dependency since we're using it in the function
 
   // Implement sign-in function
   const signIn = async (email: string, password: string) => {
