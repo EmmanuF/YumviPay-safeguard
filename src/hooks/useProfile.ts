@@ -52,21 +52,37 @@ export const useProfile = () => {
 
   const handleLogout = async () => {
     try {
-      await toast.promise(
-        async () => {
-          const { signOut } = useAuth();
-          await signOut();
-        },
-        {
-          loading: "Logging out...",
-          success: "Logged out successfully",
-          error: "Failed to log out"
-        }
-      );
+      // Create a loading toast
+      const loadingToast = toast({
+        title: "Logging out...",
+        variant: "default"
+      });
       
-      navigate('/');
+      try {
+        const { signOut } = useAuth();
+        await signOut();
+        
+        // Dismiss the loading toast and show success
+        loadingToast.dismiss();
+        toast({
+          title: "Success",
+          description: "Logged out successfully",
+          variant: "success"
+        });
+        
+        navigate('/');
+      } catch (error) {
+        // Dismiss the loading toast and show error
+        loadingToast.dismiss();
+        toast({
+          title: "Error",
+          description: "Failed to log out",
+          variant: "destructive"
+        });
+        console.error('Error logging out:', error);
+      }
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error('Error during logout process:', error);
     }
   };
 
