@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
 // Country flag icons for language selection
@@ -56,7 +55,7 @@ const LocaleSwitcher: React.FC = () => {
           className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-md h-auto ${
             isMobile 
               ? "bg-white/90 text-gray-800 backdrop-blur-sm shadow-sm hover:bg-white/95" 
-              : "hover:bg-white/20 text-gray-800"
+              : "text-white hover:bg-white/20 font-medium"
           }`}
         >
           <span className="text-base">{LanguageFlags[currentLocale].flag}</span>
