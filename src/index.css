@@ -9,6 +9,8 @@
 @import './styles/animations-extended.css';
 @import './styles/interactive-elements.css';
 @import './styles/shapes.css';
+@import './styles/responsive.css';
+@import './styles/forms.css';
 
 /* Hero background styles with enhanced glass effect */
 .hero-bg {

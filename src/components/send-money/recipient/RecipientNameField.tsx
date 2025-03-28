@@ -27,11 +27,11 @@ export const RecipientNameField: React.FC = () => {
           className="card-hover transform transition-all duration-200 hover:translate-y-[-2px]"
         >
           <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-300/30 via-primary-500/50 to-primary-300/30"></div>
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-secondary-300/30 via-secondary-500/50 to-secondary-300/30"></div>
             
-            <FormLabel className="flex items-center text-primary-600 font-medium text-base mb-2">
-              <div className="bg-primary-50 p-1.5 rounded-full mr-2">
-                <User className="h-4 w-4 text-primary" />
+            <FormLabel className="flex items-center text-secondary-700 font-medium text-base mb-3">
+              <div className="bg-secondary-50 p-1.5 rounded-full mr-2">
+                <User className="h-4 w-4 text-secondary-600" />
               </div>
               Recipient Name <span className="text-red-500 ml-1">*</span>
             </FormLabel>
@@ -44,7 +44,7 @@ export const RecipientNameField: React.FC = () => {
               <div className="relative mt-1">
                 <Input 
                   placeholder="e.g. John Doe" 
-                  className="pl-4 form-control-modern h-12 text-base bg-white border-primary-100/50 focus-visible:ring-primary-400/30 transition-all duration-200"
+                  className="pl-4 form-control-modern h-14 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
                   {...field} 
                 />
                 <TooltipProvider>

@@ -53,7 +53,7 @@ export const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
           <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-secondary-300/30 via-secondary-500/50 to-secondary-300/30"></div>
             
-            <FormLabel className="flex items-center text-primary-600 font-medium text-base mb-2">
+            <FormLabel className="flex items-center text-secondary-700 font-medium text-base mb-3">
               <div className="bg-secondary-50 p-1.5 rounded-full mr-2">
                 <Phone className="h-4 w-4 text-secondary-600" />
               </div>
@@ -70,7 +70,7 @@ export const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
               <div className="relative mt-1">
                 <Input 
                   placeholder={selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
-                  className="pl-4 form-control-modern h-12 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
+                  className="pl-4 form-control-modern h-14 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
                   maxLength={getPhoneMaxLength(selectedCountry)}
                   {...field} 
                   onChange={(e) => {

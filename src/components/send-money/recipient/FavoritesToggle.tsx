@@ -36,7 +36,7 @@ export const FavoritesToggle: React.FC = () => {
                 )}
               </div>
               <div>
-                <FormLabel className="text-primary-600 font-medium text-base">Save to Favorites</FormLabel>
+                <FormLabel className="text-secondary-700 font-medium text-base">Save to Favorites</FormLabel>
                 <FormDescription className="text-xs text-gray-500">
                   Add this recipient to your frequent contacts for faster transfers
                 </FormDescription>
