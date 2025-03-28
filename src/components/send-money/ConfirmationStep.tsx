@@ -8,6 +8,7 @@ import { useCountries } from '@/hooks/useCountries';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/utils/formatUtils';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
+import { Separator } from '@/components/ui/separator';
 
 export interface ConfirmationStepProps {
   transactionData: {
@@ -123,7 +124,7 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
           
           <CardContent className="p-6 space-y-6">
-            {/* Amount section */}
+            {/* Amount section with enhanced styling */}
             <motion.div 
               className="bg-white/90 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 card-hover"
               variants={itemVariants}
@@ -131,12 +132,12 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             >
               <h3 className="text-lg font-semibold text-primary-700 mb-3">Transfer Amount</h3>
               <div className="flex justify-between items-center">
-                <div className="bg-primary-50/60 p-3 rounded-lg">
-                  <p className="text-sm text-primary-600">You send</p>
-                  <p className="text-xl font-bold text-primary-800">{formatCurrency(transactionData.amount, transactionData.sourceCurrency)}</p>
+                <div className="bg-primary-50/70 p-3 rounded-lg border border-primary-100/40">
+                  <p className="text-sm text-primary-600 font-medium">You send</p>
+                  <p className="text-xl font-bold text-primary-600">{formatCurrency(transactionData.amount, transactionData.sourceCurrency)}</p>
                 </div>
                 <div className="text-center px-3 relative">
-                  <div className="bg-gray-100 w-full h-0.5 absolute top-1/2 left-0 right-0 transform -translate-y-1/2"></div>
+                  <div className="bg-gradient-to-r from-primary-100/30 via-primary-100 to-secondary-100/30 w-full h-0.5 absolute top-1/2 left-0 right-0 transform -translate-y-1/2"></div>
                   <div className="relative">
                     <motion.div
                       animate={{
@@ -152,16 +153,16 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                     </motion.div>
                   </div>
                 </div>
-                <div className="bg-secondary-50/60 p-3 rounded-lg text-right">
-                  <p className="text-sm text-secondary-600">Recipient gets</p>
-                  <p className="text-xl font-bold text-secondary-800">{formatCurrency(transactionData.convertedAmount, transactionData.targetCurrency)}</p>
+                <div className="bg-secondary-50/70 p-3 rounded-lg border border-secondary-100/40">
+                  <p className="text-sm text-secondary-600 font-medium">Recipient gets</p>
+                  <p className="text-xl font-bold text-secondary-600">{formatCurrency(transactionData.convertedAmount, transactionData.targetCurrency)}</p>
                 </div>
               </div>
               
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Exchange rate</span>
-                  <span className="font-medium">
+                  <span className="font-medium text-gray-700">
                     1 {transactionData.sourceCurrency} = {(transactionData.convertedAmount / transactionData.amount).toFixed(2)} {transactionData.targetCurrency}
                   </span>
                 </div>
@@ -176,14 +177,16 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                   className="flex items-center justify-center mt-4"
                 >
                   <Badge 
-                    variant="outline" 
-                    className="bg-green-50 text-green-700 border-green-200 px-3 py-1 flex items-center"
+                    variant="success"
+                    className="px-3 py-1 flex items-center"
                   >
                     <CheckCircle className="h-3 w-3 mr-1" /> Best Rate Available
                   </Badge>
                 </motion.div>
               </div>
             </motion.div>
+            
+            <Separator className="my-2 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
             
             {/* Recipient details */}
             <motion.div 
@@ -203,6 +206,8 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 </div>
               </div>
             </motion.div>
+            
+            <Separator className="my-2 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
             
             {/* Payment method details */}
             <motion.div 
@@ -256,6 +261,8 @@ const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 </motion.div>
               )}
             </AnimatePresence>
+            
+            <Separator className="my-2 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
             
             {/* Estimated Delivery */}
             <motion.div 
