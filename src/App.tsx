@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { AuthProvider } from '@/contexts/auth'; // Updated import path
@@ -92,6 +92,14 @@ function App() {
                     </ProtectedRoute>
                   } />
                   <Route path="/transactions" element={
+                    <ProtectedRoute>
+                      <MobileAppLayout>
+                        <TransactionHistory />
+                      </MobileAppLayout>
+                    </ProtectedRoute>
+                  } />
+                  {/* Add a route for /history that redirects to /transactions */}
+                  <Route path="/history" element={
                     <ProtectedRoute>
                       <MobileAppLayout>
                         <TransactionHistory />

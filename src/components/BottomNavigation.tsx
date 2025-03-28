@@ -7,7 +7,14 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // Handle both /history and /transactions paths for the history tab
+    if ((path === '/history' || path === '/transactions') && 
+        (location.pathname === '/history' || location.pathname === '/transactions')) {
+      return true;
+    }
+    return location.pathname === path;
+  };
   
   const navigationItems = [
     { path: '/dashboard', icon: Home, label: 'Home' },
@@ -45,4 +52,3 @@ const BottomNavigation = () => {
 };
 
 export default BottomNavigation;
-

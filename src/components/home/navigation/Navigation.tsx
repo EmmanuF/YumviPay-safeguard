@@ -38,7 +38,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     {
       name: t('nav.history'),
       icon: <Clock className="w-5 h-5" />,
-      path: '/transactions',
+      path: '/history',
     },
     {
       name: t('nav.profile'),
