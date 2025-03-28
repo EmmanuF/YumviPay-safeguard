@@ -2,15 +2,21 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 const ProfileLoading: React.FC = () => {
   return (
     <div className="p-4 space-y-4">
-      <div className="flex flex-col items-center space-y-4 p-4">
+      <motion.div 
+        className="flex flex-col items-center space-y-4 p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <Skeleton className="h-24 w-24 rounded-full" />
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-36" />
-      </div>
+      </motion.div>
       
       <Card className="p-4 space-y-4">
         <Skeleton className="h-10 w-full" />

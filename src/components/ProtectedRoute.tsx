@@ -14,7 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
   
-  // Simplified auth checking that reduces redundant API calls
+  // Better auth checking that prevents cascading state changes
   const checkAuth = useCallback(async () => {
     try {
       console.log('Checking auth in ProtectedRoute for', location.pathname, 'isLoggedIn:', isLoggedIn);
@@ -39,8 +39,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           await refreshAuthState();
         } catch (error) {
           console.error('Error refreshing auth state:', error);
-          // Still continue to set isChecking to false so we don't get stuck
         } finally {
+          // Always mark checking as complete when done
           setIsChecking(false);
         }
       }
@@ -82,7 +82,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         console.log('Auth check timeout reached, proceeding with current state');
         setIsChecking(false);
       }
-    }, 5000); // 5 second timeout
+    }, 3000); // 3 second timeout - reduced from 5 seconds for better UX
     
     return () => clearTimeout(timeoutId);
   }, [isChecking]);
