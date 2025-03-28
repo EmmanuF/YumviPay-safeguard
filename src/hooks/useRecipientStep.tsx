@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Contact as ContactType, importContacts } from '@/services/contacts';
 import { useCountries } from '@/hooks/useCountries';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 export const formSchema = z.object({
   recipientName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -53,7 +53,6 @@ export const useRecipientStep = ({
   const [showContactsDialog, setShowContactsDialog] = useState(false);
   const [contacts, setContacts] = useState<ContactType[]>([]);
   const [isLoadingContacts, setIsLoadingContacts] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<RecipientFormValues>({
     resolver: zodResolver(formSchema),
@@ -72,6 +71,7 @@ export const useRecipientStep = ({
     form.setValue('countryCode', selectedCountry);
   }, [selectedCountry, form]);
 
+  // Format phone number based on country code
   const formatPhoneNumber = (value: string, countryCode: string = 'CM') => {
     let cleaned = value.replace(/[^\d+]/g, '');
     
@@ -153,29 +153,17 @@ export const useRecipientStep = ({
 
   const onSubmit = (values: RecipientFormValues) => {
     console.log("Form submitted with values:", values);
-    console.log("🔍 Recipient Form Submission - Values:", values);
-    console.log("🔍 Name Match Confirmed:", values.nameMatchConfirmed);
+    updateTransactionData({
+      recipientName: values.recipientName,
+      recipientContact: values.recipientContact,
+      recipient: values.recipientContact,
+      saveToFavorites: values.saveToFavorites,
+      targetCountry: values.countryCode,
+      nameMatchConfirmed: values.nameMatchConfirmed
+    });
     
-    try {
-      updateTransactionData({
-        recipientName: values.recipientName,
-        recipientContact: values.recipientContact,
-        recipient: values.recipientContact,
-        saveToFavorites: values.saveToFavorites,
-        targetCountry: values.countryCode,
-        nameMatchConfirmed: values.nameMatchConfirmed
-      });
-      
-      toast.success("Recipient information saved");
-      
-      console.log("Calling onNext() after successful form submission");
-      setTimeout(() => {
-        onNext();
-      }, 50);
-    } catch (error) {
-      console.error("Error in form submission:", error);
-      toast.error("Failed to save recipient information");
-    }
+    console.log("Calling onNext() after form submission");
+    onNext();
   };
 
   const handleLoadContacts = async () => {
@@ -213,46 +201,23 @@ export const useRecipientStep = ({
   const handleNextClick = () => {
     console.log("Next button clicked in RecipientStep with data:", form.getValues());
     
-    try {
-      setIsSubmitting(true);
-      
-      const nameConfirmed = form.getValues('nameMatchConfirmed');
-      if (!nameConfirmed) {
-        setShowNameMatchError(true);
-        form.setError('nameMatchConfirmed', { 
-          type: 'manual', 
-          message: 'You must confirm the recipient details are correct'
-        });
-        setIsSubmitting(false);
-        return;
-      }
-      
-      form.trigger().then(isValid => {
-        console.log("Form validation result:", isValid);
-        if (isValid) {
-          const formData = form.getValues();
-          console.log("Form is valid, submitting with data:", formData);
-          onSubmit(formData);
-        } else {
-          console.log("Form validation failed, errors:", form.formState.errors);
-          const errorFields = Object.keys(form.formState.errors);
-          if (errorFields.length > 0) {
-            const firstErrorField = document.querySelector(`[name="${errorFields[0]}"]`) as HTMLElement;
-            if (firstErrorField) {
-              firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              // Fix: Only call focus on HTMLElement
-              firstErrorField.focus();
-            }
-          }
-          toast.error("Please fix the form errors before continuing");
-        }
-        setIsSubmitting(false);
+    const nameConfirmed = form.getValues('nameMatchConfirmed');
+    if (!nameConfirmed) {
+      setShowNameMatchError(true);
+      form.setError('nameMatchConfirmed', { 
+        type: 'manual', 
+        message: 'You must confirm the recipient details are correct'
       });
-    } catch (error) {
-      console.error("Error in handleNextClick:", error);
-      toast.error("An error occurred while processing your request");
-      setIsSubmitting(false);
     }
+    
+    form.trigger().then(isValid => {
+      console.log("Form validation result:", isValid);
+      if (isValid) {
+        form.handleSubmit(onSubmit)();
+      } else {
+        console.log("Form validation failed, not submitting");
+      }
+    });
   };
 
   const handleCountryChange = (code: string) => {
@@ -305,7 +270,6 @@ export const useRecipientStep = ({
     contacts,
     isLoadingContacts,
     isFormValid: form.formState.isValid,
-    isSubmitting,
     handleLoadContacts,
     handleContactSelect,
     handleBackClick,
