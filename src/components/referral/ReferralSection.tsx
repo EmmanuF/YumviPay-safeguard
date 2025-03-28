@@ -40,7 +40,7 @@ const ReferralSection: React.FC = () => {
       try {
         await navigator.share({
           title: 'Join Yumvi-Pay!',
-          text: 'I use Yumvi-Pay to send money to Africa. Join using my referral code!',
+          text: 'I use Yumvi-Pay to send money to Africa. Join using my referral code and we both earn $20!',
           url: referralLink,
         });
         toast({
@@ -73,10 +73,10 @@ const ReferralSection: React.FC = () => {
         <CardHeader className="bg-gradient-to-r from-primary-50 to-secondary-50 pb-2">
           <div className="flex items-center">
             <UserPlus className="w-5 h-5 mr-2 text-primary-600" />
-            <CardTitle className="text-xl text-primary-800">Refer Friends & Earn</CardTitle>
+            <CardTitle className="text-xl text-primary-800">Refer Friends & Earn $20</CardTitle>
           </div>
           <CardDescription>
-            Invite friends to Yumvi-Pay and both of you will receive benefits
+            Invite friends to Yumvi-Pay and both of you will receive $20 cash rewards
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">
@@ -120,8 +120,22 @@ const ReferralSection: React.FC = () => {
               </li>
               <li className="flex items-start">
                 <span className="bg-secondary-100 text-secondary-700 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">3</span>
-                <span>Both of you receive transaction fee discounts</span>
+                <span>They complete a transaction of at least $100</span>
               </li>
+              <li className="flex items-start">
+                <span className="bg-secondary-100 text-secondary-700 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 mt-0.5">4</span>
+                <span>Both of you receive $20 cash rewards!</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="border border-primary-100 rounded-lg p-4">
+            <h4 className="font-medium text-primary-800 mb-2">Referral Program Terms:</h4>
+            <ul className="text-xs space-y-1 text-gray-600 list-disc pl-4">
+              <li>Your friend must sign up using your referral code or link</li>
+              <li>The reward is earned after they complete a transaction of at least $100</li>
+              <li>Cash rewards will be credited to your Yumvi-Pay account</li>
+              <li>There is no limit to how many friends you can refer</li>
             </ul>
           </div>
         </CardContent>

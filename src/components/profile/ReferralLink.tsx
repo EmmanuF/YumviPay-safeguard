@@ -23,9 +23,9 @@ const ReferralLink = () => {
         onClick={handleNavigateToReferral}
       >
         <UserPlus className="h-5 w-5 mr-3 text-primary-600" />
-        Invite Friends & Earn
+        Invite Friends & Earn $20
         <span className="ml-auto text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded-full">
-          Rewards
+          Cash Rewards
         </span>
       </Button>
     </div>
