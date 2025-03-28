@@ -1,13 +1,23 @@
 
+// No file content provided, need to create this file
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 interface FooterLinkProps {
   to: string;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
-const FooterLink: React.FC<FooterLinkProps> = ({ to, children }) => {
+const FooterLink: React.FC<FooterLinkProps> = ({ to, children, disabled = false }) => {
+  if (disabled) {
+    return (
+      <span className="text-gray-400 cursor-not-allowed text-sm">
+        {children}
+      </span>
+    );
+  }
+  
   return (
     <Link 
       to={to}

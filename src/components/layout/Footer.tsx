@@ -61,25 +61,25 @@ const Footer = () => {
               {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>
-                <FooterLink to="/careers">{t('footer.careers')}</FooterLink>
-                <FooterLink to="/press">{t('footer.press')}</FooterLink>
-                <FooterLink to="/blog">{t('footer.blog')}</FooterLink>
+                <FooterLink to="/careers" disabled>{t('footer.careers')} (Coming Soon)</FooterLink>
+                <FooterLink to="/press" disabled>{t('footer.press')} (Coming Soon)</FooterLink>
+                <FooterLink to="/blog" disabled>{t('footer.blog')} (Coming Soon)</FooterLink>
               </FooterSection>
               
               {/* Legal Links */}
               <FooterSection title={t('footer.legal')}>
                 <FooterLink to="/terms">{t('footer.terms')}</FooterLink>
                 <FooterLink to="/privacy">{t('footer.privacy')}</FooterLink>
-                <FooterLink to="/security">{t('footer.security')}</FooterLink>
-                <FooterLink to="/compliance">{t('footer.compliance')}</FooterLink>
-                <FooterLink to="/cookies">{t('footer.cookies')}</FooterLink>
+                <FooterLink to="/security" disabled>{t('footer.security')} (Coming Soon)</FooterLink>
+                <FooterLink to="/compliance" disabled>{t('footer.compliance')} (Coming Soon)</FooterLink>
+                <FooterLink to="/cookies" disabled>{t('footer.cookies')} (Coming Soon)</FooterLink>
               </FooterSection>
               
               {/* Help & Support Links */}
               <FooterSection title={t('footer.help')}>
                 <FooterLink to="/faq">{t('footer.faq')}</FooterLink>
                 <FooterLink to="/contact">{t('footer.contact')}</FooterLink>
-                <FooterLink to="/support">{t('footer.support')}</FooterLink>
+                <FooterLink to="/support" disabled>{t('footer.support')} (Coming Soon)</FooterLink>
               </FooterSection>
               
               {/* Countries section */}
