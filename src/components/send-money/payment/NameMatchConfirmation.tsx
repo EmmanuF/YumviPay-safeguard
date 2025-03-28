@@ -20,7 +20,7 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
       <Alert 
         variant={showError ? "destructive" : "warning"}
         className={`
-          relative overflow-hidden
+          rounded-xl shadow-md relative overflow-hidden
           ${showError 
             ? 'border-red-200 bg-red-50 text-red-800' 
             : 'border-amber-200 bg-amber-50 text-amber-800'}
@@ -37,32 +37,34 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
         
         {showError ? (
           <AlertCircle 
-            className="h-5 w-5 text-red-500" 
+            className="h-6 w-6 text-red-500 absolute left-4 top-4" 
             aria-hidden="true"
           />
         ) : (
           <AlertTriangle 
-            className="h-5 w-5 text-amber-500" 
+            className="h-6 w-6 text-amber-500 absolute left-4 top-4" 
             aria-hidden="true"
           />
         )}
         
-        <AlertTitle className={`text-base font-medium mb-1 ${showError ? 'text-red-700' : 'text-amber-800'}`}>
-          Confirm recipient details
-        </AlertTitle>
+        <div className="pl-10">
+          <AlertTitle className={`text-base font-medium mb-2 ${showError ? 'text-red-700' : 'text-amber-800'}`}>
+            Confirm recipient details
+          </AlertTitle>
+          
+          <AlertDescription className={`text-sm ${showError ? 'text-red-600' : 'text-amber-700'}`}>
+            Before proceeding, please verify that you have entered the recipient's name 
+            <span className="font-semibold"> EXACTLY </span> 
+            as it appears on their account. Mismatched names may result in failed transfers or funds being sent to the wrong person.
+          </AlertDescription>
+        </div>
         
-        <AlertDescription className={`text-sm ${showError ? 'text-red-600' : 'text-amber-700'}`}>
-          Before proceeding, please verify that you have entered the recipient's name 
-          <span className="font-semibold"> EXACTLY </span> 
-          as it appears on their account. Mismatched names may result in failed transfers or funds being sent to the wrong person.
-        </AlertDescription>
-        
-        <div className="mt-4 flex items-start gap-3">
+        <div className="mt-4 flex items-start gap-4 pl-10">
           <Checkbox 
             id="recipient-confirmation" 
             checked={isChecked} 
             onCheckedChange={onCheckedChange} 
-            className={`mt-0.5 ${showError 
+            className={`mt-0.5 h-5 w-5 ${showError 
               ? 'border-red-500 data-[state=checked]:bg-red-500 data-[state=checked]:text-white' 
               : 'border-amber-500 data-[state=checked]:bg-amber-500 data-[state=checked]:text-white'
             }`}
@@ -79,7 +81,7 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
         </div>
         
         {showError && (
-          <div className="mt-3 px-3 py-2 rounded bg-red-100 border border-red-200 text-sm text-red-700 font-medium">
+          <div className="mt-3 mx-10 px-4 py-3 rounded-lg bg-red-100 border border-red-200 text-sm text-red-700 font-medium">
             You must confirm that the recipient details are correct to continue
           </div>
         )}
