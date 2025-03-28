@@ -121,6 +121,9 @@ const Home = () => {
             </motion.div>
           </div>
         </div>
+        
+        {/* Added a gradient transition to the footer */}
+        <div className="h-16 bg-gradient-to-b from-muted/20 via-indigo-50/30 to-indigo-100/40"></div>
       </div>
       
       {/* Add debug tools */}

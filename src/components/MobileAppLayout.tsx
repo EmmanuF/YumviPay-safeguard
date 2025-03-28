@@ -172,7 +172,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       {!hideBottomNav && <BottomNavigation />}
       
-      {!hideFooter && <Footer />}
+      {/* Added footer-glow class to create a visual transition effect */}
+      {!hideFooter && <div className="footer-glow relative mt-8"><Footer /></div>}
       
       <Toaster 
         position="top-center"

@@ -1,0 +1,88 @@
+
+/* Footer gradient and glow effects */
+.footer-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-glow::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(91, 60, 196, 0.1));
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Enhanced bubble animations for the footer */
+.footer-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05) 60%, transparent);
+  opacity: 0.2;
+  filter: blur(8px);
+  animation: float 15s ease-in-out infinite;
+}
+
+.footer-bubble-1 {
+  width: 150px;
+  height: 150px;
+  top: 10%;
+  left: 5%;
+  animation-delay: 0s;
+}
+
+.footer-bubble-2 {
+  width: 100px;
+  height: 100px;
+  top: 20%;
+  right: 10%;
+  animation-delay: -5s;
+}
+
+.footer-bubble-3 {
+  width: 80px;
+  height: 80px;
+  bottom: 30%;
+  right: 20%;
+  animation-delay: -10s;
+}
+
+/* Animated decorative lines */
+.footer-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: rotate(-5deg);
+  opacity: 0.3;
+}
+
+.footer-line-1 {
+  width: 30%;
+  top: 30%;
+  left: 0;
+}
+
+.footer-line-2 {
+  width: 20%;
+  top: 40%;
+  right: 10%;
+}
+
+.footer-line-3 {
+  width: 40%;
+  bottom: 20%;
+  left: 20%;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.05);
+  }
+}

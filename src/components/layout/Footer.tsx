@@ -17,7 +17,13 @@ const Footer = () => {
   const isMobile = useIsMobile();
   
   return (
-    <footer className="bg-gradient-to-b from-indigo-800/95 to-indigo-900 pt-16 pb-6 relative">
+    <footer className="relative pt-16 pb-6">
+      {/* Gradient glow transition effect */}
+      <div className="absolute inset-0 -top-40 w-full bg-gradient-to-b from-transparent via-indigo-900/30 to-indigo-800/95 pointer-events-none"></div>
+      
+      {/* Main footer background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-800/95 to-indigo-900 pointer-events-none"></div>
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="footer-bubble footer-bubble-1"></div>
@@ -29,9 +35,12 @@ const Footer = () => {
         <div className="footer-line footer-line-3"></div>
       </div>
 
-      {/* Subtle top separator */}
+      {/* Subtle top separator with enhanced glow */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-300/20 via-primary-300/60 to-primary-300/20"></div>
       <div className="absolute top-1 left-0 w-full h-8 bg-gradient-to-b from-white/10 to-transparent"></div>
+      
+      {/* Horizontal light beam effect */}
+      <div className="absolute top-8 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-300/40 to-transparent"></div>
       
       <div className="container mx-auto px-5 relative z-10">
         {/* Main Footer Content */}
