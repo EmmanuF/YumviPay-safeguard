@@ -31,14 +31,19 @@ const BottomNavigation = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-100 z-50">
       <div className="flex justify-between items-center px-2">
-        {navigationItems.map((item) => {
+        {navigationItems.map((item, index) => {
+          // Skip duplicate history entries
+          if (index === 3 && navigationItems[0].path === '/history') {
+            return null;
+          }
+          
           const isActiveItem = isActive(item.path);
           const Icon = item.icon;
           
           return (
             <button
-              key={item.path + item.label}
-              className={`flex flex-col items-center justify-center py-2 px-3 w-1/5 transition-colors ${
+              key={item.path + item.label + index}
+              className={`flex flex-col items-center justify-center py-2 px-3 w-1/4 transition-colors ${
                 isActiveItem ? 'text-primary' : 'text-gray-500 hover:text-primary-600'
               }`}
               onClick={() => navigate(item.path)}

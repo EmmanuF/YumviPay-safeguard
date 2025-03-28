@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
 import { Locale } from '@/types/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocation } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,7 @@ const LanguageFlags: Record<Locale, { flag: string, label: string }> = {
 const LocaleSwitcher: React.FC = () => {
   const { locale, setLocale, t } = useLocale();
   const isMobile = useIsMobile();
+  const location = useLocation();
   
   const locales: { key: Locale; label: string }[] = [
     { key: 'en', label: 'English' },

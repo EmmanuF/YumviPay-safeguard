@@ -3,7 +3,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth';
 import { useLocale } from '@/contexts/LocaleContext';
-import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 interface ActionButtonsProps {
   handleNavigation: (path: string) => void;
@@ -23,8 +22,6 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 
   return (
     <div className="flex items-center space-x-5">
-      <LocaleSwitcher />
-      
       {!isLoggedIn ? (
         <button
           onClick={() => handleNavigation('/signin')}

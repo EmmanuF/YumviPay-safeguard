@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -54,6 +55,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   
   const isSendMoneyPage = location.pathname.includes('/send');
   const isTransactionPage = location.pathname.includes('/transaction');
+  const isProfilePage = location.pathname.includes('/profile');
 
   const hideBottomNav = isSendMoneyPage || isTransactionPage;
 
@@ -64,6 +66,9 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const contentPaddingClass = isMobile && isSendMoneyPage ? 'pb-24' : '';
 
   const hideHeader = isSendMoneyPage;
+
+  // Don't show LocaleSwitcher in profile page since it's already in the header
+  const shouldShowLocaleSwitcher = !isProfilePage;
 
   const pageVariants = {
     initial: { 
@@ -122,7 +127,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           }}
           className="z-10"
         >
-          <Header />
+          <Header showNotification={shouldShowLocaleSwitcher} />
         </motion.div>
       )}
       

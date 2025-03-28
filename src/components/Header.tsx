@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({
   rightElement,
   rightContent, // Added to support both naming conventions
   transparent = false,
-  showNotification = false,
+  showNotification = true,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
         
         <div className="flex items-center space-x-4">
-          <LocaleSwitcher />
+          {showNotification && <LocaleSwitcher />}
           {rightComponent || <HeaderRight showNotification={showNotification} />}
         </div>
       </div>

@@ -9,6 +9,7 @@ import { NavItem, NavigationProps } from './types';
 import DesktopNavigation from './DesktopNavigation';
 import MobileNavigation from './MobileNavigation';
 import ActionButtons from './ActionButtons';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { useAuth } from '@/contexts/auth';
 
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
@@ -104,12 +105,16 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           isHomePage={isHomePage}
         />
         
-        <ActionButtons 
-          handleNavigation={handleNavigation}
-          handleStarted={handleStarted}
-          isNavigating={isNavigating}
-          isHomePage={isHomePage}
-        />
+        <div className="flex items-center space-x-5">
+          <LocaleSwitcher />
+          
+          <ActionButtons 
+            handleNavigation={handleNavigation}
+            handleStarted={handleStarted}
+            isNavigating={isNavigating}
+            isHomePage={isHomePage}
+          />
+        </div>
       </div>
       
       {isHomePage && isMobile && (
