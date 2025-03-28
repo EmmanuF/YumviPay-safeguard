@@ -60,7 +60,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         )}
         disabled={isNavigating}
       >
-        {isLoggedIn ? t('nav.dashboard') : t('auth.signup')}
+        {isLoggedIn ? t('nav.history') : t('auth.signup')}
       </button>
     </div>
   );
