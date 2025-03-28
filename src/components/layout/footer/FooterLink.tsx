@@ -37,7 +37,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({
         target="_blank" 
         rel="noopener noreferrer" 
         className={cn(
-          "text-sm text-gray-600 hover:text-primary transition-colors flex items-center gap-1 py-1.5 block",
+          "text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1 py-1.5 block",
           className
         )}
       >
@@ -51,7 +51,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({
     <Link 
       to={to} 
       className={cn(
-        "text-sm text-gray-600 hover:text-primary transition-colors block py-1.5",
+        "text-sm text-gray-300 hover:text-white transition-colors block py-1.5",
         className
       )}
     >
