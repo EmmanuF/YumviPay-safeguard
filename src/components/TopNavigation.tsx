@@ -38,6 +38,11 @@ const TopNavigation: React.FC = () => {
       label: t('nav.recipients'),
       requiresAuth: true 
     },
+    {
+      path: '/history',
+      label: t('nav.history') || 'History',
+      requiresAuth: true
+    }
   ];
   
   const handleNavigation = (path: string) => {
@@ -45,14 +50,6 @@ const TopNavigation: React.FC = () => {
     
     setIsNavigating(true);
     navigate(path);
-    setTimeout(() => setIsNavigating(false), 500);
-  };
-  
-  const handleDashboardClick = () => {
-    if (isNavigating) return;
-    
-    setIsNavigating(true);
-    navigate('/dashboard');
     setTimeout(() => setIsNavigating(false), 500);
   };
   
@@ -102,13 +99,6 @@ const TopNavigation: React.FC = () => {
             className="text-sm font-medium text-white/80 hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/10"
           >
             {t('nav.profile')}
-          </button>
-          
-          <button
-            onClick={handleDashboardClick}
-            className="bg-white text-indigo-800 hover:bg-white/90 font-medium px-5 py-2 rounded-full transition-colors text-sm shadow-sm"
-          >
-            {t('nav.dashboard')}
           </button>
         </div>
       </div>

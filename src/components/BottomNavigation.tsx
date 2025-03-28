@@ -13,11 +13,15 @@ const BottomNavigation = () => {
         (location.pathname === '/history' || location.pathname === '/transactions')) {
       return true;
     }
+    // Consider root path as history for authenticated users
+    if (path === '/history' && location.pathname === '/') {
+      return true;
+    }
     return location.pathname === path;
   };
   
   const navigationItems = [
-    { path: '/dashboard', icon: Home, label: 'Home' },
+    { path: '/history', icon: Home, label: 'Home' },
     { path: '/send', icon: Send, label: 'Send' },
     { path: '/recipients', icon: Users, label: 'Recipients' },
     { path: '/history', icon: History, label: 'History' },
@@ -33,7 +37,7 @@ const BottomNavigation = () => {
           
           return (
             <button
-              key={item.path}
+              key={item.path + item.label}
               className={`flex flex-col items-center justify-center py-2 px-3 w-1/5 transition-colors ${
                 isActiveItem ? 'text-primary' : 'text-gray-500 hover:text-primary-600'
               }`}

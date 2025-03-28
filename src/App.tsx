@@ -22,7 +22,6 @@ import TransactionHistory from '@/pages/TransactionHistory';
 import Recipients from '@/pages/Recipients';
 import Referral from '@/pages/Referral';
 import NotFound from '@/pages/NotFound';
-import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
@@ -70,12 +69,9 @@ function App() {
                       <SignUp />
                     </MobileAppLayout>
                   } />
+                  {/* Redirect dashboard to history */}
                   <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <MobileAppLayout>
-                        <Dashboard />
-                      </MobileAppLayout>
-                    </ProtectedRoute>
+                    <Navigate to="/history" replace />
                   } />
                   <Route path="/profile" element={
                     <ProtectedRoute>
@@ -98,7 +94,7 @@ function App() {
                       </MobileAppLayout>
                     </ProtectedRoute>
                   } />
-                  {/* Add a route for /history that redirects to /transactions */}
+                  {/* Make history the main transactions page */}
                   <Route path="/history" element={
                     <ProtectedRoute>
                       <MobileAppLayout>

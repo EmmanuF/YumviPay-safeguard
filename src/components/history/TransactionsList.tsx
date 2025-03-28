@@ -5,6 +5,7 @@ import { Transaction } from '@/types/transaction';
 import { Card, CardContent } from '@/components/ui/card';
 import TransactionGroup from './TransactionGroup';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ClipboardList } from 'lucide-react';
 
 interface TransactionsListProps {
   isLoading: boolean;
@@ -71,10 +72,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
       groups[dateStr].push(transaction);
     });
     
-    return Object.entries(groups).map(([date, transactions]) => ({
-      date,
-      transactions,
-    }));
+    return Object.entries(groups)
+      .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+      .map(([date, transactions]) => ({
+        date,
+        transactions,
+      }));
   };
   
   const groupedTransactions = groupTransactionsByDate(dataToUse);
@@ -91,6 +94,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
           <div className="w-48 h-6 bg-primary-100/50 rounded-md mx-auto"></div>
           <div className="mt-4 w-full h-12 bg-primary-100/30 rounded-md"></div>
           <div className="mt-2 w-full h-12 bg-primary-100/30 rounded-md"></div>
+          <div className="mt-2 w-full h-12 bg-primary-100/30 rounded-md"></div>
         </div>
       </motion.div>
     );
@@ -105,7 +109,10 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
         animate="visible"
       >
         <Card className="glass-effect border-0 shadow-sm">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 pb-8">
+            <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <ClipboardList className="w-8 h-8 text-gray-400" />
+            </div>
             <p className="text-muted-foreground">No transactions found</p>
           </CardContent>
         </Card>
