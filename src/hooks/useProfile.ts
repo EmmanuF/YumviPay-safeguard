@@ -1,10 +1,12 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthState, logoutUser } from '@/services/auth';
+import { useAuth } from '@/contexts/auth';
 import { toast } from '@/hooks/toast/use-toast';
 
 export const useProfile = () => {
   const navigate = useNavigate();
+  const { user: authUser, isLoggedIn } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -12,13 +14,15 @@ export const useProfile = () => {
   const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const initializeProfile = async () => {
       try {
-        console.log('Fetching user data for profile page');
-        const authState = await getAuthState();
+        console.log('Initializing profile with auth state', { isLoggedIn, authUser });
         
-        if (!authState.isAuthenticated) {
-          console.log('User not authenticated, creating mock user for demo');
+        if (isLoggedIn && authUser) {
+          console.log('Using authenticated user data for profile');
+          setUser(authUser);
+        } else {
+          console.log('No authenticated user, using mock data for demo');
           // For demo purposes, create a mock user if not authenticated
           setUser({
             id: 'mock-user-1',
@@ -27,12 +31,9 @@ export const useProfile = () => {
             phone: '+1 234 567 8901',
             country: 'Cameroon',
           });
-        } else {
-          console.log('User authenticated:', authState.user);
-          setUser(authState.user);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error initializing profile data:', error);
         // Fallback to mock user for demo
         setUser({
           id: 'mock-user-1',
@@ -46,24 +47,26 @@ export const useProfile = () => {
       }
     };
     
-    fetchUserData();
-  }, [navigate]);
+    initializeProfile();
+  }, [authUser, isLoggedIn, navigate]);
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully"
-      });
+      await toast.promise(
+        async () => {
+          const { signOut } = useAuth();
+          await signOut();
+        },
+        {
+          loading: "Logging out...",
+          success: "Logged out successfully",
+          error: "Failed to log out"
+        }
+      );
+      
       navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
-      toast({
-        title: "Error",
-        description: "Failed to log out",
-        variant: "destructive"
-      });
     }
   };
 

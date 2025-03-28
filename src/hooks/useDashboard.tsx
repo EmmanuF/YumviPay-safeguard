@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Transaction } from '@/types/transaction';
-import { getAuthState } from '@/services/auth';
+import { useAuth } from '@/contexts/auth';
 import { useNotifications } from '@/contexts/NotificationContext';
 
 export const useDashboard = () => {
   const navigate = useNavigate();
+  const { user: authUser, isLoggedIn } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -15,14 +16,16 @@ export const useDashboard = () => {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const { user, isAuthenticated } = await getAuthState();
+        console.log('Initializing dashboard with auth state', { isLoggedIn, authUser });
         
-        if (!isAuthenticated) {
+        if (!isLoggedIn && !authUser) {
+          console.log('User not authenticated, redirecting to home');
           navigate('/');
           return;
         }
         
-        setUser(user);
+        // Use the user from auth context directly
+        setUser(authUser);
         
         // Mock transaction data for demo purposes
         const mockTransactions: Transaction[] = [
@@ -64,18 +67,15 @@ export const useDashboard = () => {
         ];
         
         setTransactions(mockTransactions);
-        
-        // Removed the setTimeout that was triggering continuous transaction updates
-        
         setIsLoading(false);
       } catch (error) {
-        console.error('Error loading user data:', error);
+        console.error('Error loading dashboard data:', error);
         setIsLoading(false);
       }
     };
     
     loadUserData();
-  }, [navigate, addNotification]);
+  }, [navigate, addNotification, authUser, isLoggedIn]);
   
   return {
     user,
