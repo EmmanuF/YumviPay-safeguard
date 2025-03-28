@@ -9,6 +9,8 @@ import { useToast } from '@/components/ui/use-toast';
 import ProviderList from './ProviderList';
 import ComingSoonMessage from './ComingSoonMessage';
 import { Smartphone, Building } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface CountryPaymentMethodsProps {
   countryCode: string;
@@ -113,12 +115,21 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="w-full mb-6 bg-gray-100/80">
+          <TabsList className="w-full mb-6 bg-gray-100/80 p-1 rounded-lg">
             {country.paymentMethods.map((method) => (
               <TabsTrigger 
                 key={method.id} 
                 value={method.id}
-                className="flex-1 data-[state=active]:bg-white"
+                className={cn(
+                  "flex-1 py-2.5 relative transition-all",
+                  "data-[state=active]:bg-white data-[state=active]:shadow-md",
+                  "data-[state=active]:border-primary data-[state=active]:border-b-2",
+                  "rounded-md data-[state=active]:rounded-md"
+                )}
+                style={{
+                  transform: activeTab === method.id ? 'translateY(-2px)' : 'none',
+                  boxShadow: activeTab === method.id ? '0 4px 6px -1px rgba(var(--primary-rgb), 0.1), 0 2px 4px -1px rgba(var(--primary-rgb), 0.06)' : 'none'
+                }}
               >
                 <span className="flex items-center">
                   {getMethodIcon(method.id)}
@@ -129,6 +140,15 @@ const CountryPaymentMethods: React.FC<CountryPaymentMethodsProps> = ({
                     </span>
                   )}
                 </span>
+                {activeTab === method.id && (
+                  <motion.div 
+                    layoutId="activePill"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
               </TabsTrigger>
             ))}
           </TabsList>

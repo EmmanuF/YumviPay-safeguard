@@ -71,6 +71,18 @@
   transform: translateY(-2px);
 }
 
+/* Payment method tabs enhanced for better visibility */
+.payment-method-tab {
+  @apply transition-all duration-200;
+}
+
+.payment-method-tab[data-state="active"] {
+  @apply bg-white shadow-md border-b-2 border-primary;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(var(--primary-rgb), 0.1), 
+              0 2px 4px -1px rgba(var(--primary-rgb), 0.06);
+}
+
 /* Desktop-optimized payment methods */
 @media (min-width: 768px) {
   .payment-method-grid {
@@ -80,6 +92,11 @@
   .provider-logo {
     width: 60px;
     height: 60px;
+  }
+  
+  .payment-method-tab[data-state="active"] {
+    box-shadow: 0 4px 10px -2px rgba(var(--primary-rgb), 0.15), 
+                0 2px 5px -2px rgba(var(--primary-rgb), 0.1);
   }
 }
 
