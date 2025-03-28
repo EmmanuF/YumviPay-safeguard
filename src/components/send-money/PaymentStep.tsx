@@ -1,19 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
-import { Wallet, CreditCard, Building, ChevronDown, ChevronUp, Check, AlertTriangle, ArrowRight, Sparkles, Info, Clock } from 'lucide-react';
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useCountries } from '@/hooks/useCountries';
 import PaymentStepNavigation from './payment/PaymentStepNavigation';
 import CountryPaymentMethods from './payment/CountryPaymentMethods';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 import NameMatchConfirmation from './payment/NameMatchConfirmation';
-import ComingSoonMessage from './payment/ComingSoonMessage';
+import { usePaymentStep } from '@/hooks/usePaymentStep';
+import RecurringPaymentOption from './payment/RecurringPaymentOption';
+import SavePreferenceToggle from './payment/SavePreferenceToggle';
 
 interface PaymentStepProps {
   transactionData: any;
@@ -23,27 +18,6 @@ interface PaymentStepProps {
   isSubmitting?: boolean;
 }
 
-// Helper function to get icon component based on payment method
-const getPaymentIcon = (method: string) => {
-  switch (method.toLowerCase()) {
-    case 'mobile_money':
-    case 'mtn_mobile_money':
-    case 'orange_money':
-      return <Wallet className="h-6 w-6 text-primary" />;
-    case 'bank_transfer':
-    case 'ecobank':
-    case 'afriland':
-      return <Building className="h-6 w-6 text-blue-500" />;
-    case 'card':
-    case 'credit_card':
-    case 'visa':
-    case 'mastercard':
-      return <CreditCard className="h-6 w-6 text-purple-600" />;
-    default:
-      return <Wallet className="h-6 w-6 text-gray-500" />;
-  }
-};
-
 const PaymentStep: React.FC<PaymentStepProps> = ({
   transactionData,
   updateTransactionData,
@@ -51,48 +25,19 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   onBack,
   isSubmitting = false
 }) => {
-  const { getCountryByCode } = useCountries();
+  // State
   const [selectedMethod, setSelectedMethod] = useState<string>(transactionData?.paymentMethod || '');
   const [selectedProvider, setSelectedProvider] = useState<string>(transactionData?.selectedProvider || '');
   const [isRecurring, setIsRecurring] = useState<boolean>(transactionData?.isRecurring || false);
   const [recurringFrequency, setRecurringFrequency] = useState<string>(transactionData?.recurringFrequency || 'monthly');
-  const [isRecurringExpanded, setIsRecurringExpanded] = useState<boolean>(isRecurring);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(transactionData?.termsAccepted || false);
-  const countryCode = transactionData?.targetCountry || 'CM';
   
-  // Hard-coded payment methods for demo (normally would come from API)
-  const paymentMethods = [
-    {
-      id: 'mobile_money',
-      name: 'Mobile Money',
-      description: 'Fast transfers directly to mobile wallets',
-      providers: [
-        { id: 'mtn_mobile_money', name: 'MTN Mobile Money', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/New-mtn-logo.svg/180px-New-mtn-logo.svg.png' }, 
-        { id: 'orange_money', name: 'Orange Money', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/8e/Orange_logo.svg/250px-Orange_logo.svg.png' }, 
-        { id: 'yoomee_money', name: 'YooMee Money', logo: '' }
-      ]
-    },
-    {
-      id: 'bank_transfer',
-      name: 'Bank Transfer',
-      description: 'Transfer to bank accounts',
-      providers: [
-        { id: 'ecobank', name: 'Ecobank', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1c/Ecobank_Image.jpg/220px-Ecobank_Image.jpg' }, 
-        { id: 'afriland', name: 'Afriland First Bank', logo: '' }, 
-        { id: 'bgfi', name: 'BGFI Bank', logo: '' }
-      ]
-    },
-    {
-      id: 'card',
-      name: 'Card Payment',
-      description: 'Pay with credit or debit card',
-      providers: [
-        { id: 'visa', name: 'Visa', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/800px-Visa_Inc._logo.svg.png' }, 
-        { id: 'mastercard', name: 'Mastercard', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/800px-Mastercard-logo.svg.png' }
-      ]
-    }
-  ];
-
+  // Custom hooks
+  const { savePreference, handleToggleSavePreference } = usePaymentStep({
+    transactionData,
+    updateTransactionData
+  });
+  
   // Animation variants with staggered children
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -131,12 +76,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   }, [selectedMethod, selectedProvider, isRecurring, recurringFrequency, termsAccepted, updateTransactionData]);
 
-  // Handle method selection and provider selection
-  const handleMethodSelect = (methodId: string) => {
-    setSelectedMethod(methodId);
-    setSelectedProvider(''); // Reset provider when method changes
-  };
-
   // Handle method and provider selection via CountryPaymentMethods
   const handlePaymentSelect = (methodId: string, providerId: string) => {
     console.log(`Selected method: ${methodId}, provider: ${providerId}`);
@@ -144,10 +83,10 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
     setSelectedProvider(providerId);
   };
 
-  // Toggle recurring payment option
-  const handleRecurringToggle = (checked: boolean) => {
+  // Handle recurring payment option
+  const handleRecurringChange = (checked: boolean, frequency: string) => {
     setIsRecurring(checked);
-    setIsRecurringExpanded(checked);
+    setRecurringFrequency(frequency);
   };
 
   // Check if next button should be enabled
@@ -178,86 +117,36 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
               Select how you'd like to pay for this transfer
             </motion.p>
 
-            {/* Country-specific payment methods with enhanced spacing and visuals */}
+            {/* Country-specific payment methods */}
             <motion.div 
               variants={itemVariants}
               className="mb-8"
             >
               <CountryPaymentMethods
-                countryCode={countryCode}
+                countryCode={transactionData?.targetCountry || 'CM'}
                 selectedPaymentMethod={selectedMethod}
                 selectedProvider={selectedProvider}
                 onSelect={handlePaymentSelect}
               />
             </motion.div>
 
-            {/* Recurring Payment Option - with premium styling */}
-            <motion.div 
-              className="mb-6"
-              variants={itemVariants}
-            >
-              <motion.div 
-                className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="flex items-center">
-                  <div className="bg-secondary-100 p-2 rounded-full mr-3">
-                    <Sparkles className="h-5 w-5 text-secondary-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-primary-600">Make this a recurring payment</h3>
-                    <p className="text-sm text-gray-500">Schedule automatic payments</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={isRecurring}
-                  onCheckedChange={handleRecurringToggle}
-                  className="data-[state=checked]:bg-secondary"
-                />
-              </motion.div>
-
-              {/* Recurring options - expanded when toggle is on */}
-              <AnimatePresence>
-                {isRecurringExpanded && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-secondary-50/60 backdrop-blur-sm rounded-xl p-5 border border-secondary-100/60 mt-3"
-                  >
-                    <h4 className="font-medium text-secondary-700 mb-3 flex items-center">
-                      <ChevronDown className="h-4 w-4 mr-1 text-secondary" />
-                      Payment Frequency
-                    </h4>
-                    
-                    <Select 
-                      value={recurringFrequency} 
-                      onValueChange={setRecurringFrequency}
-                    >
-                      <SelectTrigger className="w-full bg-white/80 border-secondary-200/60 focus:ring-secondary-500/30">
-                        <SelectValue placeholder="Select frequency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="quarterly">Every 3 Months</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <p className="text-sm text-gray-600 mt-3 bg-white/40 p-3 rounded-lg border border-secondary-100/20">
-                      <Info className="h-4 w-4 inline-block mr-1 text-secondary-400" />
-                      You can cancel recurring payments anytime from your transaction history.
-                      The payment will be processed automatically on the same day each period.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            {/* Recurring Payment Option */}
+            <motion.div variants={itemVariants} className="mb-6">
+              <RecurringPaymentOption
+                transactionData={transactionData}
+                onRecurringChange={handleRecurringChange}
+              />
             </motion.div>
 
-            {/* Terms and Conditions Confirmation - enhanced design */}
+            {/* Save Payment Preference */}
+            <motion.div variants={itemVariants} className="mb-6">
+              <SavePreferenceToggle
+                checked={savePreference}
+                onChange={handleToggleSavePreference}
+              />
+            </motion.div>
+
+            {/* Terms and Conditions Confirmation */}
             <motion.div 
               variants={itemVariants}
               className="mb-6 relative overflow-hidden"
