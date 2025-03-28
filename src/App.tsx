@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
-import { AuthProvider } from '@/contexts/auth'; // Updated import path
+import { AuthProvider } from '@/contexts/auth'; 
 import { NetworkProvider } from '@/contexts/NetworkContext';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -64,7 +64,7 @@ function App() {
                 <AppInitializer />
                 <SessionTimeout />
                 <Routes>
-                  {/* Wrap all routes with MobileAppLayout for consistent navigation */}
+                  {/* Primary Routes */}
                   <Route path="/" element={
                     <MobileAppLayout>
                       <Home />
@@ -84,6 +84,8 @@ function App() {
                   <Route path="/dashboard" element={
                     <Navigate to="/history" replace />
                   } />
+                  
+                  {/* Protected Routes */}
                   <Route path="/profile" element={
                     <ProtectedRoute>
                       <MobileAppLayout>
@@ -151,85 +153,30 @@ function App() {
                     </MobileAppLayout>
                   } />
                   
-                  {/* Footer Pages - Company */}
-                  <Route path="/about" element={
-                    <MobileAppLayout>
-                      <AboutUs />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/careers" element={
-                    <MobileAppLayout>
-                      <Careers />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/press" element={
-                    <MobileAppLayout>
-                      <Press />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/blog" element={
-                    <MobileAppLayout>
-                      <Blog />
-                    </MobileAppLayout>
-                  } />
+                  {/* Footer Pages - Using a single layout wrapper */}
+                  {/* Company pages */}
+                  <Route path="/about" element={<MobileAppLayout><AboutUs /></MobileAppLayout>} />
+                  <Route path="/careers" element={<MobileAppLayout><Careers /></MobileAppLayout>} />
+                  <Route path="/press" element={<MobileAppLayout><Press /></MobileAppLayout>} />
+                  <Route path="/blog" element={<MobileAppLayout><Blog /></MobileAppLayout>} />
                   
-                  {/* Footer Pages - Legal */}
-                  <Route path="/terms" element={
-                    <MobileAppLayout>
-                      <TermsOfService />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/privacy" element={
-                    <MobileAppLayout>
-                      <PrivacyPolicy />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/security" element={
-                    <MobileAppLayout>
-                      <Security />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/compliance" element={
-                    <MobileAppLayout>
-                      <Compliance />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/cookies" element={
-                    <MobileAppLayout>
-                      <Cookies />
-                    </MobileAppLayout>
-                  } />
+                  {/* Legal pages */}
+                  <Route path="/terms" element={<MobileAppLayout><TermsOfService /></MobileAppLayout>} />
+                  <Route path="/privacy" element={<MobileAppLayout><PrivacyPolicy /></MobileAppLayout>} />
+                  <Route path="/security" element={<MobileAppLayout><Security /></MobileAppLayout>} />
+                  <Route path="/compliance" element={<MobileAppLayout><Compliance /></MobileAppLayout>} />
+                  <Route path="/cookies" element={<MobileAppLayout><Cookies /></MobileAppLayout>} />
                   
-                  {/* Footer Pages - Support */}
-                  <Route path="/contact" element={
-                    <MobileAppLayout>
-                      <Contact />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/faq" element={
-                    <MobileAppLayout>
-                      <FAQ />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/support" element={
-                    <MobileAppLayout>
-                      <Support />
-                    </MobileAppLayout>
-                  } />
+                  {/* Support pages */}
+                  <Route path="/contact" element={<MobileAppLayout><Contact /></MobileAppLayout>} />
+                  <Route path="/faq" element={<MobileAppLayout><FAQ /></MobileAppLayout>} />
+                  <Route path="/support" element={<MobileAppLayout><Support /></MobileAppLayout>} />
                   
                   {/* Country Pages */}
-                  <Route path="/country/:countryId" element={
-                    <MobileAppLayout>
-                      <CountryPage />
-                    </MobileAppLayout>
-                  } />
+                  <Route path="/country/:countryId" element={<MobileAppLayout><CountryPage /></MobileAppLayout>} />
                   
                   {/* 404 Not Found */}
-                  <Route path="*" element={
-                    <MobileAppLayout>
-                      <NotFound />
-                    </MobileAppLayout>
-                  } />
+                  <Route path="*" element={<MobileAppLayout><NotFound /></MobileAppLayout>} />
                 </Routes>
                 <Toaster />
                 <SonnerToaster position="top-center" richColors closeButton />
