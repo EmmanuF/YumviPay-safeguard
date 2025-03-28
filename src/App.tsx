@@ -20,6 +20,7 @@ import SignUp from '@/pages/SignUp';
 import SendMoney from '@/pages/SendMoney';
 import TransactionHistory from '@/pages/TransactionHistory';
 import Recipients from '@/pages/Recipients';
+import Referral from '@/pages/Referral';
 import NotFound from '@/pages/NotFound';
 import Dashboard from '@/pages/Dashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -101,6 +102,13 @@ function App() {
                     <ProtectedRoute>
                       <MobileAppLayout>
                         <Recipients />
+                      </MobileAppLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/referral" element={
+                    <ProtectedRoute>
+                      <MobileAppLayout>
+                        <Referral />
                       </MobileAppLayout>
                     </ProtectedRoute>
                   } />

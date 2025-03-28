@@ -1,14 +1,16 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Bell, Shield, ChartBar } from 'lucide-react';
-import AccountInformation from './AccountInformation';
-import NotificationSettings from './NotificationSettings';
-import SecuritySettings from './SecuritySettings';
-import TransactionPinSettings from './TransactionPinSettings';
-import MobileAppSettings from './MobileAppSettings';
-import TransactionLimits from './TransactionLimits';
-import ActivityAnalytics from './ActivityAnalytics';
+import { Card } from '@/components/ui/card';
+import { Edit2, Lock, Bell, MapPin, Shield, CircleDollarSign } from 'lucide-react';
+import { 
+  AccountInformation, 
+  SecuritySettings, 
+  NotificationSettings,
+  CountryPreferences,
+  TransactionLimits,
+  ReferralLink
+} from '@/components/profile';
 
 interface ProfileTabsProps {
   user: any;
@@ -16,7 +18,7 @@ interface ProfileTabsProps {
   onChangePassword: () => void;
   notificationSettings: any;
   notificationsLoading: boolean;
-  onNotificationChange: (key: string, checked: boolean) => void;
+  onNotificationChange: (key: string, value: boolean) => void;
   onResetNotifications: () => void;
 }
 
@@ -32,53 +34,51 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
   const [activeTab, setActiveTab] = useState('account');
   
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid grid-cols-4 mb-8">
-        <TabsTrigger value="account" className="flex items-center">
-          <User className="h-4 w-4 mr-2" />
-          <span className="hidden sm:inline">Account</span>
-        </TabsTrigger>
-        <TabsTrigger value="security" className="flex items-center">
-          <Shield className="h-4 w-4 mr-2" />
-          <span className="hidden sm:inline">Security</span>
-        </TabsTrigger>
-        <TabsTrigger value="notifications" className="flex items-center">
-          <Bell className="h-4 w-4 mr-2" />
-          <span className="hidden sm:inline">Notifications</span>
-        </TabsTrigger>
-        <TabsTrigger value="activity" className="flex items-center">
-          <ChartBar className="h-4 w-4 mr-2" />
-          <span className="hidden sm:inline">Activity</span>
-        </TabsTrigger>
+    <Tabs 
+      defaultValue="account" 
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="w-full"
+    >
+      <TabsList className="grid grid-cols-3 mb-4">
+        <TabsTrigger value="account">Account</TabsTrigger>
+        <TabsTrigger value="security">Security</TabsTrigger>
+        <TabsTrigger value="preferences">Preferences</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="account" className="space-y-6">
-        <AccountInformation 
-          user={user}
-          onEdit={onEditField}
-        />
-        <MobileAppSettings />
+      <TabsContent value="account" className="space-y-4 mt-0">
+        <Card>
+          <AccountInformation 
+            user={user}
+            onEditField={onEditField}
+          />
+          
+          {/* Add Referral Link in the Account tab */}
+          <ReferralLink />
+        </Card>
       </TabsContent>
       
-      <TabsContent value="security" className="space-y-6">
-        <SecuritySettings 
-          onChangePassword={onChangePassword}
-        />
-        <TransactionPinSettings />
-        <TransactionLimits />
+      <TabsContent value="security" className="space-y-4 mt-0">
+        <Card>
+          <SecuritySettings 
+            onChangePassword={onChangePassword}
+          />
+        </Card>
       </TabsContent>
       
-      <TabsContent value="notifications" className="space-y-6">
-        <NotificationSettings
-          settings={notificationSettings}
-          isLoading={notificationsLoading}
-          onChange={onNotificationChange}
-          onReset={onResetNotifications}
-        />
-      </TabsContent>
-      
-      <TabsContent value="activity" className="space-y-6">
-        <ActivityAnalytics userId={user.id} />
+      <TabsContent value="preferences" className="space-y-4 mt-0">
+        <Card>
+          <NotificationSettings 
+            settings={notificationSettings}
+            isLoading={notificationsLoading}
+            onChange={onNotificationChange}
+            onReset={onResetNotifications}
+          />
+          
+          <CountryPreferences />
+          
+          <TransactionLimits />
+        </Card>
       </TabsContent>
     </Tabs>
   );

@@ -1,13 +1,18 @@
 
 export { default as AccountInformation } from './AccountInformation';
+export { default as ActivityAnalytics } from './ActivityAnalytics';
 export { default as BiometricSettings } from './BiometricSettings';
 export { default as ChangePasswordDialog } from './ChangePasswordDialog';
+export { default as CountryPreferences } from './CountryPreferences';
 export { default as EditProfileDialog } from './EditProfileDialog';
 export { default as LogoutButton } from './LogoutButton';
 export { default as MobileAppSettings } from './MobileAppSettings';
+export { default as NotificationPreferences } from './NotificationPreferences';
 export { default as NotificationSettings } from './NotificationSettings';
 export { default as ProfileHeader } from './ProfileHeader';
 export { default as ProfileLoading } from './ProfileLoading';
 export { default as ProfileTabs } from './ProfileTabs';
+export { default as ReferralLink } from './ReferralLink';
 export { default as SecuritySettings } from './SecuritySettings';
-// Removing reference to 'NotificationPreferences' as it seems to have been replaced by 'NotificationSettings'
+export { default as TransactionLimits } from './TransactionLimits';
+export { default as TransactionPinSettings } from './TransactionPinSettings';
