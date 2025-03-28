@@ -1,61 +1,32 @@
 
+// No file content provided, need to create this file
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface FooterLinkProps {
   to: string;
-  external?: boolean;
-  disabled?: boolean;
   children: React.ReactNode;
-  className?: string;
+  disabled?: boolean;
 }
 
-const FooterLink: React.FC<FooterLinkProps> = ({ 
-  to, 
-  external = false,
-  disabled = false,
-  children,
-  className
-}) => {
+const FooterLink: React.FC<FooterLinkProps> = ({ to, children, disabled = false }) => {
   if (disabled) {
     return (
-      <span className={cn(
-        "text-sm text-gray-400 cursor-not-allowed block py-1.5",
-        className
-      )}>
+      <span className="text-gray-400 cursor-not-allowed text-sm">
         {children}
       </span>
-    );
-  }
-
-  if (external) {
-    return (
-      <a 
-        href={to} 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className={cn(
-          "text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1 py-1.5 block",
-          className
-        )}
-      >
-        {children}
-        <ExternalLink className="h-3 w-3" />
-      </a>
     );
   }
   
   return (
     <Link 
-      to={to} 
-      className={cn(
-        "text-sm text-gray-300 hover:text-white transition-colors block py-1.5",
-        className
-      )}
+      to={to}
+      className="text-gray-300 hover:text-white transition-colors text-sm relative group"
     >
-      {children}
+      <span className="group-hover:translate-x-1 inline-block transition-transform duration-300">
+        {children}
+      </span>
+      <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary-300 group-hover:w-full transition-all duration-300"></span>
     </Link>
   );
 };

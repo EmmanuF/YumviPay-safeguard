@@ -13,7 +13,7 @@ const SocialIcon: React.FC<SocialIconProps> = ({ icon, href, label }) => (
     target="_blank" 
     rel="noopener noreferrer"
     aria-label={label}
-    className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2.5 rounded-full transition-colors"
+    className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2.5 rounded-full transition-colors transform hover:scale-110 transition-all duration-300"
   >
     {icon}
   </a>
