@@ -53,6 +53,34 @@
     padding: 0.625rem;
     margin: 0.25rem;
   }
+  
+  /* Payment method tiles should stack on mobile */
+  .payment-method-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Payment provider selection for mobile */
+.provider-card {
+  @apply transition-all duration-200;
+  height: 100%;
+}
+
+.provider-card.selected {
+  @apply shadow-md border-primary-500;
+  transform: translateY(-2px);
+}
+
+/* Desktop-optimized payment methods */
+@media (min-width: 768px) {
+  .payment-method-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .provider-logo {
+    width: 60px;
+    height: 60px;
+  }
 }
 
 /* Performance-optimized animations for reduced motion preference */

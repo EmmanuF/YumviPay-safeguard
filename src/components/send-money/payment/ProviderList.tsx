@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { getProviderById } from '@/data/cameroonPaymentProviders';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Clock, AlertCircle } from 'lucide-react';
+import { Clock, Award } from 'lucide-react';
 import { getProviderLogoSrc } from '@/utils/providerLogos';
+import { cn } from '@/lib/utils';
 
 interface ProviderListProps {
   providers: Array<{ id: string; name: string }>;
@@ -20,6 +22,13 @@ const ProviderList: React.FC<ProviderListProps> = ({
   methodId,
   onSelectProvider
 }) => {
+  // Auto-select the first provider if none is selected
+  useEffect(() => {
+    if (providers.length > 0 && !selectedProvider) {
+      onSelectProvider(providers[0].id);
+    }
+  }, [providers, selectedProvider, onSelectProvider]);
+
   // Helper functions
   const isProviderComingSoon = (providerId: string) => {
     return providerId === 'yoomee_money' || providerId.includes('afriland') || providerId.includes('ecobank');
@@ -29,61 +38,74 @@ const ProviderList: React.FC<ProviderListProps> = ({
     return <p className="text-sm text-muted-foreground py-2">No providers available</p>;
   }
 
+  // For desktop view (side-by-side)
+  const isDesktopView = providers.length === 2 && 
+    (providers.some(p => p.id.includes('mtn')) && providers.some(p => p.id.includes('orange')));
+
   return (
-    <RadioGroup 
-      value={selectedProvider} 
-      onValueChange={(value) => onSelectProvider(value)}
-      className="space-y-4 mt-4"
-    >
+    <div className={cn(
+      "mt-4",
+      isDesktopView ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"
+    )}>
       {providers.map((provider) => {
         const comingSoon = isProviderComingSoon(provider.id);
         const providerDetails = getProviderById(provider.id);
         const logoSrc = getProviderLogoSrc(provider.id);
+        const isSelected = selectedProvider === provider.id;
         
         return (
-          <div 
-            key={provider.id} 
-            className={`flex items-center space-x-3 border p-4 rounded-md ${
-              comingSoon ? "bg-gray-50 border-gray-200" : ""
-            }`}
-          >
-            {!comingSoon && (
-              <RadioGroupItem value={provider.id} id={provider.id} disabled={comingSoon} />
+          <motion.div 
+            key={provider.id}
+            whileHover={!comingSoon ? { scale: 1.02 } : {}}
+            whileTap={!comingSoon ? { scale: 0.98 } : {}}
+            onClick={() => !comingSoon && onSelectProvider(provider.id)}
+            className={cn(
+              "rounded-xl p-4 cursor-pointer transition-all duration-200 border-2",
+              isSelected && !comingSoon ? "border-primary-500 bg-primary-50/50 shadow-md" : "border-gray-200",
+              comingSoon ? "opacity-60 cursor-not-allowed" : "hover:border-gray-300",
             )}
-            <div className="flex items-center justify-between flex-1">
-              <div className="flex items-center space-x-4">
-                <div className="w-48 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className={cn(
+                  "w-16 h-16 rounded-md overflow-hidden flex items-center justify-center bg-white p-2",
+                  isSelected ? "ring-2 ring-primary-300" : ""
+                )}>
                   <img 
                     src={logoSrc}
                     alt={provider.name} 
-                    className={`w-full h-full object-contain ${comingSoon ? "opacity-50" : ""}`} 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
-                <Label 
-                  htmlFor={provider.id} 
-                  className={`font-medium cursor-pointer ${comingSoon ? "text-gray-500" : ""}`}
-                >
-                  {provider.name}
-                </Label>
+                
+                <div>
+                  <p className="font-medium text-foreground">{provider.name}</p>
+                  
+                  {providerDetails?.processingTime && !comingSoon && (
+                    <div className="flex items-center text-xs text-gray-600 mt-1">
+                      <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                      <span>{providerDetails.processingTime}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               
-              {providerDetails?.processingTime && !comingSoon && (
-                <div className="text-sm text-gray-600 flex items-center bg-gray-50 py-1.5 px-3 rounded-full">
-                  <Clock className="h-4 w-4 mr-1.5 text-amber-500" />
-                  <span>{providerDetails.processingTime}</span>
-                </div>
+              {providerDetails?.popularityScore && providerDetails.popularityScore >= 4 && !comingSoon && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200">
+                  <Award className="h-3 w-3 mr-1" /> Popular
+                </Badge>
               )}
               
               {comingSoon && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200 text-xs font-normal">
-                  <Clock className="h-3 w-3 mr-1" /> Coming Soon
+                <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+                  Coming Soon
                 </Badge>
               )}
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </RadioGroup>
+    </div>
   );
 };
 
