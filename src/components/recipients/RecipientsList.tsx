@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Recipient } from '@/types/recipient';
-import RecipientCard from './RecipientCard';
 import { UserPlus } from 'lucide-react';
+import RecipientCard from './recipient-card';
 
 interface RecipientsListProps {
   recipients: Recipient[];
