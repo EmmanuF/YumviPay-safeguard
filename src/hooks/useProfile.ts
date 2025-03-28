@@ -1,29 +1,40 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
 import { toast } from '@/hooks/toast/use-toast';
 
 export const useProfile = () => {
   const navigate = useNavigate();
-  const { user: authUser, isLoggedIn, signOut } = useAuth();
+  const { user: authUser, isLoggedIn } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editField, setEditField] = useState('');
   const [editValue, setEditValue] = useState('');
 
-  // Use useCallback to prevent unnecessary re-renders
-  const initializeProfile = useCallback(async () => {
-    try {
-      console.log('Initializing profile with auth state', { isLoggedIn, authUser });
-      
-      if (isLoggedIn && authUser) {
-        console.log('Using authenticated user data for profile');
-        setUser(authUser);
-      } else {
-        console.log('No authenticated user, using mock data for demo');
-        // For demo purposes, create a mock user if not authenticated
+  useEffect(() => {
+    const initializeProfile = async () => {
+      try {
+        console.log('Initializing profile with auth state', { isLoggedIn, authUser });
+        
+        if (isLoggedIn && authUser) {
+          console.log('Using authenticated user data for profile');
+          setUser(authUser);
+        } else {
+          console.log('No authenticated user, using mock data for demo');
+          // For demo purposes, create a mock user if not authenticated
+          setUser({
+            id: 'mock-user-1',
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            phone: '+1 234 567 8901',
+            country: 'Cameroon',
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing profile data:', error);
+        // Fallback to mock user for demo
         setUser({
           id: 'mock-user-1',
           name: 'John Doe',
@@ -31,43 +42,13 @@ export const useProfile = () => {
           phone: '+1 234 567 8901',
           country: 'Cameroon',
         });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error initializing profile data:', error);
-      // Fallback to mock user for demo
-      setUser({
-        id: 'mock-user-1',
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 234 567 8901',
-        country: 'Cameroon',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [authUser, isLoggedIn]);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    // Only initialize if we have auth state or a reasonable timeout has passed
-    const initTimer = setTimeout(() => {
-      if (isMounted && loading) {
-        initializeProfile();
-      }
-    }, 500); // Small delay to allow auth to stabilize
-    
-    // If auth state is ready immediately, don't wait
-    if (isLoggedIn || (!loading && !isLoggedIn)) {
-      clearTimeout(initTimer);
-      initializeProfile();
-    }
-    
-    return () => {
-      isMounted = false;
-      clearTimeout(initTimer);
     };
-  }, [initializeProfile, isLoggedIn, loading]);
+    
+    initializeProfile();
+  }, [authUser, isLoggedIn, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -78,7 +59,7 @@ export const useProfile = () => {
       });
       
       try {
-        // Use the signOut function from the useAuth hook which was destructured at the top
+        const { signOut } = useAuth();
         await signOut();
         
         // Dismiss the loading toast and show success

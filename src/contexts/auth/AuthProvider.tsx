@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   getAuthState, 
@@ -51,7 +52,7 @@ const useAuthRefresh = (setAuthState: React.Dispatch<React.SetStateAction<AuthSt
     } catch (error: any) {
       console.error('Error refreshing auth state:', error);
       
-      // Check if there's a stored auth state that's not too old (less than 30 minutes)
+      // Check if there's a stored auth state that's not too old (less than 5 minutes)
       const lastCheck = parseInt(localStorage.getItem(LAST_AUTH_CHECK_KEY) || '0');
       const isRecent = Date.now() - lastCheck < 30 * 60 * 1000; // 30 minutes - extended for better reliability
       
@@ -83,7 +84,7 @@ const useAuthRefresh = (setAuthState: React.Dispatch<React.SetStateAction<AuthSt
 };
 
 // Custom hook for handling authentication events
-const useAuthEvents = (refreshAuthState: () => Promise<any>, setAuthState: React.Dispatch<React.SetStateAction<AuthState>>, authState: AuthState) => {
+const useAuthEvents = (refreshAuthState: () => Promise<void>, setAuthState: React.Dispatch<React.SetStateAction<AuthState>>, authState: AuthState) => {
   useEffect(() => {
     console.log('Setting up auth provider...');
     let hasCompletedInitialLoad = false;
@@ -107,41 +108,63 @@ const useAuthEvents = (refreshAuthState: () => Promise<any>, setAuthState: React
     const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
       
-      // Use a single setTimeout to prevent cascading state changes
-      if (hasCompletedInitialLoad) {
-        setTimeout(() => {
-          // Handle each event type appropriately inside the timeout
-          if (event === 'SIGNED_IN') {
-            console.log('User signed in, refreshing state');
-            refreshAuthState().catch(err => console.error('Error refreshing after sign in:', err));
-          } else if (event === 'SIGNED_OUT') {
-            console.log('User signed out, updating state');
-            // Clear any cached state
-            localStorage.removeItem(LAST_AUTH_CHECK_KEY);
-            localStorage.removeItem(CACHED_AUTH_STATE_KEY);
-            localStorage.removeItem(SESSION_EXPIRES_AT_KEY);
-            
-            setAuthState(prev => ({
-              ...prev,
-              isLoggedIn: false,
-              user: null
-            }));
-          } else if (event === 'TOKEN_REFRESHED') {
-            console.log('Token refreshed, updating state');
-            
-            // Store session duration information
-            if (session) {
-              const expiresAt = session.expires_at;
-              if (expiresAt) {
-                const expiresAtDate = new Date(expiresAt * 1000);
-                console.log('Token expires at:', expiresAtDate.toISOString());
-                localStorage.setItem(SESSION_EXPIRES_AT_KEY, expiresAtDate.toISOString());
-              }
+      // Handle each event type appropriately
+      if (event === 'SIGNED_IN') {
+        console.log('User signed in, refreshing state');
+        if (hasCompletedInitialLoad) {
+          // Use setTimeout to prevent potential recursion issues with Supabase auth
+          setTimeout(async () => {
+            try {
+              await refreshAuthState();
+            } catch (error) {
+              console.error('Error refreshing after sign in:', error);
             }
-            
-            refreshAuthState().catch(err => console.error('Error refreshing after token refresh:', err));
+          }, 0);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out, refreshing state');
+        if (hasCompletedInitialLoad) {
+          // Use setTimeout to prevent potential recursion issues
+          setTimeout(async () => {
+            try {
+              // Clear any cached state
+              localStorage.removeItem(LAST_AUTH_CHECK_KEY);
+              localStorage.removeItem(CACHED_AUTH_STATE_KEY);
+              localStorage.removeItem(SESSION_EXPIRES_AT_KEY);
+              
+              setAuthState(prev => ({
+                ...prev,
+                isLoggedIn: false,
+                user: null
+              }));
+            } catch (error) {
+              console.error('Error updating after sign out:', error);
+            }
+          }, 0);
+        }
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed, updating state');
+        
+        // Store session duration information
+        if (session) {
+          const expiresAt = session.expires_at;
+          if (expiresAt) {
+            const expiresAtDate = new Date(expiresAt * 1000);
+            console.log('Token expires at:', expiresAtDate.toISOString());
+            localStorage.setItem(SESSION_EXPIRES_AT_KEY, expiresAtDate.toISOString());
           }
-        }, 0);
+        }
+        
+        if (hasCompletedInitialLoad) {
+          // Use setTimeout to prevent potential recursion issues
+          setTimeout(async () => {
+            try {
+              await refreshAuthState();
+            } catch (error) {
+              console.error('Error refreshing after token refresh:', error);
+            }
+          }, 0);
+        }
       }
     });
     
@@ -165,7 +188,7 @@ const useAuthEvents = (refreshAuthState: () => Promise<any>, setAuthState: React
 };
 
 // Custom hook for authentication actions (sign in, sign up, sign out)
-const useAuthActions = (setAuthState: React.Dispatch<React.SetStateAction<AuthState>>, refreshAuthState: () => Promise<any>) => {
+const useAuthActions = (setAuthState: React.Dispatch<React.SetStateAction<AuthState>>, refreshAuthState: () => Promise<void>) => {
   // Implement sign-in function
   const signIn = async (email: string, password: string) => {
     try {
