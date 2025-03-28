@@ -66,6 +66,9 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   // Add extra padding at the bottom for pages that need fixed buttons on mobile
   const contentPaddingClass = isMobile && isSendMoneyPage ? 'pb-24' : '';
 
+  // Don't show the header on send money pages (since we now have a fixed progress bar)
+  const hideHeader = isSendMoneyPage;
+
   // Page transition variants
   const pageVariants = {
     initial: { 
@@ -97,7 +100,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground} ${contentPaddingClass}`}>
       <TopNavigation />
       
-      {showMobileHeader && (
+      {showMobileHeader && !hideHeader && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
           <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-400/30 via-primary-400 to-primary-400/30"></div>
@@ -112,7 +115,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       <OfflineBanner />
       
-      {showMobileHeader && (
+      {showMobileHeader && !hideHeader && (
         <motion.div
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}

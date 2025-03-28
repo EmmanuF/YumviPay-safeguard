@@ -43,6 +43,27 @@
   touch-action: manipulation;
 }
 
+/* Fixed progress stepper for send money flow */
+.fixed-progress-stepper {
+  @apply bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+/* Add margin to compensate for the fixed progress bar */
+.mt-progress-bar {
+  margin-top: 110px; /* Adjust based on the height of your progress bar */
+}
+
+@media (max-width: 640px) {
+  .mt-progress-bar {
+    margin-top: 90px; /* Smaller margin for mobile */
+  }
+}
+
 /* Mobile-specific item spacing */
 @media (max-width: 768px) {
   .mobile-nav-spacing > * {

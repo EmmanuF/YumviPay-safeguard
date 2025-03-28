@@ -133,8 +133,8 @@ const SendMoney: React.FC = () => {
     >
       <Header title="Send Money" showBackButton onBackClick={handleBack} />
       
-      {/* Enhanced Stepper component with animations - fixed position at the top */}
-      <div className="bg-white shadow-sm sticky top-0 z-20 border-b border-gray-100">
+      {/* Fixed Stepper component with a higher z-index to ensure it stays on top */}
+      <div className="fixed-progress-stepper">
         {/* Decorative background element */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
         
@@ -221,7 +221,8 @@ const SendMoney: React.FC = () => {
         </div>
       </div>
       
-      <div className={`flex-1 ${isMobile ? 'p-0' : 'p-4 sm:p-6'} bg-muted/10 ${contentPaddingClass}`}>
+      {/* Add padding to the top of the content to prevent overlap with fixed header */}
+      <div className={`flex-1 ${isMobile ? 'p-0' : 'p-4 sm:p-6'} bg-muted/10 ${contentPaddingClass} mt-progress-bar`}>
         <div className={`${isMobile ? 'w-full' : 'container mx-auto max-w-3xl'}`}>
           <motion.div
             variants={itemVariants}
