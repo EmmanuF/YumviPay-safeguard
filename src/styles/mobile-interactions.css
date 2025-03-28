@@ -1,0 +1,36 @@
+
+/* Touch-friendly interactions for mobile */
+@media (max-width: 768px) {
+  .mobile-optimized-carousel {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  
+  .mobile-optimized-carousel > * {
+    scroll-snap-align: center;
+  }
+  
+  .touch-indicator {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+  }
+  
+  .touch-hint {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    opacity: 0.7;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0.3; }
+  }
+}

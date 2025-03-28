@@ -11,7 +11,12 @@
 @import './glass-effects.css';
 @import './card-styles.css';
 @import './text-effects.css';
-@import './interactive-elements.css';
+@import './interactive-elements.css'; /* This now imports all the sub-files */
 @import './shapes.css';
 @import './footer-effects.css';
-
+@import './buttons.css';
+@import './carousel.css';
+@import './scroll-animations.css';
+@import './cards.css';
+@import './mobile-interactions.css';
+@import './footer-animations.css';
