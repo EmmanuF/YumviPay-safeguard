@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 
 interface ContactsButtonProps {
   onClick: () => void;
+  className?: string; // Added className as an optional prop
 }
 
-const ContactsButton: React.FC<ContactsButtonProps> = ({ onClick }) => {
+const ContactsButton: React.FC<ContactsButtonProps> = ({ onClick, className }) => {
   return (
     <motion.div 
       variants={{
@@ -19,7 +20,7 @@ const ContactsButton: React.FC<ContactsButtonProps> = ({ onClick }) => {
           transition: { type: 'spring', stiffness: 300, damping: 24 }
         }
       }}
-      className="mb-6 flex justify-center"
+      className={className || "mb-6 flex justify-center"} // Use the passed className or fall back to default
     >
       <Button 
         variant="outline" 
