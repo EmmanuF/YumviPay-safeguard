@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useSendMoneySteps } from '@/hooks/useSendMoneySteps';
 import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
 import { Check, ChevronRight } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 
 // Define stepper steps with enhanced naming
 const steps = [
@@ -25,6 +26,9 @@ const SendMoney: React.FC = () => {
     handleNext, 
     handleBack 
   } = useSendMoneySteps();
+  
+  // Create a state to track progress percentage
+  const [progressPercentage, setProgressPercentage] = useState(0);
   
   // Create a state to hold transaction data
   const [transactionData, setTransactionData] = useState<any>(() => {
@@ -69,6 +73,25 @@ const SendMoney: React.FC = () => {
   // Get current step index
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
   
+  // Update progress percentage based on the current step
+  useEffect(() => {
+    // Calculate progress percentage: 25% for each completed step
+    const newProgressPercentage = (currentStepIndex / (steps.length - 1)) * 100;
+    
+    // Animate the progress percentage
+    const interval = setInterval(() => {
+      setProgressPercentage(prev => {
+        if (Math.abs(prev - newProgressPercentage) < 1) {
+          clearInterval(interval);
+          return newProgressPercentage;
+        }
+        return prev < newProgressPercentage ? prev + 1 : prev - 1;
+      });
+    }, 10);
+    
+    return () => clearInterval(interval);
+  }, [currentStepIndex]);
+  
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -105,23 +128,23 @@ const SendMoney: React.FC = () => {
     >
       <Header title="Send Money" showBackButton onBackClick={handleBack} />
       
-      {/* Enhanced Stepper component with animations */}
-      <div className="bg-white shadow-sm relative overflow-hidden sticky top-0 z-10">
+      {/* Enhanced Stepper component with animations - fixed position at the top */}
+      <div className="bg-white shadow-sm sticky top-0 z-20 border-b border-gray-100">
         {/* Decorative background element */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
         
-        <div className="container px-4 py-6">
-          <div className="flex justify-between items-center">
+        <div className="container px-4 py-4">
+          <div className="flex justify-between items-center mb-2">
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
                 {/* Step circle with enhanced styling */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center relative">
                   <motion.div 
                     className={`rounded-full w-10 h-10 flex items-center justify-center shadow-md ${
                       index < currentStepIndex 
-                        ? 'bg-primary text-white' 
+                        ? 'bg-green-500 text-white' 
                         : index === currentStepIndex 
-                          ? 'bg-gradient-to-br from-primary to-primary-700 text-white' 
+                          ? 'bg-gradient-to-br from-primary to-primary-700 text-white font-bold ring-4 ring-primary/20' 
                           : 'bg-gray-100 text-gray-500 border border-gray-200'
                     }`}
                     whileHover={{ scale: 1.05 }}
@@ -136,11 +159,13 @@ const SendMoney: React.FC = () => {
                     {index < currentStepIndex ? (
                       <Check className="h-5 w-5" />
                     ) : (
-                      <span className="font-medium">{index + 1}</span>
+                      <span>{index + 1}</span>
                     )}
                   </motion.div>
                   <motion.span 
-                    className="text-xs mt-2 font-medium"
+                    className={`text-xs mt-2 ${
+                      index === currentStepIndex ? 'font-bold text-primary-700' : 'font-medium text-gray-600'
+                    }`}
                     initial={{ opacity: 0 }}
                     animate={{ 
                       opacity: 1,
@@ -155,12 +180,12 @@ const SendMoney: React.FC = () => {
                 {index < steps.length - 1 && (
                   <div className="flex-1 mx-2 h-px bg-gray-200 relative">
                     <motion.div 
-                      className="absolute inset-0 bg-primary"
+                      className={`absolute inset-0 ${index < currentStepIndex ? 'bg-green-500' : 'bg-primary'}`}
                       initial={{ width: "0%" }}
                       animate={{ 
-                        width: index < currentStepIndex ? "100%" : "0%",
+                        width: index < currentStepIndex ? "100%" : index === currentStepIndex ? `${progressPercentage}%` : "0%",
                         transition: { 
-                          duration: 0.5, 
+                          duration: index < currentStepIndex ? 0.5 : 0.8, 
                           ease: "easeInOut",
                           delay: index < currentStepIndex ? 0.3 + (0.1 * index) : 0
                         }
@@ -170,6 +195,23 @@ const SendMoney: React.FC = () => {
                 )}
               </React.Fragment>
             ))}
+          </div>
+          
+          {/* New animated progress bar that shows overall completion */}
+          <div className="w-full mt-2">
+            <Progress value={progressPercentage} className="h-1.5 bg-gray-100">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-green-400 via-primary to-primary-600"
+                style={{ width: `${progressPercentage}%` }}
+                animate={{ 
+                  width: `${progressPercentage}%`,
+                  transition: { 
+                    duration: 0.8, 
+                    ease: "easeInOut"
+                  }
+                }}
+              />
+            </Progress>
           </div>
         </div>
       </div>
