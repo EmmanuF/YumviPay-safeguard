@@ -1,5 +1,4 @@
 
-// No file content provided, need to create this file
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -12,7 +11,7 @@ interface FooterLinkProps {
 const FooterLink: React.FC<FooterLinkProps> = ({ to, children, disabled = false }) => {
   if (disabled) {
     return (
-      <span className="text-gray-400 cursor-not-allowed text-sm">
+      <span className="text-gray-400 cursor-not-allowed text-sm block mb-3">
         {children}
       </span>
     );
@@ -21,7 +20,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ to, children, disabled = false 
   return (
     <Link 
       to={to}
-      className="text-gray-300 hover:text-white transition-colors text-sm relative group"
+      className="text-gray-300 hover:text-white transition-colors text-sm block mb-3 relative group"
     >
       <span className="group-hover:translate-x-1 inline-block transition-transform duration-300">
         {children}
