@@ -67,7 +67,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       if (onGetStarted) {
         onGetStarted();
       } else {
-        navigate(isLoggedIn ? '/dashboard' : '/signin');
+        navigate(isLoggedIn ? '/history' : '/signin');
       }
       setTimeout(() => setIsNavigating(false), 400);
     }, 50);

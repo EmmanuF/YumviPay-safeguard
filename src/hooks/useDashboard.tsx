@@ -16,10 +16,14 @@ export const useDashboard = () => {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        console.log('Dashboard is deprecated, redirecting to history...');
+        // Set longer timeout to give time for navigation
+        console.log('Dashboard is being redirected to history page...');
         
-        // Redirect to history page
-        navigate('/history', { replace: true });
+        // Redirect to history page with a small delay
+        setTimeout(() => {
+          navigate('/history', { replace: true });
+        }, 100);
+        
         return;
       } catch (error) {
         console.error('Error redirecting from dashboard:', error);
@@ -28,6 +32,11 @@ export const useDashboard = () => {
     };
     
     loadUserData();
+    
+    // Cleanup function
+    return () => {
+      setIsLoading(false);
+    };
   }, [navigate, addNotification, authUser, isLoggedIn]);
   
   return {
