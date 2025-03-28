@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
 import TopNavigation from './TopNavigation';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { WifiOff } from 'lucide-react';
+import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ScrollToTopButton from './ScrollToTopButton';
@@ -69,11 +69,6 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
 
   // Don't show LocaleSwitcher in profile page since it's already in the header
   const shouldShowLocaleSwitcher = !isProfilePage;
-  
-  // This is a fix for the duplicate headers issue
-  // We should only show one of TopNavigation or Header, not both
-  const shouldShowTopNavigation = !isMobile && !isHomePage;
-  const shouldShowHeader = showMobileHeader && !hideHeader && !shouldShowTopNavigation;
 
   const pageVariants = {
     initial: { 
@@ -103,11 +98,24 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
 
   return (
     <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground} ${contentPaddingClass}`}>
-      {shouldShowTopNavigation && <TopNavigation />}
+      <TopNavigation />
+      
+      {showMobileHeader && !hideHeader && (
+        <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
+          <div className="absolute top-0 left-0 right-0 h-16 bg-primary-600">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-400/30 via-primary-400 to-primary-400/30"></div>
+            <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary-400/20"></div>
+            <div className="absolute top-4 right-10 w-16 h-16 rounded-full bg-primary-400/10"></div>
+          </div>
+          <div className="absolute top-0 left-0 right-0 h-24">
+            <div className="absolute bottom-0 left-0 right-0 h-14 bg-primary-500 transform skew-y-6 origin-right"></div>
+          </div>
+        </div>
+      )}
       
       <OfflineBanner />
       
-      {shouldShowHeader && (
+      {showMobileHeader && !hideHeader && (
         <motion.div
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
