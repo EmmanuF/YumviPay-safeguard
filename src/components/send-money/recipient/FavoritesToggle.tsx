@@ -5,9 +5,11 @@ import { Star, StarOff } from 'lucide-react';
 import { FormField, FormItem, FormLabel, FormDescription, FormControl } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { useFormContext } from "react-hook-form";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const FavoritesToggle: React.FC = () => {
   const form = useFormContext();
+  const isMobile = useIsMobile();
   
   return (
     <FormField
@@ -26,8 +28,9 @@ export const FavoritesToggle: React.FC = () => {
           className="card-hover"
           whileHover={{ scale: 1.02 }}
         >
-          <FormItem className="bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 flex items-center justify-between">
-            <div className="flex items-center">
+          <FormItem className={`bg-white backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/80 
+            ${isMobile ? 'flex-col space-y-3' : 'flex items-center justify-between'}`}>
+            <div className={`${isMobile ? 'flex items-center' : 'flex items-center'}`}>
               <div className="bg-yellow-50 p-2 rounded-full mr-3">
                 {field.value ? (
                   <Star className="h-4 w-4 text-yellow-500" />

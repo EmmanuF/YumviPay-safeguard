@@ -54,10 +54,17 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const showMobileHeader = isMobile && !isHomePage;
   
   const isSendMoneyPage = location.pathname.includes('/send');
+  const isTransactionPage = location.pathname.includes('/transaction');
+
+  // Don't show bottom nav on send money pages and transaction pages
+  const hideBottomNav = isSendMoneyPage || isTransactionPage;
 
   const pageBackground = isSendMoneyPage 
     ? 'bg-gradient-to-br from-background via-background to-muted/30' 
     : 'bg-background';
+
+  // Add extra padding at the bottom for pages that need fixed buttons on mobile
+  const contentPaddingClass = isMobile && isSendMoneyPage ? 'pb-24' : '';
 
   // Page transition variants
   const pageVariants = {
@@ -87,7 +94,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   };
 
   return (
-    <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground}`}>
+    <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground} ${contentPaddingClass}`}>
       <TopNavigation />
       
       {showMobileHeader && (
@@ -121,7 +128,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         </motion.div>
       )}
       
-      <main className="flex-1 relative z-10 pb-20">
+      <main className={`flex-1 relative z-10 ${isMobile && !hideBottomNav ? 'pb-20' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -160,7 +167,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
         )}
       </AnimatePresence>
       
-      <BottomNavigation />
+      {!hideBottomNav && <BottomNavigation />}
       
       {!hideFooter && <Footer />}
       

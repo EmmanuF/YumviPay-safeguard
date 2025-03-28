@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PaymentStepNavigationProps {
   onNext: () => void;
@@ -17,15 +18,16 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
   isNextDisabled,
   isSubmitting = false
 }) => {
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24, delay: 0.4 }
-    }
-  };
-
+  const isMobile = useIsMobile();
+  
+  const containerClass = isMobile 
+    ? "fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-100 py-4 px-4 shadow-lg z-50" 
+    : "w-full mt-8";
+    
+  const buttonClass = isMobile
+    ? "w-full"
+    : "flex-1";
+    
   // Enhanced logging to track button clicks
   const handleNextClick = () => {
     console.log("Next button clicked in PaymentStepNavigation, calling onNext()");
@@ -39,39 +41,43 @@ const PaymentStepNavigation: React.FC<PaymentStepNavigationProps> = ({
 
   return (
     <motion.div 
-      variants={itemVariants} 
-      className="w-full pt-6 flex gap-4 mb-10 mt-8 sticky bottom-0 z-10 bg-gradient-to-t from-background via-background to-transparent pb-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className={containerClass}
     >
-      <Button 
-        type="button"
-        variant="outline"
-        onClick={handleBackClick} 
-        className="flex-1 border-primary-200 hover:border-primary-300 h-14 text-base group btn-hover-effect" 
-        size="lg"
-        disabled={isSubmitting}
-      >
-        <ArrowLeft className="mr-2 h-5 w-5 transition-transform group-hover:-translate-x-1" />
-        Back
-      </Button>
-      <Button 
-        type="button"
-        onClick={handleNextClick} 
-        className="flex-1 bg-gradient-to-br from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 group h-14 text-base shadow-md btn-hover-effect" 
-        size="lg"
-        disabled={isSubmitting || isNextDisabled}
-      >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Processing
-          </>
-        ) : (
-          <>
-            Continue
-            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-          </>
-        )}
-      </Button>
+      <div className="flex gap-4 max-w-3xl mx-auto">
+        <Button 
+          type="button"
+          variant="outline"
+          onClick={handleBackClick} 
+          className={`${buttonClass} h-14 border-primary-200 hover:border-primary-300 text-base group btn-hover-effect`}
+          size="lg"
+          disabled={isSubmitting}
+        >
+          <ArrowLeft className="mr-2 h-5 w-5 transition-transform group-hover:-translate-x-1" />
+          Back
+        </Button>
+        <Button 
+          type="button"
+          onClick={handleNextClick} 
+          className={`${buttonClass} h-14 bg-gradient-to-br from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 group text-base shadow-md btn-hover-effect`}
+          size="lg"
+          disabled={isSubmitting || isNextDisabled}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Processing
+            </>
+          ) : (
+            <>
+              Continue
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </>
+          )}
+        </Button>
+      </div>
     </motion.div>
   );
 };

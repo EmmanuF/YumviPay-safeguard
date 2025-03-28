@@ -7,6 +7,7 @@ import { PhoneNumberField } from './PhoneNumberField';
 import { FavoritesToggle } from './FavoritesToggle';
 import { ValidationSuccessAlert } from './ValidationSuccessAlert';
 import NameMatchConfirmation from '@/components/send-money/payment/NameMatchConfirmation';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RecipientFormProps {
   form: any;
@@ -32,10 +33,11 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
   formatPhoneNumber
 }) => {
   const isFormValid = form.formState.isValid;
+  const isMobile = useIsMobile();
 
   return (
     <FormProvider {...form}>
-      <div className="space-y-6">
+      <div className={`space-y-6 ${isMobile ? 'px-4' : ''}`}>
         <RecipientNameField />
 
         <PhoneNumberField 
