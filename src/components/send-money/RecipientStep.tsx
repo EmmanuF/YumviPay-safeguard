@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -308,15 +309,14 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
       className="space-y-6 pb-20"
     >
       <motion.div variants={itemVariants}>
-        <Card className="glass-effect border-primary-100/30 shadow-lg">
-          <CardContent className="p-6 sm:p-8">
-            <FormHeader 
-              title="Who are you sending to?" 
-              subtitle="Enter details for your recipient" 
-            />
+        <Card className="soft-gradient-card border-primary-100/30 shadow-md">
+          <CardHeader className="section-header">
+            <CardTitle className="text-xl text-gray-800">Who are you sending to?</CardTitle>
+            <CardDescription className="text-gray-500">Enter details for your recipient</CardDescription>
+            <ContactsButton onClick={handleLoadContacts} className="mt-3" />
+          </CardHeader>
 
-            <ContactsButton onClick={handleLoadContacts} />
-
+          <CardContent className="section-body">
             <CountrySection 
               selectedCountry={selectedCountry}
               onCountryChange={handleCountryChange}
@@ -370,16 +370,17 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
                 </div>
 
                 {isFormValid && <ValidationSuccessAlert />}
-
-                <PaymentStepNavigation 
-                  onNext={handleNextClick}
-                  onBack={handleBackClick}
-                  isNextDisabled={!isFormValid}
-                  isSubmitting={false}
-                />
               </div>
             </FormProvider>
           </CardContent>
+          <CardFooter className="section-footer">
+            <PaymentStepNavigation 
+              onNext={handleNextClick}
+              onBack={handleBackClick}
+              isNextDisabled={!isFormValid}
+              isSubmitting={false}
+            />
+          </CardFooter>
         </Card>
       </motion.div>
 
