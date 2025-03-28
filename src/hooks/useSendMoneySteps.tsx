@@ -1,122 +1,40 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useKado } from '@/services/kado/useKado';
-import { generateTransactionId } from '@/utils/transactionUtils';
-import { createFallbackTransaction } from '@/services/transaction/utils/fallbackTransactions';
+import { useStepsManager, SendMoneyStep } from './send-money/useStepsManager';
+import { useStepValidation } from './send-money/useStepValidation';
+import { useApiValidation } from './send-money/useApiValidation';
+import { useRedirectHandler } from './send-money/useRedirectHandler';
+import { createAndStoreTransaction } from './send-money/useTransactionDataManager';
 
-export type SendMoneyStep = 'recipient' | 'payment' | 'confirmation' | 'complete';
+export type { SendMoneyStep } from './send-money/useStepsManager';
 
 export const useSendMoneySteps = () => {
-  const navigate = useNavigate();
-  const { toast: uiToast } = useToast();
+  // Core hooks
   const { redirectToKadoAndReturn, isLoading: isKadoLoading, checkApiConnection } = useKado();
-  const [currentStep, setCurrentStep] = useState<SendMoneyStep>('recipient');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+  const { validateApiConnection, isValidating } = useApiValidation();
+  const { handleKadoRedirect, isRedirecting } = useRedirectHandler();
+  const { validateRecipientStep, validatePaymentStep } = useStepValidation();
+  
+  // Steps management
+  const {
+    currentStep,
+    setCurrentStep,
+    isSubmitting,
+    setIsSubmitting,
+    error,
+    setError,
+    clearError,
+    retryCount,
+    setRetryCount,
+    moveToNextStep,
+    moveToPreviousStep,
+    navigate
+  } = useStepsManager();
+
+  // Constants
   const MAX_RETRIES = 2;
-
-  useEffect(() => {
-    console.log('📊 Send Money Step:', currentStep, 'Submitting:', isSubmitting, 'Error:', error);
-  }, [currentStep, isSubmitting, error]);
-
-  const clearError = () => {
-    if (error) {
-      setError(null);
-    }
-  };
-
-  const validateApiConnection = async () => {
-    try {
-      const { connected } = await checkApiConnection();
-      if (!connected) {
-        throw new Error("Could not connect to payment provider");
-      }
-      return true;
-    } catch (error) {
-      console.error("❌ API connection validation failed:", error);
-      return false;
-    }
-  };
-
-  const prepareCompleteTransactionData = (transactionData: any, transactionId: string) => {
-    return {
-      id: transactionId,
-      transactionId: transactionId,
-      amount: transactionData.amount?.toString() || '50',
-      recipientName: transactionData.recipientName || 'Transaction Recipient',
-      recipientContact: transactionData.recipientContact || transactionData.recipient || '+237650000000',
-      country: transactionData.targetCountry || 'CM',
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      estimatedDelivery: 'Processing',
-      totalAmount: transactionData.amount?.toString() || '50',
-      paymentMethod: transactionData.paymentMethod || 'mobile_money',
-      provider: transactionData.selectedProvider || 'MTN Mobile Money',
-      
-      sourceCurrency: transactionData.sourceCurrency || 'USD',
-      targetCurrency: transactionData.targetCurrency || 'XAF',
-      convertedAmount: transactionData.convertedAmount || transactionData.receiveAmount || '0',
-      exchangeRate: transactionData.exchangeRate || 0,
-    };
-  };
-
-  const storeTransactionData = (transactionId: string, data: any) => {
-    try {
-      const completeData = prepareCompleteTransactionData(data, transactionId);
-      const storageData = JSON.stringify(completeData);
-      
-      console.log(`📦 Storing COMPLETE transaction ${transactionId} with redundancy:`, completeData);
-      
-      const storageKeys = [
-        `transaction_${transactionId}`,
-        `transaction_backup_${transactionId}`,
-        `pendingKadoTransaction`,
-        `pending_transaction_${Date.now()}`,
-        `latest_transaction`
-      ];
-      
-      storageKeys.forEach(key => {
-        try {
-          localStorage.setItem(key, storageData);
-        } catch (e) {
-          console.error(`❌ Failed to store in localStorage with key ${key}:`, e);
-        }
-      });
-      
-      try {
-        sessionStorage.setItem(`transaction_session_${transactionId}`, storageData);
-        sessionStorage.setItem('lastTransactionId', transactionId);
-      } catch (e) {
-        console.error('❌ Error storing in sessionStorage:', e);
-      }
-      
-      // Safely access window properties with proper TypeScript handling
-      try {
-        // @ts-ignore - Emergency data access
-        window.__EMERGENCY_TRANSACTION = storageData;
-        // @ts-ignore - Emergency data access
-        window.__TRANSACTION_ID = transactionId;
-      } catch (e) {
-        console.error('❌ Error storing in window object:', e);
-      }
-      
-      try {
-        const verification = localStorage.getItem(`transaction_${transactionId}`);
-        console.log(`✅ Storage verification: ${!!verification}`);
-        return !!verification;
-      } catch (e) {
-        console.error('❌ Error verifying storage:', e);
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ Error in storeTransactionData:', error);
-      return false;
-    }
-  };
 
   const handleNext = async () => {
     try {
@@ -125,36 +43,14 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
-          // Verify the name match confirmation before proceeding
-          const pendingTransaction = localStorage.getItem('pendingTransaction');
-          if (pendingTransaction) {
-            const data = JSON.parse(pendingTransaction);
-            
-            if (!data.nameMatchConfirmed) {
-              toast.error("Confirmation Required", {
-                description: "Please confirm that the recipient details match their official ID before proceeding.",
-              });
-              return;
-            }
-          }
+          if (!validateRecipientStep(null)) return;
           
           console.log('✅ Transitioning to payment step');
           setCurrentStep('payment');
           break;
           
         case 'payment':
-          // Also check name match confirmation here
-          const paymentTransaction = localStorage.getItem('pendingTransaction');
-          if (paymentTransaction) {
-            const data = JSON.parse(paymentTransaction);
-            
-            if (!data.nameMatchConfirmed) {
-              toast.error("Confirmation Required", {
-                description: "Please confirm that the recipient details are correct before proceeding.",
-              });
-              return;
-            }
-          }
+          if (!validatePaymentStep(null)) return;
           
           console.log('✅ Transitioning to confirmation step');
           setCurrentStep('confirmation');
@@ -164,11 +60,8 @@ export const useSendMoneySteps = () => {
           setIsSubmitting(true);
           console.log('🚀 Submitting transaction...');
           
-          const transactionId = generateTransactionId();
-          console.log(`🆔 Generated transaction ID: ${transactionId}`);
-          
           try {
-            const isConnected = await validateApiConnection();
+            const isConnected = await validateApiConnection(checkApiConnection);
             if (!isConnected) {
               toast.error("Connection Error", {
                 description: "Could not connect to payment provider. Please try again.",
@@ -184,12 +77,10 @@ export const useSendMoneySteps = () => {
             const transactionData = JSON.parse(pendingTransaction);
             console.log('📊 Transaction data retrieved:', transactionData);
             
-            // Create a fallback transaction immediately
-            const fallback = createFallbackTransaction(transactionId);
-            console.log('Created fallback transaction before redirect:', fallback);
+            // Create and store transaction data
+            const { transactionId, success } = createAndStoreTransaction(transactionData);
             
-            const stored = storeTransactionData(transactionId, transactionData);
-            if (!stored) {
+            if (!success) {
               console.error('❌ Failed to store transaction data reliably');
               toast.error("Storage Error", {
                 description: "Failed to store transaction data. Please try again.",
@@ -197,74 +88,16 @@ export const useSendMoneySteps = () => {
               // Continue anyway - we'll try to recover later
             }
             
-            const loadingDiv = document.createElement('div');
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '0';
-            loadingDiv.style.left = '0';
-            loadingDiv.style.width = '100%';
-            loadingDiv.style.height = '100%';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            loadingDiv.style.display = 'flex';
-            loadingDiv.style.justifyContent = 'center';
-            loadingDiv.style.alignItems = 'center';
-            loadingDiv.style.zIndex = '10000';
-            loadingDiv.innerHTML = `
-              <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
-                <h3>Preparing Transaction...</h3>
-                <p>Please wait while we securely prepare your transaction.</p>
-              </div>
-            `;
-            document.body.appendChild(loadingDiv);
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            const testMode = true;
-            
-            if (testMode) {
-              console.log('🧪 TEST MODE: Using Kado redirect service directly');
-              
-              try {
-                const { kadoRedirectService } = await import('@/services/kado/redirect');
-                
-                await kadoRedirectService.redirectToKado({
-                  amount: transactionData.amount.toString(),
-                  recipientName: transactionData.recipientName || 'Recipient',
-                  recipientContact: transactionData.recipientContact || transactionData.recipient || '',
-                  country: transactionData.targetCountry || 'CM',
-                  paymentMethod: transactionData.paymentMethod || 'mobile_money',
-                  transactionId,
-                  returnUrl: `/transaction/${transactionId}`
-                });
-                
-                // If we get here, the redirect didn't happen - force navigation
-                navigate(`/transaction/${transactionId}`, { replace: true });
-              } catch (e) {
-                console.error('Error using direct Kado redirect service:', e);
-                // Fallback to transaction page
-                navigate(`/transaction/${transactionId}`, { replace: true });
-              } finally {
-                try {
-                  document.body.removeChild(loadingDiv);
-                } catch (e) {
-                  console.error('Error removing loading div:', e);
-                }
-              }
-              
-              return;
-            }
-            
-            await redirectToKadoAndReturn({
-              amount: transactionData.amount.toString(),
-              recipientName: transactionData.recipientName || 'Recipient',
-              recipientContact: transactionData.recipientContact || transactionData.recipient || '',
-              country: transactionData.targetCountry || 'CM',
-              paymentMethod: transactionData.paymentMethod || 'mobile_money',
+            // Handle Kado redirection
+            const redirectSuccess = await handleKadoRedirect(
               transactionId,
-            });
+              transactionData,
+              redirectToKadoAndReturn
+            );
             
-            try {
-              document.body.removeChild(loadingDiv);
-            } catch (e) {}
+            if (!redirectSuccess) {
+              throw new Error("Redirection failed");
+            }
             
           } catch (error) {
             console.error('❌ Error in handleNext:', error);
@@ -340,7 +173,7 @@ export const useSendMoneySteps = () => {
 
   return {
     currentStep,
-    isSubmitting: isSubmitting || isKadoLoading,
+    isSubmitting: isSubmitting || isKadoLoading || isValidating || isRedirecting,
     error,
     handleNext,
     handleBack,
