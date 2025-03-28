@@ -3,9 +3,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
+import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
 
 interface SendMoneyContentProps {
-  currentStep: string;
+  currentStep: SendMoneyStep;
   transactionData: any;
   updateTransactionData: (data: Partial<any>) => void;
   onNext: () => void;
