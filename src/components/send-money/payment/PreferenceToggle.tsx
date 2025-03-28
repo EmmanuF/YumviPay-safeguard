@@ -11,7 +11,7 @@ interface PreferenceToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   icon: React.ReactNode;
-  accentColor?: string;
+  accentColor?: "primary" | "secondary" | "yellow" | "purple" | string;
 }
 
 const PreferenceToggle: React.FC<PreferenceToggleProps> = ({
@@ -23,6 +23,26 @@ const PreferenceToggle: React.FC<PreferenceToggleProps> = ({
   accentColor = 'primary'
 }) => {
   const isMobile = useIsMobile();
+
+  // Define background color for the icon container based on accentColor
+  const getIconBgClass = () => {
+    switch (accentColor) {
+      case 'secondary': return 'bg-secondary-50';
+      case 'yellow': return 'bg-yellow-50';
+      case 'purple': return 'bg-purple-50';
+      default: return 'bg-primary-50';
+    }
+  };
+
+  // Define text color based on accentColor
+  const getTitleTextClass = () => {
+    switch (accentColor) {
+      case 'secondary': return 'text-secondary-700';
+      case 'yellow': return 'text-yellow-700';
+      case 'purple': return 'text-purple-700';
+      default: return 'text-primary-700';
+    }
+  };
   
   return (
     <motion.div
@@ -32,18 +52,19 @@ const PreferenceToggle: React.FC<PreferenceToggleProps> = ({
     >
       <div className={`${isMobile ? 'flex-col space-y-3' : 'flex items-center justify-between'}`}>
         <div className="flex items-center">
-          <div className={`bg-${accentColor}-50 p-2 rounded-full mr-3`}>
+          <div className={`${getIconBgClass()} p-2 rounded-full mr-3`}>
             {icon}
           </div>
           <div>
-            <Label className={`font-medium text-${accentColor}-700 text-base`}>{title}</Label>
+            <Label className={`font-medium ${getTitleTextClass()} text-base`}>{title}</Label>
             <p className="text-xs text-gray-500">{description}</p>
           </div>
         </div>
         <Switch
           checked={checked}
           onCheckedChange={onChange}
-          className={`data-[state=checked]:bg-${accentColor}-500 ${!isMobile ? 'ml-auto' : 'mt-2'}`}
+          accentColor={accentColor}
+          className={`${!isMobile ? 'ml-auto' : 'mt-2'}`}
         />
       </div>
     </motion.div>
