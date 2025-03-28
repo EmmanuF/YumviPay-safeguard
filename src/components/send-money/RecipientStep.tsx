@@ -47,6 +47,14 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
     onBack
   });
 
+  // Add some console logging to debug the button clicks
+  const debugNextClick = () => {
+    console.log("Continue button clicked in RecipientStep");
+    console.log("Form valid:", isFormValid);
+    console.log("Form data:", form.getValues());
+    handleNextClick();
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -100,7 +108,7 @@ const RecipientStep: React.FC<RecipientStepProps> = ({
           </CardContent>
           <CardFooter className="section-footer">
             <PaymentStepNavigation 
-              onNext={handleNextClick}
+              onNext={debugNextClick}
               onBack={handleBackClick}
               isNextDisabled={!isFormValid}
               isSubmitting={false}

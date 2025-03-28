@@ -30,6 +30,8 @@ export const useSendMoneySteps = () => {
     setRetryCount,
     moveToNextStep,
     moveToPreviousStep,
+    goToNextStep,
+    goToPreviousStep,
     navigate
   } = useStepsManager();
 
@@ -43,17 +45,25 @@ export const useSendMoneySteps = () => {
       
       switch (currentStep) {
         case 'recipient':
-          if (!validateRecipientStep(null)) return;
+          console.log('👥 Recipient step - checking validation');
+          if (!validateRecipientStep(null)) {
+            console.log('❌ Recipient step validation failed');
+            return;
+          }
           
           console.log('✅ Transitioning to payment step');
-          setCurrentStep('payment');
+          goToNextStep();
           break;
           
         case 'payment':
-          if (!validatePaymentStep(null)) return;
+          console.log('💳 Payment step - checking validation');
+          if (!validatePaymentStep(null)) {
+            console.log('❌ Payment step validation failed');
+            return;
+          }
           
           console.log('✅ Transitioning to confirmation step');
-          setCurrentStep('confirmation');
+          goToNextStep();
           break;
           
         case 'confirmation':
@@ -61,6 +71,7 @@ export const useSendMoneySteps = () => {
           console.log('🚀 Submitting transaction...');
           
           try {
+            console.log('🔗 Validating API connection');
             const isConnected = await validateApiConnection(checkApiConnection);
             if (!isConnected) {
               toast.error("Connection Error", {
@@ -148,23 +159,7 @@ export const useSendMoneySteps = () => {
       console.log('📝 Moving to previous step from:', currentStep);
       setRetryCount(0);
       
-      switch (currentStep) {
-        case 'payment':
-          console.log('⏮️ Transitioning back to recipient step');
-          setCurrentStep('recipient');
-          break;
-        case 'confirmation':
-          console.log('⏮️ Transitioning back to payment step');
-          setCurrentStep('payment');
-          break;
-        case 'recipient':
-          console.log('⏮️ Already at first step, navigating to home');
-          navigate('/');
-          break;
-        default:
-          console.error('❌ Unknown step:', currentStep);
-          navigate('/');
-      }
+      goToPreviousStep();
     } catch (error) {
       console.error('❌ Error in handleBack:', error);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
