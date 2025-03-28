@@ -1,5 +1,5 @@
 
-import RecipientCard from './RecipientCard';
+import RecipientCard from './recipient-card';
 import RecipientForm from './RecipientForm';
 import RecipientsList from './RecipientsList';
 import SearchSortToolbar from './SearchSortToolbar';
