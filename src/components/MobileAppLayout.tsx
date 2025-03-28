@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -56,20 +55,16 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const isSendMoneyPage = location.pathname.includes('/send');
   const isTransactionPage = location.pathname.includes('/transaction');
 
-  // Don't show bottom nav on send money pages and transaction pages
   const hideBottomNav = isSendMoneyPage || isTransactionPage;
 
   const pageBackground = isSendMoneyPage 
     ? 'bg-gradient-to-br from-background via-background to-muted/30' 
     : 'bg-background';
 
-  // Add extra padding at the bottom for pages that need fixed buttons on mobile
   const contentPaddingClass = isMobile && isSendMoneyPage ? 'pb-24' : '';
 
-  // Don't show the header on send money pages (since we now have a fixed progress bar)
   const hideHeader = isSendMoneyPage;
 
-  // Page transition variants
   const pageVariants = {
     initial: { 
       opacity: 0, 
@@ -148,31 +143,28 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       
       <ScrollToTopButton />
       
-      <AnimatePresence>
-        {showOfflineIndicator && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: animSettings.duration, type: "spring" }}
-            className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
+      {showOfflineIndicator && (
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: animSettings.duration, type: "spring" }}
+          className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-3 py-2 
                       ${glassEffectIntensity === 'light' ? 'bg-primary-300 border border-primary-200' : 'glass-effect bg-primary-300/90 backdrop-blur-md border border-primary-200/30 shadow-lg'} 
                       text-white rounded-full flex items-center space-x-2 z-40`}
-          >
-            <WifiOff className="w-4 h-4" />
-            <span className="text-sm font-medium">Offline</span>
-            {pendingOperationsCount > 0 && (
-              <span className="bg-white text-primary-500 rounded-full px-1.5 text-xs font-medium">
-                {pendingOperationsCount}
-              </span>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+        >
+          <WifiOff className="w-4 h-4" />
+          <span className="text-sm font-medium">Offline</span>
+          {pendingOperationsCount > 0 && (
+            <span className="bg-white text-primary-500 rounded-full px-1.5 text-xs font-medium">
+              {pendingOperationsCount}
+            </span>
+          )}
+        </motion.div>
+      )}
       
-      {!hideBottomNav && <BottomNavigation />}
+      {isMobile && !hideBottomNav && <BottomNavigation />}
       
-      {/* Added footer-glow class to create a visual transition effect */}
       {!hideFooter && <div className="footer-glow relative mt-8"><Footer /></div>}
       
       <Toaster 
