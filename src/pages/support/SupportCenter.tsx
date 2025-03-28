@@ -182,7 +182,7 @@ const SupportCenter: React.FC = () => {
             </button>
           </motion.div>
           
-          <motion.variants variants={fadeIn}>
+          <motion.div variants={fadeIn}>
             <h2 className="text-xl font-semibold text-primary-800 mb-4">Contact Support</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {contactMethods.map((method, index) => (
@@ -201,7 +201,7 @@ const SupportCenter: React.FC = () => {
                 </div>
               ))}
             </div>
-          </motion.variants>
+          </motion.div>
           
           <motion.div variants={fadeIn} className="bg-primary-50 rounded-xl p-6">
             <h2 className="text-xl font-semibold text-primary-700 mb-3">Feedback</h2>
