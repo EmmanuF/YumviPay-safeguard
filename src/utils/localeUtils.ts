@@ -29,6 +29,15 @@ export const translate = (key: string, locale: Locale): string => {
   return translation;
 };
 
+// Get flag emoji for locale
+export const getLocaleFlag = (locale: Locale): string => {
+  const flagMap: Record<Locale, string> = {
+    'en': '🇺🇸',
+    'fr': '🇫🇷'
+  };
+  return flagMap[locale] || '🇺🇸';
+};
+
 // Load locale preferences from user profile
 export const loadLocaleFromProfile = async (): Promise<Locale> => {
   try {

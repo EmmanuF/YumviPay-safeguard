@@ -55,11 +55,11 @@ const LocaleSwitcher: React.FC = () => {
           className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-md h-auto ${
             isMobile 
               ? "bg-white/90 text-gray-800 backdrop-blur-sm shadow-sm hover:bg-white/95" 
-              : "text-white hover:bg-white/20 font-medium"
+              : "text-white hover:bg-white/20"
           }`}
         >
           <span className="text-base">{LanguageFlags[currentLocale].flag}</span>
-          <span className="text-sm font-medium">{LanguageFlags[currentLocale].label}</span>
+          <span className="text-sm">{LanguageFlags[currentLocale].label}</span>
           <ChevronDown className="h-3.5 w-3.5 opacity-70" />
           <span className="sr-only">{t('settings.language')}</span>
         </Button>

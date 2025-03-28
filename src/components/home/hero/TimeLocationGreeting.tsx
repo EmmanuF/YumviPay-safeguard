@@ -43,13 +43,18 @@ const TimeLocationGreeting: React.FC = () => {
       });
     }
     
+    // Default to Cameroon as per MVP focus
+    let defaultCountry = "Cameroon";
+    let defaultCity = "Yaoundé";
+    let defaultFlag = "🇨🇲";
+    
     // Set location data based on user profile or browser info
     if (user?.country) {
       // Find country data from our countries list
       const countryData = countries.find(c => c.code === user.country);
       
       if (countryData) {
-        setCountry(countryData.name);
+        defaultCountry = countryData.name;
         
         // Use flag emoji mapping for consistent display
         const countryToFlag: Record<string, string> = {
@@ -61,76 +66,20 @@ const TimeLocationGreeting: React.FC = () => {
           'DE': '🇩🇪'
         };
         
-        setCountryFlag(countryToFlag[countryData.code] || '');
+        defaultFlag = countryToFlag[countryData.code] || defaultFlag;
       }
       
       // Set city if available in user profile
       if (user.city) {
-        setCity(user.city);
-      }
-    } else {
-      // As fallback, try to use browser geolocation API
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            try {
-              // Use browser's language to guess location if geolocation API is not specific enough
-              const browserLang = navigator.language || 'en';
-              const countryCode = browserLang.split('-')[1] || 'CM'; // Default to Cameroon
-              
-              // Map country codes to names
-              const countryMap: Record<string, string> = {
-                'CM': 'Cameroon',
-                'US': 'United States',
-                'CA': 'Canada',
-                'GB': 'United Kingdom',
-                'FR': 'France',
-                'DE': 'Germany'
-              };
-              
-              // Map country codes to flag emojis
-              const flagMap: Record<string, string> = {
-                'CM': '🇨🇲',
-                'US': '🇺🇸',
-                'CA': '🇨🇦',
-                'GB': '🇬🇧',
-                'FR': '🇫🇷',
-                'DE': '🇩🇪'
-              };
-              
-              setCountry(countryMap[countryCode] || 'Cameroon');
-              setCountryFlag(flagMap[countryCode] || '🇨🇲');
-              
-              // For demonstration, we could set a default city based on country
-              // In a real app, you'd use a geolocation service API
-              const cityMap: Record<string, string> = {
-                'CM': 'Yaoundé',
-                'US': 'New York',
-                'CA': 'Toronto',
-                'GB': 'London',
-                'FR': 'Paris',
-                'DE': 'Berlin'
-              };
-              
-              setCity(cityMap[countryCode] || '');
-            } catch (error) {
-              console.log('Error getting location:', error);
-              setCountry('Cameroon');
-              setCountryFlag('🇨🇲');
-            }
-          },
-          (error) => {
-            console.log('Geolocation error:', error);
-            setCountry('Cameroon');
-            setCountryFlag('🇨🇲');
-          }
-        );
-      } else {
-        // Geolocation not supported, default to Cameroon (MVP focus)
-        setCountry('Cameroon');
-        setCountryFlag('🇨🇲');
+        defaultCity = user.city;
       }
     }
+    
+    // Set the values in state
+    setCountry(defaultCountry);
+    setCity(defaultCity);
+    setCountryFlag(defaultFlag);
+    
   }, [user]);
   
   return (
