@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -236,9 +237,10 @@ export const useRecipientStep = ({
           console.log("Form validation failed, errors:", form.formState.errors);
           const errorFields = Object.keys(form.formState.errors);
           if (errorFields.length > 0) {
-            const firstErrorField = document.querySelector(`[name="${errorFields[0]}"]`);
+            const firstErrorField = document.querySelector(`[name="${errorFields[0]}"]`) as HTMLElement;
             if (firstErrorField) {
               firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Fix: Only call focus on HTMLElement
               firstErrorField.focus();
             }
           }
