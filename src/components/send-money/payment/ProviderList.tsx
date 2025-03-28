@@ -60,16 +60,25 @@ const ProviderList: React.FC<ProviderListProps> = ({
             whileTap={!comingSoon ? { scale: 0.98 } : {}}
             onClick={() => !comingSoon && onSelectProvider(provider.id)}
             className={cn(
-              "rounded-xl p-4 cursor-pointer transition-all duration-200 border-2",
-              isSelected && !comingSoon ? "border-primary-500 bg-primary-50/50 shadow-md" : "border-gray-200",
-              comingSoon ? "opacity-60 cursor-not-allowed" : "hover:border-gray-300",
+              "rounded-xl p-4 cursor-pointer transition-all duration-200 border-2 provider-card",
+              isSelected && !comingSoon 
+                ? "border-primary shadow-md bg-primary-50/30" 
+                : "border-gray-200",
+              comingSoon 
+                ? "opacity-60 cursor-not-allowed" 
+                : "hover:border-gray-300",
+              isSelected && !comingSoon ? "selected" : ""
             )}
+            style={isSelected && !comingSoon ? {
+              boxShadow: '0 4px 8px rgba(var(--primary-rgb), 0.15), 0 1px 3px rgba(var(--primary-rgb), 0.1)',
+              transform: 'translateY(-2px)'
+            } : {}}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className={cn(
                   "w-16 h-16 rounded-md overflow-hidden flex items-center justify-center bg-white p-2",
-                  isSelected ? "ring-2 ring-primary-300" : ""
+                  isSelected ? "ring-2 ring-primary" : ""
                 )}>
                   <img 
                     src={logoSrc}
@@ -79,7 +88,12 @@ const ProviderList: React.FC<ProviderListProps> = ({
                 </div>
                 
                 <div>
-                  <p className="font-medium text-foreground">{provider.name}</p>
+                  <p className={cn(
+                    "font-medium",
+                    isSelected ? "text-primary font-semibold" : "text-foreground"
+                  )}>
+                    {provider.name}
+                  </p>
                   
                   {providerDetails?.processingTime && !comingSoon && (
                     <div className="flex items-center text-xs text-gray-600 mt-1">
