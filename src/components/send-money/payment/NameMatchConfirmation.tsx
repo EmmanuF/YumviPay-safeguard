@@ -20,46 +20,46 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
       <Alert 
         variant={showError ? "destructive" : "warning"}
         className={`
-          rounded-xl shadow-md relative overflow-hidden
+          rounded-xl shadow-lg relative overflow-hidden border-2
           ${showError 
-            ? 'border-red-200 bg-red-50 text-red-800' 
-            : 'border-amber-200 bg-amber-50 text-amber-800'}
+            ? 'border-red-300 bg-red-50 text-red-800' 
+            : 'border-amber-300 bg-amber-50 text-amber-800'}
         `}
       >
         {/* Decorative accent line at the top */}
         <div 
-          className={`absolute top-0 left-0 w-full h-1 
+          className={`absolute top-0 left-0 w-full h-2 
             ${showError 
-              ? 'bg-gradient-to-r from-red-400/30 via-red-500 to-red-400/30' 
-              : 'bg-gradient-to-r from-amber-400/30 via-amber-500 to-amber-400/30'}`
+              ? 'bg-gradient-to-r from-red-400 via-red-500 to-red-400' 
+              : 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400'}`
           }
         />
         
         {showError ? (
           <AlertCircle 
-            className="h-6 w-6 text-red-500 absolute left-4 top-4" 
+            className="h-7 w-7 text-red-500 absolute left-4 top-5" 
             aria-hidden="true"
           />
         ) : (
           <AlertTriangle 
-            className="h-6 w-6 text-amber-500 absolute left-4 top-4" 
+            className="h-7 w-7 text-amber-500 absolute left-4 top-5" 
             aria-hidden="true"
           />
         )}
         
-        <div className="pl-10">
-          <AlertTitle className={`text-base font-medium mb-2 ${showError ? 'text-red-700' : 'text-amber-800'}`}>
+        <div className="pl-12">
+          <AlertTitle className={`text-base font-semibold mb-2 ${showError ? 'text-red-700' : 'text-amber-800'}`}>
             Confirm recipient details
           </AlertTitle>
           
           <AlertDescription className={`text-sm ${showError ? 'text-red-600' : 'text-amber-700'}`}>
             Before proceeding, please verify that you have entered the recipient's name 
-            <span className="font-semibold"> EXACTLY </span> 
+            <span className="font-bold"> EXACTLY </span> 
             as it appears on their account. Mismatched names may result in failed transfers or funds being sent to the wrong person.
           </AlertDescription>
         </div>
         
-        <div className="mt-4 flex items-start gap-4 pl-10">
+        <div className="mt-5 flex items-start gap-4 pl-12">
           <Checkbox 
             id="recipient-confirmation" 
             checked={isChecked} 
@@ -73,7 +73,7 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
             htmlFor="recipient-confirmation" 
             className={`text-sm cursor-pointer ${showError 
               ? 'font-medium text-red-700' 
-              : 'text-amber-800'
+              : 'font-medium text-amber-800'
             }`}
           >
             I confirm that I have verified the recipient's name and details are correct
@@ -81,7 +81,7 @@ const NameMatchConfirmation: React.FC<NameMatchConfirmationProps> = ({
         </div>
         
         {showError && (
-          <div className="mt-3 mx-10 px-4 py-3 rounded-lg bg-red-100 border border-red-200 text-sm text-red-700 font-medium">
+          <div className="mt-4 mx-12 px-4 py-3 rounded-lg bg-red-100 border border-red-200 text-sm text-red-700 font-medium">
             You must confirm that the recipient details are correct to continue
           </div>
         )}
