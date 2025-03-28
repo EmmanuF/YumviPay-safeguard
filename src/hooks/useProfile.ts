@@ -6,7 +6,7 @@ import { toast } from '@/hooks/toast/use-toast';
 
 export const useProfile = () => {
   const navigate = useNavigate();
-  const { user: authUser, isLoggedIn } = useAuth();
+  const { user: authUser, isLoggedIn, signOut } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -59,7 +59,7 @@ export const useProfile = () => {
       });
       
       try {
-        const { signOut } = useAuth();
+        // Use the signOut function from the useAuth hook which was destructured at the top
         await signOut();
         
         // Dismiss the loading toast and show success
