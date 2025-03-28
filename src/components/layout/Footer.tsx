@@ -93,8 +93,8 @@ const Footer = () => {
             </div>
           </div>
           
-          {/* Newsletter Column */}
-          <div className="md:col-span-12 lg:col-span-3 space-y-8">
+          {/* Newsletter Column - better aligned with padding */}
+          <div className="md:col-span-12 lg:col-span-3 pt-4 lg:pt-0">
             <NewsletterSubscription />
           </div>
         </div>

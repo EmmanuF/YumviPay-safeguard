@@ -15,22 +15,28 @@ const NewsletterSubscription: React.FC = () => {
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <p className="text-base font-semibold text-white mb-3">{t('footer.newsletter')}</p>
-      <div className="flex flex-col sm:flex-row gap-2">
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h3 className="text-base font-semibold text-white">{t('footer.newsletter')}</h3>
+        <p className="text-sm text-gray-300">
+          Stay updated with our latest offers, promotions, and new features.
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="space-y-3">
         <Input
           type="email"
           placeholder={t('footer.newsletter.placeholder')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-white border-gray-200"
+          className="bg-white border-gray-200 w-full"
           required
         />
-        <Button type="submit" className="bg-primary-600 hover:bg-primary-700 whitespace-nowrap">
+        <Button type="submit" className="bg-primary-600 hover:bg-primary-700 w-full">
           {t('footer.newsletter.button')}
         </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 
