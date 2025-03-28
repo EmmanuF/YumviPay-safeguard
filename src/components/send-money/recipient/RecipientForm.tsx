@@ -43,7 +43,11 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
           <RecipientNameField />
           
           <PhoneNumberField
+            fieldName="recipientContact"
+            label="Phone Number"
+            description="We'll send transaction notifications to this number"
             selectedCountry={selectedCountry}
+            getCountryName={getCountryName}
             getPhoneNumberPlaceholder={getPhoneNumberPlaceholder}
             getPhoneMaxLength={getPhoneMaxLength}
             getCountryCallingCode={getCountryCallingCode}
