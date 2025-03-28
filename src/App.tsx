@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
-import { AuthProvider } from '@/contexts/auth'; // Updated import path
+import { AuthProvider } from '@/contexts/auth'; 
 import { NetworkProvider } from '@/contexts/NetworkContext';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -27,10 +27,17 @@ import SessionTimeout from '@/components/security/SessionTimeout';
 
 // Footer pages
 import AboutUs from '@/pages/company/AboutUs';
+import Careers from '@/pages/company/Careers';
+import Press from '@/pages/company/Press';
+import Blog from '@/pages/company/Blog';
 import TermsOfService from '@/pages/legal/TermsOfService';
 import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
+import Security from '@/pages/legal/Security';
+import Compliance from '@/pages/legal/Compliance';
+import CookiesPolicy from '@/pages/legal/CookiesPolicy';
 import Contact from '@/pages/support/Contact';
 import FAQ from '@/pages/support/FAQ';
+import SupportCenter from '@/pages/support/SupportCenter';
 
 // Country pages
 import CountryPage from '@/pages/countries/CountryPage';
@@ -140,12 +147,29 @@ function App() {
                     </MobileAppLayout>
                   } />
                   
-                  {/* Footer Pages */}
+                  {/* Footer Company Pages */}
                   <Route path="/about" element={
                     <MobileAppLayout>
                       <AboutUs />
                     </MobileAppLayout>
                   } />
+                  <Route path="/careers" element={
+                    <MobileAppLayout>
+                      <Careers />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/press" element={
+                    <MobileAppLayout>
+                      <Press />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/blog" element={
+                    <MobileAppLayout>
+                      <Blog />
+                    </MobileAppLayout>
+                  } />
+                  
+                  {/* Footer Legal Pages */}
                   <Route path="/terms" element={
                     <MobileAppLayout>
                       <TermsOfService />
@@ -156,6 +180,23 @@ function App() {
                       <PrivacyPolicy />
                     </MobileAppLayout>
                   } />
+                  <Route path="/security" element={
+                    <MobileAppLayout>
+                      <Security />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/compliance" element={
+                    <MobileAppLayout>
+                      <Compliance />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/cookies" element={
+                    <MobileAppLayout>
+                      <CookiesPolicy />
+                    </MobileAppLayout>
+                  } />
+                  
+                  {/* Footer Support Pages */}
                   <Route path="/contact" element={
                     <MobileAppLayout>
                       <Contact />
@@ -164,6 +205,11 @@ function App() {
                   <Route path="/faq" element={
                     <MobileAppLayout>
                       <FAQ />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/support" element={
+                    <MobileAppLayout>
+                      <SupportCenter />
                     </MobileAppLayout>
                   } />
                   

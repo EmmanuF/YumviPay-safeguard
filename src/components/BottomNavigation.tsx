@@ -28,15 +28,15 @@ const BottomNavigation = () => {
     { path: '/profile', icon: User, label: 'Profile' },
   ];
   
+  // Filter out duplicate items (like duplicate history entries)
+  const filteredItems = navigationItems.filter((item, index, self) => 
+    index === self.findIndex((t) => t.path === item.path && t.label === item.label)
+  );
+  
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-100 z-50">
       <div className="flex justify-between items-center px-2">
-        {navigationItems.map((item, index) => {
-          // Skip duplicate history entries
-          if (index === 3 && navigationItems[0].path === '/history') {
-            return null;
-          }
-          
+        {filteredItems.map((item, index) => {
           const isActiveItem = isActive(item.path);
           const Icon = item.icon;
           
