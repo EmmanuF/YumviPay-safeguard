@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useFormContext } from "react-hook-form";
 
-const RecipientNameField: React.FC = () => {
+export const RecipientNameField: React.FC = () => {
   const form = useFormContext();
   
   return (
@@ -76,5 +76,3 @@ const RecipientNameField: React.FC = () => {
     />
   );
 };
-
-export default RecipientNameField;

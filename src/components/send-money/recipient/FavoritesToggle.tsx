@@ -6,7 +6,7 @@ import { FormField, FormItem, FormLabel, FormDescription, FormControl } from "@/
 import { Switch } from "@/components/ui/switch";
 import { useFormContext } from "react-hook-form";
 
-const FavoritesToggle: React.FC = () => {
+export const FavoritesToggle: React.FC = () => {
   const form = useFormContext();
   
   return (
@@ -55,5 +55,3 @@ const FavoritesToggle: React.FC = () => {
     />
   );
 };
-
-export default FavoritesToggle;

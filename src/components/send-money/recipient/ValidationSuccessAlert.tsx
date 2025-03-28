@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const ValidationSuccessAlert: React.FC = () => {
+export const ValidationSuccessAlert: React.FC = () => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -23,5 +23,3 @@ const ValidationSuccessAlert: React.FC = () => {
     </motion.div>
   );
 };
-
-export default ValidationSuccessAlert;

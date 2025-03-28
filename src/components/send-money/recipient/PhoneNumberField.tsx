@@ -20,7 +20,7 @@ interface PhoneNumberFieldProps {
   showPopover?: boolean;
 }
 
-const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
+export const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
   fieldName,
   label,
   description,
@@ -121,5 +121,3 @@ const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
     />
   );
 };
-
-export default PhoneNumberField;

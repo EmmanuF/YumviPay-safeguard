@@ -3,8 +3,9 @@
 export { default as ContactsButton } from './ContactsButton';
 export { default as ContactsDialog } from './ContactsDialog';
 export { default as CountrySection } from './CountrySection';
-export { default as FavoritesToggle } from './FavoritesToggle';
+export { FavoritesToggle } from './FavoritesToggle';
 export { default as FormHeader } from './FormHeader';
-export { default as PhoneNumberField } from './PhoneNumberField';
-export { default as RecipientNameField } from './RecipientNameField';
-export { default as ValidationSuccessAlert } from './ValidationSuccessAlert';
+export { PhoneNumberField } from './PhoneNumberField';
+export { RecipientNameField } from './RecipientNameField';
+export { ValidationSuccessAlert } from './ValidationSuccessAlert';
+export { default as RecipientForm } from './RecipientForm';
