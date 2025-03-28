@@ -50,7 +50,7 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
         <Card>
           <AccountInformation 
             user={user}
-            onEditField={onEditField}
+            onEdit={onEditField}
           />
           
           {/* Add Referral Link in the Account tab */}
