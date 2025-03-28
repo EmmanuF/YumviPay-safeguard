@@ -44,7 +44,7 @@ const Footer = () => {
       
       <div className="container mx-auto px-5 relative z-10">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10">
           {/* Company Information Column */}
           <div className="md:col-span-4 lg:col-span-3">
             <CompanyInfo />
@@ -57,7 +57,7 @@ const Footer = () => {
           
           {/* Navigation Links Columns */}
           <div className="md:col-span-8 lg:col-span-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8">
               {/* Company Links */}
               <FooterSection title={t('footer.company')}>
                 <FooterLink to="/about">{t('footer.about')}</FooterLink>
