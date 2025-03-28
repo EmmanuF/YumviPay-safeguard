@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeroContent } from './hero';
@@ -83,7 +82,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
         <AnimatePresence mode="wait">
           {showGreeting && (
             <motion.div 
-              key="location-greeting"
+              key="time-greeting"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}

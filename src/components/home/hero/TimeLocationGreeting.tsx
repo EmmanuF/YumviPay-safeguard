@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon, MapPin } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { countries } from '@/data/countries';
 
 type GreetingType = {
   message: string;
@@ -13,14 +12,9 @@ type GreetingType = {
 const TimeLocationGreeting: React.FC = () => {
   const { user } = useAuth();
   const [greeting, setGreeting] = useState<GreetingType>({
-    message: "Hello from",
+    message: "Hello",
     icon: <Sun className="w-4 h-4 text-amber-400" />
   });
-  
-  // State for city and country separately for better control
-  const [city, setCity] = useState<string>("");
-  const [country, setCountry] = useState<string>("Cameroon");
-  const [countryFlag, setCountryFlag] = useState<string>("🇨🇲");
   
   useEffect(() => {
     // Get current hour to determine appropriate greeting
@@ -28,59 +22,21 @@ const TimeLocationGreeting: React.FC = () => {
     
     if (hour >= 5 && hour < 12) {
       setGreeting({
-        message: "Good morning from",
+        message: "Good morning",
         icon: <Sun className="w-4 h-4 text-amber-400" />
       });
     } else if (hour >= 12 && hour < 18) {
       setGreeting({
-        message: "Good afternoon from",
+        message: "Good afternoon",
         icon: <Sun className="w-4 h-4 text-amber-500" />
       });
     } else {
       setGreeting({
-        message: "Good evening from",
+        message: "Good evening",
         icon: <Moon className="w-4 h-4 text-indigo-300" />
       });
     }
-    
-    // Default to Cameroon as per MVP focus
-    let defaultCountry = "Cameroon";
-    let defaultCity = "Yaoundé";
-    let defaultFlag = "🇨🇲";
-    
-    // Set location data based on user profile or browser info
-    if (user?.country) {
-      // Find country data from our countries list
-      const countryData = countries.find(c => c.code === user.country);
-      
-      if (countryData) {
-        defaultCountry = countryData.name;
-        
-        // Use flag emoji mapping for consistent display
-        const countryToFlag: Record<string, string> = {
-          'CM': '🇨🇲',
-          'US': '🇺🇸',
-          'CA': '🇨🇦',
-          'GB': '🇬🇧',
-          'FR': '🇫🇷',
-          'DE': '🇩🇪'
-        };
-        
-        defaultFlag = countryToFlag[countryData.code] || defaultFlag;
-      }
-      
-      // Set city if available in user profile
-      if (user.city) {
-        defaultCity = user.city;
-      }
-    }
-    
-    // Set the values in state
-    setCountry(defaultCountry);
-    setCity(defaultCity);
-    setCountryFlag(defaultFlag);
-    
-  }, [user]);
+  }, []);
   
   return (
     <motion.div 
@@ -89,7 +45,7 @@ const TimeLocationGreeting: React.FC = () => {
       className="flex items-center justify-center text-sm font-medium"
     >
       <motion.div 
-        className="flex items-center gap-1.5 mr-2"
+        className="flex items-center gap-1.5"
         initial={{ x: -20 }}
         animate={{ x: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -111,32 +67,7 @@ const TimeLocationGreeting: React.FC = () => {
           {greeting.icon}
         </motion.div>
         <span className="font-medium text-gray-800 bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
-          {greeting.message}
-        </span>
-      </motion.div>
-      <motion.div 
-        className="flex items-center gap-1.5"
-        initial={{ x: 20 }}
-        animate={{ x: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-      >
-        <motion.div
-          animate={{ 
-            y: [0, -3, 0, 3, 0],
-          }}
-          transition={{ 
-            duration: 2,
-            ease: "easeInOut",
-            times: [0, 0.25, 0.5, 0.75, 1],
-            repeat: Infinity,
-            repeatDelay: 2
-          }}
-          className="bg-primary-50 p-1.5 rounded-full"
-        >
-          <MapPin className="w-3.5 h-3.5 text-primary-500" />
-        </motion.div>
-        <span className="font-medium text-gray-800 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
-          {city && `${city}, `}{country} <span className="text-base inline-block ml-1" role="img" aria-label={`Flag of ${country}`}>{countryFlag}</span>
+          {greeting.message}{user?.name ? `, ${user.name}` : ''}
         </span>
       </motion.div>
     </motion.div>
