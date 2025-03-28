@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
@@ -155,6 +154,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 isChecked={termsAccepted}
                 onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
                 showError={!termsAccepted && isSubmitting}
+                variant="payment"
               />
             </motion.div>
 
