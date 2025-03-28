@@ -25,12 +25,23 @@ import NotFound from '@/pages/NotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionTimeout from '@/components/security/SessionTimeout';
 
-// Footer pages
+// Footer pages - Company
 import AboutUs from '@/pages/company/AboutUs';
+import Careers from '@/pages/company/Careers';
+import Press from '@/pages/company/Press';
+import Blog from '@/pages/company/Blog';
+
+// Footer pages - Legal
 import TermsOfService from '@/pages/legal/TermsOfService';
 import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
+import Security from '@/pages/legal/Security';
+import Compliance from '@/pages/legal/Compliance';
+import Cookies from '@/pages/legal/Cookies';
+
+// Footer pages - Support
 import Contact from '@/pages/support/Contact';
 import FAQ from '@/pages/support/FAQ';
+import Support from '@/pages/support/Support';
 
 // Country pages
 import CountryPage from '@/pages/countries/CountryPage';
@@ -140,12 +151,29 @@ function App() {
                     </MobileAppLayout>
                   } />
                   
-                  {/* Footer Pages */}
+                  {/* Footer Pages - Company */}
                   <Route path="/about" element={
                     <MobileAppLayout>
                       <AboutUs />
                     </MobileAppLayout>
                   } />
+                  <Route path="/careers" element={
+                    <MobileAppLayout>
+                      <Careers />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/press" element={
+                    <MobileAppLayout>
+                      <Press />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/blog" element={
+                    <MobileAppLayout>
+                      <Blog />
+                    </MobileAppLayout>
+                  } />
+                  
+                  {/* Footer Pages - Legal */}
                   <Route path="/terms" element={
                     <MobileAppLayout>
                       <TermsOfService />
@@ -156,6 +184,23 @@ function App() {
                       <PrivacyPolicy />
                     </MobileAppLayout>
                   } />
+                  <Route path="/security" element={
+                    <MobileAppLayout>
+                      <Security />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/compliance" element={
+                    <MobileAppLayout>
+                      <Compliance />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/cookies" element={
+                    <MobileAppLayout>
+                      <Cookies />
+                    </MobileAppLayout>
+                  } />
+                  
+                  {/* Footer Pages - Support */}
                   <Route path="/contact" element={
                     <MobileAppLayout>
                       <Contact />
@@ -164,6 +209,11 @@ function App() {
                   <Route path="/faq" element={
                     <MobileAppLayout>
                       <FAQ />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/support" element={
+                    <MobileAppLayout>
+                      <Support />
                     </MobileAppLayout>
                   } />
                   
