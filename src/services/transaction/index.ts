@@ -10,10 +10,11 @@ export {
   addOfflineTransaction,
   updateOfflineTransaction,
   clearTransactionsStore,
-  getStoredTransactions,
-  createStoredTransaction,
-  createTransaction
+  getStoredTransactions
 } from './store/index';
+
+// Export transaction creation functions from the store module
+export { createTransaction, createStoredTransaction } from './store/transactionCreation';
 
 export * from './utils/fallbackTransactions';
 export * from './transactionRetrieve';

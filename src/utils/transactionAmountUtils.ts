@@ -1,73 +1,97 @@
 
-/**
- * Utilities for handling transaction amounts consistently across the app
- */
+import { Transaction } from '@/types/transaction';
 
-// Get a reliable amount from a transaction, with fallback values
-export const getReliableAmount = (transaction: any, defaultAmount: number = 50): number => {
+/**
+ * Get the most reliable transaction amount from potentially inconsistent data
+ */
+export const getReliableAmount = (
+  transaction: Transaction | null, 
+  defaultAmount = 0
+): number => {
   if (!transaction) return defaultAmount;
   
-  // Try all possible sources for the amount
-  const possibleAmounts = [
-    parseFloat(transaction.amount),
-    parseFloat(transaction.totalAmount),
-    parseFloat(transaction.sendAmount),
-    defaultAmount
-  ];
+  // Try different amount fields
+  if (typeof transaction.amount === 'number' && !isNaN(transaction.amount)) {
+    return transaction.amount;
+  }
   
-  // Return the first valid number
-  for (const amount of possibleAmounts) {
-    if (!isNaN(amount) && amount > 0) {
-      return amount;
-    }
+  if (typeof transaction.amount === 'string' && transaction.amount) {
+    const parsed = parseFloat(transaction.amount);
+    if (!isNaN(parsed)) return parsed;
+  }
+  
+  // Try totalAmount
+  if (typeof transaction.totalAmount === 'number' && !isNaN(transaction.totalAmount)) {
+    return transaction.totalAmount;
+  }
+  
+  if (typeof transaction.totalAmount === 'string' && transaction.totalAmount) {
+    const parsed = parseFloat(transaction.totalAmount);
+    if (!isNaN(parsed)) return parsed;
+  }
+  
+  // Try sendAmount
+  if (typeof transaction.sendAmount === 'number' && !isNaN(transaction.sendAmount)) {
+    return transaction.sendAmount;
+  }
+  
+  if (typeof transaction.sendAmount === 'string' && transaction.sendAmount) {
+    const parsed = parseFloat(transaction.sendAmount);
+    if (!isNaN(parsed)) return parsed;
   }
   
   return defaultAmount;
 };
 
-// Store transaction amount in multiple locations for greater reliability
-export const storeTransactionAmount = (amount: number, transactionId: string): void => {
-  if (!transactionId) return;
-  
-  try {
-    // Store with different keys for better redundancy
-    localStorage.setItem(`tx_amount_${transactionId}`, amount.toString());
-    localStorage.setItem(`transaction_amount_${transactionId}`, amount.toString());
-    localStorage.setItem(`amount_${transactionId}`, amount.toString());
-  } catch (e) {
-    console.error('Error storing transaction amount:', e);
-  }
-};
-
-// Format transaction amount with currency
+/**
+ * Format transaction amount for display
+ */
 export const formatTransactionAmount = (
   amount: number | string,
   options: {
     currency?: string;
     locale?: string;
-    style?: 'currency' | 'decimal' | 'percent' | 'unit';
   } = {}
 ): string => {
-  // Convert to number if string
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const { currency = 'USD', locale = 'en-US' } = options;
   
-  // Default options
-  const {
-    currency = 'USD',
-    locale = 'en-US',
-    style = 'currency'
-  } = options;
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   
-  // Format the amount
+  if (isNaN(numericAmount)) {
+    return '0.00';
+  }
+  
   try {
     return new Intl.NumberFormat(locale, {
-      style,
+      style: 'currency',
       currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(numAmount);
+      currencyDisplay: 'symbol',
+    }).format(numericAmount);
   } catch (e) {
-    // Fallback formatting
-    return `${currency} ${numAmount.toFixed(2)}`;
+    return `${currency} ${numericAmount.toFixed(2)}`;
   }
+};
+
+/**
+ * Store transaction amount in multiple locations for reliability
+ */
+export const storeTransactionAmount = (amount: number, transactionId: string): void => {
+  try {
+    // Store in localStorage for persistence
+    localStorage.setItem(`tx_amount_${transactionId}`, amount.toString());
+    
+    // Also store in sessionStorage
+    sessionStorage.setItem(`tx_amount_${transactionId}`, amount.toString());
+    
+    console.log(`[TransactionAmount] Stored amount ${amount} for transaction ${transactionId}`);
+  } catch (e) {
+    console.error('[TransactionAmount] Error storing amount:', e);
+  }
+};
+
+/**
+ * Generate transaction ID utility
+ */
+export const generateTransactionId = (): string => {
+  return `TXN-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 };

@@ -1,74 +1,71 @@
 
-import { toast } from 'sonner';
-
 /**
- * Attempts to recover transaction data from various storage locations
- * @param currentStep The current step in the send money flow
- * @param updateTransactionData Function to update transaction data
- * @param cachedDataRef Optional in-memory cache reference
- * @returns An object indicating if recovery was successful and any recovered data
+ * Utility functions to recover transaction data when something goes wrong
  */
+import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
+
 export const recoverTransactionData = (
-  currentStep: string,
+  currentStep: SendMoneyStep, 
   updateTransactionData: (data: any) => void,
-  cachedDataRef?: React.MutableRefObject<any>
-): { recovered: boolean, data?: any } => {
+  cachedDataRef: React.MutableRefObject<any>
+) => {
+  console.log('[Recovery] Attempting to recover transaction data for step:', currentStep);
+  
+  // Try to recover from the ref
+  if (cachedDataRef?.current) {
+    console.log('[Recovery] Data found in ref cache:', cachedDataRef.current);
+    updateTransactionData(cachedDataRef.current);
+    return { recovered: true, source: 'ref' };
+  }
+  
+  // Try to recover from localStorage
   try {
-    // First try in-memory cache for fastest recovery
-    if (cachedDataRef?.current) {
-      console.log(`Recovered data from in-memory cache:`, cachedDataRef.current);
-      updateTransactionData(cachedDataRef.current);
-      return { recovered: true, data: cachedDataRef.current };
-    }
+    const keys = Object.keys(localStorage);
+    const transactionKeys = keys.filter(key => 
+      key.startsWith('transaction_') || 
+      key.includes('transaction') || 
+      key.includes('pending')
+    );
     
-    // Try local storage for current step
-    const cachedStepData = localStorage.getItem(`step_${currentStep}_data`);
-    if (cachedStepData) {
-      const parsed = JSON.parse(cachedStepData);
-      console.log(`Recovered data for step ${currentStep} from localStorage:`, parsed);
-      updateTransactionData(parsed);
+    if (transactionKeys.length > 0) {
+      // Get the most recent transaction by parsing dates
+      let mostRecent = null;
+      let mostRecentDate = new Date(0); // epoch
       
-      toast.success("Data Recovered", {
-        description: "Successfully recovered your transaction data",
-      });
+      for (const key of transactionKeys) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key) || '{}');
+          const date = data.createdAt ? new Date(data.createdAt) : new Date(0);
+          
+          if (date > mostRecentDate) {
+            mostRecent = data;
+            mostRecentDate = date;
+          }
+        } catch (e) {
+          console.error('[Recovery] Error parsing item:', key, e);
+        }
+      }
       
-      return { recovered: true, data: parsed };
-    }
-    
-    // Try to find data from any step
-    const lastStep = localStorage.getItem('lastStep');
-    if (lastStep) {
-      const lastStepData = localStorage.getItem(`step_${lastStep}_data`);
-      if (lastStepData) {
-        const parsed = JSON.parse(lastStepData);
-        console.log(`Recovered data from previous step ${lastStep}:`, parsed);
-        updateTransactionData(parsed);
-        
-        toast.success("Data Recovered", {
-          description: "Recovered data from your previous step",
-        });
-        
-        return { recovered: true, data: parsed };
+      if (mostRecent) {
+        console.log('[Recovery] Recovered from localStorage:', mostRecent);
+        updateTransactionData(mostRecent);
+        return { recovered: true, source: 'localStorage' };
       }
     }
-    
-    // Try the pending transaction as a last resort
-    const pendingTransaction = localStorage.getItem('pendingTransaction');
-    if (pendingTransaction) {
-      const parsed = JSON.parse(pendingTransaction);
-      console.log(`Recovered data from pendingTransaction:`, parsed);
-      updateTransactionData(parsed);
-      
-      toast.success("Data Recovered", {
-        description: "Retrieved your pending transaction",
-      });
-      
-      return { recovered: true, data: parsed };
-    }
-    
-    return { recovered: false };
   } catch (e) {
-    console.error('Error recovering step data:', e);
-    return { recovered: false };
+    console.error('[Recovery] Error accessing localStorage:', e);
   }
+  
+  // Create default data if recovery failed
+  const defaultData = {
+    id: `TXN-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+    amount: '50',
+    recipientName: '',
+    country: 'CM',
+    status: 'pending'
+  };
+  
+  console.log('[Recovery] Creating default data:', defaultData);
+  updateTransactionData(defaultData);
+  return { recovered: false, source: 'default' };
 };
