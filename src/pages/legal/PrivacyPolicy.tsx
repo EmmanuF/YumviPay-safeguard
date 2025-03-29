@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
 const PrivacyPolicy = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Privacy Policy | Yumvi-Pay</title>
         <meta name="description" content="Learn about how Yumvi-Pay collects, uses, and protects your personal information." />
@@ -94,14 +91,10 @@ const PrivacyPolicy = () => {
           <p>
             If you have any questions or concerns about our Privacy Policy or data practices, please 
             contact our Privacy Team at{' '}
-            <a href="mailto:privacy@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
-              privacy@yumvi-pay.com
-            </a>
+            <a href="mailto:privacy@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">support@yumvipay.com</a>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PrivacyPolicy;
