@@ -1,7 +1,20 @@
 
+
 // Re-export transaction services for easier imports
 export * from './update';
-export * from './store';
+// Export from store with renamed exports to avoid naming conflicts
+export { 
+  initializeTransactions,
+  generateMockTransactions,
+  getOfflineTransactions,
+  setOfflineTransactions,
+  addOfflineTransaction,
+  updateOfflineTransaction,
+  clearTransactionsStore,
+  getStoredTransactions,
+  createTransaction as createStoredTransaction 
+} from './store';
+
 export * from './utils/fallbackTransactions';
 export * from './transactionRetrieve';
 
@@ -19,6 +32,5 @@ export {
 } from './retrieval/allTransactions';
 
 // Explicitly re-export from create module with a clear name to avoid ambiguity
-export * from './create/index';
+export { createTransaction } from './create/index';
 
-// Also ensure create/index.ts is properly exporting the function
