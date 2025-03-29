@@ -110,10 +110,11 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       if (isPlatform('capacitor')) {
         // For mobile apps, ensure deep linking works
         try {
-          // Fixed: Use correct Capacitor App plugin import and method
+          // Fixed: Use correct App plugin method
           const { App } = await import('@capacitor/app');
           const appUrl = `${window.location.origin}${fullReturnUrl}`;
           console.log(`🔗 Opening URL via Capacitor: ${appUrl}`);
+          // Use openUrl from the correctly imported App plugin
           await App.openUrl({ url: appUrl });
         } catch (e) {
           console.error('Error using Capacitor App.openUrl:', e);
