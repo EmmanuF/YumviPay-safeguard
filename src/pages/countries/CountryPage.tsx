@@ -1,10 +1,13 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import MobileAppLayout from '@/components/MobileAppLayout';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
+import ComingSoonMessage from '@/components/send-money/payment/ComingSoonMessage';
+import { useToast } from '@/components/ui/use-toast';
 
 const countries = {
   cameroon: {
@@ -15,7 +18,8 @@ const countries = {
     languages: 'French, English',
     paymentMethods: ['MTN Mobile Money', 'Orange Money', 'Express Union', 'Bank Transfer'],
     flag: '🇨🇲',
-    description: 'Cameroon, often referred to as "Africa in miniature," offers diverse landscapes from beaches to mountains, with rich culture and wildlife.'
+    description: 'Cameroon, often referred to as "Africa in miniature," offers diverse landscapes from beaches to mountains, with rich culture and wildlife.',
+    available: true
   },
   senegal: {
     name: 'Senegal',
@@ -25,7 +29,8 @@ const countries = {
     languages: 'French',
     paymentMethods: ['Orange Money', 'Wave', 'Free Money', 'Bank Transfer'],
     flag: '🇸🇳',
-    description: 'Senegal, known for its vibrant culture and hospitality (Teranga), features beautiful coastlines, historical sites, and a strong musical tradition.'
+    description: 'Senegal, known for its vibrant culture and hospitality (Teranga), features beautiful coastlines, historical sites, and a strong musical tradition.',
+    available: false
   },
   nigeria: {
     name: 'Nigeria',
@@ -35,7 +40,8 @@ const countries = {
     languages: 'English',
     paymentMethods: ['Bank Transfer', 'Flutterwave', 'Paystack', 'OPay'],
     flag: '🇳🇬',
-    description: 'Nigeria, Africa\'s most populous country, has a dynamic economy, diverse cultures, and is known for its film industry (Nollywood) and music scene.'
+    description: 'Nigeria, Africa\'s most populous country, has a dynamic economy, diverse cultures, and is known for its film industry (Nollywood) and music scene.',
+    available: false
   },
   ghana: {
     name: 'Ghana',
@@ -45,7 +51,8 @@ const countries = {
     languages: 'English',
     paymentMethods: ['MTN Mobile Money', 'Vodafone Cash', 'Bank Transfer'],
     flag: '🇬🇭',
-    description: 'Ghana, known for its stability and friendly people, offers rich history, beautiful beaches, and vibrant markets. It was the first sub-Saharan African nation to gain independence.'
+    description: 'Ghana, known for its stability and friendly people, offers rich history, beautiful beaches, and vibrant markets. It was the first sub-Saharan African nation to gain independence.',
+    available: false
   },
   kenya: {
     name: 'Kenya',
@@ -55,13 +62,17 @@ const countries = {
     languages: 'Swahili, English',
     paymentMethods: ['M-Pesa', 'Airtel Money', 'Bank Transfer'],
     flag: '🇰🇪',
-    description: 'Kenya features stunning wildlife, the Great Rift Valley, and beautiful beaches. It\'s known for safaris, marathon runners, and mobile payment innovation.'
+    description: 'Kenya features stunning wildlife, the Great Rift Valley, and beautiful beaches. It\'s known for safaris, marathon runners, and mobile payment innovation.',
+    available: false
   }
 };
 
 const CountryPage: React.FC = () => {
   const { countryId } = useParams<{ countryId: string }>();
   const { t } = useLocale();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showComingSoon, setShowComingSoon] = useState(false);
   
   const country = countryId && countries[countryId as keyof typeof countries];
   
@@ -76,6 +87,31 @@ const CountryPage: React.FC = () => {
       </MobileAppLayout>
     );
   }
+  
+  const handleSendMoney = () => {
+    if (country.available) {
+      // For Cameroon, navigate to send money flow
+      // First, set up transaction data in localStorage
+      const transactionData = {
+        targetCountry: country.code,
+        amount: 100, // Default amount
+        sourceCurrency: 'USD',
+        targetCurrency: country.currency.split(' ')[1].replace('(', '').replace(')', ''),
+        exchangeRate: country.code === 'CM' ? 607.4330 : 600, // Example rate
+      };
+      
+      localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+      navigate('/send');
+    } else {
+      // For other countries, show coming soon message
+      setShowComingSoon(true);
+      toast({
+        title: "Coming Soon",
+        description: `Money transfers to ${country.name} will be available soon!`,
+        duration: 5000,
+      });
+    }
+  };
   
   return (
     <MobileAppLayout>
@@ -142,7 +178,10 @@ const CountryPage: React.FC = () => {
                 <p className="text-gray-700 mb-4">
                   Start sending money to {country.name} today with our fast, secure, and affordable service.
                 </p>
-                <Button className="w-full">Send Money Now</Button>
+                <Button className="w-full" onClick={handleSendMoney}>Send Money Now</Button>
+                {showComingSoon && !country.available && (
+                  <ComingSoonMessage message={`Money transfers to ${country.name} will be available soon! We're working on expanding our service.`} />
+                )}
               </div>
             </div>
           </div>

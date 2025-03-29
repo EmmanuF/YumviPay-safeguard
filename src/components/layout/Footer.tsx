@@ -84,11 +84,11 @@ const Footer = () => {
               
               {/* Countries section */}
               <FooterSection title={t('footer.countries')}>
-                <FooterLink to="/country/cameroon">Cameroon</FooterLink>
-                <FooterLink to="/country/senegal">Senegal</FooterLink>
-                <FooterLink to="/country/nigeria">Nigeria</FooterLink>
-                <FooterLink to="/country/ghana">Ghana</FooterLink>
-                <FooterLink to="/country/kenya">Kenya</FooterLink>
+                <FooterLink to="/country/cameroon" countryCode="CM">Cameroon</FooterLink>
+                <FooterLink to="/country/senegal" isComingSoon={true}>Senegal</FooterLink>
+                <FooterLink to="/country/nigeria" isComingSoon={true}>Nigeria</FooterLink>
+                <FooterLink to="/country/ghana" isComingSoon={true}>Ghana</FooterLink>
+                <FooterLink to="/country/kenya" isComingSoon={true}>Kenya</FooterLink>
               </FooterSection>
             </div>
           </div>
