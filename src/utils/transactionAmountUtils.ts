@@ -45,7 +45,7 @@ export const formatTransactionAmount = (
   options: {
     currency?: string;
     locale?: string;
-    style?: string;
+    style?: 'currency' | 'decimal' | 'percent' | 'unit';
   } = {}
 ): string => {
   // Convert to number if string

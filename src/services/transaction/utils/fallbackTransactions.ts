@@ -106,3 +106,41 @@ export const createPendingFallbackTransaction = (id?: string): Transaction => {
     estimatedDelivery: 'Processing'
   };
 };
+
+/**
+ * Complete a fallback transaction 
+ */
+export const completeFallbackTransaction = (id: string): Transaction => {
+  console.log(`[Transaction] Completing fallback transaction for ID: ${id}`);
+  
+  // First create or get the transaction
+  const transaction = createFallbackTransaction(id);
+  
+  // Ensure it has completed status
+  const completedTransaction: Transaction = {
+    ...transaction,
+    status: 'completed',
+    completedAt: new Date(),
+    estimatedDelivery: 'Delivered',
+    updatedAt: new Date()
+  };
+  
+  // Store the updated transaction
+  try {
+    const serialized = JSON.stringify({
+      ...completedTransaction,
+      createdAt: completedTransaction.createdAt.toISOString(),
+      updatedAt: completedTransaction.updatedAt.toISOString(),
+      completedAt: completedTransaction.completedAt?.toISOString()
+    });
+    
+    localStorage.setItem(`transaction_${id}`, serialized);
+    localStorage.setItem(`transaction_backup_${id}`, serialized);
+    localStorage.setItem(`emergency_transaction_${id}`, serialized);
+    localStorage.setItem(`completed_transaction_${id}`, serialized);
+  } catch (e) {
+    console.error('[Transaction] Error storing completed fallback transaction:', e);
+  }
+  
+  return completedTransaction;
+};
