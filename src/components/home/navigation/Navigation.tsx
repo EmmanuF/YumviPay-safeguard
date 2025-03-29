@@ -156,10 +156,10 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
 
       {/* Sign Out Button (bottom left) - Only show when logged in on homepage */}
       {isLoggedIn && isHomePage && (
-        <div className="absolute bottom-4 left-4 z-40">
+        <div className="fixed bottom-8 left-8 z-50">
           <button
             onClick={handleSignOut}
-            className="text-red-600 hover:text-red-700 transition-colors p-1.5 rounded-md hover:bg-red-50/30"
+            className="text-red-600 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-50/30 shadow-sm"
             title={t('auth.signout')}
           >
             <LogOut className="h-6 w-6" />
