@@ -3,6 +3,8 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { 
   MessageCircle, 
   Phone, 
@@ -13,6 +15,25 @@ import {
 } from 'lucide-react';
 
 const Support = () => {
+  const navigate = useNavigate();
+
+  // Handle button clicks
+  const handleOpenChat = () => {
+    toast.info('Live chat is opening...', {
+      description: 'This feature would connect to a live chat service in the production app.'
+    });
+  };
+
+  const handleCallSupport = () => {
+    // In a native app, this would use Capacitor to open the phone app
+    window.location.href = 'tel:+18005551234';
+    toast.info('Dialing support number...');
+  };
+
+  const navigateTo = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <Helmet>
@@ -44,7 +65,7 @@ const Support = () => {
               Available 24/7 for verified users. Connect with a support agent through our mobile app 
               for immediate assistance.
             </p>
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleOpenChat}>
               Open Chat
             </Button>
           </CardContent>
@@ -63,7 +84,7 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Call us Monday through Friday, 9am - 5pm UTC. Our support agents speak English and French.
             </p>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleCallSupport}>
               +1 (800) 555-1234
             </Button>
           </CardContent>
@@ -83,7 +104,7 @@ const Support = () => {
               Email our support team and we'll respond within 24 hours. For faster service, include your 
               transaction ID or account details.
             </p>
-            <Button variant="outline" className="w-full" onClick={() => window.location.href = '/contact'}>
+            <Button variant="outline" className="w-full" onClick={() => navigateTo('/contact')}>
               Contact Us
             </Button>
           </CardContent>
@@ -106,7 +127,7 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Find answers to common questions about our services, account management, transactions, and more.
             </p>
-            <Button variant="outline" className="w-full" onClick={() => window.location.href = '/faq'}>
+            <Button variant="outline" className="w-full" onClick={() => navigateTo('/faq')}>
               View FAQ
             </Button>
           </CardContent>
@@ -125,7 +146,13 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Detailed guides to help you navigate our app, send money, manage recipients, and customize your account settings.
             </p>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => toast.info('User guides will be available soon', {
+                description: 'We\'re currently developing comprehensive user guides for the app.'
+              })}
+            >
               View Guides
             </Button>
           </CardContent>
@@ -144,7 +171,13 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Visual walkthroughs of key features and processes in our mobile app. Perfect for visual learners.
             </p>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => toast.info('Video tutorials coming soon', {
+                description: 'Our team is creating video tutorials to help you get the most out of Yumvi-Pay.'
+              })}
+            >
               Watch Videos
             </Button>
           </CardContent>
