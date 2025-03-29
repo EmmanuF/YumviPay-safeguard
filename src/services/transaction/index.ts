@@ -12,7 +12,7 @@ export {
   updateOfflineTransaction,
   clearTransactionsStore,
   getStoredTransactions,
-  createTransaction as createStoredTransaction 
+  createStoredTransaction 
 } from './store';
 
 export * from './utils/fallbackTransactions';
