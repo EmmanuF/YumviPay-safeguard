@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Transaction } from '@/types/transaction';
 import { useLocale } from '@/contexts/LocaleContext';
@@ -54,13 +55,17 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
   
   const statusDisplay = getStatusDisplay();
   
-  // Format the transaction date
+  // Format the transaction date with locale support
   const formattedDate = transaction.createdAt 
-    ? format(new Date(transaction.createdAt), 'PPP')
+    ? format(new Date(transaction.createdAt), 'PPP', {
+        locale: locale === 'fr' ? fr : undefined
+      })
     : 'N/A';
     
   const formattedTime = transaction.createdAt 
-    ? format(new Date(transaction.createdAt), 'p')
+    ? format(new Date(transaction.createdAt), 'p', {
+        locale: locale === 'fr' ? fr : undefined
+      })
     : 'N/A';
   
   // Format the transaction amount
@@ -131,7 +136,9 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
           
           {transaction.estimatedDelivery && (
             <div className="flex justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-muted-foreground">Delivery</span>
+              <span className="text-sm text-muted-foreground">
+                {t('transaction.estimatedDelivery', {delivery: transaction.estimatedDelivery})}
+              </span>
               <span className="text-sm font-medium">{transaction.estimatedDelivery}</span>
             </div>
           )}

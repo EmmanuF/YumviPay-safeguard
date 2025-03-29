@@ -2,38 +2,65 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { translations } from '@/locales';
 import { Locale } from '@/types/locale';
+import { 
+  getStoredLocale, 
+  saveLocale, 
+  translate as translateUtil, 
+  loadLocaleFromProfile,
+  saveLocaleToProfile
+} from '@/utils/localeUtils';
 
 interface LocaleContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: string, params?: Record<string, string>) => string;
+  isLoading: boolean;
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
 export const LocaleProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [locale, setLocale] = useState<Locale>('en');
+  const [locale, setLocaleState] = useState<Locale>('en');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Initialize locale on mount
   useEffect(() => {
-    // Try to get the locale from localStorage
-    const savedLocale = localStorage.getItem('locale') as Locale;
-    if (savedLocale && (savedLocale === 'en' || savedLocale === 'fr')) {
-      setLocale(savedLocale);
-    } else {
-      // Set default based on browser language
-      const browserLocale = navigator.language.split('-')[0] as Locale;
-      if (browserLocale === 'fr') {
-        setLocale('fr');
+    const initLocale = async () => {
+      try {
+        setIsLoading(true);
+        // Try to load from profile (includes localStorage check)
+        const userLocale = await loadLocaleFromProfile();
+        setLocaleState(userLocale);
+      } catch (error) {
+        console.error('Error initializing locale:', error);
+        // Fallback to browser language
+        const browserLocale = navigator.language.split('-')[0] as Locale;
+        if (browserLocale === 'fr') {
+          setLocaleState('fr');
+          saveLocale('fr');
+        } else {
+          setLocaleState('en');
+          saveLocale('en');
+        }
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
+    
+    initLocale();
   }, []);
 
-  const changeLocale = (newLocale: Locale) => {
-    setLocale(newLocale);
-    localStorage.setItem('locale', newLocale);
+  const setLocale = async (newLocale: Locale) => {
+    if (newLocale !== locale) {
+      console.log(`Changing locale from ${locale} to ${newLocale}`);
+      setLocaleState(newLocale);
+      
+      // Save to both localStorage and user profile if available
+      await saveLocaleToProfile(newLocale);
+    }
   };
 
-  // Translation function
+  // Enhanced translation function with parameter support
   const translate = (key: string, params?: Record<string, string>): string => {
     // Get the translation for the current locale
     const currentTranslations = translations[locale] || translations.en;
@@ -56,7 +83,7 @@ export const LocaleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale: changeLocale, t: translate }}>
+    <LocaleContext.Provider value={{ locale, setLocale, t: translate, isLoading }}>
       {children}
     </LocaleContext.Provider>
   );

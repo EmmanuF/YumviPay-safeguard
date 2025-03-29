@@ -15,7 +15,7 @@ export const saveLocale = (locale: Locale): void => {
 };
 
 // Translation function
-export const translate = (key: string, locale: Locale): string => {
+export const translate = (key: string, locale: Locale, params?: Record<string, string>): string => {
   // Ensure we're using a valid locale
   const safeLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
   
@@ -26,7 +26,16 @@ export const translate = (key: string, locale: Locale): string => {
     return key;
   }
   
-  return translation;
+  let text = translation;
+  
+  // Replace parameters if provided
+  if (params) {
+    Object.entries(params).forEach(([param, value]) => {
+      text = text.replace(`{{${param}}}`, value);
+    });
+  }
+  
+  return text;
 };
 
 // Get flag emoji for locale
@@ -36,6 +45,32 @@ export const getLocaleFlag = (locale: Locale): string => {
     'fr': '🇫🇷'
   };
   return flagMap[locale] || '🇺🇸';
+};
+
+// Get locale name
+export const getLocaleName = (locale: Locale): string => {
+  const nameMap: Record<Locale, string> = {
+    'en': 'English',
+    'fr': 'Français'
+  };
+  return nameMap[locale] || 'English';
+};
+
+// Format date using the locale
+export const formatDateForLocale = (date: Date, locale: Locale): string => {
+  return date.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US');
+};
+
+// Format currency using the locale
+export const formatCurrencyForLocale = (
+  amount: number,
+  currency: string,
+  locale: Locale
+): string => {
+  return new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
+    style: 'currency',
+    currency: currency,
+  }).format(amount);
 };
 
 // Load locale preferences from user profile
@@ -54,24 +89,67 @@ export const loadLocaleFromProfile = async (): Promise<Locale> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       // First check if we need to update the profiles table
-      const { data: hasLanguageColumn } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('id') // Just select a valid column to test
-        .limit(1)
+        .select('language_preference')
+        .eq('id', session.user.id)
         .single();
         
-      // If we could fetch the profile, let's add a language preference
-      if (hasLanguageColumn) {
-        // We'll store the language preference in localStorage
-        localStorage.setItem('yumvi-locale', 'en');
+      if (profile?.language_preference) {
+        const locale = profile.language_preference as Locale;
+        saveLocale(locale);
+        return locale;
+      }
+      
+      // Set default locale in profile
+      localStorage.setItem('yumvi-locale', 'en');
+      
+      // Try to update profile with default locale
+      try {
+        await supabase
+          .from('profiles')
+          .update({ language_preference: 'en' })
+          .eq('id', session.user.id);
+      } catch (error) {
+        console.error('Failed to update profile language preference:', error);
       }
     }
     
-    return 'en'; // Default to English
+    // Get browser language as fallback
+    const browserLocale = navigator.language.split('-')[0];
+    if (browserLocale === 'fr') {
+      saveLocale('fr');
+      return 'fr';
+    }
+    
+    // Ultimate fallback to English
+    saveLocale('en');
+    return 'en';
   } catch (error) {
     console.error('Error loading locale from profile:', error);
     // Ensure we always have a valid locale by setting it to 'en'
     localStorage.setItem('yumvi-locale', 'en');
     return 'en';
+  }
+};
+
+// Update user profile with locale preference
+export const saveLocaleToProfile = async (locale: Locale): Promise<void> => {
+  try {
+    // Save locally first
+    saveLocale(locale);
+    
+    // If authenticated, save to profile
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase
+        .from('profiles')
+        .update({ language_preference: locale })
+        .eq('id', session.user.id);
+      
+      console.log('Updated profile language preference to:', locale);
+    }
+  } catch (error) {
+    console.error('Failed to save locale to profile:', error);
   }
 };

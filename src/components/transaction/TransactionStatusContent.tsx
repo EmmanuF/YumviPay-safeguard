@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { getReliableAmount, storeTransactionAmount, formatTransactionAmount } from '@/utils/transactionAmountUtils';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface TransactionStatusContentProps {
   transaction: Transaction;
@@ -34,6 +35,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
   generatingReceipt,
   onRefresh
 }) => {
+  const { t } = useLocale();
   const isPending = transaction.status === 'pending' || transaction.status === 'processing';
   
   // Improved data validation checks
@@ -92,8 +94,8 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       
       console.log('Transaction data updated and stored with multiple keys:', updatedTransaction);
       
-      toast.success("Transaction Completed", {
-        description: "Transaction status updated to completed",
+      toast.success(t('transaction.success'), {
+        description: t('transaction.status_updated'),
       });
       
       // Show success indicator before reload
@@ -117,8 +119,11 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       successOverlay.innerHTML = `
         <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
           <div style="color: #10b981; font-size: 48px; margin-bottom: 16px;">✓</div>
-          <h3>Transaction Completed!</h3>
-          <p>Your transaction of ${formattedAmount} to ${transaction.recipientName || 'John Doe'} has been successfully completed.</p>
+          <h3>${t('transaction.success')}!</h3>
+          <p>${t('transaction.success_details', {
+            amount: formattedAmount,
+            recipient: transaction.recipientName || 'John Doe'
+          })}</p>
         </div>
       `;
       document.body.appendChild(successOverlay);
@@ -129,8 +134,8 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
       }, 1500);
     } catch (error) {
       console.error('Error forcing transaction completion:', error);
-      toast.error("Error Updating Transaction", {
-        description: "Please try again",
+      toast.error(t('error.unexpected'), {
+        description: t('actions.try_again'),
       });
     }
   };
@@ -147,7 +152,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
               <div className="h-4 bg-gray-200 rounded w-5/6 mx-auto"></div>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              Transaction details are being processed...
+              {t('transaction.processing_details')}
             </p>
             
             <div className="mt-4 space-y-2">
@@ -158,7 +163,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
                   className="w-full"
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Refresh Transaction Data
+                  {t('actions.refresh')}
                 </Button>
               )}
               
@@ -168,7 +173,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
                 className="w-full"
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Complete Transaction Now
+                {t('transaction.complete_now')}
               </Button>
             </div>
           </div>
@@ -207,7 +212,7 @@ const TransactionStatusContent: React.FC<TransactionStatusContentProps> = ({
             className="w-full mt-2"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            Complete Transaction Now
+            {t('transaction.complete_now')}
           </Button>
         </div>
       )}

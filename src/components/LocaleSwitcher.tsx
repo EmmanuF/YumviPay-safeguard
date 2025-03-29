@@ -5,6 +5,8 @@ import { useLocale } from '@/contexts/LocaleContext';
 import { Locale } from '@/types/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
+import { getLocaleFlag, getLocaleName } from '@/utils/localeUtils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,34 +15,40 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 
-// Country flag icons for language selection
-const LanguageFlags: Record<Locale, { flag: string, label: string }> = {
-  en: { 
-    flag: '🇺🇸', 
-    label: 'English'
-  },
-  fr: { 
-    flag: '🇫🇷', 
-    label: 'Français'
-  }
-};
+// Define available locales
+const AVAILABLE_LOCALES: Locale[] = ['en', 'fr'];
 
 const LocaleSwitcher: React.FC = () => {
   const { locale, setLocale, t } = useLocale();
   const isMobile = useIsMobile();
   const location = useLocation();
   
-  const locales: { key: Locale; label: string }[] = [
-    { key: 'en', label: 'English' },
-    { key: 'fr', label: 'Français' },
-  ];
+  // Fix: Ensure we have a valid locale
+  const currentLocale = AVAILABLE_LOCALES.includes(locale) ? locale : 'en';
   
-  // Fix: Ensure we have a valid locale and properly display it
-  const currentLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
-  
-  const handleLanguageChange = (selectedLocale: Locale) => {
-    console.log(`Changing language to: ${selectedLocale}`);
-    setLocale(selectedLocale);
+  const handleLanguageChange = async (selectedLocale: Locale) => {
+    try {
+      if (selectedLocale !== currentLocale) {
+        console.log(`Changing language to: ${selectedLocale}`);
+        await setLocale(selectedLocale);
+        
+        // Show toast notification on successful language change
+        toast({
+          title: t('language.changed'),
+          description: selectedLocale === 'en' 
+            ? 'Language changed to English'
+            : 'Langue changée en Français',
+          variant: 'default',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to change language:', error);
+      toast({
+        title: t('language.change_failed'),
+        description: t('language.try_again'),
+        variant: 'destructive',
+      });
+    }
   };
   
   // Debug the current locale value
@@ -60,8 +68,8 @@ const LocaleSwitcher: React.FC = () => {
               : "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30"
           }`}
         >
-          <span className="text-base">{LanguageFlags[currentLocale].flag}</span>
-          <span className="text-sm">{LanguageFlags[currentLocale].label}</span>
+          <span className="text-base">{getLocaleFlag(currentLocale)}</span>
+          <span className="text-sm">{getLocaleName(currentLocale)}</span>
           <ChevronDown className="h-3.5 w-3.5 opacity-70" />
           <span className="sr-only">{t('settings.language')}</span>
         </Button>
@@ -70,16 +78,16 @@ const LocaleSwitcher: React.FC = () => {
         align="end" 
         className="bg-white/95 backdrop-blur-md border border-primary-100/30 shadow-lg"
       >
-        {locales.map((l) => (
+        {AVAILABLE_LOCALES.map((localeOption) => (
           <DropdownMenuItem
-            key={l.key}
+            key={localeOption}
             className={`px-4 py-2.5 flex items-center gap-2 ${
-              currentLocale === l.key ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50/50"
+              currentLocale === localeOption ? "bg-primary-50 text-primary-700" : "hover:bg-primary-50/50"
             }`}
-            onClick={() => handleLanguageChange(l.key)}
+            onClick={() => handleLanguageChange(localeOption)}
           >
-            <span className="text-base">{LanguageFlags[l.key].flag}</span>
-            <span>{l.label}</span>
+            <span className="text-base">{getLocaleFlag(localeOption)}</span>
+            <span>{getLocaleName(localeOption)}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

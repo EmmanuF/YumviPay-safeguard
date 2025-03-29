@@ -7,13 +7,17 @@ export * from './formatUtils';
 // Platform detection utilities
 export * from './platformUtils';
 
-// Transaction utilities - export everything except what's already exported
+// Transaction utilities - export only non-overlapping functions
 export {
   generateTransactionId,
   getEstimatedDeliveryText,
-  calculateFee,
+} from './transactionUtils';
+
+// Additional transaction utilities
+export { 
+  calculateFee, 
   calculateTotal,
-  getEstimatedDelivery
+  getEstimatedDelivery 
 } from './transactionUtils';
 
 // Transaction data store
@@ -21,3 +25,6 @@ export * from './transactionDataStore';
 
 // Transaction amount utilities
 export * from './transactionAmountUtils';
+
+// Locale utilities
+export * from './localeUtils';

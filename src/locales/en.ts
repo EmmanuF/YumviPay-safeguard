@@ -1,3 +1,4 @@
+
 // English translations
 const enTranslations = {
   // General
@@ -35,6 +36,7 @@ const enTranslations = {
   'transaction.sendAgain': 'Send Again',
   'transaction.viewHistory': 'View History',
   'transaction.goBack': 'Go Back',
+  'transaction.estimatedDelivery': 'Estimated Delivery',
   
   // SendMoney component
   'sendMoney.title': 'Send Money',
@@ -127,12 +129,39 @@ const enTranslations = {
   'footer.newsletter.placeholder': 'Enter your email',
   'footer.newsletter.button': 'Subscribe',
   
-  // Other
-  'error.invalid_number': 'Invalid phone number',
-  'error.invalid_account': 'Invalid account number',
-  'settings.language': 'Language',
+  // Language
   'language.english': 'English',
   'language.french': 'Français',
+  'language.changed': 'Language Changed',
+  'language.change_failed': 'Language Change Failed',
+  'language.try_again': 'Please try again later',
+  
+  // Error messages
+  'error.invalid_number': 'Invalid phone number',
+  'error.invalid_account': 'Invalid account number',
+  'error.network': 'Network error',
+  'error.unexpected': 'An unexpected error occurred',
+  
+  // Settings
+  'settings.language': 'Language',
+  'settings.notifications': 'Notifications',
+  'settings.theme': 'Theme',
+  'settings.currency': 'Currency',
+  'settings.security': 'Security',
+  
+  // Common actions
+  'actions.save': 'Save',
+  'actions.cancel': 'Cancel',
+  'actions.confirm': 'Confirm',
+  'actions.delete': 'Delete',
+  'actions.edit': 'Edit',
+  'actions.view': 'View',
+  'actions.continue': 'Continue',
+  'actions.back': 'Back',
+  'actions.send': 'Send',
+  'actions.receive': 'Receive',
+  'actions.share': 'Share',
+  'actions.download': 'Download',
 };
 
 export default enTranslations;

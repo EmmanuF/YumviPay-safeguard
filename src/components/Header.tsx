@@ -44,6 +44,9 @@ const Header: React.FC<HeaderProps> = ({
   // Adjust z-index to be below the progress bar when in send money flow
   const zIndexClass = isSendMoneyPage ? 'z-30' : 'z-50';
 
+  // If title is a translation key, translate it; otherwise, use it directly
+  const displayTitle = title ? (title.includes('.') ? t(title) : title) : t('app.name');
+
   return (
     <header className={`sticky top-0 ${zIndexClass} ${transparent ? 'bg-transparent' : 'bg-white/10 backdrop-blur-md border-b border-white/20 shadow-sm'}`}>
       <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
@@ -52,13 +55,13 @@ const Header: React.FC<HeaderProps> = ({
             <button
               onClick={handleBackClick}
               className="mr-3 rounded-full p-1.5 hover:bg-white/10 transition-colors"
-              aria-label="Go back"
+              aria-label={t('actions.back')}
             >
               <ChevronLeft className="h-6 w-6 text-white" />
             </button>
           )}
           <h1 className="text-lg font-semibold text-white">
-            {title ? t(title) : t('app.name')}
+            {displayTitle}
           </h1>
         </div>
         

@@ -1,3 +1,4 @@
+
 // French translations
 const frTranslations = {
   // General
@@ -35,6 +36,7 @@ const frTranslations = {
   'transaction.sendAgain': 'Envoyer à Nouveau',
   'transaction.viewHistory': 'Voir l\'Historique',
   'transaction.goBack': 'Retour',
+  'transaction.estimatedDelivery': 'Délai de Livraison Estimé',
   
   // SendMoney component
   'sendMoney.title': 'Envoyer de l\'Argent',
@@ -127,12 +129,39 @@ const frTranslations = {
   'footer.newsletter.placeholder': 'Entrez votre email',
   'footer.newsletter.button': 'S\'abonner',
   
-  // Other
-  'error.invalid_number': 'Numéro de téléphone invalide',
-  'error.invalid_account': 'Numéro de compte invalide',
-  'settings.language': 'Langue',
+  // Language
   'language.english': 'English',
   'language.french': 'Français',
+  'language.changed': 'Langue Modifiée',
+  'language.change_failed': 'Échec du Changement de Langue',
+  'language.try_again': 'Veuillez réessayer plus tard',
+  
+  // Error messages
+  'error.invalid_number': 'Numéro de téléphone invalide',
+  'error.invalid_account': 'Numéro de compte invalide',
+  'error.network': 'Erreur de réseau',
+  'error.unexpected': 'Une erreur inattendue s\'est produite',
+  
+  // Settings
+  'settings.language': 'Langue',
+  'settings.notifications': 'Notifications',
+  'settings.theme': 'Thème',
+  'settings.currency': 'Devise',
+  'settings.security': 'Sécurité',
+  
+  // Common actions
+  'actions.save': 'Enregistrer',
+  'actions.cancel': 'Annuler',
+  'actions.confirm': 'Confirmer',
+  'actions.delete': 'Supprimer',
+  'actions.edit': 'Modifier',
+  'actions.view': 'Voir',
+  'actions.continue': 'Continuer',
+  'actions.back': 'Retour',
+  'actions.send': 'Envoyer',
+  'actions.receive': 'Recevoir',
+  'actions.share': 'Partager',
+  'actions.download': 'Télécharger',
 };
 
 export default frTranslations;
