@@ -20,22 +20,9 @@ const FooterLink: React.FC<FooterLinkProps> = ({
 }) => {
   const { toast } = useToast();
 
-  const handleComingSoonClick = (e: React.MouseEvent) => {
-    if (isComingSoon) {
-      e.preventDefault();
-      toast({
-        title: "Coming Soon",
-        description: `Money transfers to ${children} will be available soon!`,
-        duration: 3000,
-      });
-    }
-  };
-
   // Handle special case for Cameroon
   const handleClick = (e: React.MouseEvent) => {
-    if (isComingSoon) {
-      handleComingSoonClick(e);
-    } else if (countryCode === 'CM') {
+    if (countryCode === 'CM') {
       // For Cameroon, store initial transaction data
       const transactionData = {
         targetCountry: 'CM',

@@ -178,7 +178,9 @@ const CountryPage: React.FC = () => {
                 <p className="text-gray-700 mb-4">
                   Start sending money to {country.name} today with our fast, secure, and affordable service.
                 </p>
-                <Button className="w-full" onClick={handleSendMoney}>Send Money Now</Button>
+                <Button className="w-full" onClick={handleSendMoney}>
+                  {country.available ? 'Send Money Now' : 'Coming Soon'}
+                </Button>
                 {showComingSoon && !country.available && (
                   <ComingSoonMessage message={`Money transfers to ${country.name} will be available soon! We're working on expanding our service.`} />
                 )}
