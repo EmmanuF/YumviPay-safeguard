@@ -19,10 +19,7 @@ const Press = () => {
             Yumvi-Pay is a mobile-first platform that enables fast, secure, and affordable money transfers to Africa.
             Our mission is to connect people across continents and provide reliable financial services to underserved communities.
           </p>
-          <p className="text-gray-700">
-            Founded in 2023, Yumvi-Pay is transforming how remittances are sent to Africa through innovative technology,
-            strategic partnerships, and customer-centered design.
-          </p>
+          <p className="text-gray-700">Founded in 2021, Yumvi-Pay is transforming how remittances are sent to Africa through innovative technology, strategic partnerships, and customer-centered design.</p>
         </div>
         
         <div className="bg-gradient-to-br from-primary-50 to-purple-50 rounded-lg p-6 border border-primary-100">
@@ -46,10 +43,7 @@ const Press = () => {
             <CardDescription>May 15, 2023</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 mb-4">
-              Yumvi-Pay announces the official launch of its mobile money transfer service to Cameroon,
-              enabling fast and secure transactions with competitive exchange rates and low fees.
-            </p>
+            <p className="text-gray-700 mb-4">Yumvi-Pay announces the official launch of its mobile money transfer service to Africa, enabling fast and secure transactions with competitive exchange rates and low fees.</p>
             <Button variant="link" className="px-0">Read full press release →</Button>
           </CardContent>
         </Card>
@@ -57,7 +51,7 @@ const Press = () => {
         <Card>
           <CardHeader>
             <CardTitle>Yumvi-Pay Secures Seed Funding to Expand African Operations</CardTitle>
-            <CardDescription>August 3, 2023</CardDescription>
+            <CardDescription>August 3, 2025</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-gray-700 mb-4">Yumvi-Pay is working on expanding its operations across multiple African countries, with plans to launch in Senegal, Nigeria, and Ghana by Q4 2025.</p>
@@ -72,7 +66,7 @@ const Press = () => {
           For press inquiries and interview requests, please contact:
         </p>
         <p className="font-medium">
-          <a href="mailto:press@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">press@yumvi-pay.com</a>
+          <a href="mailto:press@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">press@yumvipay.com</a>
         </p>
       </div>
     </div>;
