@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
 const Compliance = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Compliance | Yumvi-Pay</title>
         <meta name="description" content="Yumvi-Pay's compliance with international regulations and standards for money transfers." />
@@ -61,14 +58,10 @@ const Compliance = () => {
           <h2 className="text-xl font-semibold mb-4 text-primary-600">Regulatory Inquiries</h2>
           <p>
             For any regulatory or compliance inquiries, please contact our Compliance department at{' '}
-            <a href="mailto:compliance@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
-              compliance@yumvi-pay.com
-            </a>
+            <a href="mailto:compliance@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">support@yumvipay.com</a>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Compliance;
