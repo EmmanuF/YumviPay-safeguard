@@ -2,8 +2,8 @@
 import { Transaction } from '@/types/transaction';
 import { 
   getTransactionById as getTransaction, 
-  getAllTransactions, 
-  getRecentTransactions 
+  getAllTransactions as getAllTxs, 
+  getRecentTransactions as getRecentTxs 
 } from '@/services/transaction';
 
 // Export the Transaction type for backwards compatibility
@@ -33,7 +33,7 @@ export const getTransactionById = async (id: string): Promise<Transaction> => {
  */
 export const getTransactions = async (): Promise<Transaction[]> => {
   try {
-    return await getAllTransactions();
+    return await getAllTxs();
   } catch (error) {
     console.error('Error retrieving transactions:', error);
     throw error;
@@ -45,7 +45,7 @@ export const getTransactions = async (): Promise<Transaction[]> => {
  */
 export const getRecentTransactionsLegacy = async (): Promise<Transaction[]> => {
   try {
-    return await getRecentTransactions();
+    return await getRecentTxs();
   } catch (error) {
     console.error('Error retrieving recent transactions:', error);
     throw error;

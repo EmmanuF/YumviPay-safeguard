@@ -24,7 +24,7 @@ const History = () => {
     refetch 
   } = useOfflineQuery<Transaction[]>(
     ['transactions', 'history'],
-    getAllTransactions, // Now this returns a Promise correctly
+    getAllTransactions,
     {
       queryKey: ['transactions', 'history'], // Added the queryKey here to match the type requirements
       offlineData: [],

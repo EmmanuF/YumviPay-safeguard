@@ -22,5 +22,5 @@ export {
 
 // Re-export transaction creation
 export {
-  createTransaction
+  createTransaction as createStoredTransaction
 } from './transactionCreation';

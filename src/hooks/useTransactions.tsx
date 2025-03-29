@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { 
   Transaction, 
@@ -6,7 +5,7 @@ import {
 } from '@/types/transaction';
 import {
   getAllTransactions,
-  getRecentTransactions as getRecentTxs,
+  getRecentTransactions,
   getTransactionById,
   updateTransactionStatus,
   initializeTransactions
@@ -61,7 +60,7 @@ export const useTransactions = () => {
 
   // Get recent transactions
   const getRecentTransactions = async () => {
-    return await getRecentTxs();
+    return await getRecentTransactions();
   };
 
   // Update transaction status

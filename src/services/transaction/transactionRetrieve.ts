@@ -24,5 +24,6 @@ export {
 } from './utils/transactionMappers';
 
 export { 
-  createFallbackTransaction 
+  createFallbackTransaction,
+  completeFallbackTransaction
 } from './utils/fallbackTransactions';

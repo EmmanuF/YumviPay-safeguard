@@ -3,5 +3,18 @@
 export * from './create';
 export * from './update';
 export * from './store';
-export * from './retrieval/transactionById';
 export * from './utils/fallbackTransactions';
+export * from './transactionRetrieve';
+
+// Re-export specific functions from retrieval modules with explicit naming
+// to avoid naming conflicts
+export { 
+  getTransactionById,
+  getTransaction
+} from './retrieval/transactionById';
+
+export {
+  getAllTransactions,
+  getRecentTransactions,
+  getTransactions
+} from './retrieval/allTransactions';
