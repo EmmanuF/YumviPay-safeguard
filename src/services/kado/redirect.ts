@@ -107,11 +107,14 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       console.log(`🔄 Redirecting to return URL: ${fullReturnUrl}`);
       
       // Use platform-aware navigation
-      if (isPlatform('mobile')) {
+      if (isPlatform('capacitor')) {
         // For mobile apps, ensure deep linking works
         try {
+          // Fixed: Use correct Capacitor App plugin import and method
           const { App } = await import('@capacitor/app');
-          App.openUrl({ url: `${window.location.origin}${fullReturnUrl}` });
+          const appUrl = `${window.location.origin}${fullReturnUrl}`;
+          console.log(`🔗 Opening URL via Capacitor: ${appUrl}`);
+          await App.openUrl({ url: appUrl });
         } catch (e) {
           console.error('Error using Capacitor App.openUrl:', e);
           navigate(fullReturnUrl);
@@ -156,8 +159,9 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     console.log(`🔄 Redirecting to Kado URL: ${redirectUrl}`);
     
     // Perform the actual redirect - different for mobile vs web
-    if (isPlatform('mobile')) {
+    if (isPlatform('capacitor')) {
       try {
+        // Fixed: Properly import and use Browser plugin
         const { Browser } = await import('@capacitor/browser');
         await Browser.open({ url: redirectUrl });
       } catch (e) {

@@ -36,8 +36,66 @@ export const formatTransactionId = (id: string): string => {
   return `TXN-${shortTimestamp}-${randomPart}`;
 };
 
+/**
+ * Calculates fee for a transaction
+ */
+export const calculateFee = (amount: string | number, country?: string): string => {
+  // Convert amount to number if it's a string
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
+  // Base fee calculation (example: 2% + $0.30)
+  let fee = numAmount * 0.02 + 0.30;
+  
+  // Apply country-specific fee adjustments if needed
+  if (country === 'CM') {
+    // Special rate for Cameroon
+    fee = numAmount * 0.025 + 0.25;
+  }
+  
+  // Return formatted fee
+  return fee.toFixed(2);
+};
+
+/**
+ * Calculates total amount (amount + fee)
+ */
+export const calculateTotal = (amount: string | number, fee: string | number): string => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const numFee = typeof fee === 'string' ? parseFloat(fee) : fee;
+  
+  return (numAmount + numFee).toFixed(2);
+};
+
+/**
+ * Estimates delivery time based on country and payment method
+ */
+export const getEstimatedDelivery = (country?: string, paymentMethod?: string): string => {
+  // Default estimate
+  let estimate = 'Within 24 hours';
+  
+  // Adjust based on country and payment method
+  if (country === 'CM') {
+    if (paymentMethod === 'mobile_money') {
+      estimate = 'Within 15-30 minutes';
+    } else if (paymentMethod === 'bank_transfer') {
+      estimate = 'Within 1-2 business days';
+    }
+  } else {
+    if (paymentMethod === 'mobile_money') {
+      estimate = 'Within 1 hour';
+    } else if (paymentMethod === 'bank_transfer') {
+      estimate = 'Within 2-3 business days';
+    }
+  }
+  
+  return estimate;
+};
+
 export default {
   generateTransactionId,
   isValidTransactionId,
-  formatTransactionId
+  formatTransactionId,
+  calculateFee,
+  calculateTotal,
+  getEstimatedDelivery
 };

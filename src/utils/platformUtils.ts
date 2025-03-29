@@ -4,7 +4,7 @@
  */
 
 // Platforms we support
-type Platform = 'mobile' | 'web' | 'ios' | 'android';
+type Platform = 'mobile' | 'web' | 'ios' | 'android' | 'capacitor' | 'native';
 
 /**
  * Check if we're running on a specific platform
@@ -26,6 +26,14 @@ export const isPlatform = (platform: Platform): boolean => {
   if (platform === 'android') {
     return /Android/i.test(navigator.userAgent);
   }
+
+  // Check for Capacitor environment
+  if (platform === 'capacitor' || platform === 'native') {
+    return typeof window !== 'undefined' && 
+      window.hasOwnProperty('Capacitor') && 
+      // @ts-ignore - Capacitor global object
+      !!window.Capacitor;
+  }
   
   // Default to web platform
   return platform === 'web';
@@ -38,6 +46,7 @@ export const isPlatform = (platform: Platform): boolean => {
 export const getCurrentPlatform = (): Platform => {
   if (isPlatform('ios')) return 'ios';
   if (isPlatform('android')) return 'android';
+  if (isPlatform('capacitor')) return 'capacitor';
   if (isPlatform('mobile')) return 'mobile';
   return 'web';
 };

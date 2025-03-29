@@ -2,9 +2,9 @@
 import { Transaction } from "@/types/transaction";
 import { Recipient } from "@/types/recipient";
 import { 
-  calculateFee, 
-  calculateTotal, 
-  generateTransactionId, 
+  generateTransactionId,
+  calculateFee,
+  calculateTotal,
   getEstimatedDelivery
 } from "@/utils/transactionUtils";
 import { isOffline, addPausedRequest } from "@/utils/networkUtils";
