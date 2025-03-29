@@ -6,6 +6,7 @@ import './index.css'
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { LocaleProvider } from './contexts/LocaleContext.tsx'
 
 // Make transaction data retrieval functions globally available for emergency access
 import { getTransactionAmount, getTransactionData } from './utils/transactionDataStore';
@@ -28,8 +29,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       storageKey="vite-react-theme"
     >
       <AuthProvider>
-        <App />
-        <Toaster />
+        <LocaleProvider>
+          <App />
+          <Toaster />
+        </LocaleProvider>
       </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>,

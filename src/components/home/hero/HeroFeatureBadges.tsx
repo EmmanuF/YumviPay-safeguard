@@ -1,25 +1,23 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Zap, Shield } from 'lucide-react';
+import { Zap, ArrowRightLeft } from 'lucide-react';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const HeroFeatureBadges: React.FC = () => {
+  const { t } = useLocale();
+  
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center gap-2 mt-2"
-    >
-      <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium flex items-center shadow-sm">
-        <Zap size={16} className="mr-1" />
-        Fast & Secure
-      </span>
-      <span className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-medium flex items-center shadow-sm">
-        <Shield size={16} className="mr-1" />
-        Free Transfers
-      </span>
-    </motion.div>
+    <div className="flex flex-wrap gap-3 mt-6 mb-2 justify-center md:justify-start">
+      <div className="inline-flex items-center px-4 py-2 bg-green-700/70 backdrop-blur-sm rounded-full text-white text-sm">
+        <Zap className="w-4 h-4 mr-2 text-green-300" />
+        <span>{t('home.fastSecure')}</span>
+      </div>
+      
+      <div className="inline-flex items-center px-4 py-2 bg-purple-700/70 backdrop-blur-sm rounded-full text-white text-sm">
+        <ArrowRightLeft className="w-4 h-4 mr-2 text-purple-300" />
+        <span>{t('home.freeTransfers')}</span>
+      </div>
+    </div>
   );
 };
 
