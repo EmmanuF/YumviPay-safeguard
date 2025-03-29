@@ -20,13 +20,13 @@ const SocialIcons: React.FC = () => {
         />
         
         <SocialIcon 
-          href="https://facebook.com/yumvipay"
+          href="https://www.facebook.com/profile.php?id=61555276198526"
           label="Facebook"
           icon={<Facebook className="h-4 w-4" />}
         />
         
         <SocialIcon 
-          href="https://instagram.com/yumvipay"
+          href="https://www.instagram.com/yumvi_pay/"
           label="Instagram"
           icon={<Instagram className="h-4 w-4" />}
         />
