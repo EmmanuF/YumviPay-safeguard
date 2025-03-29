@@ -93,7 +93,7 @@ const TopNavigation: React.FC = () => {
       className="bg-indigo-800 text-white py-3 z-50 relative shadow-md"
     >
       <div className="container mx-auto flex items-center justify-between px-4">
-        {/* App Name/Logo and Sign Out Button */}
+        {/* App Name/Logo */}
         <div className="flex items-center space-x-5">
           <div 
             className="text-xl font-bold cursor-pointer"
