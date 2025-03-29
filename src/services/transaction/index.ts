@@ -1,6 +1,5 @@
 
 // Re-export transaction services for easier imports
-export * from './create';
 export * from './update';
 export * from './store';
 export * from './utils/fallbackTransactions';
@@ -18,3 +17,8 @@ export {
   getRecentTransactions,
   getTransactions
 } from './retrieval/allTransactions';
+
+// Explicitly re-export from create module with a clear name to avoid ambiguity
+export * from './create/index';
+
+// Also ensure create/index.ts is properly exporting the function
