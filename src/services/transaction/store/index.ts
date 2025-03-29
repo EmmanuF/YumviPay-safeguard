@@ -20,7 +20,7 @@ export {
   getStoredTransactions
 } from './storageOperations';
 
-// Re-export transaction creation
+// Re-export transaction creation with a renamed export to avoid conflicts
 export {
   createTransaction as createStoredTransaction
 } from './transactionCreation';
