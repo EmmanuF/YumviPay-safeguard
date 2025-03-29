@@ -89,7 +89,7 @@ export const loadLocaleFromProfile = async (): Promise<Locale> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       // First check if we need to update the profiles table
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('language_preference')
         .eq('id', session.user.id)
