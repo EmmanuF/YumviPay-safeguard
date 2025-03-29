@@ -68,9 +68,7 @@ const Support = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-700 mb-4">
-              Call us Monday through Friday, 9am - 5pm UTC. Our support agents speak English and French.
-            </p>
+            <p className="text-sm text-gray-700 mb-4">Call us Monday through Friday, 9am - 5pm CST. Our support agents speak English and French.</p>
             <Button variant="outline" className="w-full" onClick={handleCallSupport}>+1 (832) 265-7907</Button>
           </CardContent>
         </Card>
