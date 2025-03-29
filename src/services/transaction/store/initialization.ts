@@ -1,91 +1,68 @@
 
-import { Transaction } from "@/types/transaction";
-import { setOfflineTransactions } from './storageOperations';
+import { Transaction } from '@/types/transaction';
+import { v4 as uuidv4 } from 'uuid';
 
-// In-memory storage for transactions when no LocalStorage is available
-let inMemoryTransactions: Transaction[] = [];
+// Local storage keys
+const TRANSACTIONS_STORE_KEY = 'transactions_store';
+const OFFLINE_TRANSACTIONS_KEY = 'offline_transactions';
 
-// Initialize transactions from localStorage or create mock data
-export const initializeTransactions = (): Transaction[] => {
-  try {
-    const storedTransactions = localStorage.getItem('transactions');
-    
-    if (storedTransactions) {
-      // Parse stored transactions, ensuring dates are properly converted
-      const parsedTransactions = JSON.parse(storedTransactions);
-      return parsedTransactions.map((t: any) => ({
-        ...t,
-        createdAt: new Date(t.createdAt),
-        updatedAt: new Date(t.updatedAt),
-        completedAt: t.completedAt ? new Date(t.completedAt) : undefined
-      }));
-    }
-    
-    // Generate mock data if nothing in localStorage
-    console.log('No transactions found in localStorage, generating mock data');
-    const mockTransactions = generateMockTransactions();
-    setOfflineTransactions(mockTransactions);
-    return mockTransactions;
-  } catch (error) {
-    console.error('Error initializing transactions:', error);
-    
-    // Generate mock data if there's an error
-    console.log('Error with localStorage, using in-memory mock data');
-    const mockTransactions = generateMockTransactions();
-    inMemoryTransactions = mockTransactions;
-    return mockTransactions;
+// Initialize the transaction store
+export const initializeTransactions = (): void => {
+  if (!localStorage.getItem(TRANSACTIONS_STORE_KEY)) {
+    localStorage.setItem(TRANSACTIONS_STORE_KEY, JSON.stringify([]));
+  }
+  
+  if (!localStorage.getItem(OFFLINE_TRANSACTIONS_KEY)) {
+    localStorage.setItem(OFFLINE_TRANSACTIONS_KEY, JSON.stringify([]));
   }
 };
 
 // Generate mock transactions for testing
-export const generateMockTransactions = (): Transaction[] => {
-  return [
+export const generateMockTransactions = async (): Promise<Transaction[]> => {
+  const mockTransactions: Transaction[] = [
     {
-      id: 'YM1RD5TA',
-      amount: '150.00',
+      id: uuidv4(),
+      amount: '100.00',
       recipientName: 'John Doe',
-      recipientContact: '+237 650123456',
       country: 'CM',
       status: 'completed',
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      recipientContact: '+237612345678',
       paymentMethod: 'mobile_money',
       provider: 'MTN Mobile Money',
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-      updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // 6 days ago
-      completedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // 6 days ago
-      estimatedDelivery: 'Delivered',
-      totalAmount: '150.00'
+      estimatedDelivery: 'Delivered'
     },
     {
-      id: 'YM2RD5TB',
+      id: uuidv4(),
       amount: '75.50',
       recipientName: 'Jane Smith',
-      recipientContact: '+237 677654321',
       country: 'CM',
-      status: 'processing',
-      paymentMethod: 'bank_transfer',
-      provider: 'Ecobank',
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-      estimatedDelivery: '1-2 business days',
-      totalAmount: '75.50'
-    },
-    {
-      id: 'YM3RD5TC',
-      amount: '200.00',
-      recipientName: 'Robert Johnson',
-      recipientContact: '+237 699887766',
-      country: 'CM',
-      status: 'failed',
+      status: 'pending',
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+      updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      recipientContact: '+237687654321',
       paymentMethod: 'mobile_money',
       provider: 'Orange Money',
+      estimatedDelivery: '15 minutes'
+    },
+    {
+      id: uuidv4(),
+      amount: '50.25',
+      recipientName: 'Robert Johnson',
+      country: 'CM',
+      status: 'failed',
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      estimatedDelivery: 'Failed',
+      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      recipientContact: '+237698765432',
+      paymentMethod: 'bank_transfer',
+      provider: 'Ecobank',
       failureReason: 'Insufficient funds',
-      totalAmount: '200.00'
+      estimatedDelivery: 'Failed'
     }
   ];
+  
+  localStorage.setItem(TRANSACTIONS_STORE_KEY, JSON.stringify(mockTransactions));
+  return mockTransactions;
 };
-
-// Export the in-memory transactions for internal module use
-export { inMemoryTransactions };

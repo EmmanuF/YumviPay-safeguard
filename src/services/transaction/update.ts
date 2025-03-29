@@ -1,8 +1,8 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { Transaction, TransactionStatus } from '@/types/transaction';
 import { completeFallbackTransaction } from './utils/fallbackTransactions';
 import { getLocalTransaction, updateLocalTransaction } from './update/localTransactionUtils';
+import { createFallbackTransaction } from './utils/fallbackTransactions';
 
 interface TransactionUpdateOptions {
   failureReason?: string;
@@ -42,8 +42,17 @@ export const updateTransactionStatus = async (
       
       // Handle completed status specifically for local transactions
       if (status === TRANSACTION_STATUS.COMPLETED) {
-        const completedTransaction = completeFallbackTransaction(transactionId);
-        return completedTransaction;
+        const localTransaction = localStorage.getItem(`transaction_${transactionId}`);
+        if (localTransaction) {
+          const parsedTransaction = JSON.parse(localTransaction);
+          const completedTransaction = completeFallbackTransaction(parsedTransaction);
+          return completedTransaction;
+        } else {
+          // Create a fallback if the transaction doesn't exist
+          const fallbackTransaction = createFallbackTransaction(transactionId);
+          const completedTransaction = completeFallbackTransaction(fallbackTransaction);
+          return completedTransaction;
+        }
       }
       
       // Handle other status updates for local transactions

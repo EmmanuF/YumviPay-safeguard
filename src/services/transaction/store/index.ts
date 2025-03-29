@@ -20,6 +20,8 @@ export {
   getStoredTransactions
 } from './storageOperations';
 
-// Note: We no longer re-export transaction creation functions from here
-// to avoid circular dependencies. They are exported directly from
-// the main index.ts file.
+// Export transaction creation functions
+export {
+  createTransaction,
+  createStoredTransaction
+} from './transactionCreation';

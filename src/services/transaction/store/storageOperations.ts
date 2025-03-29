@@ -1,134 +1,121 @@
 
-import { Transaction } from "@/types/transaction";
-import { isOffline } from "@/utils/networkUtils";
-import { inMemoryTransactions, generateMockTransactions } from './initialization';
+import { Transaction } from '@/types/transaction';
 
-// Get transactions from localStorage or generate mock data if needed
-export const getOfflineTransactions = async (): Promise<Transaction[]> => {
-  try {
-    const storedTransactions = localStorage.getItem('transactions');
-    
-    if (storedTransactions) {
-      // Parse stored transactions, ensuring dates are properly converted
-      const parsedTransactions = JSON.parse(storedTransactions);
-      return parsedTransactions.map((t: any) => ({
-        ...t,
-        createdAt: new Date(t.createdAt),
-        updatedAt: new Date(t.updatedAt),
-        completedAt: t.completedAt ? new Date(t.completedAt) : undefined
-      }));
-    }
-    
-    // If nothing in localStorage but we have in-memory data, use that
-    if (inMemoryTransactions.length > 0) {
-      return inMemoryTransactions;
-    }
-    
-    // Generate mock data if nothing in localStorage or in-memory
-    console.log('No transactions found, generating mock data');
-    const mockTransactions = generateMockTransactions();
-    return mockTransactions;
-  } catch (error) {
-    console.error('Error retrieving transactions:', error);
-    
-    // If there's an error, return in-memory data if available
-    if (inMemoryTransactions.length > 0) {
-      return inMemoryTransactions;
-    }
-    
-    // Last resort: generate new mock data
-    console.log('Error with localStorage, generating new mock data');
-    const mockTransactions = generateMockTransactions();
-    return mockTransactions;
-  }
-};
+// Local storage keys
+const TRANSACTIONS_STORE_KEY = 'transactions_store';
+const OFFLINE_TRANSACTIONS_KEY = 'offline_transactions';
 
-// Save transactions to localStorage
-export const setOfflineTransactions = async (transactions: Transaction[]): Promise<void> => {
-  try {
-    // Then attempt to save to localStorage
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-  } catch (error) {
-    console.error('Error saving transactions to localStorage:', error);
-    // Continue with in-memory storage only
-  }
-};
-
-// Add a new transaction to storage
-export const addOfflineTransaction = async (transaction: Transaction): Promise<void> => {
-  try {
-    const transactions = await getOfflineTransactions();
-    
-    // Check if transaction already exists
-    const existingIndex = transactions.findIndex(t => t.id === transaction.id);
-    
-    if (existingIndex >= 0) {
-      // Update existing transaction
-      transactions[existingIndex] = {
-        ...transactions[existingIndex],
-        ...transaction,
-        updatedAt: new Date()
-      };
-    } else {
-      // Add new transaction
-      transactions.push(transaction);
-    }
-    
-    await setOfflineTransactions(transactions);
-    console.log(`Transaction ${transaction.id} added/updated in offline storage`);
-  } catch (error) {
-    console.error(`Error adding transaction ${transaction.id} to offline storage:`, error);
-  }
-};
-
-// Update an existing transaction in storage
-export const updateOfflineTransaction = async (
-  transactionId: string, 
-  updatedFields: Partial<Transaction>
-): Promise<void> => {
-  try {
-    const transactions = await getOfflineTransactions();
-    const existingIndex = transactions.findIndex(t => t.id === transactionId);
-    
-    if (existingIndex >= 0) {
-      transactions[existingIndex] = {
-        ...transactions[existingIndex],
-        ...updatedFields,
-        updatedAt: new Date()
-      };
-      
-      await setOfflineTransactions(transactions);
-      console.log(`Transaction ${transactionId} updated in offline storage`);
-    } else {
-      console.warn(`Cannot update transaction ${transactionId}: not found in storage`);
-    }
-  } catch (error) {
-    console.error(`Error updating transaction ${transactionId} in offline storage:`, error);
-  }
-};
-
-// Clear all transactions from storage
-export const clearTransactionsStore = async (): Promise<void> => {
-  try {
-    localStorage.removeItem('transactions');
-    console.log('Transactions store cleared');
-  } catch (error) {
-    console.error('Error clearing transactions store:', error);
-  }
-};
-
-// Get all stored transactions
+// Get stored transactions
 export const getStoredTransactions = async (): Promise<Transaction[]> => {
-  if (isOffline()) {
-    return getOfflineTransactions();
+  const storedData = localStorage.getItem(TRANSACTIONS_STORE_KEY);
+  if (!storedData) {
+    return [];
   }
   
   try {
-    // In a real app, this would fetch from Supabase
-    // For now, we'll just use localStorage directly
-    return getOfflineTransactions();
+    return JSON.parse(storedData).map((transaction: any) => ({
+      ...transaction,
+      createdAt: new Date(transaction.createdAt),
+      updatedAt: transaction.updatedAt ? new Date(transaction.updatedAt) : undefined,
+      completedAt: transaction.completedAt ? new Date(transaction.completedAt) : undefined
+    }));
   } catch (error) {
-    console.error('Error retrieving stored transactions:', error);
-    return getOfflineTransactions(); // Fall back to offline data
+    console.error('Error parsing stored transactions:', error);
+    return [];
   }
+};
+
+// Store transactions
+export const storeTransactions = async (transactions: Transaction[]): Promise<void> => {
+  localStorage.setItem(TRANSACTIONS_STORE_KEY, JSON.stringify(transactions));
+};
+
+// Get offline transactions
+export const getOfflineTransactions = async (): Promise<Transaction[]> => {
+  const storedData = localStorage.getItem(OFFLINE_TRANSACTIONS_KEY);
+  if (!storedData) {
+    return [];
+  }
+  
+  try {
+    return JSON.parse(storedData);
+  } catch (error) {
+    console.error('Error parsing offline transactions:', error);
+    return [];
+  }
+};
+
+// Store offline transactions
+export const setOfflineTransactions = async (transactions: Transaction[]): Promise<void> => {
+  localStorage.setItem(OFFLINE_TRANSACTIONS_KEY, JSON.stringify(transactions));
+};
+
+// Add an offline transaction
+export const addOfflineTransaction = async (transaction: Transaction): Promise<void> => {
+  const offlineTransactions = await getOfflineTransactions();
+  offlineTransactions.push(transaction);
+  await setOfflineTransactions(offlineTransactions);
+};
+
+// Update an offline transaction
+export const updateOfflineTransaction = async (id: string, updates: Partial<Transaction>): Promise<void> => {
+  // Update in the main transactions store
+  const transactions = await getStoredTransactions();
+  const transactionIndex = transactions.findIndex(tx => tx.id === id);
+  
+  if (transactionIndex !== -1) {
+    transactions[transactionIndex] = {
+      ...transactions[transactionIndex],
+      ...updates,
+      updatedAt: new Date()
+    };
+    await storeTransactions(transactions);
+  }
+  
+  // Also update in the direct access storage
+  const storedTransaction = localStorage.getItem(`transaction_${id}`);
+  if (storedTransaction) {
+    try {
+      const transaction = JSON.parse(storedTransaction);
+      const updatedTransaction = {
+        ...transaction,
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(`transaction_${id}`, JSON.stringify(updatedTransaction));
+    } catch (error) {
+      console.error(`Error updating transaction ${id}:`, error);
+    }
+  }
+  
+  // Update in offline transactions if present
+  const offlineTransactions = await getOfflineTransactions();
+  const offlineTransactionIndex = offlineTransactions.findIndex(tx => tx.id === id);
+  
+  if (offlineTransactionIndex !== -1) {
+    offlineTransactions[offlineTransactionIndex] = {
+      ...offlineTransactions[offlineTransactionIndex],
+      ...updates,
+      updatedAt: new Date()
+    };
+    await setOfflineTransactions(offlineTransactions);
+  }
+};
+
+// Clear the transaction store (for testing)
+export const clearTransactionsStore = async (): Promise<void> => {
+  localStorage.removeItem(TRANSACTIONS_STORE_KEY);
+  localStorage.removeItem(OFFLINE_TRANSACTIONS_KEY);
+  
+  // Clear any direct access transaction items
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('transaction_')) {
+      localStorage.removeItem(key);
+    }
+  }
+  
+  // Reinitialize empty stores
+  localStorage.setItem(TRANSACTIONS_STORE_KEY, JSON.stringify([]));
+  localStorage.setItem(OFFLINE_TRANSACTIONS_KEY, JSON.stringify([]));
 };

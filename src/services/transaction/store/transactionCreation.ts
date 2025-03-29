@@ -1,32 +1,34 @@
 
-import { Transaction } from "@/types/transaction";
-import { generateTransactionId } from "@/utils/transactionUtils";
-import { addOfflineTransaction } from './storageOperations';
+import { Transaction, TransactionStatus } from "@/types/transaction";
+import { v4 as uuidv4 } from 'uuid';
 
-// Create a new transaction with unique ID - renamed for clarity
-export const createStoredTransaction = (partial: Partial<Transaction>): Transaction => {
-  const id = partial.id || generateTransactionId();
+/**
+ * Create a new transaction in the local store
+ */
+export const createTransaction = async (transactionData: Partial<Transaction>): Promise<Transaction> => {
+  console.log('Creating transaction in store with data:', transactionData);
   
   const transaction: Transaction = {
-    id,
-    amount: partial.amount || '0',
-    recipientName: partial.recipientName || 'Unknown Recipient',
-    recipientContact: partial.recipientContact || '',
-    country: partial.country || 'Unknown',
-    status: partial.status || 'pending',
-    paymentMethod: partial.paymentMethod || 'unknown',
-    provider: partial.provider || 'Unknown',
+    id: transactionData.id || uuidv4(),
+    amount: transactionData.amount || '0',
+    recipientName: transactionData.recipientName || 'Unknown',
+    country: transactionData.country || 'Unknown',
+    status: transactionData.status as TransactionStatus || 'pending',
     createdAt: new Date(),
     updatedAt: new Date(),
-    estimatedDelivery: partial.estimatedDelivery || 'Processing',
-    totalAmount: partial.totalAmount || partial.amount || '0',
-    ...(partial.completedAt && { completedAt: partial.completedAt }),
-    ...(partial.failureReason && { failureReason: partial.failureReason })
+    // Include other fields from transactionData
+    ...transactionData
   };
   
-  addOfflineTransaction(transaction);
+  console.log('Finalized transaction object for store:', transaction);
+  
+  // Save a specific copy for this transaction ID for direct access
+  localStorage.setItem(`transaction_${transaction.id}`, JSON.stringify(transaction));
+  
   return transaction;
 };
 
-// Also export the same function with the original name for backward compatibility
-export const createTransaction = createStoredTransaction;
+/**
+ * Alias for createTransaction (for backward compatibility)
+ */
+export const createStoredTransaction = createTransaction;

@@ -7,8 +7,14 @@ export * from './formatUtils';
 // Platform detection utilities
 export * from './platformUtils';
 
-// Transaction utilities
-export * from './transactionUtils';
+// Transaction utilities - export everything except what's already exported
+export {
+  generateTransactionId,
+  getEstimatedDeliveryText,
+  calculateFee,
+  calculateTotal,
+  getEstimatedDelivery
+} from './transactionUtils';
 
 // Transaction data store
 export * from './transactionDataStore';
