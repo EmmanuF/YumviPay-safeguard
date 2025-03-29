@@ -1,19 +1,21 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Briefcase, Globe, Users } from 'lucide-react';
-
 const AboutUs = () => {
   // Create animation refs for different sections
-  const missionRef = useScrollAnimation({ threshold: 0.1 });
-  const storyRef = useScrollAnimation({ threshold: 0.1 });
-  const teamRef = useScrollAnimation({ threshold: 0.1 });
+  const missionRef = useScrollAnimation({
+    threshold: 0.1
+  });
+  const storyRef = useScrollAnimation({
+    threshold: 0.1
+  });
+  const teamRef = useScrollAnimation({
+    threshold: 0.1
+  });
   const valuesRef = useScrollAnimation();
-
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>About Us | Yumvi-Pay</title>
         <meta name="description" content="Learn about Yumvi-Pay's mission, vision, and the team behind our money transfer service." />
@@ -61,12 +63,7 @@ const AboutUs = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-semibold mb-4 text-primary-600">Our Story</h2>
-                <p className="text-gray-700">
-                  Founded in 2023, Yumvi-Pay was born from a simple observation: sending money to Africa 
-                  was often complicated, expensive, and slow. Our founders, who experienced these challenges 
-                  firsthand, set out to create a solution that leverages modern technology to overcome these 
-                  barriers.
-                </p>
+                <p className="text-gray-700">Founded in 2021, Yumvi-Pay was born from a simple observation: sending money to Africa was often complicated, expensive, and slow. Our founders, who experienced these challenges firsthand, set out to create a solution that leverages modern technology to overcome these barriers.</p>
                 <p className="mt-4 text-gray-700">
                   Starting with Cameroon as our first market, we've built a mobile-first platform that 
                   integrates seamlessly with local payment systems and offers competitive exchange rates 
@@ -154,8 +151,6 @@ const AboutUs = () => {
           transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
       `}</style>
-    </div>
-  );
+    </div>;
 };
-
 export default AboutUs;
