@@ -3,8 +3,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth';
 import { useLocale } from '@/contexts/LocaleContext';
-import { LogOut } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 interface ActionButtonsProps {
   handleNavigation: (path: string) => void;
@@ -19,36 +17,8 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   isNavigating,
   isHomePage,
 }) => {
-  const { isLoggedIn, signOut } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { t } = useLocale();
-  const { toast } = useToast();
-
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      toast({
-        title: "Signing out...",
-        description: "Please wait while we sign you out.",
-      });
-      
-      await signOut();
-      
-      toast({
-        title: "Sign out successful",
-        description: "You have been signed out successfully.",
-        variant: "success",
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      toast({
-        title: "Sign out failed",
-        description: "There was an error signing you out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="flex items-center space-x-5">

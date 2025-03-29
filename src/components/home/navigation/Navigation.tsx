@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
+import { Home, Send, Clock, User, UserPlus, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/contexts/LocaleContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -11,6 +11,7 @@ import MobileNavigation from './MobileNavigation';
 import ActionButtons from './ActionButtons';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { useAuth } from '@/contexts/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const { t } = useLocale();
   const isMobile = useIsMobile();
   const [isNavigating, setIsNavigating] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, signOut } = useAuth();
+  const { toast } = useToast();
   
   const navItems: NavItem[] = [
     {
@@ -73,6 +75,33 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       setTimeout(() => setIsNavigating(false), 400);
     }, 50);
   };
+
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      toast({
+        title: "Signing out...",
+        description: "Please wait while we sign you out.",
+      });
+      
+      await signOut();
+      
+      toast({
+        title: "Sign out successful",
+        description: "You have been signed out successfully.",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an error signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
   if (isMobile && location.pathname !== '/') {
     return null;
@@ -96,6 +125,17 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           >
             {t('app.name')}
           </div>
+
+          {/* Sign Out Button (bottom left) - Only show when logged in */}
+          {isLoggedIn && isHomePage && (
+            <button
+              onClick={handleSignOut}
+              className="text-red-600 hover:text-red-700 transition-colors p-1.5 ml-6 rounded-md hover:bg-red-50/30"
+              title={t('auth.signout')}
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          )}
         </div>
         
         <DesktopNavigation 

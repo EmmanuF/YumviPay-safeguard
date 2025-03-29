@@ -93,12 +93,25 @@ const TopNavigation: React.FC = () => {
       className="bg-indigo-800 text-white py-3 z-50 relative shadow-md"
     >
       <div className="container mx-auto flex items-center justify-between px-4">
-        {/* App Name/Logo */}
-        <div 
-          className="text-xl font-bold cursor-pointer"
-          onClick={() => navigate('/')}
-        >
-          Yumvi-Pay
+        {/* App Name/Logo and Sign Out Button */}
+        <div className="flex items-center space-x-5">
+          <div 
+            className="text-xl font-bold cursor-pointer"
+            onClick={() => navigate('/')}
+          >
+            Yumvi-Pay
+          </div>
+          
+          {/* Sign Out Button - Only show when logged in */}
+          {isLoggedIn && (
+            <button
+              onClick={handleSignOut}
+              className="text-red-600 hover:text-red-400 transition-colors p-1.5 rounded-md hover:bg-red-900/20"
+              title={t('auth.signout')}
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          )}
         </div>
         
         {/* Navigation Links */}
@@ -117,17 +130,6 @@ const TopNavigation: React.FC = () => {
               {item.label}
             </button>
           ))}
-          
-          {/* Logout Icon - Only show when logged in */}
-          {isLoggedIn && (
-            <button
-              onClick={handleSignOut}
-              className="text-white/80 hover:text-white transition-colors p-1.5 rounded-md hover:bg-white/10"
-              title={t('auth.signout')}
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-          )}
         </div>
         
         {/* Right Side */}
