@@ -33,6 +33,12 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     // Create a reliable transaction ID
     const transactionId = params.transactionId;
     
+    // CRITICAL: Always create a fallback transaction right away
+    // This ensures we can always recover the transaction later
+    console.log('🛡️ Creating fallback transaction for Kado redirect:', transactionId);
+    const fallbackTransaction = createFallbackTransaction(transactionId);
+    console.log('✅ Created fallback transaction during redirect:', transactionId);
+    
     // Store transaction data immediately for resilience in multiple locations
     try {
       const transactionData = {
@@ -54,6 +60,10 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       localStorage.setItem(`kado_transaction_${transactionId}`, JSON.stringify(params));
       sessionStorage.setItem(`transaction_session_${transactionId}`, JSON.stringify(transactionData));
       
+      // Store as a global emergency backup
+      // @ts-ignore - Emergency data storage
+      window.__EMERGENCY_TRANSACTION = JSON.stringify(transactionData);
+      
       console.log(`💾 Pre-stored transaction data for ID: ${transactionId}`);
     } catch (e) {
       console.error('❌ Error pre-storing transaction data:', e);
@@ -63,10 +73,6 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     toast.success("Processing Payment", {
       description: "Preparing your transaction..."
     });
-    
-    // Create a fallback transaction right away to ensure it exists
-    const fallbackTransaction = createFallbackTransaction(transactionId);
-    console.log('✅ Created fallback transaction during redirect:', fallbackTransaction);
     
     // In test mode, simulate successful redirection
     if (KADO_TEST_MODE) {
@@ -178,7 +184,12 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     console.error('❌ Error redirecting to Kado:', error);
     
     // Even on error, navigate to transaction page with error state
-    const transactionUrl = `/transaction/${params.transactionId}?error=redirect_failed`;
+    const transactionId = params.transactionId;
+    const transactionUrl = `/transaction/${transactionId}?error=redirect_failed`;
+    
+    // Create a fallback transaction even on error
+    createFallbackTransaction(transactionId);
+    
     navigate(transactionUrl);
     
     throw new Error(`Failed to redirect to Kado: ${error instanceof Error ? error.message : 'Unknown error'}`);

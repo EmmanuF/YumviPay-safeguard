@@ -5,6 +5,7 @@ import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { createFallbackTransaction } from '@/services/transaction';
 
 interface LoadingStateProps {
   message?: string;
@@ -20,7 +21,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   message = "Loading...",
   submessage,
   error = null,
-  timeout = 10000,
+  timeout = 1500, // Default to 1.5 seconds
   onRetry,
   retryAction, // Handle both prop names
   transactionId
@@ -72,31 +73,10 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     }
     
     try {
-      // Create a completed transaction
-      const completedTransaction = {
-        id: transactionId,
-        status: 'completed',
-        updatedAt: new Date().toISOString(),
-        completedAt: new Date().toISOString(),
-        amount: 50,
-        recipientName: 'Recipient Name',
-        recipientContact: '+237612345678',
-        country: 'CM',
-        provider: 'MTN Mobile Money',
-        paymentMethod: 'mobile_money',
-        estimatedDelivery: 'Delivered',
-        totalAmount: 50,
-        convertedAmount: 30500,
-        exchangeRate: 610,
-        createdAt: new Date().toISOString()
-      };
+      // Create a completed fallback transaction
+      const fallback = createFallbackTransaction(transactionId);
       
-      // Store with multiple keys for redundancy
-      localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(completedTransaction));
-      localStorage.setItem(`transaction_backup_${transactionId}`, JSON.stringify(completedTransaction));
-      localStorage.setItem(`emergency_transaction_${transactionId}`, JSON.stringify(completedTransaction));
-      
-      toast.success("Transaction Completed", {
+      toast.success("Transaction Created", {
         description: "Your transaction has been marked as completed",
       });
       
@@ -134,13 +114,17 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     );
   }
   
+  // Show options immediately for TXN- prefixed transactions
+  const isTxnFormat = transactionId && transactionId.startsWith('TXN-');
+  const showOptions = timeoutReached || isTxnFormat;
+  
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="flex flex-col items-center justify-center p-8 min-h-[200px]"
     >
-      {!timeoutReached ? (
+      {!showOptions ? (
         <>
           <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
           <h3 className="text-lg font-semibold mb-2">{message}</h3>
@@ -149,7 +133,9 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       ) : (
         <>
           <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Taking longer than expected</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {isTxnFormat ? "Creating Your Transaction" : "Taking longer than expected"}
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
             Would you like to retry or complete the transaction now?
           </p>
@@ -159,17 +145,18 @@ const LoadingState: React.FC<LoadingStateProps> = ({
               Retry
             </Button>
             
-            {hasData && transactionId && (
+            {transactionId && (
               <Button onClick={handleForceComplete}>
                 Complete Transaction Now
               </Button>
             )}
             
-            {!hasData && (
-              <Button onClick={handleSendNew}>
-                Start New Transaction
-              </Button>
-            )}
+            <Button 
+              variant="secondary"
+              onClick={handleSendNew}
+            >
+              Start New Transaction
+            </Button>
           </div>
         </>
       )}

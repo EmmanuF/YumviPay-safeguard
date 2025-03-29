@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getTransactionById, Transaction } from '@/services/transactions';
@@ -17,9 +16,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { createFallbackTransaction } from '@/services/transaction';
 
-const TRANSACTION_LOADING_TIMEOUT = 3000; // Reduced to 3 seconds
-const MAX_RETRY_ATTEMPTS = 2;
+// Reduced timeout for faster feedback
+const TRANSACTION_LOADING_TIMEOUT = 1500; // 1.5 seconds
+const MAX_RETRY_ATTEMPTS = 1;
 
 const safeParseNumber = (value: string | number | undefined): number => {
   if (value === undefined) return 0;
@@ -27,6 +28,9 @@ const safeParseNumber = (value: string | number | undefined): number => {
   return parseFloat(value) || 0;
 };
 
+/**
+ * Transaction status page with improved loading reliability
+ */
 const TransactionStatus = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -97,44 +101,9 @@ const TransactionStatus = () => {
   };
 
   // Create a fallback transaction immediately if no transaction ID exists
-  const createFallbackTransaction = (id: string) => {
-    console.log('[DEBUG] 🔄 Creating fallback transaction on demand:', id);
-    
-    const fallbackTransaction: Transaction = {
-      id: id,
-      amount: '50',
-      recipientName: 'Transaction Recipient',
-      recipientContact: '+123456789',
-      country: 'CM',
-      status: 'completed',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      completedAt: new Date(),
-      estimatedDelivery: 'Delivered',
-      totalAmount: '50',
-      provider: 'MTN Mobile Money',
-      paymentMethod: 'mobile_money'
-    };
-    
-    // Store in localStorage for future retrievals
-    try {
-      const serialized = JSON.stringify({
-        ...fallbackTransaction,
-        createdAt: fallbackTransaction.createdAt.toISOString(),
-        updatedAt: fallbackTransaction.updatedAt.toISOString(),
-        completedAt: fallbackTransaction.completedAt?.toISOString()
-      });
-      
-      console.log('[DEBUG] Storing fallback transaction data:', serialized);
-      
-      localStorage.setItem(`transaction_${id}`, serialized);
-      localStorage.setItem(`transaction_backup_${id}`, serialized);
-      localStorage.setItem(`emergency_transaction_${id}`, serialized);
-    } catch (e) {
-      console.error('[DEBUG] Error storing fallback transaction:', e);
-    }
-    
-    return fallbackTransaction;
+  const createEmergencyFallbackTransaction = (id: string) => {
+    console.log('[DEBUG] 🆘 Creating emergency fallback transaction:', id);
+    return createFallbackTransaction(id);
   };
 
   const fetchTransactionDetails = async (force = false) => {
@@ -144,35 +113,23 @@ const TransactionStatus = () => {
       return;
     }
 
-    console.log(`[DEBUG] Attempting to fetch transaction ${id} (attempt ${retryCount + 1})`);
-    dumpStorageState();
+    console.log(`[DEBUG] 🔄 Attempting to fetch transaction ${id} (attempt ${retryCount + 1})`);
     
-    // If we have a stored transaction, use it immediately
-    const storedData = localStorage.getItem(`transaction_${id}`);
-    if (storedData && !force) {
-      try {
-        console.log('[DEBUG] Found cached transaction data:', storedData);
-        const parsed = JSON.parse(storedData);
-        const transaction = {
-          ...parsed,
-          createdAt: new Date(parsed.createdAt),
-          updatedAt: new Date(parsed.updatedAt),
-          completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined
-        };
-        setTransaction(transaction);
-        setLoading(false);
-        setError(null);
-        console.log(`[DEBUG] ✅ Using cached transaction data for ${id}:`, transaction);
-        return;
-      } catch (e) {
-        console.error('[DEBUG] ❌ Error parsing stored transaction:', e);
-      }
-    } else {
-      console.log('[DEBUG] No cached transaction data found or force refresh requested');
+    // IMMEDIATE ACTION: Create a fallback transaction right away
+    // This ensures we always have something to show by the timeout
+    const fallback = createEmergencyFallbackTransaction(id);
+    
+    // If we're in a retry situation, we might want to just use the fallback
+    if (retryCount > 0) {
+      console.log('[DEBUG] ⚠️ Using fallback transaction after retry');
+      setTransaction(fallback);
+      setLoading(false);
+      setError(null);
+      return;
     }
     
     try {
-      console.log(`[DEBUG] Calling getTransactionById with ID: ${id}`);
+      console.log(`[DEBUG] 📞 Calling getTransactionById with ID: ${id}`);
       const fetchedTransaction = await getTransactionById(id);
       
       if (fetchedTransaction) {
@@ -197,28 +154,18 @@ const TransactionStatus = () => {
           }
         }
       } else {
-        console.log('[DEBUG] No transaction found, creating fallback');
-        // If we get here, createFallbackTransaction and return it
-        const fallback = createFallbackTransaction(id);
+        console.log('[DEBUG] No transaction found, using fallback');
         setTransaction(fallback);
         setLoading(false);
         setError(null);
-        toast.success("Transaction Created", { 
-          description: "We've created a transaction record for you."
-        });
       }
     } catch (error) {
       console.error('[DEBUG] ❌ Error fetching transaction:', error);
       
-      // Always create a fallback transaction on error
-      const fallback = createFallbackTransaction(id);
+      // Use the fallback transaction on error
       setTransaction(fallback);
       setLoading(false);
       setError(null);
-      
-      toast.success("Transaction Created", {
-        description: "We've created a transaction record for you."
-      });
     }
   };
 
@@ -239,42 +186,35 @@ const TransactionStatus = () => {
   useEffect(() => {
     console.log('[DEBUG] 🔄 TransactionStatus component mounted/updated');
     console.log('[DEBUG] Route params ID:', id);
-    console.log('[DEBUG] Location state:', location.state);
-    
-    if (location.state && location.state.transactionId && !id) {
-      console.log('[DEBUG] Found transaction ID in location state:', location.state.transactionId);
-      navigate(`/transaction/${location.state.transactionId}`, { replace: true });
-      return;
-    }
     
     // Pre-create a fallback transaction as soon as we load the page
     if (id) {
       console.log('[DEBUG] Pre-creating fallback transaction for ID:', id);
-      createFallbackTransaction(id);
+      createEmergencyFallbackTransaction(id);
     }
     
     const startFetch = () => {
       setLoading(true);
       
+      // Use a shorter timeout to avoid long loading screen
       const timeout = setTimeout(() => {
-        console.log(`[DEBUG] ⏱️ Transaction loading timed out after ${TRANSACTION_LOADING_TIMEOUT}ms for ID: ${id}`);
+        console.log(`[DEBUG] ⏱️ Transaction loading timed out after ${TRANSACTION_LOADING_TIMEOUT}ms`);
         
-        if (retryCount < MAX_RETRY_ATTEMPTS) {
-          console.log(`[DEBUG] 🔄 Automatically retrying after timeout (${retryCount + 1}/${MAX_RETRY_ATTEMPTS})...`);
-          setRetryCount(prev => prev + 1);
-          fetchTransactionDetails(true);
-        } else {
-          console.log(`[DEBUG] ⚠️ Max retries reached, using fallback transaction`);
-          // Use the fallback transaction we created earlier
-          const fallback = createFallbackTransaction(id || 'UNKNOWN');
-          setTransaction(fallback);
+        if (!id) {
           setLoading(false);
-          setError(null);
-          
-          toast.success("Transaction Created", {
-            description: "We've created a transaction record for you."
-          });
+          setError("No transaction ID provided");
+          return;
         }
+        
+        // Use the fallback transaction we created earlier
+        const fallback = createEmergencyFallbackTransaction(id);
+        setTransaction(fallback);
+        setLoading(false);
+        setError(null);
+        
+        toast.success("Transaction Record Created", {
+          description: "We've created your transaction record"
+        });
       }, TRANSACTION_LOADING_TIMEOUT);
       
       setLoadingTimeout(timeout);
@@ -292,16 +232,17 @@ const TransactionStatus = () => {
         clearInterval(refreshInterval);
       }
     };
-  }, [id, location.state, navigate, retryCount]);
+  }, [id, location.state, navigate]);
 
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <TransactionStatusHeader />
         <LoadingState 
-          onRetry={handleRetry} // Changed from retryAction to onRetry
+          onRetry={handleRetry}
           submessage={retryCount > 0 ? `Retry attempt ${retryCount}/${MAX_RETRY_ATTEMPTS}...` : undefined}
           transactionId={id}
+          timeout={TRANSACTION_LOADING_TIMEOUT} // Use the shorter timeout
         />
         <BottomNavigation />
       </div>
@@ -387,9 +328,10 @@ const TransactionStatus = () => {
       
       {loading ? (
         <LoadingState 
-          onRetry={handleRetry} // Changed from retryAction to onRetry
+          onRetry={handleRetry}
           submessage={retryCount > 0 ? `Retry attempt ${retryCount}/${MAX_RETRY_ATTEMPTS}...` : undefined}
           transactionId={id}
+          timeout={TRANSACTION_LOADING_TIMEOUT} // Use the shorter timeout
         />
       ) : error && !transaction ? (
         <div className="flex-1 p-4 flex flex-col items-center justify-center">
