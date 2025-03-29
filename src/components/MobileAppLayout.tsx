@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -13,6 +12,8 @@ import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ScrollToTopButton from './ScrollToTopButton';
+import LogoutButton from './LogoutButton';
+import { useAuth } from '@/contexts/auth';
 
 interface MobileAppLayoutProps {
   children?: ReactNode;
@@ -24,6 +25,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const { isOffline, offlineModeActive, pendingOperationsCount } = useNetwork();
   const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
   const isMobile = useIsMobile();
+  const { isLoggedIn } = useAuth();
   
   const {
     getOptimizationClasses,
@@ -67,7 +69,6 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
 
   const hideHeader = isSendMoneyPage;
 
-  // Don't show LocaleSwitcher in profile page since it's already in the header
   const shouldShowLocaleSwitcher = !isProfilePage;
 
   const pageVariants = {
@@ -147,6 +148,8 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
       </main>
       
       <ScrollToTopButton />
+      
+      {isLoggedIn && <LogoutButton />}
       
       {showOfflineIndicator && (
         <motion.div 

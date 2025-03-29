@@ -5,7 +5,7 @@ export { default as BiometricSettings } from './BiometricSettings';
 export { default as ChangePasswordDialog } from './ChangePasswordDialog';
 export { default as CountryPreferences } from './CountryPreferences';
 export { default as EditProfileDialog } from './EditProfileDialog';
-export { default as LogoutButton } from './LogoutButton';
+export { default as LogoutButton } from '../LogoutButton';
 export { default as MobileAppSettings } from './MobileAppSettings';
 export { default as NotificationPreferences } from './NotificationPreferences';
 export { default as NotificationSettings } from './NotificationSettings';

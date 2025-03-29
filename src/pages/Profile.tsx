@@ -65,8 +65,6 @@ const Profile = () => {
                 onNotificationChange={handleNotificationChange}
                 onResetNotifications={handleResetNotifications}
               />
-              
-              <LogoutButton />
             </motion.div>
           )}
         </main>

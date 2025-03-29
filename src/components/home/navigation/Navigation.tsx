@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Send, Clock, User, UserPlus, LogOut } from 'lucide-react';
+import { Home, Send, Clock, User, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/contexts/LocaleContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,8 +18,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
   const { t } = useLocale();
   const isMobile = useIsMobile();
   const [isNavigating, setIsNavigating] = useState(false);
-  const { isLoggedIn, signOut } = useAuth();
-  const { toast } = useToast();
+  const { isLoggedIn } = useAuth();
   
   const navItems: NavItem[] = [
     {
@@ -75,33 +73,6 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
       setTimeout(() => setIsNavigating(false), 400);
     }, 50);
   };
-
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      toast({
-        title: "Signing out...",
-        description: "Please wait while we sign you out.",
-      });
-      
-      await signOut();
-      
-      toast({
-        title: "Sign out successful",
-        description: "You have been signed out successfully.",
-        variant: "success",
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      toast({
-        title: "Sign out failed",
-        description: "There was an error signing you out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
   
   if (isMobile && location.pathname !== '/') {
     return null;
@@ -152,19 +123,6 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
           handleNavigation={handleNavigation}
           isNavigating={isNavigating}
         />
-      )}
-
-      {/* Sign Out Button (bottom left) - Only show when logged in on homepage */}
-      {isLoggedIn && isHomePage && (
-        <div className="fixed bottom-8 left-8 z-50">
-          <button
-            onClick={handleSignOut}
-            className="text-red-600 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-50/30 shadow-sm"
-            title={t('auth.signout')}
-          >
-            <LogOut className="h-6 w-6" />
-          </button>
-        </div>
       )}
     </header>
   );
