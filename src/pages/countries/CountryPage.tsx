@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import MobileAppLayout from '@/components/MobileAppLayout';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
 import ComingSoonMessage from '@/components/send-money/payment/ComingSoonMessage';
@@ -78,13 +77,11 @@ const CountryPage: React.FC = () => {
   
   if (!country) {
     return (
-      <MobileAppLayout>
-        <div className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Country Not Found</h1>
-          <p className="mb-6">We couldn't find information about this country.</p>
-          <Button onClick={() => window.history.back()}>Go Back</Button>
-        </div>
-      </MobileAppLayout>
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">Country Not Found</h1>
+        <p className="mb-6">We couldn't find information about this country.</p>
+        <Button onClick={() => window.history.back()}>Go Back</Button>
+      </div>
     );
   }
   
@@ -114,7 +111,7 @@ const CountryPage: React.FC = () => {
   };
   
   return (
-    <MobileAppLayout>
+    <>
       <Helmet>
         <title>{country.name} | {t('app.name')}</title>
       </Helmet>
@@ -210,7 +207,7 @@ const CountryPage: React.FC = () => {
           </div>
         </motion.div>
       </div>
-    </MobileAppLayout>
+    </>
   );
 };
 
