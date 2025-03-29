@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
 const TermsOfService = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Terms of Service | Yumvi-Pay</title>
         <meta name="description" content="Read Yumvi-Pay's terms of service and user agreement." />
@@ -77,14 +74,10 @@ const TermsOfService = () => {
           <h2 className="text-xl font-semibold mb-4 text-primary-600">Contact Us</h2>
           <p>
             If you have any questions about these Terms, please contact us at{' '}
-            <a href="mailto:legal@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
-              legal@yumvi-pay.com
-            </a>
+            <a href="mailto:legal@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">legal@yumvipay.com</a>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default TermsOfService;
