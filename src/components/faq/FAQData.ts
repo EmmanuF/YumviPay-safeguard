@@ -1,4 +1,3 @@
-
 import { FAQItem } from './types';
 
 // FAQ data organized by categories
@@ -89,7 +88,7 @@ export const faqItems: FAQItem[] = [
   {
     id: 'account-3',
     question: 'How can I close my Yumvi-Pay account?',
-    answer: 'To close your account, go to Settings > Account > Close Account. Before closing, please ensure you don\'t have any pending transactions or funds in your wallet. After reviewing your request, we\'ll process the account closure within 30 days. You\'ll receive a confirmation email once your account has been closed.',
+    answer: 'To close your Yumvi-Pay account, please contact our customer support team through the Support section of the app or by emailing support@yumvi-pay.com with the subject "Account Closure Request". Before requesting closure, please ensure you don\'t have any pending transactions. Our team will guide you through the closure process and confirm once your account has been successfully closed, which typically takes up to 30 days.',
     category: 'account'
   },
   {
