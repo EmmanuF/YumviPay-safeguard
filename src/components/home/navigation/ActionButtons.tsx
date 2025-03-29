@@ -64,30 +64,16 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           {t('auth.signin')}
         </button>
       ) : (
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => handleNavigation('/profile')}
-            className={cn(
-              "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
-              isHomePage ? "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30" : "text-white/80 hover:text-white hover:bg-white/10"
-            )}
-            disabled={isNavigating}
-          >
-            {t('nav.profile')}
-          </button>
-          
-          <button
-            onClick={handleSignOut}
-            className={cn(
-              "text-sm font-medium transition-colors px-3 py-1.5 rounded-md flex items-center",
-              isHomePage ? "text-destructive hover:text-destructive hover:bg-destructive/10" : "text-white/80 hover:text-white hover:bg-white/10"
-            )}
-            disabled={isNavigating}
-          >
-            <LogOut className="mr-1 h-3.5 w-3.5" />
-            {t('auth.signout')}
-          </button>
-        </div>
+        <button
+          onClick={() => handleNavigation('/profile')}
+          className={cn(
+            "text-sm font-medium transition-colors px-3 py-1.5 rounded-md",
+            isHomePage ? "text-primary-500 hover:text-primary-600 hover:bg-primary-50/30" : "text-white/80 hover:text-white hover:bg-white/10"
+          )}
+          disabled={isNavigating}
+        >
+          {t('nav.profile')}
+        </button>
       )}
       
       <button
