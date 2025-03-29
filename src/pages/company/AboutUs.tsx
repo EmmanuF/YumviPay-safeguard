@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Briefcase, Globe, Users } from 'lucide-react';
-import '../styles/card-styles.css';
+import '@/styles/card-styles.css';
 
 const AboutUs = () => {
   // Create animation refs for different sections
