@@ -1,23 +1,21 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Send, Clock, Users, User, LogOut } from 'lucide-react';
+import { Home, Send, Clock, Users, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth';
 import { useLocale } from '@/contexts/LocaleContext';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import LocaleSwitcher from './LocaleSwitcher';
-import { useToast } from '@/hooks/use-toast';
 
 const TopNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, signOut } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { t } = useLocale();
   const [isNavigating, setIsNavigating] = useState(false);
   const isMobile = useIsMobile();
-  const { toast } = useToast();
   
   // Don't show on mobile or on home page
   if (isMobile || location.pathname === '/') {
@@ -55,33 +53,6 @@ const TopNavigation: React.FC = () => {
     setTimeout(() => setIsNavigating(false), 500);
   };
 
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      toast({
-        title: "Signing out...",
-        description: "Please wait while we sign you out.",
-      });
-      
-      await signOut();
-      
-      toast({
-        title: "Sign out successful",
-        description: "You have been signed out successfully.",
-        variant: "success",
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      toast({
-        title: "Sign out failed",
-        description: "There was an error signing you out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-  
   // Filter navItems based on authentication status
   const displayNavItems = navItems.filter(item => !item.requiresAuth || isLoggedIn);
 
@@ -131,17 +102,6 @@ const TopNavigation: React.FC = () => {
           >
             {t('nav.profile')}
           </button>
-          
-          {/* Sign Out Button - Only show when logged in */}
-          {isLoggedIn && (
-            <button
-              onClick={handleSignOut}
-              className="text-red-400 hover:text-red-300 transition-colors p-1.5 rounded-md hover:bg-red-900/20"
-              title={t('auth.signout')}
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-          )}
         </div>
       </div>
     </motion.div>
