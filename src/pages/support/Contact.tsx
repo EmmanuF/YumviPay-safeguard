@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -6,27 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { 
-  Mail, 
-  Phone, 
-  MessageSquare, 
-  MapPin 
-} from 'lucide-react';
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Mail, Phone, MessageSquare, MapPin } from 'lucide-react';
 interface ContactFormData {
   name: string;
   email: string;
   topic: string;
   message: string;
 }
-
 const Contact = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<ContactFormData>({
@@ -39,7 +25,10 @@ const Contact = () => {
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
+    const {
+      id,
+      value
+    } = e.target;
     setFormData({
       ...formData,
       [id]: value
@@ -57,28 +46,27 @@ const Contact = () => {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Simple validation
     if (!formData.name || !formData.email || !formData.topic || !formData.message) {
       toast.error('Please fill in all fields');
       return;
     }
-    
+
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast.error('Please enter a valid email address');
       return;
     }
-    
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     setTimeout(() => {
       toast.success('Your message has been sent', {
         description: 'We\'ll get back to you as soon as possible.'
       });
-      
+
       // Reset form
       setFormData({
         name: '',
@@ -86,7 +74,6 @@ const Contact = () => {
         topic: '',
         message: ''
       });
-      
       setIsSubmitting(false);
     }, 1500);
   };
@@ -95,9 +82,7 @@ const Contact = () => {
   const navigateToFAQ = () => {
     navigate('/faq');
   };
-
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Contact Us | Yumvi-Pay</title>
         <meta name="description" content="Contact Yumvi-Pay's customer support team for assistance with your money transfers." />
@@ -116,27 +101,14 @@ const Contact = () => {
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Your Name
                 </label>
-                <Input
-                  id="name"
-                  placeholder="Enter your full name"
-                  className="w-full"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                />
+                <Input id="name" placeholder="Enter your full name" className="w-full" value={formData.name} onChange={handleInputChange} />
               </div>
               
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
                 </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  className="w-full"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
+                <Input id="email" type="email" placeholder="Enter your email address" className="w-full" value={formData.email} onChange={handleInputChange} />
               </div>
               
               <div>
@@ -161,21 +133,10 @@ const Contact = () => {
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                   Message
                 </label>
-                <Textarea
-                  id="message"
-                  placeholder="Please describe your issue or question in detail"
-                  rows={5}
-                  className="w-full"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                />
+                <Textarea id="message" placeholder="Please describe your issue or question in detail" rows={5} className="w-full" value={formData.message} onChange={handleInputChange} />
               </div>
               
-              <Button 
-                type="submit" 
-                className="w-full"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
             </form>
@@ -192,20 +153,17 @@ const Contact = () => {
                 <Mail className="h-5 w-5 text-primary-500 mt-1 mr-3" />
                 <div>
                   <p className="font-medium text-gray-800">Email</p>
-                  <a href="mailto:support@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
-                    support@yumvi-pay.com
-                  </a>
+                  <a href="mailto:support@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">support@yumvipay.com</a>
                 </div>
               </div>
               
               <div className="flex items-start">
                 <Phone className="h-5 w-5 text-primary-500 mt-1 mr-3" />
                 <div>
-                  <p className="font-medium text-gray-800">Phone</p>
-                  <a href="tel:+18005551234" className="text-primary-600 hover:text-primary-700">
-                    +1 (800) 555-1234
-                  </a>
-                  <p className="text-sm text-gray-600">Monday - Friday, 9am - 5pm UTC</p>
+                  <p className="font-medium text-gray-800">
+                </p>
+                  <a href="tel:+18005551234" className="text-primary-600 hover:text-primary-700">+1 (8322657907</a>
+                  <p className="text-sm text-gray-600">Monday - Friday, 9am - 5pm CST</p>
                 </div>
               </div>
               
@@ -222,8 +180,8 @@ const Contact = () => {
                 <MapPin className="h-5 w-5 text-primary-500 mt-1 mr-3" />
                 <div>
                   <p className="font-medium text-gray-800">Office</p>
-                  <p className="text-gray-700">123 Financial District</p>
-                  <p className="text-gray-700">New York, NY 10004</p>
+                  <p className="text-gray-700">2470 S DAIRYASHFORD</p>
+                  <p className="text-gray-700">HOUSTON, TX 77072</p>
                   <p className="text-gray-700">United States</p>
                 </div>
               </div>
@@ -241,8 +199,6 @@ const Contact = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Contact;
