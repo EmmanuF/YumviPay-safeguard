@@ -1,106 +1,48 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
-import { toast } from 'sonner';
-import { Send, Mail, MapPin, MessageSquare } from 'lucide-react';
-import MobileAppLayout from '@/components/MobileAppLayout';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { useLocale } from '@/contexts/LocaleContext';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { 
+  Mail, 
+  Phone, 
+  MessageSquare, 
+  MapPin 
+} from 'lucide-react';
 
-const ContactInfo: React.FC<{ icon: React.ReactNode; title: string; content: React.ReactNode }> = ({ 
-  icon, title, content 
-}) => (
-  <div className="flex gap-3 items-start">
-    <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-      {icon}
-    </div>
-    <div>
-      <h3 className="font-medium text-gray-800">{title}</h3>
-      <div className="text-gray-600">{content}</div>
-    </div>
-  </div>
-);
-
-const Contact: React.FC = () => {
-  const { t } = useLocale();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      toast.success('Your message has been sent. We will contact you soon.');
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-      setIsSubmitting(false);
-    }, 1500);
-  };
-  
+const Contact = () => {
   return (
-    <MobileAppLayout>
+    <div className="container mx-auto px-4 py-12">
       <Helmet>
-        <title>Contact Us | {t('app.name')}</title>
+        <title>Contact Us | Yumvi-Pay</title>
+        <meta name="description" content="Contact Yumvi-Pay's customer support team for assistance with your money transfers." />
       </Helmet>
       
-      <div className="container mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-8"
-        >
-          <h1 className="text-2xl md:text-3xl font-bold text-primary-800 mb-2">
-            Contact Us
-          </h1>
-          <p className="text-gray-600">
-            Have questions or need assistance? We're here to help!
-          </p>
-        </motion.div>
-        
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-white rounded-xl shadow-sm p-6"
-          >
-            <h2 className="text-xl font-semibold text-primary-700 mb-4">
-              Send Us a Message
-            </h2>
+      <h1 className="text-3xl font-bold mb-6 text-primary-700">Contact Us</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        {/* Contact Form */}
+        <div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-primary-600">Send Us a Message</h2>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Your Name
                 </label>
                 <Input
                   id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="John Doe"
+                  placeholder="Enter your full name"
+                  className="w-full"
                 />
               </div>
               
@@ -110,27 +52,28 @@ const Contact: React.FC = () => {
                 </label>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="john.doe@example.com"
+                  placeholder="Enter your email address"
+                  className="w-full"
                 />
               </div>
               
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                  Subject
+                <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-1">
+                  Topic
                 </label>
-                <Input
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  placeholder="How can we help you?"
-                />
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a topic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="transaction">Transaction Issue</SelectItem>
+                    <SelectItem value="account">Account Help</SelectItem>
+                    <SelectItem value="payment">Payment Problem</SelectItem>
+                    <SelectItem value="technical">Technical Support</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div>
@@ -139,90 +82,82 @@ const Contact: React.FC = () => {
                 </label>
                 <Textarea
                   id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  placeholder="Please describe your question or issue in detail..."
+                  placeholder="Please describe your issue or question in detail"
                   rows={5}
+                  className="w-full"
                 />
               </div>
               
               <Button 
                 type="submit" 
-                className="w-full" 
-                disabled={isSubmitting}
+                className="w-full"
               >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-                <Send className="ml-2 h-4 w-4" />
+                Send Message
               </Button>
             </form>
-          </motion.div>
-          
-          {/* Contact Information */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="space-y-6"
-          >
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-primary-700 mb-4">
-                Contact Information
-              </h2>
-              
-              <div className="space-y-4">
-                <ContactInfo
-                  icon={<Mail className="h-4 w-4 text-primary-600" />}
-                  title="Email Us"
-                  content={
-                    <a href="mailto:support@yumvipay.com" className="hover:text-primary-600 transition-colors">
-                      support@yumvipay.com
-                    </a>
-                  }
-                />
-                
-                <ContactInfo
-                  icon={<MapPin className="h-4 w-4 text-primary-600" />}
-                  title="Our Office"
-                  content={
-                    <address className="not-italic">
-                      2470 S DAIRY ASHFORD RD<br />
-                      HOUSTON TX 77077
-                    </address>
-                  }
-                />
-                
-                <ContactInfo
-                  icon={<MessageSquare className="h-4 w-4 text-primary-600" />}
-                  title="Live Chat"
-                  content={
-                    <div>
-                      <p>Available 24/7</p>
-                      <Button variant="outline" size="sm" className="mt-2">
-                        Start Chat
-                      </Button>
-                    </div>
-                  }
-                />
-              </div>
-            </div>
+          </div>
+        </div>
+        
+        {/* Contact Information */}
+        <div>
+          <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-6 border border-primary-200 shadow-md mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-primary-600">Contact Information</h2>
             
-            <div className="bg-primary-50 rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-primary-700 mb-2">
-                Business Hours
-              </h2>
-              <div className="space-y-1 text-gray-700">
-                <p>Monday - Friday: 8:00 AM - 8:00 PM</p>
-                <p>Saturday: 9:00 AM - 5:00 PM</p>
-                <p>Sunday: Closed</p>
-                <p className="mt-2 text-sm">(Central African Time)</p>
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <Mail className="h-5 w-5 text-primary-500 mt-1 mr-3" />
+                <div>
+                  <p className="font-medium text-gray-800">Email</p>
+                  <a href="mailto:support@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
+                    support@yumvi-pay.com
+                  </a>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <Phone className="h-5 w-5 text-primary-500 mt-1 mr-3" />
+                <div>
+                  <p className="font-medium text-gray-800">Phone</p>
+                  <a href="tel:+18005551234" className="text-primary-600 hover:text-primary-700">
+                    +1 (800) 555-1234
+                  </a>
+                  <p className="text-sm text-gray-600">Monday - Friday, 9am - 5pm UTC</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <MessageSquare className="h-5 w-5 text-primary-500 mt-1 mr-3" />
+                <div>
+                  <p className="font-medium text-gray-800">Live Chat</p>
+                  <p className="text-gray-700">Available in our mobile app</p>
+                  <p className="text-sm text-gray-600">24/7 for verified users</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <MapPin className="h-5 w-5 text-primary-500 mt-1 mr-3" />
+                <div>
+                  <p className="font-medium text-gray-800">Office</p>
+                  <p className="text-gray-700">123 Financial District</p>
+                  <p className="text-gray-700">New York, NY 10004</p>
+                  <p className="text-gray-700">United States</p>
+                </div>
               </div>
             </div>
-          </motion.div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-primary-600">Frequently Asked Questions</h2>
+            <p className="text-gray-700 mb-4">
+              Find quick answers to common questions on our FAQ page.
+            </p>
+            <Button variant="outline" onClick={() => window.location.href = '/faq'}>
+              Visit FAQ
+            </Button>
+          </div>
         </div>
       </div>
-    </MobileAppLayout>
+    </div>
   );
 };
 

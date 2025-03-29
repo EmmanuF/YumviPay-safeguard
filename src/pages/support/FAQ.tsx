@@ -1,229 +1,168 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
-import { Search, ChevronDown, ChevronRight } from 'lucide-react';
-import MobileAppLayout from '@/components/MobileAppLayout';
-import { Input } from '@/components/ui/input';
+import { 
+  Accordion, 
+  AccordionContent, 
+  AccordionItem, 
+  AccordionTrigger 
+} from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useLocale } from '@/contexts/LocaleContext';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
-interface FAQItem {
-  question: string;
-  answer: string;
-  category: string;
-}
-
-const FAQ: React.FC = () => {
-  const { t } = useLocale();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  
-  // Toggle question expansion
-  const toggleQuestion = (question: string) => {
-    if (expandedQuestions.includes(question)) {
-      setExpandedQuestions(expandedQuestions.filter(q => q !== question));
-    } else {
-      setExpandedQuestions([...expandedQuestions, question]);
-    }
-  };
-  
-  // FAQ data remains the same
-  const faqs: FAQItem[] = [
-    {
-      question: "How does Yumvi-Pay work?",
-      answer: "Yumvi-Pay is a mobile app that lets you send money to Africa. You register, complete a quick KYC process through our partner Kado, and then you can send money to your recipients. We handle the currency conversion and ensure the money reaches your loved ones quickly and securely.",
-      category: "general"
-    },
-    {
-      question: "How long does a transfer take?",
-      answer: "Most transfers are completed within minutes. However, depending on the payment method and recipient's location, some transfers might take up to 24 hours. You can track the status of your transfer in real-time through the app.",
-      category: "transfers"
-    },
-    {
-      question: "What payment methods can I use?",
-      answer: "We support various payment methods including mobile money (MTN Mobile Money, Orange Money), bank transfers, and credit/debit cards. Available payment methods may vary depending on your location and the recipient's country.",
-      category: "payments"
-    },
-    {
-      question: "What are the fees for sending money?",
-      answer: "Our fee structure is transparent and depends on the amount you're sending, the payment method, and the destination country. You'll always see the exact fee before confirming your transfer. We strive to offer competitive rates that are typically lower than traditional money transfer services.",
-      category: "payments"
-    },
-    {
-      question: "Is Yumvi-Pay secure?",
-      answer: "Yes, security is our top priority. We use bank-level encryption to protect your personal and financial information. We comply with all relevant regulations, implement KYC verification for all users, and continuously monitor transactions for suspicious activity.",
-      category: "security"
-    },
-    {
-      question: "What countries can I send money to?",
-      answer: "Currently, we focus on sending money to Cameroon. We plan to expand our services to more African countries soon. Stay tuned for updates on new supported countries!",
-      category: "general"
-    },
-    {
-      question: "How do I register for Yumvi-Pay?",
-      answer: "Download the Yumvi-Pay mobile app from the App Store or Google Play Store, follow the registration process, and provide the required information to verify your identity. Once your account is set up, you can start sending money immediately.",
-      category: "account"
-    },
-    {
-      question: "What if the recipient doesn't have a mobile phone or bank account?",
-      answer: "We offer various delivery options to accommodate recipients without mobile phones or bank accounts. Depending on the location, recipients may be able to pick up cash at participating locations. Contact our support team for more information.",
-      category: "transfers"
-    },
-    {
-      question: "Can I cancel a transfer after it's been sent?",
-      answer: "You may be able to cancel a transfer if it hasn't been completed yet. Please contact our customer support team immediately for assistance. Note that once a transfer has been completed, it cannot be reversed.",
-      category: "transfers"
-    },
-    {
-      question: "What exchange rate do you use?",
-      answer: "We use real-time market exchange rates and strive to offer competitive rates. The exact exchange rate for your transaction will be displayed before you confirm the transfer, so you'll know exactly how much the recipient will receive.",
-      category: "payments"
-    },
-    {
-      question: "Is my personal information secure?",
-      answer: "Yes, we take data privacy very seriously. We use advanced encryption and security measures to protect your personal information. We only collect information that is necessary for the service and never share your data with unauthorized third parties. Please refer to our Privacy Policy for more details.",
-      category: "security"
-    },
-    {
-      question: "What should I do if I have a problem with my transfer?",
-      answer: "If you encounter any issues with your transfer, please contact our customer support team through the app, via email at support@yumvi-pay.com, or by calling our support number. Our team is available to assist you 24/7.",
-      category: "support"
-    }
-  ];
-  
-  // Categories for filtering
-  const categories = [
-    { id: 'all', name: 'All Categories' },
-    { id: 'general', name: 'General Information' },
-    { id: 'account', name: 'Account Management' },
-    { id: 'transfers', name: 'Money Transfers' },
-    { id: 'payments', name: 'Payments & Fees' },
-    { id: 'security', name: 'Security & Privacy' },
-    { id: 'support', name: 'Customer Support' }
-  ];
-  
-  // Filter FAQs based on search query and selected category
-  const filteredFAQs = faqs.filter(faq => {
-    const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                        faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-  
+const FAQ = () => {
   return (
-    <MobileAppLayout>
+    <div className="container mx-auto px-4 py-12">
       <Helmet>
-        <title>Frequently Asked Questions | {t('app.name')}</title>
+        <title>FAQ | Yumvi-Pay</title>
+        <meta name="description" content="Frequently asked questions about Yumvi-Pay's money transfer services." />
       </Helmet>
       
-      <div className="container mx-auto px-4 py-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-2xl md:text-3xl font-bold text-primary-800 mb-2">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about Yumvi-Pay, money transfers, and our services. 
-            If you can't find what you're looking for, please contact our support team.
-          </p>
-        </motion.div>
-        
-        {/* Search and Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="max-w-2xl mx-auto mb-8"
-        >
-          <div className="relative mb-4">
-            <Input
-              placeholder="Search for questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          </div>
-          
-          <div className="flex flex-wrap gap-2 justify-center">
-            {categories.map(category => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category.id)}
-                className={selectedCategory === category.id ? "" : "bg-white"}
-              >
-                {category.name}
-              </Button>
-            ))}
-          </div>
-        </motion.div>
-        
-        {/* FAQ List */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="max-w-3xl mx-auto"
-        >
-          {filteredFAQs.length > 0 ? (
-            <div className="bg-white rounded-xl shadow-sm p-1">
-              {filteredFAQs.map((faq, index) => (
-                <React.Fragment key={index}>
-                  {index > 0 && <Separator className="my-1" />}
-                  <div className="py-2 px-4">
-                    <button
-                      onClick={() => toggleQuestion(faq.question)}
-                      className="flex justify-between items-center w-full text-left py-3"
-                    >
-                      <h3 className="font-medium text-gray-900">{faq.question}</h3>
-                      {expandedQuestions.includes(faq.question) ? (
-                        <ChevronDown className="h-5 w-5 text-primary-600" />
-                      ) : (
-                        <ChevronRight className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
-                    
-                    {expandedQuestions.includes(faq.question) && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="text-gray-600 pb-3 pt-1"
-                      >
-                        <p>{faq.answer}</p>
-                      </motion.div>
-                    )}
-                  </div>
-                </React.Fragment>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No results found for your search. Please try a different query.</p>
-            </div>
-          )}
-          
-          <div className="text-center mt-8 p-6 bg-primary-50 rounded-xl">
-            <h3 className="font-semibold text-primary-700 mb-2">Still have questions?</h3>
-            <p className="text-gray-600 mb-4">
-              Contact our support team for personalized assistance with any issues or questions you might have.
-            </p>
-            <Button onClick={() => window.location.href = '/contact'}>
-              Contact Support
-            </Button>
-          </div>
-        </motion.div>
+      <h1 className="text-3xl font-bold mb-6 text-primary-700">Frequently Asked Questions</h1>
+      
+      {/* Search Box */}
+      <div className="mb-10 max-w-lg mx-auto">
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Search for questions..."
+            className="pl-10 w-full"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
       </div>
-    </MobileAppLayout>
+      
+      {/* FAQ Categories */}
+      <div className="flex flex-wrap gap-2 mb-8 justify-center">
+        <Button variant="outline" className="rounded-full">All</Button>
+        <Button variant="outline" className="rounded-full">Getting Started</Button>
+        <Button variant="outline" className="rounded-full">Transactions</Button>
+        <Button variant="outline" className="rounded-full">Account</Button>
+        <Button variant="outline" className="rounded-full">Payments</Button>
+        <Button variant="outline" className="rounded-full">Security</Button>
+      </div>
+      
+      {/* Accordion FAQ Items */}
+      <div className="max-w-3xl mx-auto">
+        <Accordion type="single" collapsible className="w-full">
+          {/* Getting Started */}
+          <h2 className="text-xl font-semibold mb-3 text-primary-700 mt-8">Getting Started</h2>
+          
+          <AccordionItem value="getting-started-1" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              How do I create an account with Yumvi-Pay?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              Creating an account with Yumvi-Pay is simple. Download our mobile app from the App Store or Google Play Store, 
+              tap "Sign Up," and follow the on-screen instructions. You'll need to provide your name, email address, and 
+              create a password. After verifying your email, you'll need to complete our KYC verification process to start 
+              sending money.
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="getting-started-2" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              What information do I need to provide for verification?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              For verification, you'll need to provide a valid government-issued ID (passport, driver's license, or national ID), 
+              proof of address (utility bill or bank statement issued within the last 3 months), and in some cases, a selfie 
+              for biometric verification. This information is required to comply with international regulations and to protect 
+              you against fraud.
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="getting-started-3" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              Which countries can I send money to?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              Yumvi-Pay currently supports money transfers to Cameroon, with plans to expand to Nigeria, Senegal, Ghana, 
+              Kenya, and other African countries soon. Check our app for the most up-to-date list of available countries 
+              and payment methods.
+            </AccordionContent>
+          </AccordionItem>
+          
+          {/* Transactions */}
+          <h2 className="text-xl font-semibold mb-3 text-primary-700 mt-8">Transactions</h2>
+          
+          <AccordionItem value="transactions-1" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              How long does it take for my money to arrive?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              For most transfers to mobile money accounts, funds are delivered instantly or within minutes after the transaction 
+              is processed. Bank transfers typically take 1-2 business days. The exact timing may vary depending on the recipient's 
+              country, payment method, and local banking hours.
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="transactions-2" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              What are the fees for sending money?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              Our fees vary depending on the amount sent, destination country, and payment method. We always display the exact 
+              fee and exchange rate before you confirm your transaction. Yumvi-Pay offers competitive rates with transparent 
+              pricing—no hidden fees. You can use our calculator in the app to see the exact amount your recipient will receive.
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="transactions-3" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              How can I track my transfer?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              You can track your transfer in real-time through the Yumvi-Pay app. Go to the "Transaction History" section, 
+              select the transfer you want to track, and view its current status. You'll also receive push notifications and 
+              email updates as your transfer progresses through each stage—from processing to delivery.
+            </AccordionContent>
+          </AccordionItem>
+          
+          {/* Account */}
+          <h2 className="text-xl font-semibold mb-3 text-primary-700 mt-8">Account & Security</h2>
+          
+          <AccordionItem value="account-1" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              How do I reset my password?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              To reset your password, tap "Forgot Password" on the login screen. Enter your registered email address, and we'll 
+              send you a link to reset your password. For security reasons, the link is valid for 30 minutes. If you're still 
+              having trouble, contact our customer support team for assistance.
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="account-2" className="bg-white rounded-lg shadow-sm mb-3">
+            <AccordionTrigger className="px-4 py-3 hover:bg-primary-50/50 rounded-t-lg">
+              Is my personal information secure?
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              Yes, protecting your information is our top priority. We use industry-standard encryption to secure your data 
+              both in transit and at rest. Our app supports biometric authentication (fingerprint/Face ID), and we comply with 
+              international data protection regulations. We never share your personal information with unauthorized third parties.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+      
+      {/* Still Need Help Section */}
+      <div className="mt-16 bg-primary-50 rounded-lg p-8 text-center max-w-2xl mx-auto">
+        <h2 className="text-xl font-bold mb-3">Still Need Help?</h2>
+        <p className="mb-6 text-gray-700">
+          Can't find what you're looking for? Our support team is ready to assist you.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button variant="default" onClick={() => window.location.href = '/contact'}>
+            Contact Support
+          </Button>
+          <Button variant="outline" onClick={() => window.location.href = '/support'}>
+            View Support Options
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
