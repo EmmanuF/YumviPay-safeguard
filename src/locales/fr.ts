@@ -1,4 +1,3 @@
-
 // French translations
 const frTranslations = {
   // General
@@ -102,6 +101,7 @@ const frTranslations = {
   'auth.signup': 'S\'inscrire',
   'auth.forgot': 'Mot de Passe Oublié',
   'auth.reset': 'Réinitialiser le Mot de Passe',
+  'auth.signout': "Déconnexion",
   
   // Footer
   'footer.company': 'Entreprise',

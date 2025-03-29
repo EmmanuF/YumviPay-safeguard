@@ -1,4 +1,3 @@
-
 // English translations
 const enTranslations = {
   // General
@@ -102,6 +101,7 @@ const enTranslations = {
   'auth.signup': 'Sign Up',
   'auth.forgot': 'Forgot Password',
   'auth.reset': 'Reset Password',
+  'auth.signout': "Sign Out",
   
   // Footer
   'footer.company': 'Company',
