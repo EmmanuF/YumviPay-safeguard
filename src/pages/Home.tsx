@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,11 +11,9 @@ import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { useLocale } from '@/contexts/LocaleContext';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { t } = useLocale();
   const featuresRef = useScrollAnimation();
   const howItWorksRef = useScrollAnimation();
   const countryCoverageRef = useScrollAnimation();

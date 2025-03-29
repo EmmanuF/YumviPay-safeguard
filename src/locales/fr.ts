@@ -1,3 +1,4 @@
+
 // French translations
 const frTranslations = {
   // General
@@ -36,16 +37,6 @@ const frTranslations = {
   'transaction.viewHistory': 'Voir l\'Historique',
   'transaction.goBack': 'Retour',
   'transaction.estimatedDelivery': 'Délai de Livraison Estimé',
-  'transaction.youSend': 'Vous Envoyez',
-  'transaction.theyReceive': 'Ils Reçoivent',
-  
-  // Home page specific
-  'home.welcomeBack': 'Bon retour',
-  'home.transferWithoutBoundaries': 'Transfert Sans Frontières',
-  'home.fastSecure': 'Rapide & Sécurisé',
-  'home.freeTransfers': 'Transferts Gratuits',
-  'home.getStarted': 'Commencer',
-  'home.downloadApp': 'Télécharger l\'App',
   
   // SendMoney component
   'sendMoney.title': 'Envoyer de l\'Argent',
@@ -62,7 +53,7 @@ const frTranslations = {
   'sendMoney.submitButton': 'Envoyer de l\'Argent',
   'sendMoney.initialDataTitle': 'Commençons Votre Transaction',
   'sendMoney.initialDataDescription': 'D\'abord, sélectionnez votre montant et votre devise',
-  'sendMoney.calculatorTitle': 'Calculez Votre Transfert',
+  'sendMoney.calculatorTitle': 'Calculer le Taux de Change',
   'sendMoney.calculatorDescription': 'Vérifiez combien votre destinataire recevra',
   
   // Mobile Money Specific
@@ -171,7 +162,6 @@ const frTranslations = {
   'actions.receive': 'Recevoir',
   'actions.share': 'Partager',
   'actions.download': 'Télécharger',
-  'actions.sendNow': 'Envoyer Maintenant',
 };
 
 export default frTranslations;

@@ -1,3 +1,4 @@
+
 // English translations
 const enTranslations = {
   // General
@@ -36,16 +37,6 @@ const enTranslations = {
   'transaction.viewHistory': 'View History',
   'transaction.goBack': 'Go Back',
   'transaction.estimatedDelivery': 'Estimated Delivery',
-  'transaction.youSend': 'You Send',
-  'transaction.theyReceive': 'They Receive',
-  
-  // Home page specific
-  'home.welcomeBack': 'Welcome back',
-  'home.transferWithoutBoundaries': 'Transfer Without Boundaries',
-  'home.fastSecure': 'Fast & Secure',
-  'home.freeTransfers': 'Free Transfers',
-  'home.getStarted': 'Get Started',
-  'home.downloadApp': 'Download App',
   
   // SendMoney component
   'sendMoney.title': 'Send Money',
@@ -62,7 +53,7 @@ const enTranslations = {
   'sendMoney.submitButton': 'Send Money',
   'sendMoney.initialDataTitle': 'Let\'s Start Your Transaction',
   'sendMoney.initialDataDescription': 'First, select your amount and currency',
-  'sendMoney.calculatorTitle': 'Calculate Your Transfer',
+  'sendMoney.calculatorTitle': 'Calculate Exchange Rate',
   'sendMoney.calculatorDescription': 'Check how much your recipient will receive',
   
   // Mobile Money Specific
@@ -171,7 +162,6 @@ const enTranslations = {
   'actions.receive': 'Receive',
   'actions.share': 'Share',
   'actions.download': 'Download',
-  'actions.sendNow': 'Send Now',
 };
 
 export default enTranslations;
