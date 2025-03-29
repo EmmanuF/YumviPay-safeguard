@@ -14,12 +14,6 @@ const SocialIcons: React.FC = () => {
       </h3>
       <div className="flex space-x-4">
         <SocialIcon 
-          href="https://twitter.com/yumvipay"
-          label="Twitter"
-          icon={<Twitter className="h-4 w-4" />}
-        />
-        
-        <SocialIcon 
           href="https://www.facebook.com/profile.php?id=61555276198526"
           label="Facebook"
           icon={<Facebook className="h-4 w-4" />}
@@ -29,6 +23,12 @@ const SocialIcons: React.FC = () => {
           href="https://www.instagram.com/yumvi_pay/"
           label="Instagram"
           icon={<Instagram className="h-4 w-4" />}
+        />
+        
+        <SocialIcon 
+          href="https://twitter.com/yumvipay"
+          label="Twitter"
+          icon={<Twitter className="h-4 w-4" />}
         />
         
         <SocialIcon 
