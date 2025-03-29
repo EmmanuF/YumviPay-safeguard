@@ -41,11 +41,11 @@ const LogoutButton: React.FC = () => {
     <Button 
       variant="outline"
       size="icon"
-      className="fixed bottom-8 left-8 z-50 rounded-full bg-white/80 backdrop-blur-sm shadow-md border border-gray-200 hover:bg-primary-50"
+      className="fixed bottom-8 left-8 z-50 rounded-full bg-destructive/90 backdrop-blur-sm shadow-md border border-destructive/70 hover:bg-destructive"
       onClick={handleLogout}
       title="Logout"
     >
-      <LogOut className="h-5 w-5 text-primary" />
+      <LogOut className="h-5 w-5 text-white" />
     </Button>
   );
 };
