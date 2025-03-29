@@ -1,13 +1,10 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
-
 const Press = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Press & Media | Yumvi-Pay</title>
         <meta name="description" content="Yumvi-Pay press releases, media kit, and company news." />
@@ -63,10 +60,7 @@ const Press = () => {
             <CardDescription>August 3, 2023</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 mb-4">
-              Yumvi-Pay has secured $2.5 million in seed funding to expand its operations across multiple African countries,
-              with plans to launch in Senegal, Nigeria, and Ghana by Q4 2023.
-            </p>
+            <p className="text-gray-700 mb-4">Yumvi-Pay is working on expanding its operations across multiple African countries, with plans to launch in Senegal, Nigeria, and Ghana by Q4 2025.</p>
             <Button variant="link" className="px-0">Read full press release →</Button>
           </CardContent>
         </Card>
@@ -81,8 +75,6 @@ const Press = () => {
           <a href="mailto:press@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">press@yumvi-pay.com</a>
         </p>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Press;
