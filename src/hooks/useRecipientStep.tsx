@@ -24,8 +24,9 @@ export const formSchema = z.object({
       message: "You must confirm the recipient name matches their official ID"
     })
 }).refine((data) => {
-  const phone1 = data.recipientContact.replace(/\s+/g, '');
-  const phone2 = data.confirmRecipientContact.replace(/\s+/g, '');
+  // Remove spaces, dashes, and other formatting before comparing
+  const phone1 = data.recipientContact.replace(/[\s\-\(\)]/g, '');
+  const phone2 = data.confirmRecipientContact.replace(/[\s\-\(\)]/g, '');
   return phone1 === phone2;
 }, {
   message: "Phone numbers do not match",
@@ -67,6 +68,12 @@ export const useRecipientStep = ({
     mode: "onChange"
   });
 
+  // Add debug logging to monitor form state
+  useEffect(() => {
+    console.log("Form initialized with values:", form.getValues());
+    console.log("Transaction data:", transactionData);
+  }, []);
+
   useEffect(() => {
     form.setValue('countryCode', selectedCountry);
   }, [selectedCountry, form]);
@@ -81,7 +88,9 @@ export const useRecipientStep = ({
     
     if (!cleaned.startsWith('+')) {
       const countryCallingCode = getCountryCallingCode(countryCode);
-      cleaned = countryCallingCode + cleaned;
+      if (!cleaned.includes(countryCallingCode.replace('+', ''))) {
+        cleaned = countryCallingCode + cleaned;
+      }
     }
     
     const formatted = formatByCountry(cleaned, countryCode);
@@ -202,20 +211,60 @@ export const useRecipientStep = ({
     console.log("Next button clicked in RecipientStep with data:", form.getValues());
     
     const nameConfirmed = form.getValues('nameMatchConfirmed');
+    const phoneMatch = form.getValues('recipientContact') === form.getValues('confirmRecipientContact');
+    
     if (!nameConfirmed) {
       setShowNameMatchError(true);
       form.setError('nameMatchConfirmed', { 
         type: 'manual', 
         message: 'You must confirm the recipient details are correct'
       });
+      return;
+    }
+    
+    if (!phoneMatch) {
+      form.setError('confirmRecipientContact', { 
+        type: 'manual', 
+        message: 'Phone numbers do not match'
+      });
+      return;
     }
     
     form.trigger().then(isValid => {
       console.log("Form validation result:", isValid);
       if (isValid) {
-        form.handleSubmit(onSubmit)();
+        const formValues = form.getValues();
+        console.log("Submitting form with values:", formValues);
+        
+        onSubmit(formValues);
       } else {
         console.log("Form validation failed, not submitting");
+        console.log("Form errors:", form.formState.errors);
+        
+        // Identify and display specific validation errors
+        if (form.formState.errors.recipientName) {
+          toast({
+            title: "Invalid recipient name",
+            description: form.formState.errors.recipientName.message,
+            variant: "destructive"
+          });
+        }
+        
+        if (form.formState.errors.recipientContact) {
+          toast({
+            title: "Invalid phone number",
+            description: form.formState.errors.recipientContact.message,
+            variant: "destructive"
+          });
+        }
+        
+        if (form.formState.errors.confirmRecipientContact) {
+          toast({
+            title: "Phone confirmation error",
+            description: form.formState.errors.confirmRecipientContact.message,
+            variant: "destructive"
+          });
+        }
       }
     });
   };

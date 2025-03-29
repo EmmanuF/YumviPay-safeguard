@@ -21,14 +21,14 @@ const RecipientNameInput: React.FC<RecipientNameInputProps> = ({
   return (
     <div className="mb-4">
       <Label htmlFor="recipientName" className="text-sm font-medium mb-2 block">
-        {t('transaction.recipient') || "Recipient Name"}
+        {t('transaction.recipient') || "Recipient Name"} <span className="text-red-500">*</span>
       </Label>
       <Input
         id="recipientName"
-        placeholder={t('transaction.recipient') || "Enter recipient's full name"}
+        placeholder={t('transaction.recipient') || "Enter recipient's full name as it appears on their government ID"}
         value={recipientName}
         onChange={(e) => onRecipientNameChange(e.target.value)}
-        className="w-full"
+        className="w-full placeholder:text-gray-400"
       />
       <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 rounded-md">
         <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />

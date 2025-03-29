@@ -54,6 +54,19 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
             formatPhoneNumber={formatPhoneNumber}
           />
           
+          <PhoneNumberField
+            fieldName="confirmRecipientContact"
+            label="Confirm Phone Number"
+            description="Please re-enter the phone number to confirm"
+            selectedCountry={selectedCountry}
+            getCountryName={getCountryName}
+            getPhoneNumberPlaceholder={getPhoneNumberPlaceholder}
+            getPhoneMaxLength={getPhoneMaxLength}
+            getCountryCallingCode={getCountryCallingCode}
+            formatPhoneNumber={formatPhoneNumber}
+            showPopover={false}
+          />
+          
           <NameMatchConfirmation
             isChecked={nameMatchConfirmed}
             onCheckedChange={handleNameMatchChange}

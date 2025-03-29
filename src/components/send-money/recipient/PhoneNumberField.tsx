@@ -33,6 +33,7 @@ export const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
   showPopover = true
 }) => {
   const form = useFormContext();
+  const isConfirmField = fieldName === "confirmRecipientContact";
   
   return (
     <FormField
@@ -69,13 +70,25 @@ export const PhoneNumberField: React.FC<PhoneNumberFieldProps> = ({
             <FormControl>
               <div className="relative mt-1">
                 <Input 
-                  placeholder={selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
+                  placeholder={isConfirmField ? form.getValues('recipientContact') || getPhoneNumberPlaceholder(selectedCountry) : selectedCountry === 'CM' ? "+237 6" : getPhoneNumberPlaceholder(selectedCountry)}
                   className="pl-4 form-control-modern h-14 text-base bg-white border-secondary-100/50 focus-visible:ring-secondary-400/30 transition-all duration-200"
                   maxLength={getPhoneMaxLength(selectedCountry)}
                   {...field} 
                   onChange={(e) => {
                     const formatted = formatPhoneNumber(e.target.value, selectedCountry);
                     field.onChange(formatted);
+                    
+                    if (isConfirmField) {
+                      const mainPhone = form.getValues('recipientContact');
+                      if (mainPhone && formatted && mainPhone !== formatted) {
+                        form.setError(fieldName, { 
+                          type: 'manual', 
+                          message: 'Phone numbers do not match'
+                        });
+                      } else {
+                        form.clearErrors(fieldName);
+                      }
+                    }
                   }}
                 />
                 
