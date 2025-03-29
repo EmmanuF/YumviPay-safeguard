@@ -16,3 +16,5 @@ export { default as ReferralLink } from './ReferralLink';
 export { default as SecuritySettings } from './SecuritySettings';
 export { default as TransactionLimits } from './TransactionLimits';
 export { default as TransactionPinSettings } from './TransactionPinSettings';
+export { default as AccountDeletion } from './AccountDeletion';
+export { default as CloseAccountDialog } from './CloseAccountDialog';

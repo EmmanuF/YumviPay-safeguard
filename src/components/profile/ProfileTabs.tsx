@@ -9,7 +9,8 @@ import {
   NotificationSettings,
   CountryPreferences,
   TransactionLimits,
-  ReferralLink
+  ReferralLink,
+  AccountDeletion
 } from '@/components/profile';
 
 interface ProfileTabsProps {
@@ -55,6 +56,9 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
           
           {/* Add Referral Link in the Account tab */}
           <ReferralLink />
+          
+          {/* Add Account Deletion at the bottom of the Account tab */}
+          <AccountDeletion />
         </Card>
       </TabsContent>
       
