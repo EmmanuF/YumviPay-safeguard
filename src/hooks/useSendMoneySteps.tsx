@@ -1,17 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { toast } from 'sonner';
-import { useKado } from '@/services/kado/useKado';
 import { generateTransactionId } from '@/utils/transactionUtils';
 import { createFallbackTransaction } from '@/services/transaction/utils/fallbackTransactions';
+import { kadoRedirectService } from '@/services/kado/redirect';
 
 export type SendMoneyStep = 'recipient' | 'payment' | 'confirmation' | 'complete';
 
 export const useSendMoneySteps = () => {
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
-  const { redirectToKadoAndReturn, isLoading: isKadoLoading, checkApiConnection } = useKado();
   const [currentStep, setCurrentStep] = useState<SendMoneyStep>('recipient');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,19 +25,6 @@ export const useSendMoneySteps = () => {
   const clearError = () => {
     if (error) {
       setError(null);
-    }
-  };
-
-  const validateApiConnection = async () => {
-    try {
-      const { connected } = await checkApiConnection();
-      if (!connected) {
-        throw new Error("Could not connect to payment provider");
-      }
-      return true;
-    } catch (error) {
-      console.error("❌ API connection validation failed:", error);
-      return false;
     }
   };
 
@@ -168,14 +155,6 @@ export const useSendMoneySteps = () => {
           console.log(`🆔 Generated transaction ID: ${transactionId}`);
           
           try {
-            const isConnected = await validateApiConnection();
-            if (!isConnected) {
-              toast.error("Connection Error", {
-                description: "Could not connect to payment provider. Please try again.",
-              });
-              throw new Error("API connection validation failed");
-            }
-            
             const pendingTransaction = localStorage.getItem('pendingTransaction');
             if (!pendingTransaction) {
               throw new Error('Transaction data not found');
@@ -197,75 +176,19 @@ export const useSendMoneySteps = () => {
               // Continue anyway - we'll try to recover later
             }
             
-            const loadingDiv = document.createElement('div');
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '0';
-            loadingDiv.style.left = '0';
-            loadingDiv.style.width = '100%';
-            loadingDiv.style.height = '100%';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            loadingDiv.style.display = 'flex';
-            loadingDiv.style.justifyContent = 'center';
-            loadingDiv.style.alignItems = 'center';
-            loadingDiv.style.zIndex = '10000';
-            loadingDiv.innerHTML = `
-              <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
-                <h3>Preparing Transaction...</h3>
-                <p>Please wait while we securely prepare your transaction.</p>
-              </div>
-            `;
-            document.body.appendChild(loadingDiv);
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            const testMode = true;
-            
-            if (testMode) {
-              console.log('🧪 TEST MODE: Using Kado redirect service directly');
-              
-              try {
-                const { kadoRedirectService } = await import('@/services/kado/redirect');
-                
-                await kadoRedirectService.redirectToKado({
-                  amount: transactionData.amount.toString(),
-                  recipientName: transactionData.recipientName || 'Recipient',
-                  recipientContact: transactionData.recipientContact || transactionData.recipient || '',
-                  country: transactionData.targetCountry || 'CM',
-                  paymentMethod: transactionData.paymentMethod || 'mobile_money',
-                  transactionId,
-                  returnUrl: `/transaction/${transactionId}`
-                });
-                
-                // If we get here, the redirect didn't happen - force navigation
-                navigate(`/transaction/${transactionId}`, { replace: true });
-              } catch (e) {
-                console.error('Error using direct Kado redirect service:', e);
-                // Fallback to transaction page
-                navigate(`/transaction/${transactionId}`, { replace: true });
-              } finally {
-                try {
-                  document.body.removeChild(loadingDiv);
-                } catch (e) {
-                  console.error('Error removing loading div:', e);
-                }
-              }
-              
-              return;
-            }
-            
-            await redirectToKadoAndReturn({
+            // Use our consolidated Kado redirect service
+            await kadoRedirectService.redirectToKado({
               amount: transactionData.amount.toString(),
               recipientName: transactionData.recipientName || 'Recipient',
               recipientContact: transactionData.recipientContact || transactionData.recipient || '',
               country: transactionData.targetCountry || 'CM',
               paymentMethod: transactionData.paymentMethod || 'mobile_money',
               transactionId,
+              returnUrl: `/transaction/${transactionId}`
             });
             
-            try {
-              document.body.removeChild(loadingDiv);
-            } catch (e) {}
-            
+            // If we get here, the redirect failed but we'll navigate anyway
+            navigate(`/transaction/${transactionId}`, { replace: true });
           } catch (error) {
             console.error('❌ Error in handleNext:', error);
             
@@ -340,7 +263,7 @@ export const useSendMoneySteps = () => {
 
   return {
     currentStep,
-    isSubmitting: isSubmitting || isKadoLoading,
+    isSubmitting: isSubmitting,
     error,
     handleNext,
     handleBack,

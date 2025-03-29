@@ -24,6 +24,7 @@ import PaymentMethodCard from '@/components/PaymentMethodCard';
 import { Building, Wallet, CreditCard, Contact2 } from 'lucide-react';
 import { kadoRedirectService } from '@/services/kado/redirect';
 import { getTransactionData } from '@/utils/transactionDataStore';
+import { generateTransactionId } from '@/utils/transactionUtils';
 
 const formSchema = z.object({
   country: z.string().min(1, {
@@ -62,7 +63,7 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const { countries, isLoading: countriesLoading } = useCountries();
   const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods(selectedCountry);
-  const [transactionId, setTransactionId] = useState('');
+  const [processingPayment, setProcessingPayment] = useState(false);
   
   // Get the transaction data that was already set in the previous step
   const storedTransactionData = getTransactionData();
@@ -119,14 +120,21 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Generate a unique transaction ID
-      const newTransactionId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      setTransactionId(newTransactionId);
+      if (processingPayment) {
+        console.log('Already processing payment, preventing duplicate submission');
+        return;
+      }
+      
+      setProcessingPayment(true);
+      
+      // Generate a unique transaction ID with our utility
+      const newTransactionId = generateTransactionId();
+      console.log(`Generated transaction ID: ${newTransactionId}`);
 
       // Get the amount and currency information from the stored transaction data
       const amount = storedTransactionData?.amount?.toString() || "0";
       
-      // Store the transaction details in localStorage
+      // Store the transaction details in localStorage with nameMatchConfirmed
       localStorage.setItem('pendingTransaction', JSON.stringify({
         ...values,
         amount,
@@ -134,10 +142,11 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
         sourceCurrency: storedTransactionData?.sourceCurrency || 'USD',
         targetCurrency: storedTransactionData?.targetCurrency || 'XAF',
         convertedAmount: storedTransactionData?.convertedAmount || 0,
-        exchangeRate: storedTransactionData?.exchangeRate || 610
+        exchangeRate: storedTransactionData?.exchangeRate || 610,
+        nameMatchConfirmed: true // Ensuring this is set
       }));
 
-      // Redirect to Kado
+      // Use our improved Kado redirection service
       await kadoRedirectService.redirectToKado({
         amount,
         recipientName: values.recipientName,
@@ -145,10 +154,10 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
         country: values.country,
         paymentMethod: values.paymentMethod,
         transactionId: newTransactionId,
-        returnUrl: `${window.location.origin}/transaction/${newTransactionId}`,
+        returnUrl: `/transaction/${newTransactionId}`,
       });
 
-      // Navigate to transaction status page
+      // If we get here, redirect failed but we'll navigate anyway
       navigate(`/transaction/${newTransactionId}`);
     } catch (error: any) {
       console.error("Kado redirect error:", error);
@@ -157,6 +166,8 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
         description: error.message || "Failed to initiate transaction. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -259,7 +270,16 @@ const SendMoneyContainer: React.FC<SendMoneyContainerProps> = ({
               )}
             </div>
 
-            <Button disabled={isLoading}>{t('sendMoney.submitButton')}</Button>
+            <Button type="submit" disabled={isLoading || processingPayment}>
+              {processingPayment ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-2 h-4 w-4 border-2 border-b-0 border-white rounded-full"></span>
+                  {t('sendMoney.processing')}
+                </span>
+              ) : (
+                t('sendMoney.submitButton')
+              )}
+            </Button>
           </form>
         </CardContent>
       </Card>

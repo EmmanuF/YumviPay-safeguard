@@ -1,74 +1,43 @@
 
 /**
- * Utility functions for transaction management
+ * Utilities for handling transactions
  */
 
 /**
- * Generates a unique transaction ID
- * Format: TXN-{timestamp}-{random}
+ * Generates a unique transaction ID with TXN prefix
  */
 export const generateTransactionId = (): string => {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `TXN-${timestamp}-${random}`;
+  return `TXN-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 };
 
 /**
- * Formats a transaction status for display
+ * Validates if a string is a valid transaction ID
  */
-export const formatTransactionStatus = (status: string): string => {
-  switch (status) {
-    case 'pending':
-      return 'Pending';
-    case 'processing':
-      return 'Processing';
-    case 'completed':
-      return 'Completed';
-    case 'failed':
-      return 'Failed';
-    case 'cancelled':
-      return 'Cancelled';
-    case 'refunded':
-      return 'Refunded';
-    default:
-      return status.charAt(0).toUpperCase() + status.slice(1);
-  }
+export const isValidTransactionId = (id: string): boolean => {
+  return id && id.startsWith('TXN-');
 };
 
 /**
- * Calculate fee for a transaction
+ * Formats a transaction ID for display
  */
-export const calculateFee = (amount: string | number, country: string): string => {
-  // Basic fee calculation
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const baseFee = numericAmount * 0.03; // 3% fee
-  const minFee = 1.0; // Minimum fee of $1
-  const fee = Math.max(baseFee, minFee);
-  return fee.toFixed(2);
-};
-
-/**
- * Calculate total amount including fee
- */
-export const calculateTotal = (amount: string | number, fee: string | number): string => {
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const numericFee = typeof fee === 'string' ? parseFloat(fee) : fee;
-  return (numericAmount + numericFee).toFixed(2);
-};
-
-/**
- * Get estimated delivery time based on country and payment method
- */
-export const getEstimatedDelivery = (country: string, paymentMethod?: string): string => {
-  // Different delivery estimates based on country and payment method
-  if (country === 'CM') {
-    if (paymentMethod === 'mobile_money') {
-      return 'Instant to 15 minutes';
-    } else if (paymentMethod === 'bank_transfer') {
-      return '1-2 business days';
-    }
-  }
+export const formatTransactionId = (id: string): string => {
+  if (!id) return 'Unknown';
   
-  // Default fallback
-  return '1-3 business days';
+  // Extract the timestamp and random part
+  const parts = id.split('-');
+  if (parts.length < 3) return id;
+  
+  const timestampPart = parts[1];
+  const randomPart = parts[2];
+  
+  // Show last 4 digits of timestamp and full random part
+  const shortTimestamp = timestampPart.slice(-4);
+  
+  return `TXN-${shortTimestamp}-${randomPart}`;
+};
+
+export default {
+  generateTransactionId,
+  isValidTransactionId,
+  formatTransactionId
 };

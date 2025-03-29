@@ -6,6 +6,7 @@
 import { navigate } from '@/utils/navigationUtils';
 import { createFallbackTransaction } from '@/services/transaction/utils/fallbackTransactions';
 import { toast } from 'sonner';
+import { isPlatform } from '@/utils/platformUtils';
 
 interface KadoRedirectParams {
   amount: string;
@@ -17,22 +18,25 @@ interface KadoRedirectParams {
   returnUrl?: string;
 }
 
-// Kado integration constants - Now using environment variable
+// Kado integration constants
 const KADO_BASE_URL = 'https://api.kado.money';
 const KADO_REDIRECT_URL = `${KADO_BASE_URL}/v1/payments/redirect`;
 const KADO_TEST_MODE = true; // Set to false in production
 
 /**
- * Redirects user to Kado for payment processing
+ * Redirects user to Kado for payment processing with improved reliability
  */
 const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
   try {
     console.log('📤 Redirecting to Kado with params:', params);
     
-    // Store transaction data immediately for resilience
+    // Create a reliable transaction ID
+    const transactionId = params.transactionId;
+    
+    // Store transaction data immediately for resilience in multiple locations
     try {
       const transactionData = {
-        id: params.transactionId,
+        id: transactionId,
         amount: params.amount,
         recipientName: params.recipientName,
         recipientContact: params.recipientContact,
@@ -44,31 +48,29 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
         estimatedDelivery: 'Processing'
       };
       
-      localStorage.setItem(`transaction_${params.transactionId}`, JSON.stringify(transactionData));
-      localStorage.setItem(`transaction_backup_${params.transactionId}`, JSON.stringify(transactionData));
-      console.log(`💾 Pre-stored transaction data for ID: ${params.transactionId}`);
+      // Store in multiple locations for redundancy
+      localStorage.setItem(`transaction_${transactionId}`, JSON.stringify(transactionData));
+      localStorage.setItem(`transaction_backup_${transactionId}`, JSON.stringify(transactionData));
+      localStorage.setItem(`kado_transaction_${transactionId}`, JSON.stringify(params));
+      sessionStorage.setItem(`transaction_session_${transactionId}`, JSON.stringify(transactionData));
+      
+      console.log(`💾 Pre-stored transaction data for ID: ${transactionId}`);
     } catch (e) {
       console.error('❌ Error pre-storing transaction data:', e);
     }
     
+    // Show visual feedback to the user
+    toast.success("Processing Payment", {
+      description: "Preparing your transaction..."
+    });
+    
+    // Create a fallback transaction right away to ensure it exists
+    const fallbackTransaction = createFallbackTransaction(transactionId);
+    console.log('✅ Created fallback transaction during redirect:', fallbackTransaction);
+    
     // In test mode, simulate successful redirection
     if (KADO_TEST_MODE) {
       console.log('🧪 TEST MODE: Simulating Kado redirection');
-      
-      // Store transaction data for later retrieval with more fields
-      localStorage.setItem(`kado_transaction_${params.transactionId}`, JSON.stringify({
-        ...params,
-        status: 'pending',
-        timestamp: new Date().toISOString()
-      }));
-      
-      // Create a fallback transaction right away to ensure it exists
-      const fallbackTransaction = createFallbackTransaction(params.transactionId);
-      console.log('✅ Created fallback transaction during redirect:', fallbackTransaction);
-      
-      toast.success("Processing Payment", {
-        description: "Redirecting to payment processor..."
-      });
       
       // Better visual feedback during transition
       const loadingDiv = document.createElement('div');
@@ -99,19 +101,32 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
         console.error('Error removing loading div:', e);
       }
       
-      const returnUrl = params.returnUrl || `/transaction/${params.transactionId}`;
-      console.log(`🔄 Redirecting to return URL: ${returnUrl}`);
+      // Calculate return URL with fallbacks
+      const returnUrl = params.returnUrl || `/transaction/${transactionId}`;
+      const fullReturnUrl = returnUrl.startsWith('/') ? returnUrl : `/${returnUrl}`;
+      console.log(`🔄 Redirecting to return URL: ${fullReturnUrl}`);
       
-      // Use navigate utility to handle the redirect
-      navigate(returnUrl);
+      // Use platform-aware navigation
+      if (isPlatform('mobile')) {
+        // For mobile apps, ensure deep linking works
+        try {
+          const { App } = await import('@capacitor/app');
+          App.openUrl({ url: `${window.location.origin}${fullReturnUrl}` });
+        } catch (e) {
+          console.error('Error using Capacitor App.openUrl:', e);
+          navigate(fullReturnUrl);
+        }
+      } else {
+        // For web, use the navigate utility
+        navigate(fullReturnUrl);
+      }
       
-      // Simulate a webhook call 3 seconds later - FIXED: only pass transactionId
+      // Simulate a webhook call after navigation
       setTimeout(() => {
         try {
           // Import the transaction service dynamically to avoid circular dependencies
           import('@/services/transaction').then(module => {
-            // Properly call simulateWebhook with just the transaction ID
-            module.simulateWebhook(params.transactionId)
+            module.simulateWebhook(transactionId)
               .catch(e => console.error('Webhook simulation error:', e));
           });
         } catch (e) {
@@ -122,6 +137,8 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       return;
     }
     
+    // Real implementation for production
+    
     // Build the redirect URL with query parameters
     const queryParams = new URLSearchParams({
       amount: params.amount,
@@ -129,8 +146,8 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
       recipient_contact: params.recipientContact,
       country: params.country,
       payment_method: params.paymentMethod,
-      transaction_id: params.transactionId,
-      return_url: params.returnUrl || `${window.location.origin}/transaction/${params.transactionId}`,
+      transaction_id: transactionId,
+      return_url: params.returnUrl || `${window.location.origin}/transaction/${transactionId}`,
       // Add widget ID from environment variables
       api_key: import.meta.env.VITE_KADO_WIDGET_ID || ''
     });
@@ -138,8 +155,19 @@ const redirectToKado = async (params: KadoRedirectParams): Promise<void> => {
     const redirectUrl = `${KADO_REDIRECT_URL}?${queryParams.toString()}`;
     console.log(`🔄 Redirecting to Kado URL: ${redirectUrl}`);
     
-    // Perform the actual redirect
-    window.location.href = redirectUrl;
+    // Perform the actual redirect - different for mobile vs web
+    if (isPlatform('mobile')) {
+      try {
+        const { Browser } = await import('@capacitor/browser');
+        await Browser.open({ url: redirectUrl });
+      } catch (e) {
+        console.error('Error opening browser:', e);
+        window.location.href = redirectUrl;
+      }
+    } else {
+      // Standard web redirect
+      window.location.href = redirectUrl;
+    }
   } catch (error) {
     console.error('❌ Error redirecting to Kado:', error);
     

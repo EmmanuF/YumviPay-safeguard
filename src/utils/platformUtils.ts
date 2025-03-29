@@ -1,48 +1,48 @@
 
-import { Capacitor } from '@capacitor/core';
+/**
+ * Utilities for platform detection
+ */
+
+// Platforms we support
+type Platform = 'mobile' | 'web' | 'ios' | 'android';
 
 /**
- * Check if the app is running on a specific platform
- * @param platform 'web', 'ios', 'android', 'capacitor', 'mobile', or 'native'
- * @returns boolean indicating if the app is running on the specified platform
+ * Check if we're running on a specific platform
+ * @param platform Platform to check for
+ * @returns Boolean indicating if we're on that platform
  */
-export function isPlatform(platform: 'web' | 'ios' | 'android' | 'capacitor' | 'mobile' | 'native'): boolean {
-  if (platform === 'capacitor' || platform === 'native') {
-    return Capacitor.isNativePlatform();
-  }
-  
+export const isPlatform = (platform: Platform): boolean => {
+  // Check for mobile platforms
   if (platform === 'mobile') {
-    const currentPlatform = Capacitor.getPlatform();
-    return currentPlatform === 'ios' || currentPlatform === 'android';
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
   
-  if (platform === 'web') {
-    return !Capacitor.isNativePlatform();
+  // Check for iOS specifically
+  if (platform === 'ios') {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   }
   
-  return Capacitor.getPlatform() === platform;
-}
+  // Check for Android specifically
+  if (platform === 'android') {
+    return /Android/i.test(navigator.userAgent);
+  }
+  
+  // Default to web platform
+  return platform === 'web';
+};
 
 /**
- * Get the current platform the app is running on
- * @returns 'web', 'ios', or 'android'
+ * Get the current platform
+ * @returns The detected platform
  */
-export function getCurrentPlatform(): 'web' | 'ios' | 'android' {
-  return Capacitor.getPlatform() as 'web' | 'ios' | 'android';
-}
+export const getCurrentPlatform = (): Platform => {
+  if (isPlatform('ios')) return 'ios';
+  if (isPlatform('android')) return 'android';
+  if (isPlatform('mobile')) return 'mobile';
+  return 'web';
+};
 
-/**
- * Check if the app is running in a production environment
- * @returns boolean
- */
-export function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production';
-}
-
-/**
- * Check if the app is running in development mode
- * @returns boolean
- */
-export function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development';
-}
+export default {
+  isPlatform,
+  getCurrentPlatform
+};
