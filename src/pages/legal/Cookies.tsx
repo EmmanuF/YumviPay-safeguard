@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
 const Cookies = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Cookie Policy | Yumvi-Pay</title>
         <meta name="description" content="Learn about how Yumvi-Pay uses cookies and similar technologies." />
@@ -80,14 +77,10 @@ const Cookies = () => {
           <h2 className="text-xl font-semibold mb-4 text-primary-600">Contact Us</h2>
           <p>
             If you have any questions about our use of cookies or other technologies, please contact us at{' '}
-            <a href="mailto:privacy@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
-              privacy@yumvi-pay.com
-            </a>
+            <a href="mailto:privacy@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">support@yumvipay.com</a>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Cookies;
