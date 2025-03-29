@@ -25,7 +25,6 @@ const Profile = () => {
     setEditDialogOpen,
     editField,
     editValue,
-    handleLogout,
     openEditDialog,
     handleEditValueChange,
     saveChanges
@@ -67,7 +66,7 @@ const Profile = () => {
                 onResetNotifications={handleResetNotifications}
               />
               
-              <LogoutButton onLogout={handleLogout} />
+              <LogoutButton />
             </motion.div>
           )}
         </main>

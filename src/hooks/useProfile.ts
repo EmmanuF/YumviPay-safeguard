@@ -50,42 +50,6 @@ export const useProfile = () => {
     initializeProfile();
   }, [authUser, isLoggedIn, navigate]);
 
-  const handleLogout = async () => {
-    try {
-      // Create a loading toast
-      const loadingToast = toast({
-        title: "Logging out...",
-        variant: "default"
-      });
-      
-      try {
-        const { signOut } = useAuth();
-        await signOut();
-        
-        // Dismiss the loading toast and show success
-        loadingToast.dismiss();
-        toast({
-          title: "Success",
-          description: "Logged out successfully",
-          variant: "success"
-        });
-        
-        navigate('/');
-      } catch (error) {
-        // Dismiss the loading toast and show error
-        loadingToast.dismiss();
-        toast({
-          title: "Error",
-          description: "Failed to log out",
-          variant: "destructive"
-        });
-        console.error('Error logging out:', error);
-      }
-    } catch (error) {
-      console.error('Error during logout process:', error);
-    }
-  };
-
   const openEditDialog = (field: string, value: string) => {
     setEditField(field);
     setEditValue(value);
@@ -115,7 +79,6 @@ export const useProfile = () => {
     setEditDialogOpen,
     editField,
     editValue,
-    handleLogout,
     openEditDialog,
     handleEditValueChange,
     saveChanges
