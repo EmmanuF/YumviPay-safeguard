@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
 const Security = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Security | Yumvi-Pay</title>
         <meta name="description" content="Learn about Yumvi-Pay's security measures and how we protect your data and transactions." />
@@ -58,14 +55,10 @@ const Security = () => {
           <h2 className="text-xl font-semibold mb-4 text-primary-600">Reporting Security Concerns</h2>
           <p>
             If you notice any suspicious activity or have security concerns, please contact our security team immediately at{' '}
-            <a href="mailto:security@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">
-              security@yumvi-pay.com
-            </a>
+            <a href="mailto:security@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">support@yumvipay.com</a>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Security;
