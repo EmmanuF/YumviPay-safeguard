@@ -23,5 +23,5 @@ export {
 // Re-export transaction creation with renamed exports to avoid conflicts
 export {
   createStoredTransaction,
-  createTransaction as createLocalTransaction
+  createTransaction
 } from './transactionCreation';

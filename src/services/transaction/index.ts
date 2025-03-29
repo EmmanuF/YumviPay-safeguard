@@ -12,8 +12,8 @@ export {
   clearTransactionsStore,
   getStoredTransactions,
   createStoredTransaction,
-  createLocalTransaction
-} from './store';
+  createTransaction
+} from './store/index';
 
 export * from './utils/fallbackTransactions';
 export * from './transactionRetrieve';
@@ -32,4 +32,4 @@ export {
 } from './retrieval/allTransactions';
 
 // Explicitly re-export from create module with a clear name to avoid ambiguity
-export { createTransaction } from './create/index';
+export { createTransaction as createTransactionInDB } from './create/index';
