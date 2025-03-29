@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
 const Careers = () => {
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Careers | Yumvi-Pay</title>
         <meta name="description" content="Join our team at Yumvi-Pay and be part of revolutionizing money transfers to Africa." />
@@ -45,12 +42,10 @@ const Careers = () => {
           </p>
           <p>
             If you're passionate about fintech, mobile technology, and making a difference in Africa, 
-            send your resume to <a href="mailto:careers@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">careers@yumvi-pay.com</a>.
+            send your resume to <a href="mailto:careers@yumvi-pay.com" className="text-primary-600 hover:text-primary-700">careers@yumvipay.com</a>.
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Careers;
