@@ -11,7 +11,8 @@ export {
   updateOfflineTransaction,
   clearTransactionsStore,
   getStoredTransactions,
-  createStoredTransaction
+  createStoredTransaction,
+  createLocalTransaction
 } from './store';
 
 export * from './utils/fallbackTransactions';

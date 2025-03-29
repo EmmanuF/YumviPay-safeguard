@@ -20,7 +20,8 @@ export {
   getStoredTransactions
 } from './storageOperations';
 
-// Re-export transaction creation with a renamed export to avoid conflicts
+// Re-export transaction creation with renamed exports to avoid conflicts
 export {
-  createTransaction as createStoredTransaction
+  createStoredTransaction,
+  createTransaction as createLocalTransaction
 } from './transactionCreation';

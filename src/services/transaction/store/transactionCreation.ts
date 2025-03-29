@@ -3,8 +3,8 @@ import { Transaction } from "@/types/transaction";
 import { generateTransactionId } from "@/utils/transactionUtils";
 import { addOfflineTransaction } from './storageOperations';
 
-// Create a new transaction with unique ID
-export const createTransaction = (partial: Partial<Transaction>): Transaction => {
+// Create a new transaction with unique ID - renamed for clarity
+export const createStoredTransaction = (partial: Partial<Transaction>): Transaction => {
   const id = partial.id || generateTransactionId();
   
   const transaction: Transaction = {
@@ -27,3 +27,6 @@ export const createTransaction = (partial: Partial<Transaction>): Transaction =>
   addOfflineTransaction(transaction);
   return transaction;
 };
+
+// Also export the same function with the original name for backward compatibility
+export const createTransaction = createStoredTransaction;
