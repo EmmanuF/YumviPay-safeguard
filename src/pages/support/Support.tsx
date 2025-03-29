@@ -1,19 +1,10 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { 
-  MessageCircle, 
-  Phone, 
-  Mail, 
-  HelpCircle,
-  FileText,
-  Video
-} from 'lucide-react';
-
+import { MessageCircle, Phone, Mail, HelpCircle, FileText, Video } from 'lucide-react';
 const Support = () => {
   const navigate = useNavigate();
 
@@ -23,19 +14,15 @@ const Support = () => {
       description: 'This feature would connect to a live chat service in the production app.'
     });
   };
-
   const handleCallSupport = () => {
     // In a native app, this would use Capacitor to open the phone app
     window.location.href = 'tel:+18005551234';
     toast.info('Dialing support number...');
   };
-
   const navigateTo = (path: string) => {
     navigate(path);
   };
-
-  return (
-    <div className="container mx-auto px-4 py-12">
+  return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>Support | Yumvi-Pay</title>
         <meta name="description" content="Get help and support for your Yumvi-Pay account and transactions." />
@@ -84,9 +71,7 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Call us Monday through Friday, 9am - 5pm UTC. Our support agents speak English and French.
             </p>
-            <Button variant="outline" className="w-full" onClick={handleCallSupport}>
-              +1 (800) 555-1234
-            </Button>
+            <Button variant="outline" className="w-full" onClick={handleCallSupport}>+1 (832) 265-7907</Button>
           </CardContent>
         </Card>
         
@@ -146,13 +131,9 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Detailed guides to help you navigate our app, send money, manage recipients, and customize your account settings.
             </p>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => toast.info('User guides will be available soon', {
-                description: 'We\'re currently developing comprehensive user guides for the app.'
-              })}
-            >
+            <Button variant="outline" className="w-full" onClick={() => toast.info('User guides will be available soon', {
+            description: 'We\'re currently developing comprehensive user guides for the app.'
+          })}>
               View Guides
             </Button>
           </CardContent>
@@ -171,20 +152,14 @@ const Support = () => {
             <p className="text-sm text-gray-700 mb-4">
               Visual walkthroughs of key features and processes in our mobile app. Perfect for visual learners.
             </p>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => toast.info('Video tutorials coming soon', {
-                description: 'Our team is creating video tutorials to help you get the most out of Yumvi-Pay.'
-              })}
-            >
+            <Button variant="outline" className="w-full" onClick={() => toast.info('Video tutorials coming soon', {
+            description: 'Our team is creating video tutorials to help you get the most out of Yumvi-Pay.'
+          })}>
               Watch Videos
             </Button>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Support;
