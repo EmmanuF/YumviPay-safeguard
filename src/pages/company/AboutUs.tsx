@@ -1,8 +1,11 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Briefcase, Globe, Users } from 'lucide-react';
+import '../styles/card-styles.css';
+
 const AboutUs = () => {
   // Create animation refs for different sections
   const missionRef = useScrollAnimation({
@@ -15,6 +18,7 @@ const AboutUs = () => {
     threshold: 0.1
   });
   const valuesRef = useScrollAnimation();
+  
   return <div className="container mx-auto px-4 py-12">
       <Helmet>
         <title>About Us | Yumvi-Pay</title>
@@ -138,19 +142,22 @@ const AboutUs = () => {
         </Card>
       </div>
       
-      {/* Add a CSS class for the scroll animation effect */}
-      <style jsx>{`
-        .fade-in-section.visible {
-          opacity: 1;
-          transform: translateY(0);
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        
-        .fade-in-section {
-          transform: translateY(20px);
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-      `}</style>
+      {/* Add CSS for the scroll animation effect */}
+      <style>
+        {`
+          .fade-in-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          }
+          
+          .fade-in-section {
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          }
+        `}
+      </style>
     </div>;
 };
+
 export default AboutUs;
