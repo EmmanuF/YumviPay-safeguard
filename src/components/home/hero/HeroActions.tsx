@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HeroActionsProps {
   onGetStarted: () => void;
@@ -11,17 +12,18 @@ interface HeroActionsProps {
 
 const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
   const { t } = useLocale();
+  const isMobile = useIsMobile();
   
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-wrap gap-3"
+      className={`flex flex-wrap gap-3 ${isMobile ? 'justify-center' : ''}`}
     >
       <Button
         onClick={onGetStarted}
-        className="bg-primary hover:bg-primary-700 text-white px-5 py-2 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
+        className="bg-primary hover:bg-primary-700 text-white px-5 py-2 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 mobile-touch-target"
         size="sm"
       >
         <motion.span
@@ -36,7 +38,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
       
       <Button
         variant="secondary"
-        className="border-secondary-200 bg-secondary text-white hover:bg-secondary-400 hover:shadow-lg shadow-secondary/20 font-semibold"
+        className="border-secondary-200 bg-secondary text-white hover:bg-secondary-400 hover:shadow-lg shadow-secondary/20 font-semibold mobile-touch-target"
         size="sm"
       >
         <motion.span

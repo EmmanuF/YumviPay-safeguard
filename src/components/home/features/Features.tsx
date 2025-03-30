@@ -3,17 +3,21 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FeatureCard, ExchangeRateIcon, TransparencyIcon, SecureKycIcon } from './';
 import { useLocale } from '@/contexts/LocaleContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
 const Features = () => {
   const { t } = useLocale();
+  const isMobile = useIsMobile();
+  const { shouldUseComplexAnimations } = useDeviceOptimizations();
   
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.3,
-        delayChildren: 0.3
+        staggerChildren: shouldUseComplexAnimations ? 0.3 : 0.1,
+        delayChildren: shouldUseComplexAnimations ? 0.3 : 0.1
       }
     }
   };
@@ -21,18 +25,18 @@ const Features = () => {
   return (
     <motion.div 
       id="features"
-      className="mt-16 mb-14" // Reduced vertical padding for better desktop balance
+      className={`mt-16 mb-14 ${isMobile ? 'px-4' : ''}`}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: shouldUseComplexAnimations ? 0.8 : 0.4 }}
       viewport={{ once: true }}
     >
-      <div className="text-center mb-10"> {/* Reduced bottom margin */}
+      <div className="text-center mb-10">
         <motion.h2 
           className="text-3xl font-bold mb-3 text-gradient-primary"
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: shouldUseComplexAnimations ? 0.5 : 0.3, delay: 0.1 }}
           viewport={{ once: true }}
         >
           {t('features.title')}
@@ -41,7 +45,7 @@ const Features = () => {
           className="text-gray-600 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: shouldUseComplexAnimations ? 0.5 : 0.3, delay: 0.2 }}
           viewport={{ once: true }}
         >
           {t('features.subtitle')}
@@ -49,11 +53,11 @@ const Features = () => {
       </div>
 
       <motion.div 
-        className="grid md:grid-cols-3 gap-6 px-4 md:px-6" // Adjusted gap and added horizontal padding
+        className={`grid ${isMobile ? 'grid-cols-1 gap-8' : 'md:grid-cols-3 gap-6'} px-4 md:px-6`}
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }} // Trigger animation earlier for smoother scrolling experience
+        viewport={{ once: true, margin: "-100px" }}
       >
         <FeatureCard 
           icon={<ExchangeRateIcon />}

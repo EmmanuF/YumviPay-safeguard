@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SendMoneyStepRenderer from '@/components/send-money/SendMoneyStepRenderer';
 import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
+import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
 interface SendMoneyContentProps {
   currentStep: SendMoneyStep;
@@ -25,9 +26,12 @@ const SendMoneyContent: React.FC<SendMoneyContentProps> = ({
   error
 }) => {
   const isMobile = useIsMobile();
+  const { getOptimizedAnimationSettings, getOptimizationClasses } = useDeviceOptimizations();
+  const animationSettings = getOptimizedAnimationSettings();
+  const optimizationClasses = getOptimizationClasses();
   
   // Calculate bottom padding for the main content area to accommodate the fixed buttons on mobile
-  const contentPaddingClass = isMobile ? 'pb-28' : 'pb-8';
+  const contentPaddingClass = isMobile ? 'pb-28 ios-safe-bottom' : 'pb-8';
   
   // Animation variants
   const itemVariants = {
@@ -37,17 +41,21 @@ const SendMoneyContent: React.FC<SendMoneyContentProps> = ({
       opacity: 1,
       transition: {
         type: "spring",
-        stiffness: 300,
-        damping: 24
+        stiffness: animationSettings.stiffness,
+        damping: animationSettings.damping
       }
     }
   };
 
   return (
-    <div className={`flex-1 ${isMobile ? 'p-0' : 'p-4 sm:p-6'} bg-muted/10 ${contentPaddingClass} mt-progress-bar`}>
+    <div 
+      className={`flex-1 ${isMobile ? 'p-0' : 'p-4 sm:p-6'} bg-muted/10 ${contentPaddingClass} mt-progress-bar ${optimizationClasses}`}
+    >
       <div className={`${isMobile ? 'w-full' : 'container mx-auto max-w-3xl'}`}>
         <motion.div
           variants={itemVariants}
+          initial="hidden"
+          animate="visible"
           className="w-full"
         >
           <SendMoneyStepRenderer

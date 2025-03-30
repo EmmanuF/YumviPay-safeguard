@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext.tsx';
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { LocaleProvider } from './contexts/LocaleContext.tsx';
+import { NotificationProvider } from './contexts/NotificationContext.tsx';
 
 // Make transaction data retrieval functions globally available for emergency access
 import { getTransactionAmount, getTransactionData } from './utils/transactionDataStore';
@@ -30,8 +31,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     >
       <LocaleProvider>
         <AuthProvider>
-          <App />
-          <Toaster />
+          <NotificationProvider>
+            <App />
+            <Toaster />
+          </NotificationProvider>
         </AuthProvider>
       </LocaleProvider>
     </ThemeProvider>

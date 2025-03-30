@@ -1,22 +1,61 @@
 
 import React from 'react';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface PaymentLoadingStateProps {
   message?: string;
+  error?: string;
+  onRetry?: () => void;
 }
 
 const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({ 
-  message = 'Loading payment options...'
+  message = 'Loading payment options...',
+  error,
+  onRetry
 }) => {
+  const { t } = useLocale();
+  
+  if (error) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center py-12 space-y-4"
+      >
+        <div className="h-12 w-12 text-red-500 flex items-center justify-center">
+          <AlertTriangle size={36} />
+        </div>
+        <p className="text-red-600 font-medium">{error}</p>
+        {onRetry && (
+          <button 
+            onClick={onRetry}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors"
+          >
+            {t('common.retry')}
+          </button>
+        )}
+      </motion.div>
+    );
+  }
+  
   return (
-    <div className="flex flex-col items-center justify-center py-12 space-y-4">
-      <div className="h-12 w-12 text-primary animate-spin">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-        </svg>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col items-center justify-center py-12 space-y-4"
+    >
+      <div className="h-12 w-12 text-primary flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin" />
       </div>
       <p className="text-gray-600">{message}</p>
-    </div>
+      <div className="flex space-x-1 mt-2">
+        <span className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '0s' }}></span>
+        <span className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></span>
+        <span className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></span>
+      </div>
+    </motion.div>
   );
 };
 

@@ -1,16 +1,38 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useLocale } from '@/contexts/LocaleContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/hooks/use-toast';
 
 const ExchangeRateCalculatorStub: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLocale();
+  const isMobile = useIsMobile();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleClick = () => {
+    setIsSubmitting(true);
+    
+    // Simulate loading state for better UX
+    setTimeout(() => {
+      setIsSubmitting(false);
+      navigate('/signup');
+    }, 500);
+  };
+
+  const handleMobileClick = () => {
+    toast({
+      title: t('notifications.mobileApp'),
+      description: t('notifications.downloadApp'),
+      variant: "info",
+    });
+  };
   
   return (
-    <div className="p-6 rounded-xl bg-white">
+    <div className={`p-6 rounded-xl bg-white shadow-sm ${isMobile ? 'mx-2' : ''}`}>
       <h3 className="text-2xl font-bold mb-6">{t('hero.calculator.title')}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -47,11 +69,31 @@ const ExchangeRateCalculatorStub: React.FC = () => {
       
       <Button 
         className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center mb-4"
-        onClick={() => navigate('/signup')}
+        onClick={handleClick}
+        disabled={isSubmitting}
       >
-        <span className="mr-2">{t('hero.calculator.button')}</span>
-        <ArrowRight className="h-5 w-5" />
+        {isSubmitting ? (
+          <>
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+            {t('common.loading')}
+          </>
+        ) : (
+          <>
+            <span className="mr-2">{t('hero.calculator.button')}</span>
+            <ArrowRight className="h-5 w-5" />
+          </>
+        )}
       </Button>
+      
+      {isMobile && (
+        <Button 
+          className="w-full bg-secondary hover:bg-secondary-600 py-6 flex items-center justify-center mb-4"
+          onClick={handleMobileClick}
+          variant="secondary"
+        >
+          {t('hero.calculator.mobileApp')}
+        </Button>
+      )}
       
       <div className="text-center text-sm text-gray-600">
         {t('hero.calculator.rate', {from: "USD", to: "607.4330", toCurrency: "XAF"})}

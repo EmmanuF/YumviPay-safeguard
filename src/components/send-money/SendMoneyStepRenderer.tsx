@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
 import LoadingState from '@/components/transaction/LoadingState';
@@ -8,6 +8,9 @@ import { recoverTransactionData } from '@/utils/transactionDataRecovery';
 import ErrorState from './renderer/ErrorState';
 import RecoveryState from './renderer/RecoveryState';
 import StepRenderer from './renderer/StepRenderer';
+import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
+import { toast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SendMoneyStepRendererProps {
   currentStep: SendMoneyStep;
@@ -30,12 +33,27 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
 }) => {
   console.log('Rendering step:', currentStep, 'with data:', transactionData);
   
+  const isMobile = useIsMobile();
+  const { getOptimizedAnimationSettings } = useDeviceOptimizations();
+  const animationSettings = getOptimizedAnimationSettings();
+  
   // Use the extracted hook for transaction data management
   const { cachedDataRef } = useSendMoneyRenderer({
     currentStep,
     transactionData,
     updateTransactionData
   });
+
+  // Show any errors as toasts for better UX
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error]);
 
   // Show loading state if we're submitting
   if (isSubmitting) {
@@ -78,8 +96,11 @@ const SendMoneyStepRenderer: React.FC<SendMoneyStepRendererProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full"
+      transition={{ 
+        duration: animationSettings.duration,
+        ease: "easeInOut"
+      }}
+      className={`w-full ${isMobile ? 'px-4' : ''}`}
     >
       <StepRenderer
         currentStep={currentStep}

@@ -1,16 +1,23 @@
 
 /* Touch-friendly interactions for mobile */
 @media (max-width: 768px) {
+  /* Enhanced carousel interactions */
   .mobile-optimized-carousel {
     touch-action: pan-y;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .mobile-optimized-carousel::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
   
   .mobile-optimized-carousel > * {
     scroll-snap-align: center;
   }
   
+  /* Touch feedback indicators */
   .touch-indicator {
     position: absolute;
     bottom: 10px;
@@ -29,8 +36,80 @@
     animation: pulse 2s infinite;
   }
   
+  /* Mobile-optimized touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* iOS-specific optimizations */
+  @supports (-webkit-touch-callout: none) {
+    .ios-safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    
+    .ios-safe-top {
+      padding-top: env(safe-area-inset-top, 16px);
+    }
+  }
+  
+  /* Haptic feedback classes */
+  .haptic-feedback:active {
+    transform: scale(0.97);
+  }
+  
+  /* Swipe gestures */
+  .swipe-action {
+    touch-action: pan-x;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .swipe-action-content {
+    transition: transform 0.3s ease;
+  }
+  
+  .swipe-action-buttons {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+  }
+  
+  /* Pull to refresh */
+  .pull-indicator {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Loading animations */
   @keyframes pulse {
     0%, 100% { opacity: 0.7; }
     50% { opacity: 0.3; }
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Action sheet animation */
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  
+  .action-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px 12px 0 0;
+    z-index: 100;
+    animation: slide-up 0.3s forwards;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
 }
