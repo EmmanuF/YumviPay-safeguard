@@ -40,8 +40,8 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
         variants={itemVariants}
         className="flex items-center justify-between"
       >
-        <div className="text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex-grow flex flex-col items-center">
-          <span className="text-xs text-gray-500 mb-1">Exchange Rate</span>
+        <div className="text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex-grow flex items-center justify-center">
+          <span className="font-bold mr-2">Exchange Rate:</span>
           <span className="font-bold">
             1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
           </span>
