@@ -1,4 +1,3 @@
-
 import { get } from '@/services/api';
 import { exchangeRates } from '@/data/exchangeRates';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,8 +9,8 @@ const exchangeRateCache: Record<string, {
   expiry: number;
 }> = {};
 
-// Cache TTL in milliseconds (2 minutes - reduced for more frequent updates)
-const CACHE_TTL = 2 * 60 * 1000;
+// Cache TTL in milliseconds (increased from 2 minutes to 1 hour to reduce API calls)
+const CACHE_TTL = 60 * 60 * 1000;
 
 /**
  * Fetch latest exchange rate for a base currency using Supabase Edge Function
@@ -41,6 +40,14 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     // Check for errors
     if (error) {
       console.error('❌ Supabase Edge Function error:', error);
+      
+      // Check for rate limiting errors (specific to API provider)
+      if (error.message.includes('rate limit') || 
+          error.message.includes('quota') || 
+          error.message.includes('429')) {
+        throw new Error(`API rate limit reached: ${error.message}`);
+      }
+      
       throw new Error(`Failed to fetch exchange rates: ${error.message}`);
     }
     
@@ -58,7 +65,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       lastUpdated: data.time_last_update_utc
     });
     
-    // Update cache with new rates
+    // Update cache with new rates with longer TTL
     exchangeRateCache[cacheKey] = {
       rates: data.rates,
       timestamp: now,
@@ -68,6 +75,18 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     return data.rates;
   } catch (error) {
     console.error('❌ Error fetching exchange rates:', error);
+    
+    // Check if we have cached data (even if expired)
+    // This prevents fallback when we just have a rate limit issue
+    const cacheKey = baseCurrency;
+    const cachedData = exchangeRateCache[cacheKey];
+    
+    if (cachedData) {
+      console.log('⚠️ Using expired cache data due to API error');
+      // Extend the cache expiry to prevent further API calls
+      cachedData.expiry = Date.now() + CACHE_TTL;
+      return cachedData.rates;
+    }
     
     // Fallback to the static rates from the data file
     console.log('⚠️ Falling back to static exchange rates');

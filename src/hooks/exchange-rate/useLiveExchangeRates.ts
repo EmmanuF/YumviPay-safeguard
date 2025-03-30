@@ -16,18 +16,25 @@ export const useLiveExchangeRates = ({
   sourceCurrency,
   targetCurrency,
   initialRate = 0,
-  updateIntervalMs = 60000, // Default to 1 minute
+  updateIntervalMs = 300000, // Changed from 60000 (1 minute) to 300000 (5 minutes) to reduce API calls
   onRateUpdate
 }: UseLiveExchangeRatesProps) => {
   const [rate, setRate] = useState<number>(initialRate);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Changed from true to false to prevent initial loading state
   const [error, setError] = useState<Error | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [forcedRefresh, setForcedRefresh] = useState(false);
+  const [rateLimitReached, setRateLimitReached] = useState(false); // New state to track API rate limits
 
   // Function to fetch the latest exchange rate
   const updateRate = useCallback(async (forceRefresh = false) => {
+    // If rate limit reached, only allow manual refreshes
+    if (rateLimitReached && !forceRefresh) {
+      console.log('⚠️ API rate limit reached. Skipping automatic update.');
+      return;
+    }
+
     if (!sourceCurrency || !targetCurrency) {
       return;
     }
@@ -76,6 +83,7 @@ export const useLiveExchangeRates = ({
       
       // Reset retry count on success
       setRetryCount(0);
+      setRateLimitReached(false); // Reset rate limit flag on successful call
       
       // Reset forced refresh state
       if (forceRefresh) {
@@ -85,11 +93,18 @@ export const useLiveExchangeRates = ({
       console.error('Error updating exchange rate:', err);
       setError(err instanceof Error ? err : new Error('Failed to update exchange rate'));
       
+      // Check if error is related to rate limiting
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('rate limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
+        setRateLimitReached(true);
+        console.warn('⚠️ API rate limit reached. Automatic updates disabled.');
+      }
+      
       // Only show error toast on force refresh (user-initiated action)
       if (forceRefresh) {
         toast({
           title: `Failed to update exchange rate`,
-          description: err instanceof Error ? err.message : 'Unknown error',
+          description: errorMessage,
           variant: "destructive",
         });
         setForcedRefresh(false);
@@ -100,15 +115,24 @@ export const useLiveExchangeRates = ({
     } finally {
       setIsLoading(false);
     }
-  }, [sourceCurrency, targetCurrency, rate, onRateUpdate]);
+  }, [sourceCurrency, targetCurrency, rate, onRateUpdate, rateLimitReached]);
 
-  // Update the rate when currencies change
+  // Update the rate when currencies change, but don't force refresh
+  // to respect API limits - just use cached data if available
   useEffect(() => {
-    updateRate(true); // Force refresh when currencies change
+    // Only make a single API call when currencies change, don't force refresh
+    updateRate(false); 
   }, [sourceCurrency, targetCurrency, updateRate]);
 
-  // Set up periodic updates with exponential backoff on errors
+  // Set up periodic updates with exponential backoff on errors 
+  // and respect for rate limits
   useInterval(() => {
+    // If rate limited, skip automatic updates
+    if (rateLimitReached) {
+      console.log('⚠️ Skipping automatic update due to API rate limits');
+      return;
+    }
+    
     // Use exponential backoff if we've had errors
     if (retryCount > 0) {
       const backoffTime = Math.min(updateIntervalMs * Math.pow(2, retryCount), 30 * 60 * 1000); // Max 30 minutes
@@ -126,6 +150,7 @@ export const useLiveExchangeRates = ({
     error,
     updateRate: () => updateRate(true), // Expose function to force refresh
     retryCount,
-    forcedRefresh
+    forcedRefresh,
+    rateLimitReached
   };
 };
