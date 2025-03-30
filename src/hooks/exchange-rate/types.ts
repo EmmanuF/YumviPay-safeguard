@@ -22,6 +22,7 @@ export interface UseExchangeRateCalculatorReturn {
   handleContinue: () => void;
   isLoadingRate?: boolean;
   lastRateUpdate?: Date | null;
+  refreshRate?: () => void;
 }
 
 export interface ExchangeRateCalculatorOptions {

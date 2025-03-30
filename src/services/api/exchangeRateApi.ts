@@ -2,16 +2,21 @@
 import { get } from '@/services/api';
 import { exchangeRates } from '@/data/exchangeRates';
 
-// Free exchange rate API endpoints
-const EXCHANGE_RATE_API_URL = 'https://open.er-api.com/v6/latest/';
+// Free exchange rate API endpoints - using multiple options for redundancy
+const EXCHANGE_RATE_API_URLS = [
+  'https://open.er-api.com/v6/latest/', // Primary API
+  'https://api.exchangerate-api.com/v4/latest/', // Backup API
+];
 
-// Interface for API response
+// Interface for API responses
 interface ExchangeRateApiResponse {
-  base_code: string;
-  time_last_update_utc: string;
+  base_code?: string;
+  base?: string;
+  time_last_update_utc?: string;
+  last_updated?: string;
   rates: Record<string, number>;
-  result: string;
-  time_next_update_utc: string;
+  result?: string;
+  time_next_update_utc?: string;
 }
 
 // Cache for exchange rates to reduce API calls
@@ -21,8 +26,8 @@ const exchangeRateCache: Record<string, {
   expiry: number;
 }> = {};
 
-// Cache TTL in milliseconds (15 minutes)
-const CACHE_TTL = 15 * 60 * 1000;
+// Cache TTL in milliseconds (5 minutes)
+const CACHE_TTL = 5 * 60 * 1000;
 
 /**
  * Fetch latest exchange rate for a base currency
@@ -43,20 +48,40 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       return cachedData.rates;
     }
     
-    // Fetch latest rates from API
-    const response = await get<ExchangeRateApiResponse>(`${EXCHANGE_RATE_API_URL}${baseCurrency}`, {
-      cacheable: true,
-      cacheTTL: CACHE_TTL,
-      timeout: 5000,
-      retry: true,
-      maxRetries: 2
-    });
+    // Try each API URL until one succeeds
+    let response: ExchangeRateApiResponse | null = null;
+    let error: Error | null = null;
     
-    if (!response || !response.rates) {
-      throw new Error('Invalid response from exchange rate API');
+    for (const apiUrl of EXCHANGE_RATE_API_URLS) {
+      try {
+        const fullUrl = `${apiUrl}${baseCurrency}`;
+        console.log(`🔄 Trying API: ${fullUrl}`);
+        
+        // Fetch latest rates from API with a short timeout
+        response = await get<ExchangeRateApiResponse>(fullUrl, {
+          cacheable: true,
+          cacheTTL: CACHE_TTL,
+          timeout: 3000, // Short timeout to quickly try next API
+          retry: true,
+          maxRetries: 1
+        });
+        
+        if (response && response.rates) {
+          console.log(`✅ Successfully fetched rates from ${apiUrl}`);
+          break; // Break the loop if successful
+        }
+      } catch (err) {
+        console.warn(`⚠️ Failed to fetch from ${apiUrl}:`, err);
+        error = err as Error;
+      }
     }
     
-    console.log(`💱 Received latest rates for ${baseCurrency}, updated at: ${response.time_last_update_utc}`);
+    // If all API calls failed, throw the last error
+    if (!response || !response.rates) {
+      throw error || new Error('Invalid response from all exchange rate APIs');
+    }
+    
+    console.log(`💱 Received latest rates for ${baseCurrency}, with ${Object.keys(response.rates).length} currencies`);
     
     // Update cache
     exchangeRateCache[cacheKey] = {
@@ -67,7 +92,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     
     return response.rates;
   } catch (error) {
-    console.error('Error fetching exchange rates:', error);
+    console.error('❌ Error fetching exchange rates:', error);
     
     // Fallback to the static rates from the data file
     console.log('⚠️ Falling back to static exchange rates');
@@ -79,7 +104,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
  * Get exchange rate between two currencies
  * @param sourceCurrency Source currency code
  * @param targetCurrency Target currency code
- * @returns Exchange rate value or null if unavailable
+ * @returns Exchange rate value or fallback if unavailable
  */
 export const getExchangeRate = async (
   sourceCurrency: string, 
@@ -98,15 +123,31 @@ export const getExchangeRate = async (
     const rate = rates[targetCurrency];
     
     if (!rate) {
-      console.warn(`Exchange rate not found for ${sourceCurrency} to ${targetCurrency}`);
+      console.warn(`⚠️ Exchange rate not found for ${sourceCurrency} to ${targetCurrency}`);
       return getFallbackExchangeRate(sourceCurrency, targetCurrency);
     }
     
+    console.log(`📊 Current rate: 1 ${sourceCurrency} = ${rate} ${targetCurrency}`);
     return rate;
   } catch (error) {
-    console.error('Error getting exchange rate:', error);
+    console.error('❌ Error getting exchange rate:', error);
     return getFallbackExchangeRate(sourceCurrency, targetCurrency);
   }
+};
+
+/**
+ * Force refresh the exchange rate cache and fetch new rates
+ * @param baseCurrency Base currency code
+ * @returns Updated exchange rates
+ */
+export const refreshExchangeRates = async (baseCurrency: string = 'USD'): Promise<Record<string, number>> => {
+  // Clear the cache for this currency
+  const cacheKey = baseCurrency;
+  delete exchangeRateCache[cacheKey];
+  
+  // Fetch fresh rates
+  console.log(`🔄 Force refreshing exchange rates for ${baseCurrency}...`);
+  return fetchExchangeRates(baseCurrency);
 };
 
 /**

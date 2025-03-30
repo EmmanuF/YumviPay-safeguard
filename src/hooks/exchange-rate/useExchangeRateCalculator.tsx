@@ -22,7 +22,9 @@ export const useExchangeRateCalculator = (
     exchangeRate, 
     receiveAmount,
     isLoading: isLoadingRate,
-    error 
+    error,
+    lastUpdated,
+    refreshRate
   } = useRateCalculation({
     sendAmount,
     sourceCurrency,
@@ -77,6 +79,8 @@ export const useExchangeRateCalculator = (
     sourceCurrencies,
     targetCurrencies,
     handleContinue,
-    isLoadingRate
+    isLoadingRate,
+    lastRateUpdate: lastUpdated,
+    refreshRate
   };
 };

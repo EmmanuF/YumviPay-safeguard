@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from '@/contexts/LocaleContext';
 import CurrencySelector from '@/components/calculator/currency-selector/CurrencySelector';
+import { formatDistanceToNow } from 'date-fns';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -50,7 +51,9 @@ const HeroCalculator: React.FC = () => {
     setTargetCurrency,
     sourceCurrencies,
     targetCurrencies,
-    isLoadingRate
+    isLoadingRate,
+    lastRateUpdate,
+    refreshRate
   } = useExchangeRateCalculator();
   
   // Custom handling for "Send Now" button to ensure direct redirection to /send for logged in users
@@ -89,6 +92,11 @@ const HeroCalculator: React.FC = () => {
   // Enhanced spacing for mobile
   const calculatorPadding = isMobile ? "p-5 md:p-8" : "p-6 md:p-8";
   const calculatorMargin = isMobile ? "mb-5 md:mb-6" : "mb-6";
+  
+  // Format last updated time
+  const formattedLastUpdate = lastRateUpdate 
+    ? formatDistanceToNow(lastRateUpdate, { addSuffix: true }) 
+    : 'never';
   
   return (
     <motion.div
@@ -155,17 +163,38 @@ const HeroCalculator: React.FC = () => {
       
       <motion.div 
         variants={itemVariants}
-        className="text-center text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex items-center justify-center"
+        className="flex items-center justify-between"
       >
-        {isLoadingRate ? (
-          <span className="flex items-center">
-            <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
-            {t('hero.calculator.updating_rate')}
-          </span>
-        ) : (
-          t('hero.calculator.rate', {from: sourceCurrency, to: exchangeRate.toFixed(4), toCurrency: targetCurrency})
-        )}
+        <div className="text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex-grow">
+          {isLoadingRate ? (
+            <span className="flex items-center">
+              <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
+              {t('hero.calculator.updating_rate')}
+            </span>
+          ) : (
+            t('hero.calculator.rate', {from: sourceCurrency, to: exchangeRate.toFixed(4), toCurrency: targetCurrency})
+          )}
+        </div>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="ml-2 bg-white/70"
+          onClick={refreshRate}
+          disabled={isLoadingRate}
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
+        </Button>
       </motion.div>
+      
+      {lastRateUpdate && (
+        <motion.div
+          variants={itemVariants}
+          className="mt-2 text-xs text-center text-gray-500"
+        >
+          Last updated: {formattedLastUpdate}
+        </motion.div>
+      )}
     </motion.div>
   );
 };
