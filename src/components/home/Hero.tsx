@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeroContent } from './hero';
@@ -6,7 +5,6 @@ import HeroBackground from './HeroBackground';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimeLocationGreeting, PersonalizedWelcome } from './hero';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useLocale } from '@/contexts/LocaleContext';
 
 interface HeroProps {
   onGetStarted?: () => void;
@@ -17,7 +15,6 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
   const [showGreeting, setShowGreeting] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const isMobile = useIsMobile();
-  const { t } = useLocale();
 
   // Sequence the greetings with a delayed transition
   useEffect(() => {

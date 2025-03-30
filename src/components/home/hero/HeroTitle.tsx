@@ -3,15 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Globe, Zap, Shield } from 'lucide-react';
 import HeroActions from './HeroActions';
-import { useLocale } from '@/contexts/LocaleContext';
 
 interface HeroTitleProps {
   onGetStarted: () => void;
 }
 
 const HeroTitle: React.FC<HeroTitleProps> = ({ onGetStarted }) => {
-  const { t } = useLocale();
-  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -21,18 +18,18 @@ const HeroTitle: React.FC<HeroTitleProps> = ({ onGetStarted }) => {
     >
       <div className="flex flex-col">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-          <span className="text-indigo-600 drop-shadow-sm">{t('hero.title')}</span>
+          <span className="text-indigo-600 drop-shadow-sm">Transfer Without Boundaries</span>
         </h1>
         
         <div className="flex flex-wrap items-center justify-between mt-2">
           <div className="flex items-center gap-3">
             <span className="bg-primary-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center shadow-md">
               <Zap size={16} className="mr-1" />
-              {t('hero.feature1')}
+              Fast & Secure
             </span>
             <span className="bg-secondary-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center shadow-md">
               <Shield size={16} className="mr-1" />
-              {t('hero.feature2')}
+              Free Transfers
             </span>
           </div>
           
