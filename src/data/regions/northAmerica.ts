@@ -27,7 +27,7 @@ export const northAmericanCountries: Country[] = [
     code: 'MX',
     flagUrl: 'https://flagcdn.com/mx.svg',
     currency: 'MXN',
-    isSendingEnabled: true, // Explicitly enabled for sending
+    isSendingEnabled: false, // Disabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
     phonePrefix: '+52'
@@ -37,7 +37,7 @@ export const northAmericanCountries: Country[] = [
     code: 'CR',
     flagUrl: 'https://flagcdn.com/cr.svg', 
     currency: 'CRC',
-    isSendingEnabled: true, // Adding Costa Rica as a sending country
+    isSendingEnabled: false, // Disabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
     phonePrefix: '+506'
@@ -47,7 +47,7 @@ export const northAmericanCountries: Country[] = [
     code: 'PA',
     flagUrl: 'https://flagcdn.com/pa.svg',
     currency: 'PAB',
-    isSendingEnabled: true, // Adding Panama as a sending country
+    isSendingEnabled: false, // Disabled for sending
     isReceivingEnabled: false,
     paymentMethods: [],
     phonePrefix: '+507'

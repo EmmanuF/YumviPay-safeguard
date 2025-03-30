@@ -1,4 +1,3 @@
-
 import { Country } from '../../types/country';
 import { countries as mockCountries } from '../../data/countries';
 
@@ -10,12 +9,20 @@ export const ensureSendingCountriesEnabled = (data: Country[]): Country[] => {
   let changesMade = false;
   
   // Countries that should always be sending-enabled
+  // Only USA, Canada, UK, European, and some Asian and Middle Eastern countries
   const sendingCountryCodes = [
-    'US', 'CA', 'GB', 'CM', 'FR', 'DE', 'IT', 'ES', 'NL', 'BE', 'CH', 'SE', 'NO',
-    'AU', 'JP', 'SG', 'NZ', 'AE', 'QA', 'SA', 'KR', 'MY', 'HK',
-    'KE', 'ZA', 'NG', 'IE', 'DK', 'FI', 'PT', 'CR', 'PA'
+    'US', 'CA', 'GB', 'FR', 'DE', 'IT', 'ES', 'NL', 'BE', 'CH', 'SE', 'NO',
+    'AU', 'JP', 'SG', 'AU', 'AE', 'QA', 'SA', 'KR', 'HK', 'IE', 'DK', 'FI', 'PT'
   ];
   
+  // First, disable all sending countries
+  enhancedData.forEach(country => {
+    if (country.isSendingEnabled) {
+      country.isSendingEnabled = false;
+    }
+  });
+
+  // Then enable only the specified countries
   enhancedData.forEach(country => {
     if (sendingCountryCodes.includes(country.code) && !country.isSendingEnabled) {
       country.isSendingEnabled = true;
@@ -23,18 +30,6 @@ export const ensureSendingCountriesEnabled = (data: Country[]): Country[] => {
       changesMade = true;
     }
   });
-  
-  // If no sending countries exist at all, enable key countries
-  const hasSendingCountries = enhancedData.some(c => c.isSendingEnabled);
-  if (!hasSendingCountries) {
-    enhancedData.forEach(country => {
-      if (sendingCountryCodes.includes(country.code)) {
-        country.isSendingEnabled = true;
-        console.log(`🔄 Setting ${country.name} as sending-enabled (fallback)`);
-        changesMade = true;
-      }
-    });
-  }
   
   // Add any missing key countries
   sendingCountryCodes.forEach(code => {

@@ -29,7 +29,7 @@ export const useCurrencyLists = () => {
     console.log("📊 Source currencies generated:", currencies.length);
     console.log("📋 Available source currencies:", currencies);
     
-    // Always include USD for testing if no currencies are found
+    // Always include major currencies for testing if no currencies are found
     if (currencies.length === 0) {
       console.log("⚠️ No sending countries found, adding USD, EUR, GBP as defaults");
       return ['USD', 'EUR', 'GBP'];
@@ -60,7 +60,12 @@ export const useCurrencyLists = () => {
     console.log("📊 Target currencies generated:", currencies.length);
     console.log("📋 Available target currencies:", currencies);
     
-    // Always include XAF for testing if no currencies are found
+    // Always ensure XAF (Cameroon currency) is available as our primary focus
+    if (!currencies.includes('XAF')) {
+      currencies.unshift('XAF');
+    }
+    
+    // If still no currencies, add some African defaults
     if (currencies.length === 0) {
       console.log("⚠️ No receiving countries found, adding XAF, NGN, KES as defaults");
       return ['XAF', 'NGN', 'KES'];
