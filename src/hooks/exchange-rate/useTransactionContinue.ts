@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +27,7 @@ export const useTransactionContinue = ({
   onContinue
 }: UseTransactionContinueProps) => {
   const navigate = useNavigate();
-  const { isLoggedIn, isLoading: authLoading } = useAuth();
+  const { isLoggedIn, loading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleContinue = async () => {
