@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTransactionContinue } from '@/hooks/exchange-rate/useTransactionContinue';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useLocale } from '@/contexts/LocaleContext';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -38,7 +37,6 @@ const HeroCalculator: React.FC = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const isMobile = useIsMobile();
-  const { t } = useLocale();
   const { 
     sendAmount, 
     setSendAmount, 
@@ -98,12 +96,12 @@ const HeroCalculator: React.FC = () => {
         variants={itemVariants}
         className={`text-2xl font-bold ${calculatorMargin} text-gradient-primary`}
       >
-        {t('calculator.title')}
+        Calculate Your Transfer
       </motion.h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <motion.div variants={itemVariants} className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">{t('calculator.send')}</label>
+          <label className="block text-sm font-medium text-gray-700">You Send</label>
           <Input
             type="number"
             value={sendAmount}
@@ -117,12 +115,12 @@ const HeroCalculator: React.FC = () => {
               alt="US Flag" 
               className="w-5 h-3.5 object-cover"
             />
-            <span>{t('calculator.country.us')}</span>
+            <span>United States (USD)</span>
           </div>
         </motion.div>
         
         <motion.div variants={itemVariants} className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">{t('calculator.receive')}</label>
+          <label className="block text-sm font-medium text-gray-700">They Receive</label>
           <Input
             type="text"
             value={receiveAmount}
@@ -135,7 +133,7 @@ const HeroCalculator: React.FC = () => {
               alt="Cameroon Flag" 
               className="w-5 h-3.5 object-cover"
             />
-            <span>{t('calculator.country.cm')}</span>
+            <span>Cameroon (XAF)</span>
           </div>
         </motion.div>
       </div>
@@ -145,7 +143,7 @@ const HeroCalculator: React.FC = () => {
           onClick={handleContinue}
           className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center shadow-md shadow-primary-200/40 transition-all hover:shadow-lg hover:shadow-primary-300/40 rounded-xl"
         >
-          <span className="mr-2">{t('calculator.send_now')}</span>
+          <span className="mr-2">Send Now</span>
           <ArrowRight className="h-5 w-5" />
         </Button>
       </motion.div>
@@ -154,7 +152,7 @@ const HeroCalculator: React.FC = () => {
         variants={itemVariants}
         className="text-center text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4"
       >
-        {t('calculator.exchange_rate', { rate: exchangeRate.toFixed(4) })}
+        Exchange Rate: 1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
       </motion.div>
     </motion.div>
   );

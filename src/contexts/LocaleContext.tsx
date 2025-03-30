@@ -65,33 +65,21 @@ export const LocaleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // Get the translation for the current locale
     const currentTranslations = translations[locale] || translations.en;
     
-    // Navigate through nested keys (e.g., 'hero.title')
-    const keys = key.split('.');
-    let text = currentTranslations;
-    
-    for (const k of keys) {
-      if (text && typeof text === 'object') {
-        text = text[k];
-      } else {
-        text = undefined;
-        break;
-      }
-    }
-    
-    // If translation not found, return the key
-    if (text === undefined) {
-      console.warn(`Missing translation for key: ${key} in locale: ${locale}`);
-      return key;
-    }
+    let text = currentTranslations[key] || key;
     
     // Replace parameters if provided
-    if (params && typeof text === 'string') {
+    if (params) {
       Object.entries(params).forEach(([param, value]) => {
-        text = (text as string).replace(`{{${param}}}`, value);
+        text = text.replace(`{{${param}}}`, value);
       });
     }
     
-    return text as string;
+    // For debugging purposes, log missing translations
+    if (text === key && process.env.NODE_ENV === 'development') {
+      console.warn(`Missing translation for key: ${key} in locale: ${locale}`);
+    }
+    
+    return text;
   };
 
   return (

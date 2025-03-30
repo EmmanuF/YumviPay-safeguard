@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TimeLocationGreeting, PersonalizedWelcome } from './hero';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from '@/contexts/LocaleContext';
-import HeroCalculator from './hero/HeroCalculator';
 
 interface HeroProps {
   onGetStarted?: () => void;
@@ -139,11 +138,6 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
       <div className="flex flex-col items-center relative z-10">
         {/* Hero content */}
         <HeroContent onGetStarted={handleGetStarted} />
-      </div>
-      
-      {/* Hero Calculator */}
-      <div className="mt-12 max-w-xl mx-auto">
-        <HeroCalculator />
       </div>
     </div>
   );
