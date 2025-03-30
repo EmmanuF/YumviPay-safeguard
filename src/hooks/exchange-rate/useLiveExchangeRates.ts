@@ -48,16 +48,12 @@ export const useLiveExchangeRates = ({
       
       console.log(`📊 New exchange rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
       
-      // Only update if the rate is different or it's the first load
-      if (newRate !== rate || !lastUpdated) {
-        setRate(newRate);
-        setLastUpdated(new Date());
-        
-        if (onRateUpdate) {
-          onRateUpdate(newRate);
-        }
-      } else {
-        console.log(`ℹ️ Exchange rate unchanged: ${newRate}`);
+      // Always update the rate to ensure we get the latest value
+      setRate(newRate);
+      setLastUpdated(new Date());
+      
+      if (onRateUpdate) {
+        onRateUpdate(newRate);
       }
       
       // Reset retry count on success
@@ -71,7 +67,7 @@ export const useLiveExchangeRates = ({
     } finally {
       setIsLoading(false);
     }
-  }, [sourceCurrency, targetCurrency, rate, lastUpdated, onRateUpdate]);
+  }, [sourceCurrency, targetCurrency, onRateUpdate]);
 
   // Update the rate when currencies change
   useEffect(() => {

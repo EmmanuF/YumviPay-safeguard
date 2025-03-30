@@ -1,22 +1,27 @@
-
 import { get } from '@/services/api';
 import { exchangeRates } from '@/data/exchangeRates';
 
-// Free exchange rate API endpoints - using multiple options for redundancy
-const EXCHANGE_RATE_API_URLS = [
-  'https://open.er-api.com/v6/latest/', // Primary API
-  'https://api.exchangerate-api.com/v4/latest/', // Backup API
-];
+// API key for exchangerate-api.com
+// This would be better stored in a server-side environment variable,
+// but for demo purposes we'll use it directly
+const EXCHANGE_RATE_API_KEY = 'YOUR_API_KEY'; // Replace with your actual API key
 
-// Interface for API responses
+// Exchange Rate API endpoint with API key
+const EXCHANGE_RATE_API_URL = 'https://v6.exchangerate-api.com/v6/';
+
+// Interface for API responses from exchangerate-api.com
 interface ExchangeRateApiResponse {
-  base_code?: string;
-  base?: string;
-  time_last_update_utc?: string;
-  last_updated?: string;
-  rates: Record<string, number>;
   result?: string;
+  documentation?: string;
+  terms_of_use?: string;
+  time_last_update_unix?: number;
+  time_last_update_utc?: string;
+  time_next_update_unix?: number;
   time_next_update_utc?: string;
+  base_code?: string;
+  rates?: Record<string, number>;
+  error?: string;
+  error_type?: string;
 }
 
 // Cache for exchange rates to reduce API calls
@@ -26,8 +31,8 @@ const exchangeRateCache: Record<string, {
   expiry: number;
 }> = {};
 
-// Cache TTL in milliseconds (5 minutes)
-const CACHE_TTL = 5 * 60 * 1000;
+// Cache TTL in milliseconds (2 minutes - reduced from 5 to get more frequent updates)
+const CACHE_TTL = 2 * 60 * 1000;
 
 /**
  * Fetch latest exchange rate for a base currency
@@ -48,42 +53,34 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       return cachedData.rates;
     }
     
-    // Try each API URL until one succeeds
-    let response: ExchangeRateApiResponse | null = null;
-    let error: Error | null = null;
+    // Construct API URL with API key
+    const apiUrl = `${EXCHANGE_RATE_API_URL}${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`;
+    console.log(`🔄 Fetching rates from: ${apiUrl}`);
     
-    for (const apiUrl of EXCHANGE_RATE_API_URLS) {
-      try {
-        const fullUrl = `${apiUrl}${baseCurrency}`;
-        console.log(`🔄 Trying API: ${fullUrl}`);
-        
-        // Fetch latest rates from API with a short timeout
-        response = await get<ExchangeRateApiResponse>(fullUrl, {
-          cacheable: true,
-          cacheTTL: CACHE_TTL,
-          timeout: 3000, // Short timeout to quickly try next API
-          retry: true,
-          maxRetries: 1
-        });
-        
-        if (response && response.rates) {
-          console.log(`✅ Successfully fetched rates from ${apiUrl}`);
-          break; // Break the loop if successful
-        }
-      } catch (err) {
-        console.warn(`⚠️ Failed to fetch from ${apiUrl}:`, err);
-        error = err as Error;
-      }
-    }
+    // Fetch latest rates from API
+    const response = await get<ExchangeRateApiResponse>(apiUrl, {
+      cacheable: true,
+      cacheTTL: CACHE_TTL,
+      timeout: 5000,
+      retry: true,
+      maxRetries: 2
+    });
     
-    // If all API calls failed, throw the last error
+    // Check for valid response
     if (!response || !response.rates) {
-      throw error || new Error('Invalid response from all exchange rate APIs');
+      console.error('❌ Invalid response from exchange rate API:', response);
+      throw new Error('Invalid response from exchange rate API');
     }
     
-    console.log(`💱 Received latest rates for ${baseCurrency}, with ${Object.keys(response.rates).length} currencies`);
+    console.log(`✅ Successfully fetched rates for ${baseCurrency} with ${Object.keys(response.rates).length} currencies`);
+    console.log(`📊 Sample rates:`, {
+      EUR: response.rates.EUR,
+      GBP: response.rates.GBP,
+      XAF: response.rates.XAF || 'N/A',
+      lastUpdated: response.time_last_update_utc
+    });
     
-    // Update cache
+    // Update cache with new rates
     exchangeRateCache[cacheKey] = {
       rates: response.rates,
       timestamp: now,
