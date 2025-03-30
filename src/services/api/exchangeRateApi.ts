@@ -1,28 +1,6 @@
 import { get } from '@/services/api';
 import { exchangeRates } from '@/data/exchangeRates';
-
-// API key for exchangerate-api.com
-// This would be better stored in a server-side environment variable,
-// but for demo purposes we'll use it directly
-const EXCHANGE_RATE_API_KEY = 'YOUR_API_KEY'; // Replace with your actual API key
-
-// Exchange Rate API endpoint with API key
-const EXCHANGE_RATE_API_URL = 'https://v6.exchangerate-api.com/v6/';
-
-// Interface for API responses from exchangerate-api.com
-interface ExchangeRateApiResponse {
-  result?: string;
-  documentation?: string;
-  terms_of_use?: string;
-  time_last_update_unix?: number;
-  time_last_update_utc?: string;
-  time_next_update_unix?: number;
-  time_next_update_utc?: string;
-  base_code?: string;
-  rates?: Record<string, number>;
-  error?: string;
-  error_type?: string;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 // Cache for exchange rates to reduce API calls
 const exchangeRateCache: Record<string, { 
@@ -31,11 +9,11 @@ const exchangeRateCache: Record<string, {
   expiry: number;
 }> = {};
 
-// Cache TTL in milliseconds (2 minutes - reduced from 5 to get more frequent updates)
+// Cache TTL in milliseconds (2 minutes - reduced for more frequent updates)
 const CACHE_TTL = 2 * 60 * 1000;
 
 /**
- * Fetch latest exchange rate for a base currency
+ * Fetch latest exchange rate for a base currency using Supabase Edge Function
  * @param baseCurrency Base currency code (e.g. USD, EUR)
  * @returns Exchange rate data
  */
@@ -53,41 +31,40 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       return cachedData.rates;
     }
     
-    // Construct API URL with API key
-    const apiUrl = `${EXCHANGE_RATE_API_URL}${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`;
-    console.log(`🔄 Fetching rates from: ${apiUrl}`);
-    
-    // Fetch latest rates from API
-    const response = await get<ExchangeRateApiResponse>(apiUrl, {
-      cacheable: true,
-      cacheTTL: CACHE_TTL,
-      timeout: 5000,
-      retry: true,
-      maxRetries: 2
+    // Call the Supabase Edge Function
+    console.log("🔄 Calling Supabase Edge Function for exchange rates");
+    const { data, error } = await supabase.functions.invoke('exchange-rates', {
+      body: { baseCurrency }
     });
     
+    // Check for errors
+    if (error) {
+      console.error('❌ Supabase Edge Function error:', error);
+      throw new Error(`Failed to fetch exchange rates: ${error.message}`);
+    }
+    
     // Check for valid response
-    if (!response || !response.rates) {
-      console.error('❌ Invalid response from exchange rate API:', response);
+    if (!data || !data.rates) {
+      console.error('❌ Invalid response from exchange rate API:', data);
       throw new Error('Invalid response from exchange rate API');
     }
     
-    console.log(`✅ Successfully fetched rates for ${baseCurrency} with ${Object.keys(response.rates).length} currencies`);
+    console.log(`✅ Successfully fetched rates for ${baseCurrency} with ${Object.keys(data.rates).length} currencies`);
     console.log(`📊 Sample rates:`, {
-      EUR: response.rates.EUR,
-      GBP: response.rates.GBP,
-      XAF: response.rates.XAF || 'N/A',
-      lastUpdated: response.time_last_update_utc
+      EUR: data.rates.EUR,
+      GBP: data.rates.GBP,
+      XAF: data.rates.XAF || 'N/A',
+      lastUpdated: data.time_last_update_utc
     });
     
     // Update cache with new rates
     exchangeRateCache[cacheKey] = {
-      rates: response.rates,
+      rates: data.rates,
       timestamp: now,
       expiry: now + CACHE_TTL
     };
     
-    return response.rates;
+    return data.rates;
   } catch (error) {
     console.error('❌ Error fetching exchange rates:', error);
     

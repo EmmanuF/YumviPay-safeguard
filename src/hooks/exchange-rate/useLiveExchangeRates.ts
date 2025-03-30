@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useInterval } from '@/hooks/useInterval';
 import { getExchangeRate, refreshExchangeRates } from '@/services/api/exchangeRateApi';
+import { toast } from '@/hooks/use-toast';
 
 export interface UseLiveExchangeRatesProps {
   sourceCurrency: string;
@@ -48,11 +49,23 @@ export const useLiveExchangeRates = ({
       
       console.log(`📊 New exchange rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
       
+      // Check if rate actually changed
+      const hasRateChanged = rate !== newRate;
+      
       // Always update the rate to ensure we get the latest value
       setRate(newRate);
       setLastUpdated(new Date());
       
-      if (onRateUpdate) {
+      // Only show toast if rate has actually changed
+      if (hasRateChanged && forceRefresh) {
+        toast({
+          title: `Exchange Rate Updated`,
+          description: `1 ${sourceCurrency} = ${newRate.toFixed(4)} ${targetCurrency}`,
+          variant: "default",
+        });
+      }
+      
+      if (onRateUpdate && hasRateChanged) {
         onRateUpdate(newRate);
       }
       
@@ -62,12 +75,21 @@ export const useLiveExchangeRates = ({
       console.error('Error updating exchange rate:', err);
       setError(err instanceof Error ? err : new Error('Failed to update exchange rate'));
       
+      // Only show error toast on force refresh (user-initiated action)
+      if (forceRefresh) {
+        toast({
+          title: `Failed to update exchange rate`,
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        });
+      }
+      
       // Increment retry count for exponential backoff
       setRetryCount(prev => prev + 1);
     } finally {
       setIsLoading(false);
     }
-  }, [sourceCurrency, targetCurrency, onRateUpdate]);
+  }, [sourceCurrency, targetCurrency, rate, onRateUpdate]);
 
   // Update the rate when currencies change
   useEffect(() => {
