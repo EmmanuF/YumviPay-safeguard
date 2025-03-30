@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useInterval } from '@/hooks/useInterval';
-import { getExchangeRate, refreshExchangeRates } from '@/services/api/exchangeRateApi';
+import { getExchangeRate, refreshExchangeRates } from '@/services/api/exchangeRate';
 import { toast } from '@/hooks/use-toast';
 
 export interface UseLiveExchangeRatesProps {
