@@ -32,6 +32,13 @@ const FooterLink: React.FC<FooterLinkProps> = ({
         exchangeRate: 607.4330,
       };
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+    } else if (isComingSoon) {
+      e.preventDefault();
+      toast({
+        title: "Coming Soon",
+        description: "Money transfers to this country will be available soon!",
+        duration: 3000,
+      });
     }
   };
   
@@ -52,6 +59,11 @@ const FooterLink: React.FC<FooterLinkProps> = ({
       <span className="group-hover:translate-x-1 inline-block transition-transform duration-300">
         {children}
       </span>
+      {isComingSoon && (
+        <span className="ml-2 text-xs text-amber-300 font-medium">
+          (Coming Soon)
+        </span>
+      )}
       <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary-300 group-hover:w-full transition-all duration-300"></span>
     </Link>
   );

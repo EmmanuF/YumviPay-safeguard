@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -87,20 +86,17 @@ const CountryPage: React.FC = () => {
   
   const handleSendMoney = () => {
     if (country.available) {
-      // For Cameroon, navigate to send money flow
-      // First, set up transaction data in localStorage
       const transactionData = {
         targetCountry: country.code,
-        amount: 100, // Default amount
+        amount: 100,
         sourceCurrency: 'USD',
         targetCurrency: country.currency.split(' ')[1].replace('(', '').replace(')', ''),
-        exchangeRate: country.code === 'CM' ? 607.4330 : 600, // Example rate
+        exchangeRate: country.code === 'CM' ? 607.4330 : 600,
       };
       
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
       navigate('/send');
     } else {
-      // For other countries, show coming soon message
       setShowComingSoon(true);
       toast({
         title: "Coming Soon",
@@ -124,7 +120,14 @@ const CountryPage: React.FC = () => {
         >
           <div className="flex items-center gap-4 mb-6">
             <span className="text-5xl">{country.flag}</span>
-            <h1 className="text-3xl font-bold text-primary-800">{country.name}</h1>
+            <h1 className="text-3xl font-bold text-primary-800">
+              {country.name}
+              {!country.available && (
+                <span className="ml-2 text-sm bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                  Coming Soon
+                </span>
+              )}
+            </h1>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8">

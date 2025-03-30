@@ -24,21 +24,21 @@ const CountryCoverage = () => {
       flag: "🇳🇬", 
       methods: ["Bank Transfer", "OPay", "Palmpay"],
       speed: "Same day",
-      status: "available"
+      status: "coming-soon"
     },
     { 
       name: "Ghana", 
       flag: "🇬🇭", 
       methods: ["MTN Mobile Money", "Vodafone Cash"],
       speed: "Within minutes",
-      status: "available"
+      status: "coming-soon"
     },
     { 
       name: "Kenya", 
       flag: "🇰🇪", 
       methods: ["M-Pesa", "Equity Bank"],
       speed: "Within minutes",
-      status: "available"
+      status: "coming-soon"
     },
     { 
       name: "Uganda", 
