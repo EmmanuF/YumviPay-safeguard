@@ -13,6 +13,7 @@ export const useRateCalculation = ({
   const [lastCalculation, setLastCalculation] = useState<string | null>(null);
   const currencyChangeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastToastRef = useRef<string | null>(null);
+  const calculationInProgressRef = useRef(false);
   
   // Get live exchange rate updates - reduced to 3 times per day (8 hours interval)
   const { 
@@ -71,11 +72,18 @@ export const useRateCalculation = ({
 
   // Calculate receive amount whenever input values change
   const calculateAmount = useCallback(() => {
+    // Prevent multiple rapid recalculations
+    if (calculationInProgressRef.current) {
+      return;
+    }
+    
     console.log("🧮 Calculating exchange rate from", sourceCurrency, "to", targetCurrency);
+    calculationInProgressRef.current = true;
     
     try {
       if (isLoading && exchangeRate === 0) {
         // Don't update yet if we're still loading the initial rate
+        calculationInProgressRef.current = false;
         return;
       }
 
@@ -93,12 +101,31 @@ export const useRateCalculation = ({
     } catch (err) {
       console.error("Error calculating exchange rate:", err);
       setReceiveAmount('Error');
+    } finally {
+      // Release the calculation lock after a small delay to prevent UI jitter
+      setTimeout(() => {
+        calculationInProgressRef.current = false;
+      }, 100);
     }
   }, [sendAmount, sourceCurrency, targetCurrency, exchangeRate, isLoading]);
   
-  // Run calculation when dependencies change
+  // Run calculation when dependencies change with a slight debounce
   useEffect(() => {
-    calculateAmount();
+    // Clear any existing timer
+    if (currencyChangeTimerRef.current) {
+      clearTimeout(currencyChangeTimerRef.current);
+    }
+    
+    // Set a short timeout to debounce rapid changes
+    currencyChangeTimerRef.current = setTimeout(() => {
+      calculateAmount();
+    }, 50);
+    
+    return () => {
+      if (currencyChangeTimerRef.current) {
+        clearTimeout(currencyChangeTimerRef.current);
+      }
+    };
   }, [calculateAmount]);
 
   // Function to force refresh the exchange rate
