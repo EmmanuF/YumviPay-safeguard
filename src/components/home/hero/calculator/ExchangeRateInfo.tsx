@@ -41,20 +41,9 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
         className="flex items-center justify-between"
       >
         <div className="text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex-grow">
-          {isLoadingRate && !rateLimitReached ? (
-            <span className="flex items-center">
-              <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
-              Updating rate...
-            </span>
-          ) : rateLimitReached ? (
-            <span className="flex items-center">
-              1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency} (fixed)
-            </span>
-          ) : (
-            <span>
-              1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
-            </span>
-          )}
+          <span>
+            1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
+          </span>
         </div>
         
         <Button 
@@ -64,7 +53,7 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
           onClick={refreshRate}
           disabled={isLoadingRate}
         >
-          <RefreshCw className={`h-4 w-4 ${isLoadingRate && !rateLimitReached ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
         </Button>
       </motion.div>
       
