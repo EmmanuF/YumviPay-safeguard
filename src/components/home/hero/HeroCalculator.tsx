@@ -169,7 +169,7 @@ const HeroCalculator: React.FC = () => {
           {isLoadingRate ? (
             <span className="flex items-center">
               <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
-              {t('hero.calculator.updating_rate')}
+              Updating rate...
             </span>
           ) : (
             t('hero.calculator.rate', {from: sourceCurrency, to: exchangeRate.toFixed(4), toCurrency: targetCurrency})

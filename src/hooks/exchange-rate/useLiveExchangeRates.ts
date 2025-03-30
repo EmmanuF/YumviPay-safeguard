@@ -24,6 +24,7 @@ export const useLiveExchangeRates = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [forcedRefresh, setForcedRefresh] = useState(false);
 
   // Function to fetch the latest exchange rate
   const updateRate = useCallback(async (forceRefresh = false) => {
@@ -34,6 +35,10 @@ export const useLiveExchangeRates = ({
     try {
       setIsLoading(true);
       setError(null);
+      
+      if (forceRefresh) {
+        setForcedRefresh(true);
+      }
       
       console.log(`🔄 Updating exchange rate: ${sourceCurrency} to ${targetCurrency}${forceRefresh ? ' (force refresh)' : ''}`);
       
@@ -56,7 +61,7 @@ export const useLiveExchangeRates = ({
       setRate(newRate);
       setLastUpdated(new Date());
       
-      // Only show toast if rate has actually changed
+      // Only show toast if rate has actually changed and it was a forced refresh
       if (hasRateChanged && forceRefresh) {
         toast({
           title: `Exchange Rate Updated`,
@@ -71,6 +76,11 @@ export const useLiveExchangeRates = ({
       
       // Reset retry count on success
       setRetryCount(0);
+      
+      // Reset forced refresh state
+      if (forceRefresh) {
+        setForcedRefresh(false);
+      }
     } catch (err) {
       console.error('Error updating exchange rate:', err);
       setError(err instanceof Error ? err : new Error('Failed to update exchange rate'));
@@ -82,6 +92,7 @@ export const useLiveExchangeRates = ({
           description: err instanceof Error ? err.message : 'Unknown error',
           variant: "destructive",
         });
+        setForcedRefresh(false);
       }
       
       // Increment retry count for exponential backoff
@@ -114,6 +125,7 @@ export const useLiveExchangeRates = ({
     isLoading,
     error,
     updateRate: () => updateRate(true), // Expose function to force refresh
-    retryCount
+    retryCount,
+    forcedRefresh
   };
 };
