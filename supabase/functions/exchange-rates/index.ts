@@ -66,6 +66,23 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Exchange rate API error:", errorText);
+      
+      // Check if the error is due to quota reached
+      if (errorText.includes("quota-reached") || response.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            error: "Quota Reached",
+            message: "API rate limit reached. Using fallback rates.",
+            errorType: "quota",
+            details: errorText
+          }),
+          { 
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 429  // Use 429 status specifically for rate limiting
+          }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ 
           error: "API Error",

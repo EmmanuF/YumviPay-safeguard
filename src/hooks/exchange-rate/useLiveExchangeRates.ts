@@ -16,7 +16,7 @@ export const useLiveExchangeRates = ({
   sourceCurrency,
   targetCurrency,
   initialRate = 0,
-  updateIntervalMs = 28800000, // Changed to 8 hours (28800000ms) for 3 updates per day
+  updateIntervalMs = 28800000, // 8 hours interval (3 updates per day)
   onRateUpdate
 }: UseLiveExchangeRatesProps) => {
   const [rate, setRate] = useState<number>(initialRate);
@@ -104,20 +104,30 @@ export const useLiveExchangeRates = ({
       if (errorMessage.includes('rate limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
         setRateLimitReached(true);
         console.warn('⚠️ API rate limit reached. Automatic updates disabled.');
-      }
-      
-      // Only show error toast on force refresh (user-initiated action)
-      if (forceRefresh) {
+        
+        if (forceRefresh) {
+          toast({
+            title: `API Rate Limit Reached`,
+            description: `Using cached data. New rates will be available when the quota resets.`,
+            variant: "warning",
+          });
+        }
+      } else if (forceRefresh) {
+        // Only show error toast on force refresh (user-initiated action)
         toast({
           title: `Failed to update exchange rate`,
           description: errorMessage,
           variant: "destructive",
         });
-        setForcedRefresh(false);
       }
       
       // Increment retry count for exponential backoff
       setRetryCount(prev => prev + 1);
+      
+      // Always reset forced refresh state in case of error
+      if (forceRefresh) {
+        setForcedRefresh(false);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +137,7 @@ export const useLiveExchangeRates = ({
   // to respect API limits - just use cached data if available
   useEffect(() => {
     // Only make a single API call when currencies change, don't force refresh
-    updateRate(false); 
+    updateRate(false);
   }, [sourceCurrency, targetCurrency, updateRate]);
 
   // Set up periodic updates with exponential backoff on errors 

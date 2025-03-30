@@ -15,7 +15,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
   try {
     console.log(`🌍 Fetching exchange rates for ${baseCurrency}...`);
     
-    // Check cache first
+    // Check cache first - this prevents unnecessary API calls
     const cachedRates = getCachedRates(baseCurrency);
     if (cachedRates) {
       return cachedRates;
@@ -31,11 +31,12 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     if (error) {
       console.error('❌ Supabase Edge Function error:', error);
       
-      // Check for rate limiting errors (specific to API provider)
-      if (error.message.includes('rate limit') || 
-          error.message.includes('quota') || 
-          error.message.includes('429')) {
-        throw new Error(`API rate limit reached: ${error.message}`);
+      // Check specifically for quota errors (now with a proper status code)
+      if (error.message?.includes('quota') || 
+          error.message?.includes('429') || 
+          error.message?.includes('rate limit')) {
+        console.warn('⚠️ API quota reached, using fallback rates');
+        throw new Error(`API quota reached: ${error.message}`);
       }
       
       throw new Error(`Failed to fetch exchange rates: ${error.message}`);
@@ -55,7 +56,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       lastUpdated: data.time_last_update_utc
     });
     
-    // Update cache with new rates
+    // Update cache with new rates and a long TTL
     cacheRates(baseCurrency, data.rates);
     
     return data.rates;
@@ -67,6 +68,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     const expiredCacheData = getExpiredCachedRates(baseCurrency);
     
     if (expiredCacheData) {
+      console.log('⚠️ Using expired cached rates due to API error');
       return expiredCacheData;
     }
     

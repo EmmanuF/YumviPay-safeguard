@@ -18,7 +18,8 @@ export const useRateCalculation = ({
     isLoading,
     error,
     lastUpdated,
-    updateRate
+    updateRate,
+    rateLimitReached
   } = useLiveExchangeRates({
     sourceCurrency,
     targetCurrency,
@@ -79,8 +80,8 @@ export const useRateCalculation = ({
     updateRate();
     toast({
       title: "Refreshing Exchange Rate",
-      description: "Getting the latest exchange rate...",
-      variant: "default",
+      description: rateLimitReached ? "API quota reached. Using cached rates." : "Getting the latest exchange rate...",
+      variant: rateLimitReached ? "warning" : "default",
     });
   };
 
@@ -90,6 +91,7 @@ export const useRateCalculation = ({
     isLoading,
     error,
     lastUpdated,
-    refreshRate
+    refreshRate,
+    rateLimitReached
   };
 };

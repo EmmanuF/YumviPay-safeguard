@@ -24,7 +24,8 @@ const ExchangeRateCalculator: React.FC = () => {
     targetCurrencies,
     isLoadingRate,
     lastRateUpdate,
-    refreshRate
+    refreshRate,
+    rateLimitReached
   } = useExchangeRateCalculator();
 
   // Format last updated time
@@ -87,7 +88,7 @@ const ExchangeRateCalculator: React.FC = () => {
           
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              {isLoadingRate ? (
+              {isLoadingRate && !rateLimitReached ? (
                 <span className="flex items-center">
                   <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
                   Updating rate...
@@ -100,15 +101,19 @@ const ExchangeRateCalculator: React.FC = () => {
               variant="outline" 
               size="sm"
               onClick={refreshRate}
-              disabled={isLoadingRate}
+              disabled={isLoadingRate && !rateLimitReached}
             >
-              <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${isLoadingRate && !rateLimitReached ? 'animate-spin' : ''}`} />
             </Button>
           </div>
           
           {lastRateUpdate && (
             <div className="text-xs text-center text-muted-foreground">
-              Last updated: {formattedLastUpdate}
+              {rateLimitReached ? (
+                "Rate fixed - API quota reached"
+              ) : (
+                `Last updated: ${formattedLastUpdate}`
+              )}
             </div>
           )}
           

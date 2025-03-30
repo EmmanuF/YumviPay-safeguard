@@ -14,6 +14,7 @@ interface ExchangeRateInfoProps {
   refreshRate: () => void;
   lastRateUpdate: Date | null;
   itemVariants: any;
+  rateLimitReached?: boolean;
 }
 
 const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
@@ -23,7 +24,8 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
   targetCurrency,
   refreshRate,
   lastRateUpdate,
-  itemVariants
+  itemVariants,
+  rateLimitReached = false
 }) => {
   const { t } = useLocale();
   
@@ -39,10 +41,18 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
         className="flex items-center justify-between"
       >
         <div className="text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex-grow">
-          {isLoadingRate ? (
+          {isLoadingRate && !rateLimitReached ? (
             <span className="flex items-center">
-              <RefreshCw className="h-3 w-3 mr-2" />
-              Updating rate...
+              <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
+              {t('hero.calculator.updating', 'Updating rate...')}
+            </span>
+          ) : rateLimitReached ? (
+            <span className="flex items-center">
+              {t('hero.calculator.rateFixed', {
+                from: sourceCurrency, 
+                to: exchangeRate.toFixed(4), 
+                toCurrency: targetCurrency
+              })}
             </span>
           ) : (
             t('hero.calculator.rate', {
@@ -60,7 +70,7 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
           onClick={refreshRate}
           disabled={isLoadingRate}
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className={`h-4 w-4 ${isLoadingRate && !rateLimitReached ? 'animate-spin' : ''}`} />
         </Button>
       </motion.div>
       
@@ -69,7 +79,11 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
           variants={itemVariants}
           className="mt-2 text-xs text-center text-gray-500"
         >
-          Last updated: {formattedLastUpdate}
+          {rateLimitReached ? (
+            <>Rate fixed - API quota reached</>
+          ) : (
+            <>Last updated: {formattedLastUpdate}</>
+          )}
         </motion.div>
       )}
     </>

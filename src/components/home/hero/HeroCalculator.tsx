@@ -49,7 +49,8 @@ const HeroCalculator: React.FC = () => {
     targetCurrencies,
     isLoadingRate,
     lastRateUpdate,
-    refreshRate
+    refreshRate,
+    rateLimitReached
   } = useExchangeRateCalculator();
   
   // Custom handling for "Send Now" button to ensure direct redirection to /send for logged in users
@@ -129,6 +130,7 @@ const HeroCalculator: React.FC = () => {
         refreshRate={refreshRate}
         lastRateUpdate={lastRateUpdate}
         itemVariants={itemVariants}
+        rateLimitReached={rateLimitReached}
       />
     </motion.div>
   );

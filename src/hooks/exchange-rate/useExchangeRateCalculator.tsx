@@ -24,7 +24,8 @@ export const useExchangeRateCalculator = (
     isLoading: isLoadingRate,
     error,
     lastUpdated,
-    refreshRate
+    refreshRate,
+    rateLimitReached
   } = useRateCalculation({
     sendAmount,
     sourceCurrency,
@@ -81,6 +82,7 @@ export const useExchangeRateCalculator = (
     handleContinue,
     isLoadingRate,
     lastRateUpdate: lastUpdated,
-    refreshRate
+    refreshRate,
+    rateLimitReached
   };
 };
