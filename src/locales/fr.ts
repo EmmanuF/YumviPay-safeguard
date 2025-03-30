@@ -4,9 +4,28 @@ const frTranslations = {
   // General
   'app.name': 'Yumvi-Pay',
   'app.tagline': 'Envoyez de l\'argent à vos proches',
+  'app.loading': 'Chargement...',
+  'app.pleaseWait': 'Veuillez patienter...',
+  
+  // Hero section
+  'hero.title': 'Transferts Sans Limites',
+  'hero.subtitle': 'Transferts d\'argent rapides, sécurisés et abordables vers l\'Afrique',
+  'hero.getStarted': 'Commencer',
+  'hero.downloadApp': 'Télécharger l\'App',
+  'hero.features.fast': 'Rapide & Sécurisé',
+  'hero.features.free': 'Transferts Gratuits',
+  'hero.calculator.title': 'Calculer Votre Transfert',
+  'hero.calculator.youSend': 'Vous Envoyez',
+  'hero.calculator.theyReceive': 'Ils Reçoivent',
+  'hero.calculator.button': 'Envoyer Maintenant',
+  'hero.calculator.rate': 'Taux de change: 1 {from} = {to} {toCurrency}',
   
   // Countries
   'country.cameroon': 'Cameroun',
+  'country.nigeria': 'Nigeria',
+  'country.kenya': 'Kenya',
+  'country.ghana': 'Ghana',
+  'country.us': 'États-Unis',
   
   // Payment Methods
   'payment.mobile_money': 'Envoyer via mobile money',
@@ -37,6 +56,7 @@ const frTranslations = {
   'transaction.viewHistory': 'Voir l\'Historique',
   'transaction.goBack': 'Retour',
   'transaction.estimatedDelivery': 'Délai de Livraison Estimé',
+  'transaction.recipient_gets': 'Le destinataire reçoit',
   
   // SendMoney component
   'sendMoney.title': 'Envoyer de l\'Argent',
@@ -55,6 +75,24 @@ const frTranslations = {
   'sendMoney.initialDataDescription': 'D\'abord, sélectionnez votre montant et votre devise',
   'sendMoney.calculatorTitle': 'Calculer le Taux de Change',
   'sendMoney.calculatorDescription': 'Vérifiez combien votre destinataire recevra',
+  'sendMoney.pleaseWait': 'Veuillez patienter',
+  'sendMoney.loadingData': 'Chargement des données de transaction...',
+  'sendMoney.processing': 'Traitement en cours...',
+  
+  // Features section
+  'features.title': 'Pourquoi Choisir Yumvi-Pay',
+  'features.subtitle': 'Nous offrons la meilleure expérience pour envoyer de l\'argent vers l\'Afrique',
+  'features.rates.title': 'Meilleurs Taux de Change',
+  'features.rates.description': 'Nous offrons des taux de change compétitifs qui font que votre argent va plus loin lors d\'envois vers l\'Afrique.',
+  'features.transparent.title': 'Simple & Transparent',
+  'features.transparent.description': 'Sachez exactement combien votre destinataire recevra avant d\'envoyer, sans frais ni charges cachés.',
+  'features.secure.title': 'KYC Sécurisé & Rapide',
+  'features.secure.description': 'Notre vérification intégrée garantit des transactions sûres et rapides avec un temps d\'attente minimal.',
+  
+  // Testimonials
+  'testimonials.title': 'Ce que Disent Nos Clients',
+  'testimonials.subtitle': 'Des milliers de personnes font confiance à Yumvi-Pay pour envoyer de l\'argent à leurs proches chaque jour',
+  'testimonials.cta': 'Rejoignez des milliers de clients satisfaits utilisant Yumvi-Pay aujourd\'hui!',
   
   // Mobile Money Specific
   'momo.number': 'Numéro Mobile',
@@ -164,4 +202,5 @@ const frTranslations = {
   'actions.download': 'Télécharger',
 };
 
+export { frTranslations };
 export default frTranslations;

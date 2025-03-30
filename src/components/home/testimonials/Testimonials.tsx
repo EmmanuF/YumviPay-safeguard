@@ -8,8 +8,10 @@ import { testimonials } from './testimonialData';
 import TestimonialCarousel from './TestimonialCarousel';
 import DesktopTestimonials from './DesktopTestimonials';
 import { TestimonialsProps } from './types';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const Testimonials: React.FC<TestimonialsProps> = ({ testimonials: customTestimonials }) => {
+  const { t } = useLocale();
   const isMobile = useIsMobile();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [autoplay, setAutoplay] = useState(true);
@@ -50,9 +52,11 @@ const Testimonials: React.FC<TestimonialsProps> = ({ testimonials: customTestimo
             transition={{ delay: 0.2, duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary-800 to-primary-600 bg-clip-text text-transparent">What Our Customers Say</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary-800 to-primary-600 bg-clip-text text-transparent">
+              {t('testimonials.title')}
+            </h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-              Thousands of people trust Yumvi-Pay to send money to their loved ones every day
+              {t('testimonials.subtitle')}
             </p>
           </motion.div>
         </div>
@@ -77,7 +81,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({ testimonials: customTestimo
           transition={{ delay: 0.5, duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <p className="text-lg text-primary-600 font-medium">Join thousands of satisfied customers using Yumvi-Pay today!</p>
+          <p className="text-lg text-primary-600 font-medium">{t('testimonials.cta')}</p>
         </motion.div>
       </div>
     </motion.div>

@@ -3,17 +3,19 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const ExchangeRateCalculatorStub: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLocale();
   
   return (
     <div className="p-6 rounded-xl bg-white">
-      <h3 className="text-2xl font-bold mb-6">Calculate Your Transfer</h3>
+      <h3 className="text-2xl font-bold mb-6">{t('hero.calculator.title')}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">You Send</label>
+          <label className="block text-sm font-medium text-gray-700">{t('hero.calculator.youSend')}</label>
           <div className="p-3 border rounded-md bg-white">
             100
           </div>
@@ -23,12 +25,12 @@ const ExchangeRateCalculatorStub: React.FC = () => {
               alt="US Flag" 
               className="w-5 h-3.5 object-cover"
             />
-            <span>United States (USD)</span>
+            <span>{t('country.us')} (USD)</span>
           </div>
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">They Receive</label>
+          <label className="block text-sm font-medium text-gray-700">{t('hero.calculator.theyReceive')}</label>
           <div className="p-3 border rounded-md bg-gray-50">
             60,743.30
           </div>
@@ -38,7 +40,7 @@ const ExchangeRateCalculatorStub: React.FC = () => {
               alt="Cameroon Flag" 
               className="w-5 h-3.5 object-cover"
             />
-            <span>Cameroon (XAF)</span>
+            <span>{t('country.cameroon')} (XAF)</span>
           </div>
         </div>
       </div>
@@ -47,12 +49,12 @@ const ExchangeRateCalculatorStub: React.FC = () => {
         className="w-full bg-primary hover:bg-primary-600 py-6 flex items-center justify-center mb-4"
         onClick={() => navigate('/signup')}
       >
-        <span className="mr-2">Send Now</span>
+        <span className="mr-2">{t('hero.calculator.button')}</span>
         <ArrowRight className="h-5 w-5" />
       </Button>
       
       <div className="text-center text-sm text-gray-600">
-        Exchange Rate: 1 USD = 607.4330 XAF
+        {t('hero.calculator.rate', {from: "USD", to: "607.4330", toCurrency: "XAF"})}
       </div>
     </div>
   );

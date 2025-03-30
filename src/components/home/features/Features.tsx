@@ -2,8 +2,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FeatureCard, ExchangeRateIcon, TransparencyIcon, SecureKycIcon } from './';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const Features = () => {
+  const { t } = useLocale();
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -32,7 +35,7 @@ const Features = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           viewport={{ once: true }}
         >
-          Why Choose Yumvi-Pay
+          {t('features.title')}
         </motion.h2>
         <motion.p 
           className="text-gray-600 max-w-2xl mx-auto"
@@ -41,7 +44,7 @@ const Features = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          We offer the best experience for sending money to Africa
+          {t('features.subtitle')}
         </motion.p>
       </div>
 
@@ -54,22 +57,22 @@ const Features = () => {
       >
         <FeatureCard 
           icon={<ExchangeRateIcon />}
-          title="Best Exchange Rates"
-          description="We offer competitive exchange rates that ensure your money goes further when sending to Africa."
+          title={t('features.rates.title')}
+          description={t('features.rates.description')}
           colorScheme="green"
         />
         
         <FeatureCard 
           icon={<TransparencyIcon />}
-          title="Simple & Transparent"
-          description="Know exactly how much your recipient will get before you send, with no hidden fees or charges."
+          title={t('features.transparent.title')}
+          description={t('features.transparent.description')}
           colorScheme="purple"
         />
         
         <FeatureCard 
           icon={<SecureKycIcon />}
-          title="Secure & Fast KYC"
-          description="Our integrated verification ensures safe and quick transactions with minimal waiting time."
+          title={t('features.secure.title')}
+          description={t('features.secure.description')}
           colorScheme="orange"
         />
       </motion.div>
