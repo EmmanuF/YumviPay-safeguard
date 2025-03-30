@@ -3,12 +3,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface HeroActionsProps {
   onGetStarted: () => void;
 }
 
 const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
+  const { t } = useLocale();
+  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -26,7 +29,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
           whileHover={{ x: 4 }}
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
         >
-          Get Started
+          {t('hero.getStarted')}
           <ArrowRight className="ml-2 h-4 w-4" />
         </motion.span>
       </Button>
@@ -42,7 +45,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
         >
           <Download className="mr-2 h-4 w-4" />
-          Download App
+          {t('hero.downloadApp')}
         </motion.span>
       </Button>
     </motion.div>
