@@ -12,7 +12,7 @@ export const useRateCalculation = ({
   const [receiveAmount, setReceiveAmount] = useState('');
   const [lastCalculation, setLastCalculation] = useState<string | null>(null);
   
-  // Get live exchange rate updates
+  // Get live exchange rate updates - reduced to 3 times per day (8 hours interval)
   const { 
     rate: exchangeRate, 
     isLoading,
@@ -22,8 +22,8 @@ export const useRateCalculation = ({
   } = useLiveExchangeRates({
     sourceCurrency,
     targetCurrency,
-    initialRate: sourceCurrency === 'USD' && targetCurrency === 'XAF' ? 610 : 0,
-    updateIntervalMs: 60000, // Update every minute
+    initialRate: sourceCurrency === 'USD' && targetCurrency === 'XAF' ? 630 : 0, // Initial rate includes the 20 XAF markup
+    updateIntervalMs: 28800000, // 8 hours = 3 updates per day
     onRateUpdate: (newRate) => {
       // Show toast when rate updates significantly (more than 1%)
       if (lastCalculation) {
@@ -52,7 +52,7 @@ export const useRateCalculation = ({
         return;
       }
 
-      // Use the live rate from the API
+      // Use the live rate from the API (which now includes the 20 XAF markup)
       console.log(`💱 Using exchange rate: 1 ${sourceCurrency} = ${exchangeRate} ${targetCurrency}`);
       
       // Calculate the receive amount

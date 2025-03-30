@@ -41,7 +41,6 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
         <div className="text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex-grow">
           {isLoadingRate ? (
             <span className="flex items-center">
-              {/* Removed animation from the icon */}
               <RefreshCw className="h-3 w-3 mr-2" />
               Updating rate...
             </span>
@@ -61,8 +60,7 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
           onClick={refreshRate}
           disabled={isLoadingRate}
         >
-          {/* Conditionally apply animation only when explicitly loading */}
-          <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
+          <RefreshCw className="h-4 w-4" />
         </Button>
       </motion.div>
       

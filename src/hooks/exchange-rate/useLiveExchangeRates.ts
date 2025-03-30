@@ -16,16 +16,16 @@ export const useLiveExchangeRates = ({
   sourceCurrency,
   targetCurrency,
   initialRate = 0,
-  updateIntervalMs = 300000, // Changed from 60000 (1 minute) to 300000 (5 minutes) to reduce API calls
+  updateIntervalMs = 28800000, // Changed to 8 hours (28800000ms) for 3 updates per day
   onRateUpdate
 }: UseLiveExchangeRatesProps) => {
   const [rate, setRate] = useState<number>(initialRate);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Changed from true to false to prevent initial loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [forcedRefresh, setForcedRefresh] = useState(false);
-  const [rateLimitReached, setRateLimitReached] = useState(false); // New state to track API rate limits
+  const [rateLimitReached, setRateLimitReached] = useState(false);
 
   // Function to fetch the latest exchange rate
   const updateRate = useCallback(async (forceRefresh = false) => {
@@ -59,7 +59,13 @@ export const useLiveExchangeRates = ({
         newRate = await getExchangeRate(sourceCurrency, targetCurrency);
       }
       
-      console.log(`📊 New exchange rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
+      // Add 20 XAF markup for XAF currency
+      if (targetCurrency === 'XAF') {
+        newRate += 20;
+        console.log(`📊 Added 20 XAF markup. New rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
+      } else {
+        console.log(`📊 New exchange rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
+      }
       
       // Check if rate actually changed
       const hasRateChanged = rate !== newRate;
@@ -135,7 +141,7 @@ export const useLiveExchangeRates = ({
     
     // Use exponential backoff if we've had errors
     if (retryCount > 0) {
-      const backoffTime = Math.min(updateIntervalMs * Math.pow(2, retryCount), 30 * 60 * 1000); // Max 30 minutes
+      const backoffTime = Math.min(updateIntervalMs * Math.pow(2, retryCount), 24 * 60 * 60 * 1000); // Max 24 hours
       console.log(`⏱️ Backing off exchange rate update for ${Math.round(backoffTime / 1000)}s due to previous errors`);
       return;
     }

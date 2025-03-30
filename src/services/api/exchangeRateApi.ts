@@ -9,8 +9,8 @@ const exchangeRateCache: Record<string, {
   expiry: number;
 }> = {};
 
-// Cache TTL in milliseconds (increased from 2 minutes to 1 hour to reduce API calls)
-const CACHE_TTL = 60 * 60 * 1000;
+// Cache TTL in milliseconds (increased to 8 hours to match the update frequency)
+const CACHE_TTL = 8 * 60 * 60 * 1000;
 
 /**
  * Fetch latest exchange rate for a base currency using Supabase Edge Function
@@ -121,6 +121,8 @@ export const getExchangeRate = async (
       return getFallbackExchangeRate(sourceCurrency, targetCurrency);
     }
     
+    // Apply the 20 XAF markup specifically for XAF currency here if necessary,
+    // but we're now handling this in the hook instead to keep the raw rate data clean
     console.log(`📊 Current rate: 1 ${sourceCurrency} = ${rate} ${targetCurrency}`);
     return rate;
   } catch (error) {
@@ -188,18 +190,22 @@ const getFallbackExchangeRate = (sourceCurrency: string, targetCurrency: string)
   const rate = exchangeRates[pair];
   
   if (rate) {
+    // If this is an XAF rate, add the 20 XAF markup
+    if (targetCurrency === 'XAF') {
+      return rate + 20;
+    }
     return rate;
   }
   
-  // For Cameroon-specific rates, use the fixed values
+  // For Cameroon-specific rates, use the fixed values with the 20 XAF markup
   if (targetCurrency === 'XAF' && sourceCurrency === 'USD') {
-    return 610;
+    return 610 + 20;
   } else if (targetCurrency === 'XAF' && sourceCurrency === 'EUR') {
-    return 655.957;
+    return 655.957 + 20;
   } else if (targetCurrency === 'XAF' && sourceCurrency === 'GBP') {
-    return 765.55;
+    return 765.55 + 20;
   }
   
-  // Default fallback
-  return targetCurrency === 'XAF' ? 610 : 1;
+  // Default fallback with markup for XAF
+  return targetCurrency === 'XAF' ? (610 + 20) : 1;
 };
