@@ -1,3 +1,4 @@
+
 /**
  * Exchange rate service for currency conversions
  */
@@ -32,8 +33,6 @@ export const getExchangeRate = async (
       return getFallbackExchangeRate(sourceCurrency, targetCurrency);
     }
     
-    // Apply the 20 XAF markup specifically for XAF currency here if necessary,
-    // but we're now handling this in the hook instead to keep the raw rate data clean
     console.log(`📊 Current rate: 1 ${sourceCurrency} = ${rate} ${targetCurrency}`);
     return rate;
   } catch (error) {
@@ -48,12 +47,17 @@ export const getExchangeRate = async (
  * @returns Updated exchange rates
  */
 export const refreshExchangeRates = async (baseCurrency: string = 'USD'): Promise<Record<string, number>> => {
-  // Clear the cache for this currency
-  clearRatesCache(baseCurrency);
-  
-  // Fetch fresh rates
-  console.log(`🔄 Force refreshing exchange rates for ${baseCurrency}...`);
-  return fetchExchangeRates(baseCurrency);
+  try {
+    // Clear the cache for this currency
+    clearRatesCache(baseCurrency);
+    
+    // Fetch fresh rates
+    console.log(`🔄 Force refreshing exchange rates for ${baseCurrency}...`);
+    return await fetchExchangeRates(baseCurrency);
+  } catch (error) {
+    console.error('❌ Error refreshing exchange rates:', error);
+    throw error; // Re-throw to let caller handle the error
+  }
 };
 
 // Re-export everything for backward compatibility

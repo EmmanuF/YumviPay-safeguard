@@ -18,6 +18,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     // Check cache first - this prevents unnecessary API calls
     const cachedRates = getCachedRates(baseCurrency);
     if (cachedRates) {
+      console.log(`✅ Using cached rates for ${baseCurrency}`);
       return cachedRates;
     }
     
@@ -31,7 +32,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     if (error) {
       console.error('❌ Supabase Edge Function error:', error);
       
-      // Check specifically for quota errors (now with a proper status code)
+      // Check specifically for quota errors
       if (error.message?.includes('quota') || 
           error.message?.includes('429') || 
           error.message?.includes('rate limit')) {
@@ -53,7 +54,7 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       EUR: data.rates.EUR,
       GBP: data.rates.GBP,
       XAF: data.rates.XAF || 'N/A',
-      lastUpdated: data.time_last_update_utc
+      lastUpdated: data.time_last_update_utc || data.timestamp
     });
     
     // Update cache with new rates and a long TTL

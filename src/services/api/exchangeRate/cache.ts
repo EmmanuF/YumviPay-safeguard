@@ -24,10 +24,12 @@ export const getCachedRates = (baseCurrency: string): Record<string, number> | n
   const cachedData = exchangeRateCache[cacheKey];
   
   if (cachedData && now < cachedData.expiry) {
-    console.log(`💰 Using cached exchange rates for ${baseCurrency} (expires in ${Math.round((cachedData.expiry - now) / 1000)}s)`);
+    const timeRemaining = Math.round((cachedData.expiry - now) / 60000); // in minutes
+    console.log(`💰 Using cached exchange rates for ${baseCurrency} (expires in ${timeRemaining} minutes)`);
     return cachedData.rates;
   }
   
+  console.log(`❓ No valid cache found for ${baseCurrency} or cache expired`);
   return null;
 };
 
@@ -45,6 +47,15 @@ export const cacheRates = (baseCurrency: string, rates: Record<string, number>):
     timestamp: now,
     expiry: now + CACHE_TTL
   };
+  
+  console.log(`💾 Cached exchange rates for ${baseCurrency} (expires in 8 hours)`);
+  
+  // Debug log the current cache state
+  console.log(`🗄️ Current cache state:`, Object.keys(exchangeRateCache).map(key => ({
+    currency: key,
+    timestamp: new Date(exchangeRateCache[key].timestamp).toISOString(),
+    expiry: new Date(exchangeRateCache[key].expiry).toISOString()
+  })));
 };
 
 /**

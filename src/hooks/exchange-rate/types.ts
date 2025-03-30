@@ -1,6 +1,5 @@
 
-import { CurrencyCode } from "@/types/currency";
-
+// Remove the invalid import and define the type we need directly
 export interface RateCalculationProps {
   sendAmount: string;
   sourceCurrency: string;

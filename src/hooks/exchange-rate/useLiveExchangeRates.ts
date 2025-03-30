@@ -52,9 +52,17 @@ export const useLiveExchangeRates = ({
       // If forcing a refresh, clear cache and get new data
       let newRate: number;
       if (forceRefresh) {
-        // Force refresh the rates for this currency
-        await refreshExchangeRates(sourceCurrency);
-        newRate = await getExchangeRate(sourceCurrency, targetCurrency);
+        try {
+          // Force refresh the rates for this currency
+          console.log(`🔄 Force refreshing exchange rates for ${sourceCurrency}`);
+          await refreshExchangeRates(sourceCurrency);
+          newRate = await getExchangeRate(sourceCurrency, targetCurrency);
+          console.log(`✅ Successfully forced refresh of rates for ${sourceCurrency}`);
+        } catch (refreshError) {
+          console.error('❌ Forced refresh failed:', refreshError);
+          // Fall back to regular fetch if force fails
+          newRate = await getExchangeRate(sourceCurrency, targetCurrency);
+        }
       } else {
         newRate = await getExchangeRate(sourceCurrency, targetCurrency);
       }
@@ -156,6 +164,8 @@ export const useLiveExchangeRates = ({
       return;
     }
     
+    // Perform the periodic update
+    console.log('⏱️ Performing scheduled exchange rate update');
     updateRate();
   }, updateIntervalMs);
 

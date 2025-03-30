@@ -44,22 +44,16 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
           {isLoadingRate && !rateLimitReached ? (
             <span className="flex items-center">
               <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
-              {t('hero.calculator.updating', 'Updating rate...')}
+              Updating rate...
             </span>
           ) : rateLimitReached ? (
             <span className="flex items-center">
-              {t('hero.calculator.rateFixed', {
-                from: sourceCurrency, 
-                to: exchangeRate.toFixed(4), 
-                toCurrency: targetCurrency
-              })}
+              1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency} (fixed)
             </span>
           ) : (
-            t('hero.calculator.rate', {
-              from: sourceCurrency, 
-              to: exchangeRate.toFixed(4), 
-              toCurrency: targetCurrency
-            })
+            <span>
+              1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
+            </span>
           )}
         </div>
         
