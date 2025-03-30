@@ -1,5 +1,5 @@
+
 export const en = {
-  
   hero: {
     title: "Transfer Without Boundaries",
     feature1: "Fast & Secure",

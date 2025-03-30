@@ -1,4 +1,3 @@
-
 import { Locale } from '@/types/locale';
 import { translations } from '@/locales';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,28 +13,41 @@ export const saveLocale = (locale: Locale): void => {
   localStorage.setItem('yumvi-locale', locale);
 };
 
-// Translation function
+// Translation function (handles nested keys)
 export const translate = (key: string, locale: Locale, params?: Record<string, string>): string => {
   // Ensure we're using a valid locale
   const safeLocale = locale === 'en' || locale === 'fr' ? locale : 'en';
   
-  // Get translation or fall back to key if not found
-  const translation = translations[safeLocale][key];
-  if (!translation) {
+  // Get the translation object for the locale
+  const translationObj = translations[safeLocale];
+  
+  // Navigate through nested keys (e.g., 'hero.title')
+  const keys = key.split('.');
+  let text = translationObj;
+  
+  for (const k of keys) {
+    if (text && typeof text === 'object') {
+      text = text[k];
+    } else {
+      text = undefined;
+      break;
+    }
+  }
+  
+  // If translation not found, return the key
+  if (text === undefined) {
     console.warn(`Translation key not found: ${key} for locale: ${safeLocale}`);
     return key;
   }
   
-  let text = translation;
-  
   // Replace parameters if provided
-  if (params) {
+  if (params && typeof text === 'string') {
     Object.entries(params).forEach(([param, value]) => {
-      text = text.replace(`{{${param}}}`, value);
+      text = (text as string).replace(`{{${param}}}`, value);
     });
   }
   
-  return text;
+  return text as string;
 };
 
 // Get flag emoji for locale

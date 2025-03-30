@@ -1,13 +1,13 @@
 
-import enTranslations from './en';
-import frTranslations from './fr';
+import { en } from './en';
+import { fr } from './fr';
 import { Locale } from '@/types/locale';
 
 // Export all translations in a single dictionary
-export const translations: Record<Locale, Record<string, string>> = {
-  en: enTranslations,
-  fr: frTranslations
+export const translations: Record<Locale, any> = {
+  en: en,
+  fr: fr
 };
 
-export { default as enTranslations } from './en';
-export { default as frTranslations } from './fr';
+// Export individual translations if needed elsewhere
+export { en, fr };
