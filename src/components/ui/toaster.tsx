@@ -24,6 +24,9 @@ export function Toaster() {
   // For managing progress updates
   const progressIntervals = useRef(new Map<string, NodeJS.Timeout>())
   
+  // For deduplicating toasts
+  const recentToastKeys = useRef(new Set<string>())
+  
   // Clean up any progress intervals when component unmounts
   useEffect(() => {
     return () => {
@@ -33,10 +36,32 @@ export function Toaster() {
       progressIntervals.current.clear()
     }
   }, [])
+  
+  // Filter out duplicate exchange rate toasts to prevent stacking
+  const filteredToasts = toasts.filter(toast => {
+    // Skip filtering for non-exchange toasts
+    if (!toast.title?.includes("Exchange Rate")) return true
+    
+    // Create a unique key for this toast based on content
+    const toastKey = `${toast.id}-${toast.title}-${toast.description}`
+    
+    // If we've seen this toast recently, filter it out
+    if (recentToastKeys.current.has(toastKey)) {
+      return false
+    }
+    
+    // Remember this toast for 2 seconds to prevent duplicates
+    recentToastKeys.current.add(toastKey)
+    setTimeout(() => {
+      recentToastKeys.current.delete(toastKey)
+    }, 2000)
+    
+    return true
+  })
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ 
+      {filteredToasts.map(function ({ 
         id, 
         title, 
         description, 

@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RateCalculationProps } from './types';
 import { useLiveExchangeRates } from './useLiveExchangeRates';
 import { toast } from '@/hooks/use-toast';
@@ -11,6 +11,8 @@ export const useRateCalculation = ({
 }: RateCalculationProps) => {
   const [receiveAmount, setReceiveAmount] = useState('');
   const [lastCalculation, setLastCalculation] = useState<string | null>(null);
+  const currencyChangeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastToastRef = useRef<string | null>(null);
   
   // Get live exchange rate updates - reduced to 3 times per day (8 hours interval)
   const { 
@@ -26,22 +28,46 @@ export const useRateCalculation = ({
     initialRate: sourceCurrency === 'USD' && targetCurrency === 'XAF' ? 630 : 0, // Initial rate includes the 20 XAF markup
     updateIntervalMs: 28800000, // 8 hours = 3 updates per day
     onRateUpdate: (newRate) => {
-      // Show toast when rate updates significantly (more than 1%)
+      // Only show toast when rate updates significantly (more than 1%)
       if (lastCalculation) {
         const [prevRate] = lastCalculation.split('|');
         const prevRateNum = parseFloat(prevRate);
         const rateChange = Math.abs((newRate - prevRateNum) / prevRateNum);
         
+        // Only show toast for significant changes (> 1%)
         if (rateChange > 0.01) {
-          toast({
-            title: "Exchange Rate Updated",
-            description: `1 ${sourceCurrency} = ${newRate.toFixed(4)} ${targetCurrency}`,
-            variant: "info",
-          });
+          const toastKey = `${sourceCurrency}-${targetCurrency}-${Math.round(newRate * 100)}`;
+          
+          // Prevent duplicate toasts within a short period
+          if (lastToastRef.current !== toastKey) {
+            toast({
+              title: "Exchange Rate Updated",
+              description: `1 ${sourceCurrency} = ${newRate.toFixed(4)} ${targetCurrency}`,
+              variant: "info",
+            });
+            
+            lastToastRef.current = toastKey;
+          }
         }
       }
     }
   });
+
+  // Clear any pending currency change timer when currencies change
+  useEffect(() => {
+    if (currencyChangeTimerRef.current) {
+      clearTimeout(currencyChangeTimerRef.current);
+    }
+    
+    // Reset last toast reference when currencies change
+    lastToastRef.current = null;
+    
+    return () => {
+      if (currencyChangeTimerRef.current) {
+        clearTimeout(currencyChangeTimerRef.current);
+      }
+    };
+  }, [sourceCurrency, targetCurrency]);
 
   // Calculate receive amount whenever input values change
   const calculateAmount = useCallback(() => {
@@ -77,12 +103,28 @@ export const useRateCalculation = ({
 
   // Function to force refresh the exchange rate
   const refreshRate = () => {
-    updateRate();
-    toast({
-      title: "Refreshing Exchange Rate",
-      description: rateLimitReached ? "API quota reached. Using cached rates." : "Getting the latest exchange rate...",
-      variant: rateLimitReached ? "warning" : "default",
-    });
+    // Check if we've shown a toast recently for this currency pair
+    const currentKey = `${sourceCurrency}-${targetCurrency}-refresh`;
+    
+    if (lastToastRef.current !== currentKey) {
+      updateRate();
+      
+      toast({
+        title: "Refreshing Exchange Rate",
+        description: rateLimitReached ? "API quota reached. Using cached rates." : "Getting the latest exchange rate...",
+        variant: rateLimitReached ? "warning" : "default",
+      });
+      
+      // Remember this toast to prevent duplicates
+      lastToastRef.current = currentKey;
+      
+      // Reset the toast reference after 5 seconds
+      currencyChangeTimerRef.current = setTimeout(() => {
+        lastToastRef.current = null;
+      }, 5000);
+    } else {
+      console.log("Skipping duplicate refresh toast");
+    }
   };
 
   return {
