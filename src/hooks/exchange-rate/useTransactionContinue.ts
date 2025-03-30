@@ -1,8 +1,21 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { TransactionContinueProps } from './types';
-import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+
+interface UseTransactionContinueProps {
+  sendAmount: string;
+  receiveAmount: string;
+  sourceCurrency: string;
+  targetCurrency: string;
+  exchangeRate: number;
+  onContinue?: (data: {
+    sendAmount: string;
+    receiveAmount: string;
+    sourceCurrency: string;
+    targetCurrency: string;
+    exchangeRate: number;
+  }) => void;
+}
 
 export const useTransactionContinue = ({
   sendAmount,
@@ -11,28 +24,16 @@ export const useTransactionContinue = ({
   targetCurrency,
   exchangeRate,
   onContinue
-}: TransactionContinueProps) => {
+}: UseTransactionContinueProps) => {
+  const navigate = useNavigate();
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
-  const { isLoggedIn, loading: authLoading } = useAuth();
-  const { toast } = useToast();
 
-  // Handle continue button click
-  const handleContinue = () => {
-    console.log("Continue transaction flow", { isLoggedIn, authLoading });
-    
-    if (!sendAmount || parseFloat(sendAmount) <= 0) {
-      toast({
-        title: "Invalid amount",
-        description: "Please enter a valid amount to send",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsProcessing(true);
-    console.log("Processing transaction...");
-    
+  const handleContinue = async () => {
     try {
+      setIsProcessing(true);
+      console.log("Continue button clicked, processing transaction...");
+      
       // Store transaction data in localStorage
       const transactionData = {
         amount: parseFloat(sendAmount) || 0,
@@ -42,29 +43,34 @@ export const useTransactionContinue = ({
         targetCurrency,
         exchangeRate,
         convertedAmount: parseFloat(receiveAmount) || 0,
+        targetCountry: targetCurrency === "XAF" ? "CM" : "NG", // Default to Cameroon for XAF
       };
       
       localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
-      console.log("Transaction data stored:", transactionData);
+      console.log("Transaction data stored in localStorage:", transactionData);
       
-      // If custom continuation handler provided, use it
+      // If there's a custom onContinue handler, use it
       if (onContinue) {
         onContinue({
           sendAmount,
-          receiveAmount, 
+          receiveAmount,
           sourceCurrency,
           targetCurrency,
           exchangeRate
         });
+        return;
       }
       
+      // Otherwise use the default navigation behavior
+      if (isLoggedIn) {
+        console.log("User is logged in, redirecting to /send");
+        navigate('/send');
+      } else {
+        console.log("User is not logged in, redirecting to /signin");
+        navigate('/signin', { state: { redirectAfterLogin: '/send' } });
+      }
     } catch (error) {
-      console.error("Error processing transaction continuation:", error);
-      toast({
-        title: "Error",
-        description: "Failed to process your request. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Error during transaction continuation:", error);
     } finally {
       setIsProcessing(false);
     }

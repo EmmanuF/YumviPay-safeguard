@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
@@ -49,7 +49,8 @@ const HeroCalculator: React.FC = () => {
     targetCurrency,
     setTargetCurrency,
     sourceCurrencies,
-    targetCurrencies
+    targetCurrencies,
+    isLoadingRate
   } = useExchangeRateCalculator();
   
   // Custom handling for "Send Now" button to ensure direct redirection to /send for logged in users
@@ -154,9 +155,16 @@ const HeroCalculator: React.FC = () => {
       
       <motion.div 
         variants={itemVariants}
-        className="text-center text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4"
+        className="text-center text-sm text-gray-600 font-medium bg-white/50 rounded-md py-2 px-4 flex items-center justify-center"
       >
-        {t('hero.calculator.rate', {from: sourceCurrency, to: exchangeRate.toFixed(4), toCurrency: targetCurrency})}
+        {isLoadingRate ? (
+          <span className="flex items-center">
+            <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
+            {t('hero.calculator.updating_rate')}
+          </span>
+        ) : (
+          t('hero.calculator.rate', {from: sourceCurrency, to: exchangeRate.toFixed(4), toCurrency: targetCurrency})
+        )}
       </motion.div>
     </motion.div>
   );

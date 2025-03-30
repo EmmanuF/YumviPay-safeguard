@@ -17,8 +17,13 @@ export const useExchangeRateCalculator = (
   // Get currency lists
   const { sourceCurrencies, targetCurrencies, countriesLoading } = useCurrencyLists();
 
-  // Calculate exchange rate and receive amount
-  const { exchangeRate, receiveAmount } = useRateCalculation({
+  // Calculate exchange rate and receive amount with live rate updates
+  const { 
+    exchangeRate, 
+    receiveAmount,
+    isLoading: isLoadingRate,
+    error 
+  } = useRateCalculation({
     sendAmount,
     sourceCurrency,
     targetCurrency
@@ -33,6 +38,13 @@ export const useExchangeRateCalculator = (
     exchangeRate,
     onContinue
   });
+
+  // Log any exchange rate errors
+  useEffect(() => {
+    if (error) {
+      console.error("Exchange rate error:", error);
+    }
+  }, [error]);
 
   // Update source currency if it's not in the available currencies
   useEffect(() => {
@@ -64,6 +76,7 @@ export const useExchangeRateCalculator = (
     countriesLoading,
     sourceCurrencies,
     targetCurrencies,
-    handleContinue
+    handleContinue,
+    isLoadingRate
   };
 };

@@ -1,0 +1,77 @@
+
+{
+  "app": {
+    "name": "Yumvi-Pay",
+    "tagline": "Fast and Secure Money Transfers to Africa"
+  },
+  "hero": {
+    "title": "Send Money to Africa",
+    "subtitle": "Fast, Secure and Low-Cost Money Transfers",
+    "calculator": {
+      "title": "Calculate Exchange Rate",
+      "youSend": "You send",
+      "theyReceive": "They receive",
+      "button": "Send Money Now",
+      "rate": "1 {{from}} = {{to}} {{toCurrency}}",
+      "mobileApp": "Get the Mobile App",
+      "updating_rate": "Updating exchange rate..."
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "submit": "Submit",
+    "back": "Back"
+  },
+  "country": {
+    "us": "United States",
+    "cameroon": "Cameroon",
+    "nigeria": "Nigeria"
+  },
+  "momo": {
+    "number": "Mobile Money Number",
+    "enter_number": "Enter recipient's mobile money number"
+  },
+  "transaction": {
+    "amount": "Amount",
+    "recipient_gets": "Recipient gets",
+    "send_money": "Send Money",
+    "recipient": "Recipient Name",
+    "payment_method": "Payment Method",
+    "success": "Success",
+    "status_updated": "The transaction status has been updated.",
+    "processing_details": "Transaction details are being processed. Please wait a moment...",
+    "complete_now": "Complete Now",
+    "success_details": "Your payment of {{amount}} has been sent to {{recipient}}."
+  },
+  "hero.calculator.button": "Continue",
+  "sendMoney": {
+    "pleaseWait": "Please wait",
+    "loadingData": "Loading transaction data...",
+    "description": "Please fill in the recipient details",
+    "countryLabel": "Recipient Country",
+    "countryPlaceholder": "Select recipient country",
+    "recipientNamePlaceholder": "Enter recipient's full name",
+    "processing": "Processing...",
+    "submitButton": "Continue to Payment"
+  },
+  "payment": {
+    "mobile_money": "Send directly to mobile money account",
+    "bank_transfer": "Send to bank account"
+  },
+  "notifications": {
+    "mobileApp": "Mobile App Available",
+    "downloadApp": "Download our mobile app for a better experience"
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "try_again": "Please try again"
+  },
+  "error": {
+    "unexpected": "An unexpected error occurred"
+  }
+}
