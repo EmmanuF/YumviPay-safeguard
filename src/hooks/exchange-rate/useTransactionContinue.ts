@@ -1,18 +1,8 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { setTransactionAmount, setTransactionData } from '@/utils/transactionDataStore';
-
-export interface TransactionContinueOptions {
-  sendAmount: string;
-  receiveAmount: string;
-  sourceCurrency: string;
-  targetCurrency: string;
-  exchangeRate: number;
-  onContinue?: () => void;
-}
+import { TransactionContinueProps } from './types';
+import { useToast } from '@/hooks/use-toast';
 
 export const useTransactionContinue = ({
   sendAmount,
@@ -21,101 +11,62 @@ export const useTransactionContinue = ({
   targetCurrency,
   exchangeRate,
   onContinue
-}: TransactionContinueOptions) => {
-  const navigate = useNavigate();
-  const { isLoggedIn, loading: authLoading } = useAuth();
+}: TransactionContinueProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { isLoggedIn, loading: authLoading } = useAuth();
+  const { toast } = useToast();
 
+  // Handle continue button click
   const handleContinue = () => {
-    // Debug the continue action
-    console.log('handleContinue called in useTransactionContinue', { 
-      isProcessing, 
-      authLoading, 
-      onContinue,
-      isLoggedIn,
-      sendAmount,
-      receiveAmount
-    });
+    console.log("Continue transaction flow", { isLoggedIn, authLoading });
     
-    // Prevent multiple clicks
-    if (isProcessing || authLoading) {
-      console.log('Prevented continuation due to processing or loading state');
+    if (!sendAmount || parseFloat(sendAmount) <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount to send",
+        variant: "destructive",
+      });
       return;
     }
     
     setIsProcessing(true);
+    console.log("Processing transaction...");
     
-    // Validate amount
-    const amountValue = parseFloat(sendAmount);
-    if (!amountValue || amountValue <= 0) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid amount to send.",
-        variant: "destructive"
-      });
-      setIsProcessing(false);
-      console.log('Invalid amount, preventing continuation');
-      return;
-    }
-    
-    // Ensure we have a proper receive amount (convert string with commas to number)
-    const cleanedReceiveAmount = receiveAmount.replace(/,/g, '');
-    const receiveAmountValue = parseFloat(cleanedReceiveAmount);
-    
-    // Store all the transaction data in our centralized store
     try {
-      console.log('Setting transaction data with:', {
-        amount: amountValue,
-        convertedAmount: receiveAmountValue,
+      // Store transaction data in localStorage
+      const transactionData = {
+        amount: parseFloat(sendAmount) || 0,
+        sendAmount,
+        receiveAmount,
         sourceCurrency,
         targetCurrency,
-        exchangeRate
-      });
+        exchangeRate,
+        convertedAmount: parseFloat(receiveAmount) || 0,
+      };
       
-      // First, clear any old transaction data
-      localStorage.removeItem('pendingTransaction');
-      localStorage.removeItem('pendingTransactionBackup');
-      localStorage.removeItem('processedPendingTransaction');
+      localStorage.setItem('pendingTransaction', JSON.stringify(transactionData));
+      console.log("Transaction data stored:", transactionData);
       
-      // Set transaction amount separately for redundancy
-      setTransactionAmount(amountValue);
+      // If custom continuation handler provided, use it
+      if (onContinue) {
+        onContinue({
+          sendAmount,
+          receiveAmount, 
+          sourceCurrency,
+          targetCurrency,
+          exchangeRate
+        });
+      }
       
-      // Set complete transaction data 
-      setTransactionData({
-        amount: amountValue,
-        convertedAmount: receiveAmountValue,
-        sourceCurrency,
-        targetCurrency,
-        exchangeRate
-      });
-      
-      // Wait to ensure the localStorage write completes
-      setTimeout(() => {
-        if (onContinue) {
-          console.log('Calling onContinue callback directly with amount:', amountValue);
-          // If we're in inline mode, call the onContinue callback
-          onContinue();
-        } else if (isLoggedIn) {
-          console.log('User is logged in, navigating directly to /send with amount:', amountValue);
-          navigate('/send');
-        } else {
-          console.log('User is not logged in, navigating to signin with redirect and amount:', amountValue);
-          navigate('/signin', { state: { redirectTo: '/send' } });
-        }
-        
-        // Reset processing state after a slight delay to give navigation time
-        setTimeout(() => {
-          setIsProcessing(false);
-        }, 200);
-      }, 100);
     } catch (error) {
-      console.error('Error in handleContinue:', error);
-      setIsProcessing(false);
+      console.error("Error processing transaction continuation:", error);
       toast({
         title: "Error",
-        description: "An error occurred while processing your request. Please try again.",
-        variant: "destructive"
+        description: "Failed to process your request. Please try again.",
+        variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 

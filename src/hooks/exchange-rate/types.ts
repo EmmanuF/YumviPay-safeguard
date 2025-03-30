@@ -1,18 +1,23 @@
 
-// Types and interfaces for the exchange rate calculator
-export interface ExchangeRateCalculatorState {
-  sendAmount: string;
-  receiveAmount: string;
-  sourceCurrency: string;
-  targetCurrency: string;
-  exchangeRate: number;
-  isProcessing: boolean;
+export interface ExchangeRateCalculatorOptions {
+  onContinue?: (data: {
+    sendAmount: string;
+    receiveAmount: string;
+    sourceCurrency: string;
+    targetCurrency: string;
+    exchangeRate: number;
+  }) => void;
 }
 
-export interface UseExchangeRateCalculatorReturn extends ExchangeRateCalculatorState {
-  setSendAmount: (amount: string) => void;
-  setSourceCurrency: (currency: string) => void;
-  setTargetCurrency: (currency: string) => void;
+export interface UseExchangeRateCalculatorReturn {
+  sendAmount: string;
+  setSendAmount: (value: string) => void;
+  receiveAmount: string;
+  sourceCurrency: string;
+  setSourceCurrency: (value: string) => void;
+  targetCurrency: string;
+  setTargetCurrency: (value: string) => void;
+  exchangeRate: number;
   isProcessing: boolean;
   authLoading: boolean;
   countriesLoading: boolean;
@@ -21,6 +26,17 @@ export interface UseExchangeRateCalculatorReturn extends ExchangeRateCalculatorS
   handleContinue: () => void;
 }
 
-export interface ExchangeRateCalculatorOptions {
-  onContinue?: () => void;
+export interface RateCalculationProps {
+  sendAmount: string;
+  sourceCurrency: string;
+  targetCurrency: string;
+}
+
+export interface TransactionContinueProps {
+  sendAmount: string;
+  receiveAmount: string;
+  sourceCurrency: string;
+  targetCurrency: string;
+  exchangeRate: number;
+  onContinue?: ExchangeRateCalculatorOptions['onContinue'];
 }

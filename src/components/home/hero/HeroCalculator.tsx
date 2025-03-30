@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTransactionContinue } from '@/hooks/exchange-rate/useTransactionContinue';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from '@/contexts/LocaleContext';
+import CurrencySelector from '@/components/calculator/currency-selector/CurrencySelector';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -43,12 +43,14 @@ const HeroCalculator: React.FC = () => {
     sendAmount, 
     setSendAmount, 
     receiveAmount, 
-    exchangeRate 
+    exchangeRate,
+    sourceCurrency,
+    setSourceCurrency,
+    targetCurrency,
+    setTargetCurrency,
+    sourceCurrencies,
+    targetCurrencies
   } = useExchangeRateCalculator();
-  
-  // Fixed values for the MVP version focused on Cameroon
-  const sourceCurrency = "USD";
-  const targetCurrency = "XAF";
   
   // Custom handling for "Send Now" button to ensure direct redirection to /send for logged in users
   const handleContinue = () => {
@@ -111,13 +113,13 @@ const HeroCalculator: React.FC = () => {
             className="w-full p-3 border rounded-lg bg-white/80 shadow-sm focus:ring-2 focus:ring-primary-300"
             placeholder="100"
           />
-          <div className="p-3 border rounded-lg flex items-center space-x-2 bg-white/70 shadow-sm">
-            <img 
-              src="https://flagcdn.com/w40/us.png" 
-              alt="US Flag" 
-              className="w-5 h-3.5 object-cover"
+          <div className="p-1 bg-white/70 rounded-lg shadow-sm">
+            <CurrencySelector
+              label="Source Currency"
+              value={sourceCurrency}
+              onChange={setSourceCurrency}
+              options={sourceCurrencies}
             />
-            <span>{t('country.us')} (USD)</span>
           </div>
         </motion.div>
         
@@ -129,13 +131,13 @@ const HeroCalculator: React.FC = () => {
             readOnly
             className="w-full p-3 border rounded-lg bg-white/60 shadow-sm"
           />
-          <div className="p-3 border rounded-lg flex items-center space-x-2 bg-white/70 shadow-sm">
-            <img 
-              src="https://flagcdn.com/w40/cm.png" 
-              alt="Cameroon Flag" 
-              className="w-5 h-3.5 object-cover"
+          <div className="p-1 bg-white/70 rounded-lg shadow-sm">
+            <CurrencySelector
+              label="Target Currency"
+              value={targetCurrency}
+              onChange={setTargetCurrency}
+              options={targetCurrencies}
             />
-            <span>{t('country.cameroon')} (XAF)</span>
           </div>
         </motion.div>
       </div>
