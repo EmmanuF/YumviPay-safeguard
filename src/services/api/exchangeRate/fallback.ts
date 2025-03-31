@@ -7,9 +7,6 @@ import { exchangeRates as staticExchangeRates } from '@/data/exchangeRates';
 // Normalize the exchange rates for easier lookup and cross-currency conversion
 const normalizedRates: Record<string, Record<string, number>> = {};
 
-// Cache for triangulated rates to avoid recalculating
-const triangulationCache: Record<string, number> = {};
-
 /**
  * Get fallback exchange rate between two currencies
  * @param sourceCurrency Source currency code
@@ -22,17 +19,10 @@ export const getFallbackExchangeRate = (sourceCurrency: string, targetCurrency: 
     return 1;
   }
   
-  // Check cache first for this pair
-  const cacheKey = `${sourceCurrency}-${targetCurrency}`;
-  if (triangulationCache[cacheKey]) {
-    return triangulationCache[cacheKey];
-  }
-  
   // Try direct pair in our static exchange rates
   const directPair = `${sourceCurrency}-${targetCurrency}`;
   if (staticExchangeRates[directPair]) {
     console.log(`📊 Using direct fallback rate for ${directPair}: ${staticExchangeRates[directPair]}`);
-    triangulationCache[cacheKey] = staticExchangeRates[directPair];
     return staticExchangeRates[directPair];
   }
   
@@ -41,7 +31,6 @@ export const getFallbackExchangeRate = (sourceCurrency: string, targetCurrency: 
   if (staticExchangeRates[reversePair]) {
     const reverseRate = 1 / staticExchangeRates[reversePair];
     console.log(`📊 Using inverted fallback rate for ${reversePair}: ${reverseRate}`);
-    triangulationCache[cacheKey] = reverseRate;
     return reverseRate;
   }
   
@@ -56,7 +45,6 @@ export const getFallbackExchangeRate = (sourceCurrency: string, targetCurrency: 
     if (sourceToDollar && dollarToTarget) {
       const triangulatedRate = sourceToDollar * dollarToTarget;
       console.log(`📊 Using triangulated rate via USD for ${sourceCurrency} to ${targetCurrency}: ${triangulatedRate}`);
-      triangulationCache[cacheKey] = triangulatedRate;
       return triangulatedRate;
     }
   }
@@ -64,7 +52,6 @@ export const getFallbackExchangeRate = (sourceCurrency: string, targetCurrency: 
   // Default to currency-specific estimate based on common exchange rates
   const estimatedRate = estimateRate(sourceCurrency, targetCurrency);
   console.log(`⚠️ Using estimated fallback rate for ${sourceCurrency} to ${targetCurrency}: ${estimatedRate}`);
-  triangulationCache[cacheKey] = estimatedRate;
   return estimatedRate;
 };
 

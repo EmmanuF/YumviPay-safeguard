@@ -9,10 +9,8 @@ import {
   fetchExchangeRates,
   getFallbackRates,
   getFallbackExchangeRate,
+  CACHE_TTL
 } from './exchangeRate';
-
-// Import CACHE_TTL from cache.ts
-import { CACHE_TTL } from './exchangeRate/cache';
 
 export {
   getExchangeRate,
