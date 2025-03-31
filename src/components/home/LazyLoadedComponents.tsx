@@ -24,7 +24,7 @@ export const LazyTestimonials = createLazyComponent(
 );
 
 export const LazyAppDownload = createLazyComponent(
-  () => import('./AppDownload'),
+  () => import('./app-download'),
   { height: '300px', message: 'Loading app info...' }
 );
 
