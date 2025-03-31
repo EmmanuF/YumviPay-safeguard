@@ -45,7 +45,7 @@ const AppDownload: React.FC = () => {
       ? t('app.download.ios.comingSoon', 'iOS app coming soon!') 
       : t('app.download.android.comingSoon', 'Android app coming soon!');
     
-    // Show toast notification
+    // Show toast notification - fixed parameter type to match sonner's API
     toast.info(message, {
       duration: 3000,
       position: 'bottom-center',

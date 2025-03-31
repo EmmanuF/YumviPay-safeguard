@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,6 +12,7 @@ import AppDownload from '@/components/home/AppDownload';
 import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import SEO from '@/components/seo/SEO';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -59,6 +61,11 @@ const Home = () => {
   
   return (
     <PageTransition>
+      <SEO 
+        title="Send Money to Africa Fast & Secure | Yumvi-Pay"
+        description="Send money to Africa with Yumvi-Pay. Low fees, fast transfers, and reliable service. Available for iOS and Android."
+        keywords="money transfer, send money to Africa, mobile payments, remittance, Cameroon, mobile money, transfer app"
+      />
       <div className="min-h-screen">
         <div className="relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 z-20">
