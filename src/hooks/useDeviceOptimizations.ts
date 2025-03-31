@@ -14,7 +14,7 @@ import {
 } from '@/utils/device/networkOptimizations';
 
 /**
- * Hook for managing device-specific optimizations
+ * Hook for managing device-specific optimizations with enhanced security
  */
 export function useDeviceOptimizations() {
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
@@ -24,6 +24,9 @@ export function useDeviceOptimizations() {
     isCapacitor: false,
     batteryLevel: 1.0,
     platform: 'web',
+    isSecureContext: true,
+    hasHardwareSecurityFeatures: false,
+    supportsEncryption: false
   });
 
   // Glass effect intensity based on device capabilities
@@ -68,6 +71,10 @@ export function useDeviceOptimizations() {
     // Alias for better naming in components (compatibility with existing usage)
     shouldUseComplexAnimations: () => shouldUseHeavyAnimations(deviceInfo),
     getOptimizationClasses: () => getOptimizationClasses(deviceInfo),
-    glassEffectIntensity
+    glassEffectIntensity,
+    // Security-related helpers
+    isSecureContext: deviceInfo.isSecureContext,
+    hasHardwareSecurityFeatures: deviceInfo.hasHardwareSecurityFeatures,
+    supportsEncryption: deviceInfo.supportsEncryption
   };
 }

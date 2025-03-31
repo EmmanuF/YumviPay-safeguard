@@ -8,10 +8,13 @@ export interface DeviceInfo {
   isCapacitor: boolean;
   batteryLevel: number;
   platform: 'ios' | 'android' | 'web';
+  isSecureContext: boolean; // Is running in a secure context
+  hasHardwareSecurityFeatures: boolean; // Has hardware security features like Secure Enclave
+  supportsEncryption: boolean; // Supports data encryption APIs
 }
 
 /**
- * Detects device capabilities including platform, performance, and battery status
+ * Detects device capabilities including platform, performance, security features and battery status
  */
 export async function detectDeviceCapabilities(): Promise<DeviceInfo> {
   // Check platform
@@ -23,6 +26,13 @@ export async function detectDeviceCapabilities(): Promise<DeviceInfo> {
   let isLowPerformance = isMobile; // Assume mobile devices need optimization
   let isLowBandwidth = false;
   let batteryLevel = 1.0;
+  
+  // Determine if we're in a secure context
+  const isSecureContext = typeof window !== 'undefined' && window.isSecureContext === true;
+  
+  // Initializing security-related capabilities
+  let hasHardwareSecurityFeatures = false;
+  let supportsEncryption = false;
 
   // For native platforms, get more detailed device info
   if (isCapacitor) {
@@ -47,10 +57,25 @@ export async function detectDeviceCapabilities(): Promise<DeviceInfo> {
       isLowPerformance = info.platform === 'android' && 
         (info.osVersion?.startsWith('5') || info.osVersion?.startsWith('6'));
       
-      console.log('📱 Device optimization data:', {
+      // Check for hardware security features
+      if (platform === 'ios') {
+        // iOS devices typically have Secure Enclave
+        hasHardwareSecurityFeatures = true;
+        supportsEncryption = true;
+      } else if (platform === 'android') {
+        // Android devices vary, but newer ones typically have hardware security
+        const isNewerAndroid = info.osVersion && 
+          parseInt(info.osVersion.split('.')[0]) >= 8;
+        hasHardwareSecurityFeatures = isNewerAndroid;
+        supportsEncryption = true;
+      }
+      
+      console.log('📱 Device security data:', {
         batteryLevel,
         platform: info.platform,
         osVersion: info.osVersion,
+        isSecureContext,
+        hasHardwareSecurityFeatures
       });
     } catch (e) {
       console.error('Error detecting device capabilities:', e);
@@ -86,6 +111,14 @@ export async function detectDeviceCapabilities(): Promise<DeviceInfo> {
           console.error('Error getting battery info:', e);
         }
       }
+      
+      // Check for encryption support in web browsers
+      supportsEncryption = typeof window.crypto !== 'undefined' && 
+        typeof window.crypto.subtle !== 'undefined';
+      
+      // Modern secure browsers should have these features
+      hasHardwareSecurityFeatures = isSecureContext && supportsEncryption;
+      
     } catch (e) {
       console.error('Error detecting browser capabilities:', e);
     }
@@ -98,5 +131,8 @@ export async function detectDeviceCapabilities(): Promise<DeviceInfo> {
     isCapacitor,
     batteryLevel,
     platform,
+    isSecureContext,
+    hasHardwareSecurityFeatures,
+    supportsEncryption
   };
 }
