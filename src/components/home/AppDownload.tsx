@@ -168,22 +168,22 @@ const AppDownload: React.FC = () => {
                 <picture>
                   <source 
                     media="(max-width: 640px)" 
-                    srcSet="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png?width=280"
+                    srcSet="/lovable-uploads/e710d5d0-2d00-45ff-8867-6986425a2257.png?width=280"
                   />
                   <source 
                     media="(max-width: 1024px)" 
-                    srcSet="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png?width=320"
+                    srcSet="/lovable-uploads/e710d5d0-2d00-45ff-8867-6986425a2257.png?width=320"
                   />
                   <source 
                     media="(min-width: 1024px)" 
-                    srcSet="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png?width=360"
+                    srcSet="/lovable-uploads/e710d5d0-2d00-45ff-8867-6986425a2257.png?width=360"
                   />
                   <img 
-                    src="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png" 
+                    src="/lovable-uploads/e710d5d0-2d00-45ff-8867-6986425a2257.png" 
                     alt="Yumvi-Pay Mobile App" 
-                    className={`w-full max-w-[280px] md:max-w-[320px] object-contain rounded-2xl ${imageError ? 'border border-red-300' : 'shadow-lg'}`}
+                    className={`w-full max-w-[320px] md:max-w-[400px] object-contain rounded-2xl ${imageError ? 'border border-red-300' : 'shadow-lg'}`}
                     loading="eager" 
-                    width="320"
+                    width="400"
                     height="580"
                     onLoad={() => setImageLoading(false)}
                     onError={(e) => {
@@ -196,9 +196,9 @@ const AppDownload: React.FC = () => {
                       });
                     }}
                     style={{
-                      aspectRatio: '9/16',
+                      aspectRatio: '1/1',
                       objectFit: 'contain',
-                      transform: imageError ? 'none' : 'translateY(-10px)'
+                      transform: imageError ? 'none' : 'translateY(0)'
                     }}
                   />
                 </picture>
