@@ -158,6 +158,11 @@ const SignIn = () => {
                     </FormItem>
                   )}
                 />
+                <div className="flex justify-end">
+                  <Button variant="link" className="p-0 h-auto font-normal" onClick={() => navigate('/forgot-password')}>
+                    Forgot password?
+                  </Button>
+                </div>
                 <Button disabled={isSubmitting} className="w-full" size="lg">
                   {isSubmitting ? "Signing In..." : "Sign In"}
                 </Button>

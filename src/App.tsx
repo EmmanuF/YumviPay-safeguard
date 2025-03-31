@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
@@ -52,6 +51,10 @@ import TransactionDetails from '@/pages/TransactionDetails';
 
 // Debug tools
 import KadoConnectionDebugger from '@/components/kado/KadoConnectionDebugger';
+
+// Add the new imports for ForgotPassword and ResetPassword pages
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -177,6 +180,10 @@ function App() {
                   
                   {/* 404 Not Found */}
                   <Route path="*" element={<MobileAppLayout><NotFound /></MobileAppLayout>} />
+                  
+                  {/* Add the new routes for ForgotPassword and ResetPassword */}
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
                 <Toaster />
                 <SonnerToaster position="top-center" richColors closeButton />
