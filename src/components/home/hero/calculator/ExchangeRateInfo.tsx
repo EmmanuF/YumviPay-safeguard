@@ -34,8 +34,15 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
     ? formatDistanceToNow(lastRateUpdate, { addSuffix: true }) 
     : 'never';
   
-  // Format the current rate as a string
-  const rateString = `1 ${sourceCurrency} = ${exchangeRate.toFixed(4)} ${targetCurrency}`;
+  // Format the current rate as a string, ensuring we show a valid rate
+  let rateString = `1 ${sourceCurrency} = `;
+  
+  // Check for invalid exchange rate and provide fallback display
+  if (exchangeRate <= 0 || isNaN(exchangeRate)) {
+    rateString += `-- ${targetCurrency}`;
+  } else {
+    rateString += `${exchangeRate.toFixed(4)} ${targetCurrency}`;
+  }
   
   // Generate a unique key for the AnimatePresence to ensure proper animation
   const animationKey = `${sourceCurrency}-${targetCurrency}-${exchangeRate.toFixed(4)}`;
