@@ -1,3 +1,4 @@
+
 // English translations
 const enTranslations = {
   // General
@@ -5,6 +6,7 @@ const enTranslations = {
   'app.tagline': 'Send money to your loved ones',
   'app.loading': 'Loading...',
   'app.pleaseWait': 'Please wait...',
+  'app.optimized.mobile': 'Optimized for mobile',
   
   // Hero section
   'hero.title': 'Transfer Without Boundaries',
@@ -34,6 +36,13 @@ const enTranslations = {
   'payment.orange_money': 'Orange Money',
   'payment.credit_card': 'Credit Card',
   
+  // Payment loading states
+  'payment.loading.default': 'Loading payment options...',
+  'payment.loading.processing': 'Processing your payment...',
+  'payment.loading.verifying': 'Verifying your transaction...',
+  'payment.loading.time': 'This may take a few moments',
+  'payment.error.help': 'Please try again or contact support if the issue persists',
+  
   // Transaction Flow
   'transaction.send_money': 'Send Money',
   'transaction.amount': 'Amount',
@@ -57,6 +66,26 @@ const enTranslations = {
   'transaction.goBack': 'Go Back',
   'transaction.estimatedDelivery': 'Estimated Delivery',
   'transaction.recipient_gets': 'Recipient gets',
+  'transaction.created': 'Transaction Created',
+  'transaction.marked.completed': 'Your transaction has been marked as completed',
+  'transaction.view.offline': 'View Offline Data',
+  'transaction.new': 'Start New Transaction',
+  'transaction.creating': 'Creating Your Transaction',
+  'transaction.taking.longer': 'Taking longer than expected',
+  'transaction.retry.options': 'Would you like to retry or complete the transaction now?',
+  'transaction.complete.now': 'Complete Transaction Now',
+  'transaction.start.new': 'Start New Transaction',
+  
+  // Transaction errors
+  'error.no.transaction': 'No transaction ID available',
+  'error.updating.transaction': 'Error Updating Transaction',
+  'error.loading.data': 'Error Loading Data',
+  'error.offline': 'You are currently offline',
+  'error.check.connection': 'Please check your connection',
+  'error.offline.transaction': 'Cannot load transaction details while offline',
+  
+  // Common actions
+  'action.retry': 'Retry',
   
   // SendMoney component
   'sendMoney.title': 'Send Money',
@@ -179,6 +208,9 @@ const enTranslations = {
   'error.invalid_account': 'Invalid account number',
   'error.network': 'Network error',
   'error.unexpected': 'An unexpected error occurred',
+  'common.offline': 'You are currently offline',
+  'common.offline.description': 'Please check your connection and try again',
+  'common.retry': 'Retry',
   
   // Settings
   'settings.language': 'Language',
@@ -205,6 +237,8 @@ const enTranslations = {
   'app.download.title': 'Download Our Mobile App',
   'app.download.description': 'Get the best experience with our mobile app. Send money on the go, track transactions, and receive notifications.',
   'app.download.users': '10,000+ active users',
+  'app.download.ios.comingSoon': 'iOS app coming soon!',
+  'app.download.android.comingSoon': 'Android app coming soon!',
 };
 
 export { enTranslations };

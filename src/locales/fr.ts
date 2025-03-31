@@ -1,3 +1,4 @@
+
 // French translations
 const frTranslations = {
   // General
@@ -5,6 +6,7 @@ const frTranslations = {
   'app.tagline': 'Envoyez de l\'argent à vos proches',
   'app.loading': 'Chargement...',
   'app.pleaseWait': 'Veuillez patienter...',
+  'app.optimized.mobile': 'Optimisé pour mobile',
   
   // Hero section
   'hero.title': 'Transferts Sans Limites',
@@ -34,6 +36,13 @@ const frTranslations = {
   'payment.orange_money': 'Orange Money',
   'payment.credit_card': 'Carte Bancaire',
   
+  // Payment loading states
+  'payment.loading.default': 'Chargement des options de paiement...',
+  'payment.loading.processing': 'Traitement de votre paiement...',
+  'payment.loading.verifying': 'Vérification de votre transaction...',
+  'payment.loading.time': 'Cela peut prendre quelques instants',
+  'payment.error.help': 'Veuillez réessayer ou contacter le support si le problème persiste',
+  
   // Transaction Flow
   'transaction.send_money': 'Envoyer de l\'Argent',
   'transaction.amount': 'Montant',
@@ -57,6 +66,26 @@ const frTranslations = {
   'transaction.goBack': 'Retour',
   'transaction.estimatedDelivery': 'Délai de Livraison Estimé',
   'transaction.recipient_gets': 'Le destinataire reçoit',
+  'transaction.created': 'Transaction Créée',
+  'transaction.marked.completed': 'Votre transaction a été marquée comme terminée',
+  'transaction.view.offline': 'Voir les données hors ligne',
+  'transaction.new': 'Démarrer une nouvelle transaction',
+  'transaction.creating': 'Création de votre transaction',
+  'transaction.taking.longer': 'Prend plus de temps que prévu',
+  'transaction.retry.options': 'Voulez-vous réessayer ou terminer la transaction maintenant?',
+  'transaction.complete.now': 'Terminer la transaction maintenant',
+  'transaction.start.new': 'Démarrer une nouvelle transaction',
+  
+  // Transaction errors
+  'error.no.transaction': 'Aucun ID de transaction disponible',
+  'error.updating.transaction': 'Erreur lors de la mise à jour de la transaction',
+  'error.loading.data': 'Erreur lors du chargement des données',
+  'error.offline': 'Vous êtes actuellement hors ligne',
+  'error.check.connection': 'Veuillez vérifier votre connexion',
+  'error.offline.transaction': 'Impossible de charger les détails de la transaction hors ligne',
+  
+  // Common actions
+  'action.retry': 'Réessayer',
   
   // SendMoney component
   'sendMoney.title': 'Envoyer de l\'Argent',
@@ -182,6 +211,9 @@ const frTranslations = {
   'error.invalid_account': 'Numéro de compte invalide',
   'error.network': 'Erreur de réseau',
   'error.unexpected': 'Une erreur inattendue s\'est produite',
+  'common.offline': 'Vous êtes actuellement hors ligne',
+  'common.offline.description': 'Veuillez vérifier votre connexion et réessayer',
+  'common.retry': 'Réessayer',
   
   // Settings
   'settings.language': 'Langue',
@@ -203,6 +235,13 @@ const frTranslations = {
   'actions.receive': 'Recevoir',
   'actions.share': 'Partager',
   'actions.download': 'Télécharger',
+  
+  // App download section
+  'app.download.title': 'Téléchargez Notre Application Mobile',
+  'app.download.description': 'Profitez de la meilleure expérience avec notre application mobile. Envoyez de l\'argent en déplacement, suivez vos transactions et recevez des notifications.',
+  'app.download.users': 'Plus de 10 000 utilisateurs actifs',
+  'app.download.ios.comingSoon': 'Application iOS bientôt disponible !',
+  'app.download.android.comingSoon': 'Application Android bientôt disponible !',
 };
 
 export { frTranslations };

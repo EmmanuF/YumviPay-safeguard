@@ -1,12 +1,15 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SendMoneyStep } from '@/hooks/useSendMoneySteps';
 import RecipientStep from '../RecipientStep';
 import PaymentStep from '../PaymentStep';
 import ConfirmationStep from '../ConfirmationStep';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { toast } from '@/hooks/use-toast';
+import { useNetwork } from '@/contexts/NetworkContext';
+import PaymentLoadingState from '../payment/PaymentLoadingState';
+import { isPlatform } from '@/utils/platformUtils';
 
 interface StepRendererProps {
   currentStep: SendMoneyStep;
@@ -27,16 +30,24 @@ const StepRenderer: React.FC<StepRendererProps> = ({
 }) => {
   const { getOptimizedAnimationSettings } = useDeviceOptimizations();
   const animationSettings = getOptimizedAnimationSettings();
+  const { isOffline } = useNetwork();
+  const isNative = isPlatform('capacitor');
   
-  // Animation variants for each step
+  // Animation variants for each step - optimized based on device capabilities
   const stepVariants = {
-    hidden: { opacity: 0, x: 20 },
+    hidden: { 
+      opacity: 0, 
+      x: 20,
+      transition: {
+        duration: animationSettings.duration,
+      }
+    },
     visible: { 
       opacity: 1, 
       x: 0,
       transition: {
         duration: animationSettings.duration,
-        ease: "easeInOut"
+        ease: animationSettings.complexity === 'simple' ? 'easeOut' : 'easeInOut'
       }
     },
     exit: { 
@@ -44,64 +55,104 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       x: -20,
       transition: {
         duration: animationSettings.duration,
-        ease: "easeInOut"
+        ease: animationSettings.complexity === 'simple' ? 'easeIn' : 'easeInOut'
       }
     }
   };
+  
+  // On native devices, trigger haptic feedback on step changes
+  useEffect(() => {
+    const triggerHapticFeedback = async () => {
+      if (isNative) {
+        try {
+          const { Haptics } = await import('@capacitor/haptics');
+          await Haptics.impact({ style: 'light' });
+        } catch (error) {
+          console.error('Error triggering haptics:', error);
+        }
+      }
+    };
+    
+    triggerHapticFeedback();
+  }, [currentStep, isNative]);
+  
+  // If offline and trying to submit, show offline state
+  if (isSubmitting && isOffline) {
+    return <PaymentLoadingState isOffline={true} onRetry={onNext} />;
+  }
+  
+  // If submitting, show loading state
+  if (isSubmitting) {
+    return (
+      <PaymentLoadingState 
+        loadingType="processing"
+        message="Processing your transaction..." 
+      />
+    );
+  }
   
   try {
     switch (currentStep) {
       case 'recipient':
         return (
-          <motion.div
-            key="recipient"
-            variants={stepVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <RecipientStep
-              transactionData={transactionData}
-              updateTransactionData={updateTransactionData}
-              onNext={onNext}
-              onBack={onBack}
-            />
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="recipient"
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
+            >
+              <RecipientStep
+                transactionData={transactionData}
+                updateTransactionData={updateTransactionData}
+                onNext={onNext}
+                onBack={onBack}
+              />
+            </motion.div>
+          </AnimatePresence>
         );
       case 'payment':
         return (
-          <motion.div
-            key="payment"
-            variants={stepVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <PaymentStep
-              transactionData={transactionData}
-              updateTransactionData={updateTransactionData}
-              onNext={onNext}
-              onBack={onBack}
-              isSubmitting={isSubmitting}
-            />
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="payment"
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
+            >
+              <PaymentStep
+                transactionData={transactionData}
+                updateTransactionData={updateTransactionData}
+                onNext={onNext}
+                onBack={onBack}
+                isSubmitting={isSubmitting}
+              />
+            </motion.div>
+          </AnimatePresence>
         );
       case 'confirmation':
         return (
-          <motion.div
-            key="confirmation"
-            variants={stepVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <ConfirmationStep
-              transactionData={transactionData}
-              onConfirm={onNext}
-              onBack={onBack}
-              isSubmitting={isSubmitting}
-            />
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="confirmation"
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
+            >
+              <ConfirmationStep
+                transactionData={transactionData}
+                onConfirm={onNext}
+                onBack={onBack}
+                isSubmitting={isSubmitting}
+              />
+            </motion.div>
+          </AnimatePresence>
         );
       default:
         console.error('Unknown step:', currentStep);
@@ -130,7 +181,13 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       description: `Error rendering step: ${e instanceof Error ? e.message : String(e)}`,
       variant: "destructive",
     });
-    return null;
+    
+    return (
+      <PaymentLoadingState
+        error={`Error rendering step: ${e instanceof Error ? e.message : String(e)}`}
+        onRetry={onBack}
+      />
+    );
   }
 };
 
