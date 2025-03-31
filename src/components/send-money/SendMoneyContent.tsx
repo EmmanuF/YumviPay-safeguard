@@ -26,9 +26,8 @@ const SendMoneyContent: React.FC<SendMoneyContentProps> = ({
   error
 }) => {
   const isMobile = useIsMobile();
-  const { getOptimizedAnimationSettings, getOptimizationClasses } = useDeviceOptimizations();
+  const { getOptimizedAnimationSettings } = useDeviceOptimizations();
   const animationSettings = getOptimizedAnimationSettings();
-  const optimizationClasses = getOptimizationClasses();
   
   // Calculate bottom padding for the main content area to accommodate the fixed buttons on mobile
   const contentPaddingClass = isMobile ? 'pb-28 ios-safe-bottom' : 'pb-8';
@@ -49,7 +48,7 @@ const SendMoneyContent: React.FC<SendMoneyContentProps> = ({
 
   return (
     <div 
-      className={`flex-1 ${isMobile ? 'p-0' : 'p-4 sm:p-6'} bg-muted/10 ${contentPaddingClass} mt-progress-bar ${optimizationClasses}`}
+      className={`flex-1 ${isMobile ? 'p-0' : 'p-4 sm:p-6'} bg-muted/10 ${contentPaddingClass} mt-progress-bar`}
     >
       <div className={`${isMobile ? 'w-full' : 'container mx-auto max-w-3xl'}`}>
         <motion.div

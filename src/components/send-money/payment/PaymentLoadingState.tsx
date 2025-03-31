@@ -26,9 +26,9 @@ const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({
   
   // Different loading messages based on loading type
   const loadingMessages = {
-    default: t('payment.loading.default', message),
-    processing: t('payment.loading.processing', 'Processing your payment...'),
-    verifying: t('payment.loading.verifying', 'Verifying your transaction...')
+    default: t('payment.loading.default') || message,
+    processing: t('payment.loading.processing') || 'Processing your payment...',
+    verifying: t('payment.loading.verifying') || 'Verifying your transaction...'
   };
   
   const displayMessage = loadingMessages[loadingType];
@@ -48,10 +48,10 @@ const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({
           <WifiOff size={36} />
         </div>
         <p className="text-gray-700 font-medium text-center px-4">
-          {t('common.offline', 'You are currently offline')}
+          {t('common.offline') || 'You are currently offline'}
         </p>
         <p className="text-gray-600 text-sm text-center px-6">
-          {t('common.offline.description', 'Please check your connection and try again')}
+          {t('common.offline.description') || 'Please check your connection and try again'}
         </p>
         {onRetry && (
           <Button 
@@ -60,7 +60,7 @@ const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({
             variant="outline"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            {t('common.retry', 'Retry')}
+            {t('common.retry') || 'Retry'}
           </Button>
         )}
       </motion.div>
@@ -80,7 +80,7 @@ const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({
         </div>
         <p className="text-red-600 font-medium text-center px-4">{error}</p>
         <p className="text-gray-600 text-sm text-center px-6">
-          {t('payment.error.help', 'Please try again or contact support if the issue persists')}
+          {t('payment.error.help') || 'Please try again or contact support if the issue persists'}
         </p>
         {onRetry && (
           <Button 
@@ -89,7 +89,7 @@ const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({
             variant="default"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            {t('common.retry', 'Retry')}
+            {t('common.retry') || 'Retry'}
           </Button>
         )}
       </motion.div>
@@ -114,7 +114,7 @@ const PaymentLoadingState: React.FC<PaymentLoadingStateProps> = ({
             <div className="absolute inset-y-0 left-0 bg-primary rounded-full animate-[loading_2s_ease-in-out_infinite]" style={{ width: '80%' }}></div>
           </div>
           <p className="text-xs text-gray-500 mt-2 text-center">
-            {t('payment.loading.time', 'This may take a few moments')}
+            {t('payment.loading.time') || 'This may take a few moments'}
           </p>
         </div>
       )}

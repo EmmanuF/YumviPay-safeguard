@@ -10,6 +10,7 @@ import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useLocale } from '@/contexts/LocaleContext';
 import { isPlatform } from '@/utils/platformUtils';
+import { ImpactStyle, NotificationType } from '@capacitor/haptics';
 
 interface LoadingStateProps {
   message?: string;
@@ -45,8 +46,8 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   const handleRetry = () => {
     if (isOffline) {
       toast.error(
-        t('error.offline', 'You are currently offline'), 
-        { description: t('error.check.connection', 'Please check your connection') }
+        t('error.offline') || 'You are currently offline', 
+        { description: t('error.check.connection') || 'Please check your connection' }
       );
       return;
     }
@@ -70,7 +71,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
     if (isNative) {
       try {
         const { Haptics } = await import('@capacitor/haptics');
-        await Haptics.impact({ style: 'medium' });
+        await Haptics.impact({ style: ImpactStyle.Medium });
       } catch (e) {
         console.error('Error triggering haptic feedback:', e);
       }
@@ -107,7 +108,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   // Emergency function to force complete a transaction
   const handleForceComplete = async () => {
     if (!transactionId) {
-      toast.error(t('error.no.transaction', "No transaction ID available"));
+      toast.error(t('error.no.transaction') || "No transaction ID available");
       return;
     }
     
@@ -116,7 +117,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       if (isNative) {
         try {
           const { Haptics } = await import('@capacitor/haptics');
-          await Haptics.notification({ type: 'warning' });
+          await Haptics.notification({ type: NotificationType.Warning });
         } catch (e) {
           console.error('Error with haptics:', e);
         }
@@ -126,15 +127,15 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       const fallback = createFallbackTransaction(transactionId);
       
       toast.success(
-        t('transaction.created', "Transaction Created"), 
-        { description: t('transaction.marked.completed', "Your transaction has been marked as completed") }
+        t('transaction.created') || "Transaction Created", 
+        { description: t('transaction.marked.completed') || "Your transaction has been marked as completed" }
       );
       
       // Reload the current page to refresh data
       window.location.reload();
     } catch (error) {
       console.error('Error forcing transaction completion:', error);
-      toast.error(t('error.updating.transaction', "Error Updating Transaction"));
+      toast.error(t('error.updating.transaction') || "Error Updating Transaction");
     }
   };
   
@@ -158,20 +159,20 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         className="flex flex-col items-center justify-center p-8 min-h-[200px]"
       >
         <WifiOff className="h-12 w-12 text-yellow-500 mb-4" />
-        <h3 className="text-lg font-semibold mb-2">{t('error.offline', 'You are currently offline')}</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('error.offline') || 'You are currently offline'}</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center">
-          {t('error.offline.transaction', 'Cannot load transaction details while offline')}
+          {t('error.offline.transaction') || 'Cannot load transaction details while offline'}
         </p>
         
         {transactionId && hasData && (
           <Button onClick={handleForceComplete} className="mb-2">
-            {t('transaction.view.offline', 'View Offline Data')}
+            {t('transaction.view.offline') || 'View Offline Data'}
           </Button>
         )}
         
         <Button variant="outline" onClick={handleRetry}>
           <RefreshCw className="mr-2 h-4 w-4" />
-          {t('action.retry', 'Retry')}
+          {t('action.retry') || 'Retry'}
         </Button>
       </motion.div>
     );
@@ -186,17 +187,17 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         className="flex flex-col items-center justify-center p-8 min-h-[200px]"
       >
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <h3 className="text-lg font-semibold mb-2">{t('error.loading.data', 'Error Loading Data')}</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('error.loading.data') || 'Error Loading Data'}</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center">
           {error instanceof Error ? error.message : error.toString()}
         </p>
         <div className="flex space-x-3">
           <Button variant="outline" onClick={handleRetry}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            {t('action.retry', 'Retry')}
+            {t('action.retry') || 'Retry'}
           </Button>
           <Button onClick={handleSendNew}>
-            {t('transaction.new', 'Start New Transaction')}
+            {t('transaction.new') || 'Start New Transaction'}
           </Button>
         </div>
       </motion.div>
@@ -224,7 +225,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
             <div className="mt-6 flex items-center justify-center text-sm">
               <Smartphone className="h-4 w-4 mr-1.5" />
               <span className="text-muted-foreground">
-                {t('app.optimized.mobile', 'Optimized for mobile')}
+                {t('app.optimized.mobile') || 'Optimized for mobile'}
               </span>
             </div>
           )}
@@ -234,21 +235,21 @@ const LoadingState: React.FC<LoadingStateProps> = ({
           <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
           <h3 className="text-lg font-semibold mb-2">
             {isTxnFormat ? 
-              t('transaction.creating', "Creating Your Transaction") : 
-              t('transaction.taking.longer', "Taking longer than expected")}
+              (t('transaction.creating') || "Creating Your Transaction") : 
+              (t('transaction.taking.longer') || "Taking longer than expected")}
           </h3>
           <p className="text-sm text-muted-foreground mb-4 text-center">
-            {t('transaction.retry.options', "Would you like to retry or complete the transaction now?")}
+            {t('transaction.retry.options') || "Would you like to retry or complete the transaction now?"}
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Button variant="outline" onClick={handleRetry}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              {t('action.retry', 'Retry')}
+              {t('action.retry') || 'Retry'}
             </Button>
             
             {transactionId && (
               <Button onClick={handleForceComplete}>
-                {t('transaction.complete.now', 'Complete Transaction Now')}
+                {t('transaction.complete.now') || 'Complete Transaction Now'}
               </Button>
             )}
             
@@ -256,7 +257,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
               variant="secondary"
               onClick={handleSendNew}
             >
-              {t('transaction.start.new', 'Start New Transaction')}
+              {t('transaction.start.new') || 'Start New Transaction'}
             </Button>
           </div>
         </>

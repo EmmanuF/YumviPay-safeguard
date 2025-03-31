@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { useNetwork } from '@/contexts/NetworkContext';
 import PaymentLoadingState from '../payment/PaymentLoadingState';
 import { isPlatform } from '@/utils/platformUtils';
+import { ImpactStyle } from '@capacitor/haptics';
 
 interface StepRendererProps {
   currentStep: SendMoneyStep;
@@ -66,7 +67,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       if (isNative) {
         try {
           const { Haptics } = await import('@capacitor/haptics');
-          await Haptics.impact({ style: 'light' });
+          await Haptics.impact({ style: ImpactStyle.Light });
         } catch (error) {
           console.error('Error triggering haptics:', error);
         }

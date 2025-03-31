@@ -9,7 +9,7 @@ interface DashboardContainerProps {
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({ children }) => {
   // Get device optimization settings
-  const { shouldUseComplexAnimations, getOptimizedAnimationSettings } = useDeviceOptimizations();
+  const { shouldUseHeavyAnimations, getOptimizedAnimationSettings } = useDeviceOptimizations();
   const animSettings = getOptimizedAnimationSettings();
   
   // Enhanced fade in animation for sections
@@ -20,7 +20,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({ children }) => 
       transition: {
         duration: animSettings.duration,
         ease: [0.22, 1, 0.36, 1],
-        staggerChildren: shouldUseComplexAnimations ? 0.15 : 0.1,
+        staggerChildren: shouldUseHeavyAnimations() ? 0.15 : 0.1,
       },
     },
   };

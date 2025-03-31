@@ -9,15 +9,15 @@ import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 const Features = () => {
   const { t } = useLocale();
   const isMobile = useIsMobile();
-  const { shouldUseComplexAnimations } = useDeviceOptimizations();
+  const { shouldUseHeavyAnimations } = useDeviceOptimizations();
   
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: shouldUseComplexAnimations ? 0.3 : 0.1,
-        delayChildren: shouldUseComplexAnimations ? 0.3 : 0.1
+        staggerChildren: shouldUseHeavyAnimations() ? 0.3 : 0.1,
+        delayChildren: shouldUseHeavyAnimations() ? 0.3 : 0.1
       }
     }
   };
@@ -28,7 +28,7 @@ const Features = () => {
       className={`mt-16 mb-14 ${isMobile ? 'px-4' : ''}`}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      transition={{ duration: shouldUseComplexAnimations ? 0.8 : 0.4 }}
+      transition={{ duration: shouldUseHeavyAnimations() ? 0.8 : 0.4 }}
       viewport={{ once: true }}
     >
       <div className="text-center mb-10">
@@ -36,7 +36,7 @@ const Features = () => {
           className="text-3xl font-bold mb-3 text-gradient-primary"
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldUseComplexAnimations ? 0.5 : 0.3, delay: 0.1 }}
+          transition={{ duration: shouldUseHeavyAnimations() ? 0.5 : 0.3, delay: 0.1 }}
           viewport={{ once: true }}
         >
           {t('features.title')}
@@ -45,7 +45,7 @@ const Features = () => {
           className="text-gray-600 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldUseComplexAnimations ? 0.5 : 0.3, delay: 0.2 }}
+          transition={{ duration: shouldUseHeavyAnimations() ? 0.5 : 0.3, delay: 0.2 }}
           viewport={{ once: true }}
         >
           {t('features.subtitle')}

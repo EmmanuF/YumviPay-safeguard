@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -28,7 +29,6 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   const { isLoggedIn } = useAuth();
   
   const {
-    getOptimizationClasses,
     getOptimizedAnimationSettings,
     glassEffectIntensity
   } = useDeviceOptimizations();
@@ -98,7 +98,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
   };
 
   return (
-    <div className={`flex flex-col min-h-dvh ${getOptimizationClasses()} ${pageBackground} ${contentPaddingClass}`}>
+    <div className={`flex flex-col min-h-dvh ${pageBackground} ${contentPaddingClass}`}>
       <TopNavigation />
       
       {showMobileHeader && !hideHeader && (
@@ -122,9 +122,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
           animate={{ opacity: 1, y: 0 }}
           transition={{ 
             duration: animSettings.duration,
-            type: "spring",
-            stiffness: animSettings.stiffness,
-            damping: animSettings.damping
+            type: "spring"
           }}
           className="z-10"
         >

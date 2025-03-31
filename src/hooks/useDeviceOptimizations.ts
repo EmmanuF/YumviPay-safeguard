@@ -3,10 +3,13 @@ import { useState, useEffect } from 'react';
 import { isPlatform } from '@/utils/platformUtils';
 
 // Animation settings adjustment based on device
-interface AnimationSettings {
+export interface AnimationSettings {
   duration: number;
   enabled: boolean;
   complexity: 'simple' | 'normal' | 'complex';
+  // Add missing properties
+  stiffness: number;
+  damping: number;
 }
 
 // Network optimization settings
@@ -25,6 +28,9 @@ export function useDeviceOptimizations() {
     batteryLevel: 1.0, // Default to fully charged
     platform: 'web',
   });
+
+  // Glass effect intensity based on device capabilities
+  const [glassEffectIntensity, setGlassEffectIntensity] = useState<'none' | 'light' | 'full'>('full');
 
   // Get device info on mount
   useEffect(() => {
@@ -48,9 +54,14 @@ export function useDeviceOptimizations() {
           batteryLevel = batteryInfo.batteryLevel || 1.0;
           
           // Get network status
-          const { Network } = await import('@capacitor/network');
-          const networkStatus = await Network.getStatus();
-          isLowBandwidth = !networkStatus.connected || networkStatus.connectionType === 'cellular';
+          try {
+            // Only import if we're in a Capacitor environment
+            const { Network } = await import('@capacitor/network');
+            const networkStatus = await Network.getStatus();
+            isLowBandwidth = !networkStatus.connected || networkStatus.connectionType === 'cellular';
+          } catch (e) {
+            console.error('Error getting network status:', e);
+          }
           
           // Add additional detection logic if necessary
           const info = await Device.getInfo();
@@ -58,7 +69,6 @@ export function useDeviceOptimizations() {
           
           console.log('📱 Device optimization data:', {
             batteryLevel,
-            networkStatus,
             platform: info.platform,
             osVersion: info.osVersion,
           });
@@ -113,6 +123,15 @@ export function useDeviceOptimizations() {
         batteryLevel,
         platform,
       });
+      
+      // Set glass effect intensity based on device capabilities
+      if (isLowPerformance || (isMobile && batteryLevel < 0.2)) {
+        setGlassEffectIntensity('light');
+      } else if (isLowPerformance && batteryLevel < 0.1) {
+        setGlassEffectIntensity('none');
+      } else {
+        setGlassEffectIntensity('full');
+      }
     }
 
     detectDeviceCapabilities();
@@ -131,10 +150,16 @@ export function useDeviceOptimizations() {
     // Reduce complexity for low performance devices
     const complexity = deviceInfo.isLowPerformance ? 'simple' : 'normal';
     
+    // Add stiffness and damping values based on device capabilities
+    const stiffness = deviceInfo.isLowPerformance ? 100 : 300;
+    const damping = deviceInfo.isLowPerformance ? 30 : 24;
+    
     return {
       duration,
       enabled: !shouldDisableAnimations,
-      complexity
+      complexity,
+      stiffness,
+      damping
     };
   };
 
@@ -168,11 +193,42 @@ export function useDeviceOptimizations() {
       deviceInfo.batteryLevel > 0.3
     );
   };
+  
+  // Alias for better naming in components (compatibility with existing usage)
+  const shouldUseComplexAnimations = shouldUseHeavyAnimations;
+  
+  // Generate optimization CSS classes based on device capabilities
+  const getOptimizationClasses = (): string => {
+    const classes = [];
+    
+    if (deviceInfo.isLowPerformance) {
+      classes.push('low-performance');
+    }
+    
+    if (deviceInfo.isLowBandwidth) {
+      classes.push('low-bandwidth');
+    }
+    
+    if (deviceInfo.batteryLevel < 0.3) {
+      classes.push('battery-saving');
+    }
+    
+    if (deviceInfo.platform === 'ios') {
+      classes.push('ios-device');
+    } else if (deviceInfo.platform === 'android') {
+      classes.push('android-device');
+    }
+    
+    return classes.join(' ');
+  };
 
   return {
     deviceInfo,
     getOptimizedAnimationSettings,
     getOptimizedNetworkSettings,
-    shouldUseHeavyAnimations
+    shouldUseHeavyAnimations,
+    shouldUseComplexAnimations,
+    getOptimizationClasses,
+    glassEffectIntensity
   };
 }

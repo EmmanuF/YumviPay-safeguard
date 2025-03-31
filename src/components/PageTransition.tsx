@@ -12,7 +12,7 @@ interface PageTransitionProps {
 const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { shouldUseComplexAnimations, getOptimizedAnimationSettings } = useDeviceOptimizations();
+  const { shouldUseHeavyAnimations, getOptimizedAnimationSettings } = useDeviceOptimizations();
   
   const animSettings = getOptimizedAnimationSettings();
   
@@ -33,7 +33,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
         duration: animSettings.duration * 1.2,
         ease: [0.22, 1, 0.36, 1], // Enhanced cubic bezier for smoother feel
         when: "beforeChildren",
-        staggerChildren: shouldUseComplexAnimations ? 0.08 : 0.04
+        staggerChildren: shouldUseHeavyAnimations() ? 0.08 : 0.04
       }
     },
     exit: {
@@ -58,8 +58,8 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       transition: { 
         duration: animSettings.duration * 1.2,
         type: "spring",
-        stiffness: animSettings.stiffness * 1.2,
-        damping: animSettings.damping * 0.9
+        stiffness: animSettings.stiffness,
+        damping: animSettings.damping
       }
     }
   };
@@ -76,7 +76,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       exit="exit"
       className={`w-full h-full ${paddingClass}`}
     >
-      {shouldUseComplexAnimations ? (
+      {shouldUseHeavyAnimations() ? (
         <motion.div variants={childVariants}>
           {children}
         </motion.div>
