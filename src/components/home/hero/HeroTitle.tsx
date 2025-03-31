@@ -12,9 +12,9 @@ const HeroTitle: React.FC<HeroTitleProps> = ({ onGetStarted }) => {
   const { t } = useLocale();
   
   return (
-    <div className="text-center max-w-3xl mx-auto px-3">
+    <div className="text-center w-full max-w-5xl mx-auto px-4 md:px-8">
       <motion.h1 
-        className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary-700 via-primary-500 to-secondary-500 whitespace-nowrap"
+        className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary-700 via-primary-500 to-secondary-500 whitespace-nowrap overflow-visible"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
