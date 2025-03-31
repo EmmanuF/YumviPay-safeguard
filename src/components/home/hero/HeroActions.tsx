@@ -5,7 +5,6 @@ import { ArrowRight, Download, Zap, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/contexts/LocaleContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { HeroFeatureBadges } from './index';
 
 interface HeroActionsProps {
   onGetStarted: () => void;
@@ -21,7 +20,7 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className={`flex flex-wrap gap-3 ${isMobile ? 'justify-center' : ''}`}
+        className={`flex flex-wrap items-center gap-3 ${isMobile ? 'justify-center' : ''}`}
       >
         <Button
           onClick={onGetStarted}
@@ -52,10 +51,28 @@ const HeroActions: React.FC<HeroActionsProps> = ({ onGetStarted }) => {
             {t('hero.downloadApp')}
           </motion.span>
         </Button>
+        
+        {/* Feature badges moved inline */}
+        <motion.span 
+          className="bg-green-600 text-white px-4 py-1.5 rounded-full text-sm font-medium flex items-center shadow-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+        >
+          <Zap size={16} className="mr-1.5" strokeWidth={2.5} />
+          {t('hero.features.fast')}
+        </motion.span>
+        
+        <motion.span 
+          className="bg-purple-600 text-white px-4 py-1.5 rounded-full text-sm font-medium flex items-center shadow-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+        >
+          <Shield size={16} className="mr-1.5" strokeWidth={2.5} />
+          {t('hero.features.free')}
+        </motion.span>
       </motion.div>
-      
-      {/* Feature badges */}
-      <HeroFeatureBadges />
     </div>
   );
 };
