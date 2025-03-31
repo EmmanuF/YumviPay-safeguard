@@ -1,8 +1,7 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Camera, CameraPermissionState } from '@capacitor/camera';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 
 interface UseQRCodeOptions {
   onScan?: (data: string) => void;

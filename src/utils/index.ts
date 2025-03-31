@@ -5,7 +5,7 @@
 export * from './formatUtils';
 
 // Platform detection utilities
-export * from './platformUtils';
+export * from './platform';
 
 // Transaction utilities - export only non-overlapping functions
 export {

@@ -9,7 +9,7 @@ import { createFallbackTransaction } from '@/services/transaction';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useLocale } from '@/contexts/LocaleContext';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 import { ImpactStyle, NotificationType } from '@capacitor/haptics';
 
 interface LoadingStateProps {

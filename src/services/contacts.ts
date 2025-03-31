@@ -1,6 +1,6 @@
 
 import { Device } from '@capacitor/device';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 import { toast } from '@/hooks/use-toast';
 
 export type Contact = {

@@ -7,7 +7,7 @@ import { Smartphone, Bell, Fingerprint } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { BiometricService } from '@/services/biometric';
 import { PushNotificationService } from '@/services/push/pushNotificationService';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities';
 
 const MobileAppSettings: React.FC = () => {

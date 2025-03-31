@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { PushNotificationService } from '@/services/push/pushNotificationService';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 
 /**
  * Component to initialize app-wide services

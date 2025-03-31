@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 import { deepLinkService } from '@/services/deepLinkService';
 
 interface DeepLinkParams {

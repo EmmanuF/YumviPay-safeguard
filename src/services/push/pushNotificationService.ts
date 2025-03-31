@@ -2,7 +2,7 @@
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Device } from '@capacitor/device';
 import { Preferences } from '@capacitor/preferences';
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 import { toast } from '@/hooks/use-toast';
 
 const NOTIFICATION_PREF_KEY = 'push_notifications_enabled';
