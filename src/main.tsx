@@ -1,6 +1,7 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import { AuthProvider } from './contexts/AuthContext.tsx';
@@ -46,7 +47,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <LocaleProvider>
         <AuthProvider>
           <NotificationProvider>
-            <App />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
             <Toaster />
           </NotificationProvider>
         </AuthProvider>
