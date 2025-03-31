@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { LocaleProvider } from './contexts/LocaleContext.tsx';
 import { NotificationProvider } from './contexts/NotificationContext.tsx';
+import { NetworkProvider } from './contexts/NetworkContext.tsx';
 import { registerServiceWorker } from './utils/serviceWorker'; 
 
 // Make transaction data retrieval functions globally available for emergency access
@@ -46,12 +47,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     >
       <LocaleProvider>
         <AuthProvider>
-          <NotificationProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-            <Toaster />
-          </NotificationProvider>
+          <NetworkProvider>
+            <NotificationProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+              <Toaster />
+            </NotificationProvider>
+          </NetworkProvider>
         </AuthProvider>
       </LocaleProvider>
     </ThemeProvider>
