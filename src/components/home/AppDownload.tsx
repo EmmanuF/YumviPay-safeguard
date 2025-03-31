@@ -62,6 +62,14 @@ const AppDownload: React.FC = () => {
     console.log(`App download clicked: ${platform}`);
   };
   
+  // Function to handle image load retry
+  const handleRetryLoad = () => {
+    if (imageError) {
+      setImageError(false);
+      setImageLoading(true);
+    }
+  };
+  
   return (
     <section className="py-12 md:py-24">
       <div className="container mx-auto px-4">
@@ -144,24 +152,37 @@ const AppDownload: React.FC = () => {
                   </div>
                 )}
                 
+                {imageError && (
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-30 backdrop-blur-sm rounded-2xl cursor-pointer"
+                    onClick={handleRetryLoad}
+                  >
+                    <div className="flex flex-col items-center">
+                      <Button variant="outline" size="sm" onClick={handleRetryLoad}>
+                        Retry loading image
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
                 <picture>
                   <source 
                     media="(max-width: 640px)" 
-                    srcSet="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png?width=280"
+                    srcSet="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png?width=280"
                   />
                   <source 
                     media="(max-width: 1024px)" 
-                    srcSet="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png?width=320"
+                    srcSet="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png?width=320"
                   />
                   <source 
                     media="(min-width: 1024px)" 
-                    srcSet="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png?width=360"
+                    srcSet="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png?width=360"
                   />
                   <img 
-                    src="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png" 
+                    src="/lovable-uploads/a4b55d18-bba8-48b5-a6c1-bb5a2d99eaaa.png" 
                     alt="Yumvi-Pay Mobile App" 
                     className={`w-full max-w-[280px] md:max-w-[320px] object-contain rounded-2xl ${imageError ? 'border border-red-300' : 'shadow-lg'}`}
-                    loading="lazy"
+                    loading="eager" 
                     width="320"
                     height="580"
                     onLoad={() => setImageLoading(false)}
@@ -177,7 +198,7 @@ const AppDownload: React.FC = () => {
                     style={{
                       aspectRatio: '9/16',
                       objectFit: 'contain',
-                      transform: imageError ? 'none' : 'translateY(-20px) rotate(-5deg)'
+                      transform: imageError ? 'none' : 'translateY(-10px)'
                     }}
                   />
                 </picture>
