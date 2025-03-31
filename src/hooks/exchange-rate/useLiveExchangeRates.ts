@@ -26,6 +26,9 @@ export const useLiveExchangeRates = ({
   const [retryCount, setRetryCount] = useState(0);
   const [forcedRefresh, setForcedRefresh] = useState(false);
   const [rateLimitReached, setRateLimitReached] = useState(false);
+  
+  // Add a key state that changes when source or target currency changes
+  const currencyPairKey = `${sourceCurrency}-${targetCurrency}`;
 
   // Function to fetch the latest exchange rate
   const updateRate = useCallback(async (forceRefresh = false) => {
@@ -133,7 +136,15 @@ export const useLiveExchangeRates = ({
       // Release the loading state
       setIsLoading(false);
     }
-  }, [sourceCurrency, targetCurrency, rate, onRateUpdate, rateLimitReached]);
+  }, [sourceCurrency, targetCurrency, rate, onRateUpdate]);
+
+  // Reset rate when currency pair changes to avoid showing the previous rate
+  useEffect(() => {
+    // When currency pair changes, reset the rate to force a new calculation
+    setRate(0);
+    setIsLoading(true);
+    console.log(`🔄 Currency pair changed to ${currencyPairKey}, resetting rate`);
+  }, [currencyPairKey]);
 
   // Trigger an update whenever currency changes - this is critical for instant updates
   useEffect(() => {

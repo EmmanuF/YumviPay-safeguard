@@ -14,6 +14,9 @@ export const useRateCalculation = ({
   const lastToastRef = useRef<string | null>(null);
   const calculationInProgressRef = useRef(false);
   
+  // Create a key for tracking currency pair changes
+  const currencyPairKey = `${sourceCurrency}-${targetCurrency}`;
+  
   // Get live exchange rate updates - reduced to 3 times per day (8 hours interval)
   const { 
     rate: exchangeRate, 
@@ -53,6 +56,13 @@ export const useRateCalculation = ({
     }
   });
 
+  // Reset receive amount when currency pair changes
+  useEffect(() => {
+    console.log(`🔄 Currency pair changed to ${currencyPairKey}, resetting calculation`);
+    setReceiveAmount('');
+    setLastCalculation(null);
+  }, [currencyPairKey]);
+
   // Calculate receive amount whenever input values change
   const calculateAmount = useCallback(() => {
     // Prevent multiple rapid recalculations that cause flickering
@@ -60,15 +70,16 @@ export const useRateCalculation = ({
       return;
     }
     
-    console.log("🧮 Calculating exchange rate from", sourceCurrency, "to", targetCurrency);
+    console.log(`🧮 Calculating exchange rate from ${sourceCurrency} to ${targetCurrency}`);
     calculationInProgressRef.current = true;
     
     try {
       // Handle zero exchange rate case
-      if (exchangeRate === 0) {
+      if (exchangeRate === 0 || isNaN(exchangeRate)) {
         if (!isLoading) {
-          console.log(`⚠️ Exchange rate is zero for ${sourceCurrency} to ${targetCurrency}, triggering update`);
+          console.log(`⚠️ Exchange rate is zero or NaN for ${sourceCurrency} to ${targetCurrency}, triggering update`);
           updateRate();
+          setReceiveAmount('Calculating...');
         }
         calculationInProgressRef.current = false;
         return;
@@ -125,7 +136,7 @@ export const useRateCalculation = ({
   };
 
   return {
-    exchangeRate,
+    exchangeRate: exchangeRate || 0,
     receiveAmount,
     isLoading,
     error,
