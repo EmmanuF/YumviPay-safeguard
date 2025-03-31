@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -12,12 +13,9 @@ import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
 import Dashboard from '@/pages/Dashboard';
 import Profile from '@/pages/Profile';
-import Transactions from '@/pages/Transactions';
-import Settings from '@/pages/Settings';
 import Onboarding from '@/pages/Onboarding';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import PublicRoute from '@/components/PublicRoute';
-import { useAuth } from '@/contexts/auth';
 
 // Import the ResetPassword page
 import ResetPassword from '@/pages/ResetPassword';
@@ -48,8 +46,6 @@ function App() {
             <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
