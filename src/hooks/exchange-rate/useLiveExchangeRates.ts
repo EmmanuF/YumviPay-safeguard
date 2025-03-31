@@ -21,7 +21,7 @@ export const useLiveExchangeRates = ({
 }: UseLiveExchangeRatesProps) => {
   const [rate, setRate] = useState<number>(initialRate);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start as loading to trigger an immediate fetch
   const [error, setError] = useState<Error | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [forcedRefresh, setForcedRefresh] = useState(false);
@@ -141,11 +141,17 @@ export const useLiveExchangeRates = ({
     }
   }, [sourceCurrency, targetCurrency, rate, onRateUpdate, rateLimitReached]);
 
-  // Update the rate when currencies change, but don't force refresh
-  // to respect API limits - just use cached data if available
+  // Trigger an update whenever currency changes
   useEffect(() => {
-    // Only make a single API call when currencies change, don't force refresh
-    updateRate(false);
+    console.log(`🔄 Currency changed: ${sourceCurrency} to ${targetCurrency}, triggering rate update`);
+    // Set loading state immediately
+    setIsLoading(true);
+    // Fetch updated rate with slight delay to avoid UI jank during rapid changes
+    const timer = setTimeout(() => {
+      updateRate(true); // Force refresh when currencies change
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [sourceCurrency, targetCurrency, updateRate]);
 
   // Set up periodic updates with exponential backoff on errors 

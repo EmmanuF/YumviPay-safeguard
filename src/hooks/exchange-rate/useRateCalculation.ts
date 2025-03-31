@@ -26,7 +26,7 @@ export const useRateCalculation = ({
   } = useLiveExchangeRates({
     sourceCurrency,
     targetCurrency,
-    initialRate: sourceCurrency === 'USD' && targetCurrency === 'XAF' ? 630 : 0, // Initial rate includes the 20 XAF markup
+    initialRate: 0, // Don't hardcode initial rate - removed fixed USD-XAF rate
     updateIntervalMs: 28800000, // 8 hours = 3 updates per day
     onRateUpdate: (newRate) => {
       // Only show toast when rate updates significantly (more than 1%)
@@ -63,12 +63,15 @@ export const useRateCalculation = ({
     // Reset last toast reference when currencies change
     lastToastRef.current = null;
     
+    // Force update the rate when currency changes
+    updateRate();
+    
     return () => {
       if (currencyChangeTimerRef.current) {
         clearTimeout(currencyChangeTimerRef.current);
       }
     };
-  }, [sourceCurrency, targetCurrency]);
+  }, [sourceCurrency, targetCurrency, updateRate]);
 
   // Calculate receive amount whenever input values change
   const calculateAmount = useCallback(() => {

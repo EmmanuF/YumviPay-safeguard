@@ -45,7 +45,7 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
     if (previousRateRef.current === '') {
       previousRateRef.current = currentRateString;
     }
-  }, []);
+  }, [currentRateString]);
     
   return (
     <>
