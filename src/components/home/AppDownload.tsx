@@ -41,20 +41,24 @@ const AppDownload: React.FC = () => {
                 
                 <div className="mt-8 flex items-center">
                   <div className="flex -space-x-3">
+                    {/* Using direct URLs for user avatars for reliability */}
                     <img 
                       src="https://randomuser.me/api/portraits/men/32.jpg" 
                       alt="User" 
                       className="w-10 h-10 rounded-full border-2 border-white"
+                      loading="lazy"
                     />
                     <img 
                       src="https://randomuser.me/api/portraits/women/44.jpg" 
                       alt="User" 
                       className="w-10 h-10 rounded-full border-2 border-white"
+                      loading="lazy"
                     />
                     <img 
                       src="https://randomuser.me/api/portraits/women/46.jpg" 
                       alt="User" 
                       className="w-10 h-10 rounded-full border-2 border-white"
+                      loading="lazy"
                     />
                   </div>
                   <span className="ml-4 text-sm text-gray-600">
@@ -68,6 +72,12 @@ const AppDownload: React.FC = () => {
                   src="/lovable-uploads/67dfa296-0c6e-451a-92f2-dcac30ae9f26.png" 
                   alt="Yumvi-Pay Mobile App" 
                   className="w-full max-w-[450px] md:max-w-[500px] object-contain shadow-2xl rounded-2xl"
+                  loading="eager"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e);
+                    e.currentTarget.onerror = null; // Prevent infinite loop
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
                 />
               </div>
             </div>
