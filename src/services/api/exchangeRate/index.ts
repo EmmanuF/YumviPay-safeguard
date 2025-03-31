@@ -3,7 +3,7 @@
  * Exchange rate service for currency conversions
  */
 import { fetchExchangeRates } from './api';
-import { clearRatesCache } from './cache';
+import { clearRatesCache, getRateFromCache, storeRateInCache } from './cache';
 import { getFallbackExchangeRate } from './fallback';
 
 /**
@@ -22,6 +22,13 @@ export const getExchangeRate = async (
       return 1;
     }
     
+    // Check cache first for faster response
+    const cachedRate = getRateFromCache(sourceCurrency, targetCurrency);
+    if (cachedRate !== null) {
+      console.log(`📊 Using cached rate for ${sourceCurrency} to ${targetCurrency}: ${cachedRate}`);
+      return cachedRate;
+    }
+    
     // Fetch latest rates with source currency as base
     const rates = await fetchExchangeRates(sourceCurrency);
     
@@ -30,14 +37,22 @@ export const getExchangeRate = async (
     
     if (!rate) {
       console.warn(`⚠️ Exchange rate not found for ${sourceCurrency} to ${targetCurrency}`);
-      return getFallbackExchangeRate(sourceCurrency, targetCurrency);
+      const fallbackRate = getFallbackExchangeRate(sourceCurrency, targetCurrency);
+      // Still cache the fallback rate to prevent constant lookups
+      storeRateInCache(sourceCurrency, targetCurrency, fallbackRate);
+      return fallbackRate;
     }
     
     console.log(`📊 Current rate: 1 ${sourceCurrency} = ${rate} ${targetCurrency}`);
+    
+    // Cache the fetched rate
+    storeRateInCache(sourceCurrency, targetCurrency, rate);
+    
     return rate;
   } catch (error) {
     console.error('❌ Error getting exchange rate:', error);
-    return getFallbackExchangeRate(sourceCurrency, targetCurrency);
+    const fallbackRate = getFallbackExchangeRate(sourceCurrency, targetCurrency);
+    return fallbackRate;
   }
 };
 

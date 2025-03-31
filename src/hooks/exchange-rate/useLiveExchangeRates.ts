@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useInterval } from '@/hooks/useInterval';
 import { getExchangeRate, refreshExchangeRates } from '@/services/api/exchangeRate';
 import { toast } from '@/hooks/use-toast';
@@ -29,11 +29,25 @@ export const useLiveExchangeRates = ({
   
   // Add a key state that changes when source or target currency changes
   const currencyPairKey = `${sourceCurrency}-${targetCurrency}`;
+  
+  // Track if component is mounted
+  const isMounted = useRef(true);
+  
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // Function to fetch the latest exchange rate
   const updateRate = useCallback(async (forceRefresh = false) => {
     // Skip if currencies aren't set
     if (!sourceCurrency || !targetCurrency) {
+      return;
+    }
+    
+    // Skip update if component unmounted
+    if (!isMounted.current) {
       return;
     }
 
@@ -75,8 +89,10 @@ export const useLiveExchangeRates = ({
       const hasRateChanged = rate !== newRate;
       
       // Always update the rate to ensure we get the latest value
-      setRate(newRate);
-      setLastUpdated(new Date());
+      if (isMounted.current) {
+        setRate(newRate);
+        setLastUpdated(new Date());
+      }
       
       // Only show toast if rate has actually changed and it was a forced refresh
       if (hasRateChanged && forceRefresh) {
@@ -92,14 +108,18 @@ export const useLiveExchangeRates = ({
       }
       
       // Reset retry count on success
-      setRetryCount(0);
-      setRateLimitReached(false); // Reset rate limit flag on successful call
-      
-      // Reset forced refresh state
-      if (forceRefresh) {
-        setForcedRefresh(false);
+      if (isMounted.current) {
+        setRetryCount(0);
+        setRateLimitReached(false); // Reset rate limit flag on successful call
+        
+        // Reset forced refresh state
+        if (forceRefresh) {
+          setForcedRefresh(false);
+        }
       }
     } catch (err) {
+      if (!isMounted.current) return;
+      
       console.error('Error updating exchange rate:', err);
       setError(err instanceof Error ? err : new Error('Failed to update exchange rate'));
       
@@ -134,17 +154,28 @@ export const useLiveExchangeRates = ({
       }
     } finally {
       // Release the loading state
-      setIsLoading(false);
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
     }
   }, [sourceCurrency, targetCurrency, rate, onRateUpdate]);
 
   // Reset rate when currency pair changes to avoid showing the previous rate
   useEffect(() => {
     // When currency pair changes, reset the rate to force a new calculation
-    setRate(0);
-    setIsLoading(true);
-    console.log(`🔄 Currency pair changed to ${currencyPairKey}, resetting rate`);
-  }, [currencyPairKey]);
+    if (isMounted.current) {
+      setRate(0);
+      setIsLoading(true);
+      console.log(`🔄 Currency pair changed to ${currencyPairKey}, resetting rate`);
+      
+      // Cancel any scheduled updates and trigger a new one immediately
+      const timer = setTimeout(() => {
+        updateRate(true);
+      }, 0);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currencyPairKey, updateRate]);
 
   // Trigger an update whenever currency changes - this is critical for instant updates
   useEffect(() => {
@@ -153,7 +184,9 @@ export const useLiveExchangeRates = ({
       console.log(`🔄 Currency changed: ${sourceCurrency} to ${targetCurrency}, triggering immediate rate update`);
       
       // Set loading state immediately to show user something is happening
-      setIsLoading(true);
+      if (isMounted.current) {
+        setIsLoading(true);
+      }
       
       // Immediately fetch the updated rate without delay
       updateRate(true);

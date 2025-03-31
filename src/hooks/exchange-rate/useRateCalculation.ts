@@ -17,7 +17,7 @@ export const useRateCalculation = ({
   // Create a key for tracking currency pair changes
   const currencyPairKey = `${sourceCurrency}-${targetCurrency}`;
   
-  // Get live exchange rate updates - reduced to 3 times per day (8 hours interval)
+  // Get live exchange rate updates - optimized for faster updates
   const { 
     rate: exchangeRate, 
     isLoading,
@@ -53,6 +53,9 @@ export const useRateCalculation = ({
           }
         }
       }
+      
+      // Force recalculation when we get a rate update
+      calculateAmount(newRate);
     }
   });
 
@@ -61,21 +64,27 @@ export const useRateCalculation = ({
     console.log(`🔄 Currency pair changed to ${currencyPairKey}, resetting calculation`);
     setReceiveAmount('');
     setLastCalculation(null);
-  }, [currencyPairKey]);
+    
+    // Immediately trigger rate update on currency change
+    updateRate();
+  }, [currencyPairKey, updateRate]);
 
   // Calculate receive amount whenever input values change
-  const calculateAmount = useCallback(() => {
+  const calculateAmount = useCallback((forceRate?: number) => {
+    // Use the forced rate if provided, otherwise use the current exchangeRate
+    const rateToUse = forceRate !== undefined ? forceRate : exchangeRate;
+    
     // Prevent multiple rapid recalculations that cause flickering
     if (calculationInProgressRef.current) {
       return;
     }
     
-    console.log(`🧮 Calculating exchange rate from ${sourceCurrency} to ${targetCurrency}`);
+    console.log(`🧮 Calculating exchange rate from ${sourceCurrency} to ${targetCurrency} with rate ${rateToUse}`);
     calculationInProgressRef.current = true;
     
     try {
       // Handle zero exchange rate case
-      if (exchangeRate === 0 || isNaN(exchangeRate)) {
+      if (rateToUse === 0 || isNaN(rateToUse)) {
         if (!isLoading) {
           console.log(`⚠️ Exchange rate is zero or NaN for ${sourceCurrency} to ${targetCurrency}, triggering update`);
           updateRate();
@@ -87,12 +96,12 @@ export const useRateCalculation = ({
 
       // Calculate the receive amount
       const amount = parseFloat(sendAmount) || 0;
-      const converted = (amount * exchangeRate).toFixed(2);
+      const converted = (amount * rateToUse).toFixed(2);
       setReceiveAmount(converted);
-      console.log(`🔢 Receive amount calculated: ${sendAmount} ${sourceCurrency} = ${converted} ${targetCurrency}`);
+      console.log(`🔢 Receive amount calculated: ${sendAmount} ${sourceCurrency} = ${converted} ${targetCurrency} (rate: ${rateToUse})`);
       
       // Store the calculation details for comparison
-      setLastCalculation(`${exchangeRate}|${sendAmount}|${converted}`);
+      setLastCalculation(`${rateToUse}|${sendAmount}|${converted}`);
     } catch (err) {
       console.error("Error calculating exchange rate:", err);
       setReceiveAmount('Error');
