@@ -2,11 +2,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/contexts/auth';
 import SessionTimeout from '@/components/security/SessionTimeout';
 import AppInitializer from '@/components/AppInitializer';
-import { AuthProvider } from '@/contexts/auth';
-import LogoutButton from '@/components/LogoutButton';
+import LogoutButton from '@/components/profile/LogoutButton';  // Fix import path
 
 // Import existing pages
 import Home from '@/pages/Home';
@@ -36,23 +35,21 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="yumvi-pay-theme">
-        <AuthProvider>
-          <AppInitializer />
-          <SessionTimeout timeout={3 * 60 * 60 * 1000} warningTime={10 * 60 * 1000} />
-          <Routes>
-            <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
-            <Route path="/signin" element={<PublicRoute><SignIn /></PublicRoute>} />
-            <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
-            <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-          <LogoutButton />
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <AppInitializer />
+        <SessionTimeout timeout={3 * 60 * 60 * 1000} warningTime={10 * 60 * 1000} />
+        <Routes>
+          <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
+          <Route path="/signin" element={<PublicRoute><SignIn /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
+          <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+        <LogoutButton />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

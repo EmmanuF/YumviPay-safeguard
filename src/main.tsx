@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
-import { AuthProvider } from './contexts/auth';
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { LocaleProvider } from './contexts/LocaleContext.tsx';
@@ -41,22 +40,20 @@ if (import.meta.env.PROD) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider
-      defaultTheme="system"
-      storageKey="vite-react-theme"
-    >
-      <LocaleProvider>
-        <NetworkProvider>
-          <AuthProvider>
+    <BrowserRouter>
+      <ThemeProvider
+        defaultTheme="system"
+        storageKey="vite-react-theme"
+      >
+        <LocaleProvider>
+          <NetworkProvider>
             <NotificationProvider>
-              <BrowserRouter>
-                <App />
-                <Toaster />
-              </BrowserRouter>
+              <App />
+              <Toaster />
             </NotificationProvider>
-          </AuthProvider>
-        </NetworkProvider>
-      </LocaleProvider>
-    </ThemeProvider>
+          </NetworkProvider>
+        </LocaleProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 )
