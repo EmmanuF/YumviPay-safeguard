@@ -4,7 +4,9 @@ import {
   getAuthState, 
   signInUser, 
   registerUser, 
-  logoutUser 
+  logoutUser,
+  resetUserPassword,
+  updateUserPassword 
 } from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -255,7 +257,30 @@ const useAuthActions = (setAuthState: React.Dispatch<React.SetStateAction<AuthSt
     }
   };
 
-  return { signIn, signUp, signOut };
+  // Implement password reset function
+  const resetPassword = async (email: string) => {
+    try {
+      console.log('Requesting password reset for:', email);
+      await resetUserPassword(email);
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      throw error;
+    }
+  };
+
+  // Implement password update function
+  const updatePassword = async (password: string) => {
+    try {
+      console.log('Updating password');
+      await updateUserPassword(password);
+      await refreshAuthState();
+    } catch (error: any) {
+      console.error('Password update error:', error);
+      throw error;
+    }
+  };
+
+  return { signIn, signUp, signOut, resetPassword, updatePassword };
 };
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
@@ -267,7 +292,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   });
 
   const refreshAuthState = useAuthRefresh(setAuthState);
-  const { signIn, signUp, signOut } = useAuthActions(setAuthState, refreshAuthState);
+  const { signIn, signUp, signOut, resetPassword, updatePassword } = useAuthActions(setAuthState, refreshAuthState);
 
   useAuthEvents(refreshAuthState, setAuthState, authState);
 
@@ -277,7 +302,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     refreshAuthState,
     signIn,
     signUp,
-    signOut
+    signOut,
+    resetPassword,
+    updatePassword
   };
 
   return (

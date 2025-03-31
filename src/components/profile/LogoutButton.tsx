@@ -26,7 +26,7 @@ const LogoutButton: React.FC = () => {
         variant: "success",
       });
       
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
       toast({
