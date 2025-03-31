@@ -1,4 +1,3 @@
-
 // English translations
 const enTranslations = {
   // General
@@ -10,6 +9,7 @@ const enTranslations = {
   // Hero section
   'hero.title': 'Transfer Without Boundaries',
   'hero.subtitle': 'Fast, secure, and affordable money transfers to Africa',
+  'hero.subheading': 'Send Money Instantly, Securely, and Without Hassle.',
   'hero.getStarted': 'Get Started',
   'hero.downloadApp': 'Download App',
   'hero.features.fast': 'Fast & Secure',

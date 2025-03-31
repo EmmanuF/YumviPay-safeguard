@@ -1,4 +1,3 @@
-
 // French translations
 const frTranslations = {
   // General
@@ -10,6 +9,7 @@ const frTranslations = {
   // Hero section
   'hero.title': 'Transferts Sans Limites',
   'hero.subtitle': 'Transferts d\'argent rapides, sécurisés et abordables vers l\'Afrique',
+  'hero.subheading': 'Envoyez de l\'Argent Instantanément, en Toute Sécurité et Sans Tracas.',
   'hero.getStarted': 'Commencer',
   'hero.downloadApp': 'Télécharger l\'App',
   'hero.features.fast': 'Rapide & Sécurisé',
