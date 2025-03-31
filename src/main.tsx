@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
-import { AuthProvider } from './contexts/AuthContext.tsx';
+import { AuthProvider } from './contexts/auth';
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { LocaleProvider } from './contexts/LocaleContext.tsx';
@@ -46,16 +46,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       storageKey="vite-react-theme"
     >
       <LocaleProvider>
-        <AuthProvider>
-          <NetworkProvider>
+        <NetworkProvider>
+          <AuthProvider>
             <NotificationProvider>
               <BrowserRouter>
                 <App />
+                <Toaster />
               </BrowserRouter>
-              <Toaster />
             </NotificationProvider>
-          </NetworkProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </NetworkProvider>
       </LocaleProvider>
     </ThemeProvider>
   </React.StrictMode>,

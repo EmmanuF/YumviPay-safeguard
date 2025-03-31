@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import SessionTimeout from '@/components/security/SessionTimeout';
 import AppInitializer from '@/components/AppInitializer';
 import { AuthProvider } from '@/contexts/auth';
+import LogoutButton from '@/components/LogoutButton';
 
 // Import existing pages
 import Home from '@/pages/Home';
@@ -49,6 +50,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
+          <LogoutButton />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
