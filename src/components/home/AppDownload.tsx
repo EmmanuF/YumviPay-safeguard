@@ -42,8 +42,8 @@ const AppDownload: React.FC = () => {
   const handleAppDownload = (platform: 'ios' | 'android') => {
     // In a production environment, these would link to actual app stores
     const message = platform === 'ios' 
-      ? t('app.download.ios.comingSoon', 'iOS app coming soon!') 
-      : t('app.download.android.comingSoon', 'Android app coming soon!');
+      ? t('app.download.ios.comingSoon') 
+      : t('app.download.android.comingSoon');
     
     // Show toast notification - fixed parameter type to match sonner's API
     toast.info(message, {
