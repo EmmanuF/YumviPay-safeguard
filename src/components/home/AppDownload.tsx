@@ -7,6 +7,13 @@ import { AppleIcon, AndroidIcon } from '@/components/icons';
 import { toast } from 'sonner';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 
+// Image sizes for responsive loading
+const IMAGE_SIZES = {
+  small: '280px',
+  medium: '320px',
+  large: '360px'
+};
+
 const AppDownload: React.FC = () => {
   const { t } = useLocale();
   const [imageLoading, setImageLoading] = useState(true);
@@ -42,10 +49,10 @@ const AppDownload: React.FC = () => {
   const handleAppDownload = (platform: 'ios' | 'android') => {
     // In a production environment, these would link to actual app stores
     const message = platform === 'ios' 
-      ? t('app.download.ios.comingSoon') 
-      : t('app.download.android.comingSoon');
+      ? t('app.download.ios.comingSoon') || 'iOS app coming soon!' 
+      : t('app.download.android.comingSoon') || 'Android app coming soon!';
     
-    // Show toast notification - fixed parameter type to match sonner's API
+    // Show toast notification
     toast.info(message, {
       duration: 3000,
       position: 'bottom-center',
@@ -102,24 +109,21 @@ const AppDownload: React.FC = () => {
                 <div className="mt-8 flex items-center">
                   <div className="flex -space-x-3">
                     {/* Using direct URLs for user avatars for reliability */}
-                    <img 
-                      src="https://randomuser.me/api/portraits/men/32.jpg" 
-                      alt="User" 
-                      className="w-10 h-10 rounded-full border-2 border-white"
-                      loading="lazy"
-                    />
-                    <img 
-                      src="https://randomuser.me/api/portraits/women/44.jpg" 
-                      alt="User" 
-                      className="w-10 h-10 rounded-full border-2 border-white"
-                      loading="lazy"
-                    />
-                    <img 
-                      src="https://randomuser.me/api/portraits/women/46.jpg" 
-                      alt="User" 
-                      className="w-10 h-10 rounded-full border-2 border-white"
-                      loading="lazy"
-                    />
+                    {[
+                      "https://randomuser.me/api/portraits/men/32.jpg",
+                      "https://randomuser.me/api/portraits/women/44.jpg",
+                      "https://randomuser.me/api/portraits/women/46.jpg"
+                    ].map((src, index) => (
+                      <img 
+                        key={`user-avatar-${index}`}
+                        src={src} 
+                        alt="User" 
+                        className="w-10 h-10 rounded-full border-2 border-white"
+                        loading="lazy"
+                        width="40"
+                        height="40"
+                      />
+                    ))}
                   </div>
                   <span className="ml-4 text-sm text-gray-600">
                     {t('app.download.users') || '10,000+ active users'}
@@ -140,28 +144,43 @@ const AppDownload: React.FC = () => {
                   </div>
                 )}
                 
-                <img 
-                  src="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png" 
-                  alt="Yumvi-Pay Mobile App" 
-                  className={`w-full max-w-[280px] md:max-w-[320px] object-contain rounded-2xl ${imageError ? 'border border-red-300' : 'shadow-lg'}`}
-                  loading="eager"
-                  onLoad={() => setImageLoading(false)}
-                  onError={(e) => {
-                    console.error('Image failed to load:', e);
-                    setImageLoading(false);
-                    setImageError(true);
-                    // Use an inline fallback image instead of changing src to prevent potential loops
-                    toast.error("Failed to load app preview image", {
-                      description: "Please check your internet connection",
-                      duration: 3000
-                    });
-                  }}
-                  style={{
-                    aspectRatio: '9/16',
-                    objectFit: 'contain',
-                    transform: imageError ? 'none' : 'translateY(-20px) rotate(-5deg)'
-                  }}
-                />
+                <picture>
+                  <source 
+                    media="(max-width: 640px)" 
+                    srcSet="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png?width=280"
+                  />
+                  <source 
+                    media="(max-width: 1024px)" 
+                    srcSet="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png?width=320"
+                  />
+                  <source 
+                    media="(min-width: 1024px)" 
+                    srcSet="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png?width=360"
+                  />
+                  <img 
+                    src="/lovable-uploads/010ee2ae-dd5f-4717-b990-1077b6f9edac.png" 
+                    alt="Yumvi-Pay Mobile App" 
+                    className={`w-full max-w-[280px] md:max-w-[320px] object-contain rounded-2xl ${imageError ? 'border border-red-300' : 'shadow-lg'}`}
+                    loading="lazy"
+                    width="320"
+                    height="580"
+                    onLoad={() => setImageLoading(false)}
+                    onError={(e) => {
+                      console.error('Image failed to load:', e);
+                      setImageLoading(false);
+                      setImageError(true);
+                      toast.error("Failed to load app preview image", {
+                        description: "Please check your internet connection",
+                        duration: 3000
+                      });
+                    }}
+                    style={{
+                      aspectRatio: '9/16',
+                      objectFit: 'contain',
+                      transform: imageError ? 'none' : 'translateY(-20px) rotate(-5deg)'
+                    }}
+                  />
+                </picture>
               </motion.div>
             </div>
           </div>

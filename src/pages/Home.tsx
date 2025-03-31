@@ -4,15 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/home/navigation';
 import Hero from '@/components/home/Hero';
-import Features from '@/components/home/features/Features';
-import HowItWorks from '@/components/home/HowItWorks';
-import CountryCoverage from '@/components/home/CountryCoverage';
-import { Testimonials } from '@/components/home/testimonials';
-import AppDownload from '@/components/home/AppDownload';
-import CTASection from '@/components/home/CTASection';
 import PageTransition from '@/components/PageTransition';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import SEO from '@/components/seo/SEO';
+import { 
+  LazyFeatures, 
+  LazyHowItWorks,
+  LazyCountryCoverage,
+  LazyTestimonials,
+  LazyAppDownload,
+  LazyCTASection
+} from '@/components/home/LazyLoadedComponents';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -88,22 +90,22 @@ const Home = () => {
               className="mt-2 md:mt-6"
             >
               <div ref={featuresRef} className="animate-on-scroll">
-                <Features />
+                <LazyFeatures />
               </div>
               <div ref={howItWorksRef} className="animate-on-scroll">
-                <HowItWorks />
+                <LazyHowItWorks />
               </div>
               <div ref={countryCoverageRef} className="animate-on-scroll">
-                <CountryCoverage />
+                <LazyCountryCoverage />
               </div>
               <div ref={testimonialsRef} className="animate-on-scroll">
-                <Testimonials />
+                <LazyTestimonials />
               </div>
               <div ref={appDownloadRef} className="animate-on-scroll">
-                <AppDownload />
+                <LazyAppDownload />
               </div>
               <div ref={ctaSectionRef} className="animate-on-scroll">
-                <CTASection />
+                <LazyCTASection />
               </div>
             </motion.div>
           </div>
