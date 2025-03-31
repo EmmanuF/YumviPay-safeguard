@@ -200,6 +200,11 @@ const enTranslations = {
   'actions.receive': 'Receive',
   'actions.share': 'Share',
   'actions.download': 'Download',
+  
+  // App download section
+  'app.download.title': 'Download Our Mobile App',
+  'app.download.description': 'Get the best experience with our mobile app. Send money on the go, track transactions, and receive notifications.',
+  'app.download.users': '10,000+ active users',
 };
 
 export { enTranslations };

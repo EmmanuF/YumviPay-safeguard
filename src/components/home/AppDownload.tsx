@@ -22,10 +22,10 @@ const AppDownload: React.FC = () => {
             <div className="flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="flex-1">
                 <h2 className="text-2xl md:text-3xl font-bold text-primary-800 mb-4">
-                  {t('app.download.title')}
+                  {t('app.download.title') || 'Download Our Mobile App'}
                 </h2>
                 <p className="text-base md:text-lg text-gray-700 mb-6">
-                  {t('app.download.description')}
+                  {t('app.download.description') || 'Get the best experience with our mobile app. Send money on the go, track transactions, and receive notifications.'}
                 </p>
                 
                 <div className="flex flex-wrap gap-4">
@@ -62,14 +62,14 @@ const AppDownload: React.FC = () => {
                     />
                   </div>
                   <span className="ml-4 text-sm text-gray-600">
-                    {t('app.download.users')}
+                    {t('app.download.users') || '10,000+ active users'}
                   </span>
                 </div>
               </div>
               
               <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto">
                 <img 
-                  src="/lovable-uploads/67dfa296-0c6e-451a-92f2-dcac30ae9f26.png" 
+                  src="/lovable-uploads/61966192-f33e-463a-b6f3-d691d5e4a63f.png" 
                   alt="Yumvi-Pay Mobile App" 
                   className="w-full max-w-[450px] md:max-w-[500px] object-contain shadow-2xl rounded-2xl"
                   loading="eager"
