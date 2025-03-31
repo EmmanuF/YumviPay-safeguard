@@ -3,7 +3,7 @@
  * Exchange rate service for currency conversions
  */
 import { fetchExchangeRates } from './api';
-import { clearRatesCache, getRateFromCache, storeRateInCache } from './cache';
+import { clearRatesCache, getRateFromCache, storeRateInCache, CACHE_TTL } from './cache';
 import { getFallbackExchangeRate } from './fallback';
 
 /**
