@@ -65,7 +65,7 @@ const AppDownload: React.FC = () => {
               
               <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto">
                 <img 
-                  src="/lovable-uploads/d7f266a9-e2f0-4913-ade1-bc2af7bfe49b.png" 
+                  src="/lovable-uploads/67dfa296-0c6e-451a-92f2-dcac30ae9f26.png" 
                   alt="Yumvi-Pay Mobile App" 
                   className="w-full max-w-[450px] md:max-w-[500px] object-contain shadow-2xl rounded-2xl"
                 />
