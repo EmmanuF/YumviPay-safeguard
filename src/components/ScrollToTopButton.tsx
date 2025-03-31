@@ -3,10 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocation } from 'react-router-dom';
 
 const ScrollToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  
+  // Don't render the button if we're not on the homepage
+  if (!isHomePage) {
+    return null;
+  }
   
   // Show button when user scrolls down 300px
   const toggleVisibility = () => {
