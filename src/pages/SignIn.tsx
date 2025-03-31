@@ -21,33 +21,19 @@ import { useAuth } from '@/contexts/auth';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
 import { BiometricService } from '@/services/biometric';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
 });
 
-const resetPasswordSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-});
-
 const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isLoggedIn, resetPassword } = useAuth();
+  const { signIn, isLoggedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
-  const [showResetPasswordDialog, setShowResetPasswordDialog] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   // Get the page they were trying to access
   const redirectTo = location.state?.redirectTo || "/dashboard";
@@ -65,13 +51,6 @@ const SignIn = () => {
     defaultValues: {
       email: "",
       password: "",
-    },
-  });
-
-  const resetPasswordForm = useForm<z.infer<typeof resetPasswordSchema>>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: {
-      email: "",
     },
   });
 
@@ -140,29 +119,6 @@ const SignIn = () => {
       });
   };
 
-  const handleResetPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
-    setIsResettingPassword(true);
-    try {
-      await resetPassword(values.email);
-      
-      toast({
-        title: "Password Reset Email Sent",
-        description: "Check your email for instructions to reset your password.",
-        variant: "success",
-      });
-      
-      setShowResetPasswordDialog(false);
-    } catch (error: any) {
-      toast({
-        title: "Password Reset Failed",
-        description: error.message || "Unable to send password reset email. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsResettingPassword(false);
-    }
-  };
-
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
@@ -223,63 +179,12 @@ const SignIn = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-4 text-center space-y-2"
+            className="mt-4 text-center"
           >
-            <div>
-              <Button variant="link" onClick={() => setShowResetPasswordDialog(true)}>
-                Forgot Password?
-              </Button>
-            </div>
-            <div>
-              Don't have an account? <Button variant="link" onClick={() => navigate('/signup')}>Sign Up</Button>
-            </div>
+            Don't have an account? <Button variant="link" onClick={() => navigate('/signup')}>Sign Up</Button>
           </motion.div>
         </div>
       </div>
-
-      <Dialog open={showResetPasswordDialog} onOpenChange={setShowResetPasswordDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reset Password</DialogTitle>
-            <DialogDescription>
-              Enter your email address and we'll send you a link to reset your password.
-            </DialogDescription>
-          </DialogHeader>
-
-          <Form {...resetPasswordForm}>
-            <form onSubmit={resetPasswordForm.handleSubmit(handleResetPassword)} className="space-y-4">
-              <FormField
-                control={resetPasswordForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your email" {...field} type="email" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowResetPasswordDialog(false)}
-                  disabled={isResettingPassword}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={isResettingPassword}
-                >
-                  {isResettingPassword ? "Sending..." : "Send Reset Link"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
     </PageTransition>
   );
 };

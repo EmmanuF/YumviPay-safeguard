@@ -5,4 +5,3 @@ export * from './authLogin';
 export * from './authLogout';
 export * from './authState';
 export * from './authOnboarding';
-export * from './authPassword';

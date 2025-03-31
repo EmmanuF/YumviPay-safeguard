@@ -26,7 +26,7 @@ const LogoutButton: React.FC = () => {
         variant: "success",
       });
       
-      navigate('/', { replace: true });
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
       toast({
@@ -39,12 +39,13 @@ const LogoutButton: React.FC = () => {
 
   return (
     <Button 
-      variant="outline" 
-      className="w-full mt-4 border-destructive text-destructive hover:bg-destructive/10"
+      variant="outline"
+      size="icon"
+      className="fixed bottom-8 left-8 z-50 rounded-full bg-destructive/90 backdrop-blur-sm shadow-md border border-destructive/70 hover:bg-destructive"
       onClick={handleLogout}
+      title="Logout"
     >
-      <LogOut className="mr-2 h-4 w-4" />
-      Logout
+      <LogOut className="h-5 w-5 text-white" />
     </Button>
   );
 };

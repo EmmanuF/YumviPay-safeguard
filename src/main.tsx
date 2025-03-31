@@ -1,14 +1,13 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
+import { AuthProvider } from './contexts/AuthContext.tsx';
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { LocaleProvider } from './contexts/LocaleContext.tsx';
 import { NotificationProvider } from './contexts/NotificationContext.tsx';
-import { NetworkProvider } from './contexts/NetworkContext.tsx';
 import { registerServiceWorker } from './utils/serviceWorker'; 
 
 // Make transaction data retrieval functions globally available for emergency access
@@ -40,20 +39,18 @@ if (import.meta.env.PROD) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ThemeProvider
-        defaultTheme="system"
-        storageKey="vite-react-theme"
-      >
-        <LocaleProvider>
-          <NetworkProvider>
-            <NotificationProvider>
-              <App />
-              <Toaster />
-            </NotificationProvider>
-          </NetworkProvider>
-        </LocaleProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <ThemeProvider
+      defaultTheme="system"
+      storageKey="vite-react-theme"
+    >
+      <LocaleProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <App />
+            <Toaster />
+          </NotificationProvider>
+        </AuthProvider>
+      </LocaleProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 )
