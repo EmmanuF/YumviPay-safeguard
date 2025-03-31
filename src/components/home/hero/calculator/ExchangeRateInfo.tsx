@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -28,36 +28,28 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
   rateLimitReached = false
 }) => {
   const { t } = useLocale();
-  const previousRateRef = useRef<string>('');
-  const containerRef = useRef<HTMLDivElement>(null);
   
   // Format last updated time
   const formattedLastUpdate = lastRateUpdate 
     ? formatDistanceToNow(lastRateUpdate, { addSuffix: true }) 
     : 'never';
   
-  // Format the current rate as a string for comparison
-  const currentRateString = `1 ${sourceCurrency} = ${exchangeRate.toFixed(4)} ${targetCurrency}`;
+  // Format the current rate as a string
+  const rateString = `1 ${sourceCurrency} = ${exchangeRate.toFixed(4)} ${targetCurrency}`;
   
-  // Use effect to track rate changes and prevent unnecessary animations
-  useEffect(() => {
-    // Only update the ref after the component has mounted
-    if (previousRateRef.current === '') {
-      previousRateRef.current = currentRateString;
-    }
-  }, [currentRateString]);
+  // Generate a unique key for the AnimatePresence to ensure proper animation
+  const animationKey = `${sourceCurrency}-${targetCurrency}-${exchangeRate.toFixed(4)}`;
     
   return (
     <>
       <motion.div 
         variants={itemVariants}
         className="flex items-center justify-between"
-        ref={containerRef}
         layout="position"
       >
         <AnimatePresence mode="wait">
           <motion.div 
-            key={`${sourceCurrency}-${targetCurrency}-${exchangeRate.toFixed(4)}`}
+            key={animationKey}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -66,9 +58,7 @@ const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
             style={{ minHeight: '40px' }}
           >
             <span className="font-bold mr-2">Exchange Rate:</span>
-            <span className="font-bold">
-              1 {sourceCurrency} = {exchangeRate.toFixed(4)} {targetCurrency}
-            </span>
+            <span className="font-bold">{rateString}</span>
           </motion.div>
         </AnimatePresence>
         

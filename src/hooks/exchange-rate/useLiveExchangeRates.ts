@@ -29,17 +29,13 @@ export const useLiveExchangeRates = ({
 
   // Function to fetch the latest exchange rate
   const updateRate = useCallback(async (forceRefresh = false) => {
-    // If rate limit reached, only allow manual refreshes
-    if (rateLimitReached && !forceRefresh) {
-      console.log('⚠️ API rate limit reached. Skipping automatic update.');
-      return;
-    }
-
+    // Skip if currencies aren't set
     if (!sourceCurrency || !targetCurrency) {
       return;
     }
 
     try {
+      // Set loading state immediately
       setIsLoading(true);
       setError(null);
       
@@ -49,7 +45,7 @@ export const useLiveExchangeRates = ({
       
       console.log(`🔄 Updating exchange rate: ${sourceCurrency} to ${targetCurrency}${forceRefresh ? ' (force refresh)' : ''}`);
       
-      // If forcing a refresh, clear cache and get new data
+      // If forcing a refresh or currency has changed, clear cache and get new data
       let newRate: number;
       if (forceRefresh) {
         try {
@@ -57,7 +53,6 @@ export const useLiveExchangeRates = ({
           console.log(`🔄 Force refreshing exchange rates for ${sourceCurrency}`);
           await refreshExchangeRates(sourceCurrency);
           newRate = await getExchangeRate(sourceCurrency, targetCurrency);
-          console.log(`✅ Successfully forced refresh of rates for ${sourceCurrency}`);
         } catch (refreshError) {
           console.error('❌ Forced refresh failed:', refreshError);
           // Fall back to regular fetch if force fails
@@ -71,9 +66,7 @@ export const useLiveExchangeRates = ({
       if (targetCurrency === 'XAF') {
         newRate += 20;
         console.log(`📊 Added 20 XAF markup. New rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
-      } else {
-        console.log(`📊 New exchange rate: 1 ${sourceCurrency} = ${newRate} ${targetCurrency}`);
-      }
+      } 
       
       // Check if rate actually changed
       const hasRateChanged = rate !== newRate;
@@ -111,7 +104,7 @@ export const useLiveExchangeRates = ({
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       if (errorMessage.includes('rate limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
         setRateLimitReached(true);
-        console.warn('⚠️ API rate limit reached. Automatic updates disabled.');
+        console.warn('⚠️ API rate limit reached. Using fallback rates.');
         
         if (forceRefresh) {
           toast({
@@ -132,34 +125,34 @@ export const useLiveExchangeRates = ({
       // Increment retry count for exponential backoff
       setRetryCount(prev => prev + 1);
       
-      // Always reset forced refresh state in case of error
+      // Reset forced refresh state in case of error
       if (forceRefresh) {
         setForcedRefresh(false);
       }
     } finally {
+      // Release the loading state
       setIsLoading(false);
     }
   }, [sourceCurrency, targetCurrency, rate, onRateUpdate, rateLimitReached]);
 
-  // Trigger an update whenever currency changes
+  // Trigger an update whenever currency changes - this is critical for instant updates
   useEffect(() => {
-    console.log(`🔄 Currency changed: ${sourceCurrency} to ${targetCurrency}, triggering rate update`);
-    // Set loading state immediately
-    setIsLoading(true);
-    // Fetch updated rate with slight delay to avoid UI jank during rapid changes
-    const timer = setTimeout(() => {
-      updateRate(true); // Force refresh when currencies change
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    // Check for real currency changes to avoid unnecessary calls
+    if (sourceCurrency && targetCurrency) {
+      console.log(`🔄 Currency changed: ${sourceCurrency} to ${targetCurrency}, triggering immediate rate update`);
+      
+      // Set loading state immediately to show user something is happening
+      setIsLoading(true);
+      
+      // Immediately fetch the updated rate without delay
+      updateRate(true);
+    }
   }, [sourceCurrency, targetCurrency, updateRate]);
 
-  // Set up periodic updates with exponential backoff on errors 
-  // and respect for rate limits
+  // Set up periodic updates with exponential backoff on errors
   useInterval(() => {
-    // If rate limited, skip automatic updates
-    if (rateLimitReached) {
-      console.log('⚠️ Skipping automatic update due to API rate limits');
+    // Skip if rate limited or during active loading
+    if (rateLimitReached || isLoading) {
       return;
     }
     

@@ -11,7 +11,6 @@ export const useRateCalculation = ({
 }: RateCalculationProps) => {
   const [receiveAmount, setReceiveAmount] = useState('');
   const [lastCalculation, setLastCalculation] = useState<string | null>(null);
-  const currencyChangeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastToastRef = useRef<string | null>(null);
   const calculationInProgressRef = useRef(false);
   
@@ -26,7 +25,7 @@ export const useRateCalculation = ({
   } = useLiveExchangeRates({
     sourceCurrency,
     targetCurrency,
-    initialRate: 0, // Don't hardcode initial rate - removed fixed USD-XAF rate
+    initialRate: 0, // Don't use hardcoded initial rates
     updateIntervalMs: 28800000, // 8 hours = 3 updates per day
     onRateUpdate: (newRate) => {
       // Only show toast when rate updates significantly (more than 1%)
@@ -54,28 +53,9 @@ export const useRateCalculation = ({
     }
   });
 
-  // Clear any pending currency change timer when currencies change
-  useEffect(() => {
-    if (currencyChangeTimerRef.current) {
-      clearTimeout(currencyChangeTimerRef.current);
-    }
-    
-    // Reset last toast reference when currencies change
-    lastToastRef.current = null;
-    
-    // Force update the rate when currency changes
-    updateRate();
-    
-    return () => {
-      if (currencyChangeTimerRef.current) {
-        clearTimeout(currencyChangeTimerRef.current);
-      }
-    };
-  }, [sourceCurrency, targetCurrency, updateRate]);
-
   // Calculate receive amount whenever input values change
   const calculateAmount = useCallback(() => {
-    // Prevent multiple rapid recalculations
+    // Prevent multiple rapid recalculations that cause flickering
     if (calculationInProgressRef.current) {
       return;
     }
@@ -84,15 +64,16 @@ export const useRateCalculation = ({
     calculationInProgressRef.current = true;
     
     try {
-      if (isLoading && exchangeRate === 0) {
-        // Don't update yet if we're still loading the initial rate
+      // Handle zero exchange rate case
+      if (exchangeRate === 0) {
+        if (!isLoading) {
+          console.log(`⚠️ Exchange rate is zero for ${sourceCurrency} to ${targetCurrency}, triggering update`);
+          updateRate();
+        }
         calculationInProgressRef.current = false;
         return;
       }
 
-      // Use the live rate from the API (which now includes the 20 XAF markup)
-      console.log(`💱 Using exchange rate: 1 ${sourceCurrency} = ${exchangeRate} ${targetCurrency}`);
-      
       // Calculate the receive amount
       const amount = parseFloat(sendAmount) || 0;
       const converted = (amount * exchangeRate).toFixed(2);
@@ -108,27 +89,13 @@ export const useRateCalculation = ({
       // Release the calculation lock after a small delay to prevent UI jitter
       setTimeout(() => {
         calculationInProgressRef.current = false;
-      }, 100);
+      }, 50);
     }
-  }, [sendAmount, sourceCurrency, targetCurrency, exchangeRate, isLoading]);
+  }, [sendAmount, sourceCurrency, targetCurrency, exchangeRate, isLoading, updateRate]);
   
-  // Run calculation when dependencies change with a slight debounce
+  // Run calculation when dependencies change without debounce for immediate feedback
   useEffect(() => {
-    // Clear any existing timer
-    if (currencyChangeTimerRef.current) {
-      clearTimeout(currencyChangeTimerRef.current);
-    }
-    
-    // Set a short timeout to debounce rapid changes
-    currencyChangeTimerRef.current = setTimeout(() => {
-      calculateAmount();
-    }, 50);
-    
-    return () => {
-      if (currencyChangeTimerRef.current) {
-        clearTimeout(currencyChangeTimerRef.current);
-      }
-    };
+    calculateAmount();
   }, [calculateAmount]);
 
   // Function to force refresh the exchange rate
@@ -149,7 +116,7 @@ export const useRateCalculation = ({
       lastToastRef.current = currentKey;
       
       // Reset the toast reference after 5 seconds
-      currencyChangeTimerRef.current = setTimeout(() => {
+      setTimeout(() => {
         lastToastRef.current = null;
       }, 5000);
     } else {

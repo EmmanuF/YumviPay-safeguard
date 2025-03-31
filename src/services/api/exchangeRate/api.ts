@@ -50,14 +50,8 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     }
     
     console.log(`✅ Successfully fetched rates for ${baseCurrency} with ${Object.keys(data.rates).length} currencies`);
-    console.log(`📊 Sample rates:`, {
-      EUR: data.rates.EUR,
-      GBP: data.rates.GBP,
-      XAF: data.rates.XAF || 'N/A',
-      lastUpdated: data.time_last_update_utc || data.timestamp
-    });
     
-    // Update cache with new rates and a long TTL
+    // Update cache with new rates
     cacheRates(baseCurrency, data.rates);
     
     return data.rates;
@@ -65,7 +59,6 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
     console.error('❌ Error fetching exchange rates:', error);
     
     // Check if we have cached data (even if expired)
-    // This prevents fallback when we just have a rate limit issue
     const expiredCacheData = getExpiredCachedRates(baseCurrency);
     
     if (expiredCacheData) {
