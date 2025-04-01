@@ -123,18 +123,33 @@ const SignInForm = ({ onSuccess }: { onSuccess: (redirectPath: string) => void }
 };
 
 const SignIn = () => {
+  // Initialize ALL hooks at the top level, before any conditional logic
   const navigate = useNavigate();
-  const { isLoggedIn, loading: authLoading } = useAuth();
+  const location = useLocation();
+  const { toast } = useToast();
+  const { isLoggedIn, loading: authLoading, refreshAuthState } = useAuth();
+  
+  // State variables
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
   const [redirectRequested, setRedirectRequested] = useState(false);
-  const location = useLocation();
-  const redirectTo = location.state?.redirectTo || "/dashboard";
-  const { toast } = useToast();
-
-  // Initialize all hooks before any conditional returns
   const [biometricChecked, setBiometricChecked] = useState(false);
+  const redirectTo = location.state?.redirectTo || "/dashboard";
 
-  // Check if user is already logged in, redirect if they are
+  // Force a refresh of auth state when component mounts
+  useEffect(() => {
+    const refreshAuth = async () => {
+      try {
+        await refreshAuthState();
+        console.log('Auth state refreshed in SignIn component');
+      } catch (error) {
+        console.error('Failed to refresh auth state:', error);
+      }
+    };
+    
+    refreshAuth();
+  }, [refreshAuthState]);
+
+  // Check if user is already logged in
   useEffect(() => {
     if (!authLoading && isLoggedIn && !redirectRequested) {
       console.log('User already logged in, redirecting to:', redirectTo);
@@ -143,8 +158,8 @@ const SignIn = () => {
     }
   }, [isLoggedIn, navigate, redirectTo, redirectRequested, authLoading]);
 
+  // Check biometric availability
   useEffect(() => {
-    // Check if biometric login is available (e.g., via local storage)
     const checkBiometricAvailability = async () => {
       try {
         const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
@@ -165,10 +180,9 @@ const SignIn = () => {
   };
 
   const handleBiometricSuccess = (credentials: { username: string; password: string }) => {
-    // Extract the required variables to avoid referencing potentially stale values in a closure
     const currentRedirectTo = location.state?.redirectTo || "/dashboard";
-    
     const { signIn } = useAuth();
+    
     toast({
       title: "Biometric Login",
       description: "Verifying your identity...",
@@ -191,68 +205,62 @@ const SignIn = () => {
       });
   };
 
-  // Only render the component content if we're not redirecting due to already logged in state
-  if (authLoading) {
-    // Show loading state while checking auth
-    return (
-      <PageTransition>
-        <div className="flex flex-col min-h-screen bg-background">
-          <Header title="Sign In" showBackButton={true} />
-          <div className="flex-1 flex justify-center items-center">
-            <p>Checking authentication status...</p>
-          </div>
+  // Use conditional rendering for UI, not for hooks
+  const renderContent = () => {
+    if (authLoading) {
+      return (
+        <div className="flex-1 flex justify-center items-center">
+          <p>Checking authentication status...</p>
         </div>
-      </PageTransition>
-    );
-  }
+      );
+    }
 
-  // If logged in and redirecting, show minimal content to avoid unnecessary rendering
-  if (isLoggedIn && redirectRequested) {
-    return (
-      <PageTransition>
-        <div className="flex flex-col min-h-screen bg-background">
-          <Header title="Sign In" showBackButton={true} />
-          <div className="flex-1 flex justify-center items-center">
-            <p>Redirecting you...</p>
-          </div>
+    if (isLoggedIn && redirectRequested) {
+      return (
+        <div className="flex-1 flex justify-center items-center">
+          <p>Redirecting you...</p>
         </div>
-      </PageTransition>
-    );
-  }
+      );
+    }
 
+    return (
+      <div className="flex-1 p-4 flex flex-col justify-center max-w-md mx-auto w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <SignInForm onSuccess={handleLoginSuccess} />
+        </motion.div>
+        
+        {biometricChecked && showBiometricLogin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <BiometricLogin onSuccess={handleBiometricSuccess} />
+          </motion.div>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-4 text-center"
+        >
+          Don't have an account? <Button variant="link" onClick={() => navigate('/signup')}>Sign Up</Button>
+        </motion.div>
+      </div>
+    );
+  };
+
+  // Main return - no early returns for the component
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
         <Header title="Sign In" showBackButton={true} />
-        
-        <div className="flex-1 p-4 flex flex-col justify-center max-w-md mx-auto w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <SignInForm onSuccess={handleLoginSuccess} />
-          </motion.div>
-          
-          {biometricChecked && showBiometricLogin && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <BiometricLogin onSuccess={handleBiometricSuccess} />
-            </motion.div>
-          )}
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-4 text-center"
-          >
-            Don't have an account? <Button variant="link" onClick={() => navigate('/signup')}>Sign Up</Button>
-          </motion.div>
-        </div>
+        {renderContent()}
       </div>
     </PageTransition>
   );

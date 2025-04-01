@@ -10,11 +10,14 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  // Initialize ALL hooks at the top level, before any conditional logic
   const { isLoggedIn, loading: authLoading, refreshAuthState, authError } = useAuth();
   const location = useLocation();
+  const { toast } = useToast();
+  
+  // State variables
   const [isChecking, setIsChecking] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
-  const { toast } = useToast();
   
   // Using useEffect for auth checking to ensure consistent hook execution order
   useEffect(() => {
@@ -69,21 +72,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
   }, [authLoading, isLoggedIn, location.pathname, refreshAuthState, toast]);
   
-  // Use a single return with conditional rendering to maintain hook order
-  return (
-    <>
-      {(authLoading || isChecking) ? (
-        <LoadingState 
-          message="Verifying authentication..." 
-          submessage="Please wait while we check your login status" 
-        />
-      ) : shouldRedirect ? (
-        <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />
-      ) : (
-        children
-      )}
-    </>
-  );
+  // Use conditional rendering for the returned JSX, not for hooks
+  if (authLoading || isChecking) {
+    return (
+      <LoadingState 
+        message="Verifying authentication..." 
+        submessage="Please wait while we check your login status" 
+      />
+    );
+  }
+  
+  if (shouldRedirect) {
+    return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
+  }
+  
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
