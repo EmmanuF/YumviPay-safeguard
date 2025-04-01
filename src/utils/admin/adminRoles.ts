@@ -273,39 +273,33 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // Find user by email
-    const { data: userData, error: userError } = await supabase
-      .from('users') // This might not exist or be accessible
-      .select('id')
-      .eq('email', email)
-      .single();
+    // Get user data from auth API
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(email);
     
     if (userError) {
-      console.error('Error finding user by email:', userError);
+      console.error('Error finding user by email via auth API:', userError);
       
-      // Try auth API instead
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      // Try to look for the user in the profiles table as a fallback
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
       
-      if (authError) {
-        console.error('Auth API error:', authError);
+      if (profileError || !profileData) {
+        console.log('User not found with email in profiles:', email);
         return false;
       }
       
-      const user = authData?.users.find(u => u.email === email);
-      if (!user) {
-        console.log('User not found with email:', email);
-        return false;
-      }
-      
-      return await hasRole('admin', user.id);
+      return await hasRole('admin', profileData.id);
     }
     
-    if (!userData) {
-      console.log('User not found with email:', email);
+    if (!userData || !userData.user) {
+      console.log('User not found with email in auth:', email);
       return false;
     }
     
-    return await hasRole('admin', userData.id);
+    return await hasRole('admin', userData.user.id);
   } catch (error) {
     console.error('Error in checkEmailForAdminRole:', error);
     return false;
