@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -256,38 +255,25 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
     console.log(`Checking if email ${email} has admin role`);
     
     // Use a safer approach to avoid deep type instantiation
-    // First try to find by email using raw SQL via RPC
+    // First try to find the user ID by email
     let userId: string | null = null;
     
-    // Use a simple text query to avoid complex type inference
-    const query = `SELECT id FROM profiles WHERE email = '${email}' LIMIT 1`;
-    
-    const { data: rawResult, error: rawError } = await supabase
-      .rpc('get_user_id_by_email', { user_email: email });
-    
-    if (rawError) {
-      console.error('Failed to get user by email:', rawError);
-    } else if (rawResult && rawResult.length > 0) {
-      userId = rawResult[0]?.user_id;
-      console.log(`Found user ID via RPC: ${userId}`);
+    // Option 1: Query the profiles table directly with explicit type casting
+    interface ProfileResult {
+      id: string;
     }
     
-    // If RPC failed, fallback to manual query with explicit typing
-    if (!userId) {
-      interface ProfileRow {
-        id: string;
-      }
-      
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .limit(1) as { data: ProfileRow[] | null };
-      
-      if (profiles && profiles.length > 0) {
-        userId = profiles[0].id;
-        console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
-      }
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .limit(1);
+    
+    if (profileError) {
+      console.error('Failed to get user by email:', profileError);
+    } else if (profiles && profiles.length > 0) {
+      userId = profiles[0].id;
+      console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
     }
     
     // If we found a user ID, check for admin role
