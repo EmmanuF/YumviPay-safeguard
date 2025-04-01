@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
-import { useAuth } from '@/contexts/auth'; // Standardized import path
+import { useAuth } from '@/contexts/auth';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
 import { BiometricService } from '@/services/biometric';
@@ -27,16 +27,12 @@ const formSchema = z.object({
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
 });
 
-const SignIn = () => {
-  const navigate = useNavigate();
+// Create SignInForm as a separate component to better manage state
+const SignInForm = ({ onSuccess }: { onSuccess: (redirectPath: string) => void }) => {
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isLoggedIn } = useAuth();
+  const { signIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
-  const [redirectRequested, setRedirectRequested] = useState(false);
-
-  // Get the page they were trying to access
   const redirectTo = location.state?.redirectTo || "/dashboard";
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -46,22 +42,7 @@ const SignIn = () => {
       password: "",
     },
   });
-
-  // Check if user is already logged in, redirect if they are
-  useEffect(() => {
-    if (isLoggedIn && !redirectRequested) {
-      console.log('User already logged in, redirecting to:', redirectTo);
-      setRedirectRequested(true);
-      navigate(redirectTo, { replace: true });
-    }
-  }, [isLoggedIn, navigate, redirectTo, redirectRequested]);
-
-  useEffect(() => {
-    // Check if biometric login is available (e.g., via local storage)
-    const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
-    setShowBiometricLogin(biometricAvailable);
-  }, []);
-
+  
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
@@ -86,7 +67,7 @@ const SignIn = () => {
       });
       
       // Navigate to the originally requested page or default to dashboard
-      navigate(redirectTo, { replace: true });
+      onSuccess(redirectTo);
     } catch (error: any) {
       toast({
         title: "Authentication Failed",
@@ -97,17 +78,99 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
+  
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your email" {...field} type="email" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your password" {...field} type="password" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex justify-end">
+          <Button variant="link" className="p-0 h-auto font-normal" onClick={() => navigate('/forgot-password')}>
+            Forgot password?
+          </Button>
+        </div>
+        <Button disabled={isSubmitting} className="w-full" size="lg">
+          {isSubmitting ? "Signing In..." : "Sign In"}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+const SignIn = () => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+  const [redirectRequested, setRedirectRequested] = useState(false);
+  const location = useLocation();
+  const redirectTo = location.state?.redirectTo || "/dashboard";
+  const { toast } = useToast();
+
+  // Check if user is already logged in, redirect if they are
+  useEffect(() => {
+    if (isLoggedIn && !redirectRequested) {
+      console.log('User already logged in, redirecting to:', redirectTo);
+      setRedirectRequested(true);
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isLoggedIn, navigate, redirectTo, redirectRequested]);
+
+  useEffect(() => {
+    // Check if biometric login is available (e.g., via local storage)
+    const checkBiometricAvailability = async () => {
+      const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
+      setShowBiometricLogin(biometricAvailable);
+    };
+    
+    checkBiometricAvailability();
+  }, []);
+
+  const handleLoginSuccess = (redirectPath: string) => {
+    setRedirectRequested(true);
+    navigate(redirectPath, { replace: true });
+  };
 
   const handleBiometricSuccess = (credentials: { username: string; password: string }) => {
-    // Use the retrieved credentials to sign in
-    setIsSubmitting(true);
+    // Extract the required variables to avoid referencing potentially stale values in a closure
+    const currentRedirectTo = location.state?.redirectTo || "/dashboard";
+    
+    const { signIn } = useAuth();
+    toast({
+      title: "Biometric Login",
+      description: "Verifying your identity...",
+    });
+    
     signIn(credentials.username, credentials.password)
       .then(() => {
         toast({
           title: "Biometric Login Successful",
           description: "You have successfully logged in using biometrics.",
         });
-        navigate(redirectTo, { replace: true });
+        handleLoginSuccess(currentRedirectTo);
       })
       .catch((error) => {
         toast({
@@ -115,13 +178,9 @@ const SignIn = () => {
           description: error.message || "Invalid credentials. Please try again.",
           variant: "destructive",
         });
-      })
-      .finally(() => {
-        setIsSubmitting(false);
       });
   };
 
-  // Render the component without early returns that might disrupt hook ordering
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
@@ -133,44 +192,7 @@ const SignIn = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your email" {...field} type="email" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your password" {...field} type="password" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end">
-                  <Button variant="link" className="p-0 h-auto font-normal" onClick={() => navigate('/forgot-password')}>
-                    Forgot password?
-                  </Button>
-                </div>
-                <Button disabled={isSubmitting} className="w-full" size="lg">
-                  {isSubmitting ? "Signing In..." : "Sign In"}
-                </Button>
-              </form>
-            </Form>
+            <SignInForm onSuccess={handleLoginSuccess} />
           </motion.div>
           
           {showBiometricLogin && (

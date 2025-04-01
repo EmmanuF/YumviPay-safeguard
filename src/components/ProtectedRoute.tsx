@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useState, useEffect, useCallback } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/components/ui/use-toast';
@@ -16,53 +16,60 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const { toast } = useToast();
   
-  // Simplified auth checking that reduces redundant API calls
-  const checkAuth = useCallback(async () => {
-    try {
-      console.log('Checking auth in ProtectedRoute for', location.pathname, 'isLoggedIn:', isLoggedIn);
-      
-      if (authLoading) {
-        console.log('Auth is still loading, waiting...');
-        return;
-      }
-      
-      // If context already has authenticated user, use that
-      if (isLoggedIn) {
-        console.log('User is already logged in according to context, proceeding to protected content');
-        setIsChecking(false);
-        setShouldRedirect(false);
-        return;
-      }
-      
-      // If auth has loaded and user is not logged in, refresh auth state once
-      if (!isLoggedIn) {
-        console.log('Auth loaded but user not logged in, refreshing auth state');
-        await refreshAuthState();
-        setIsChecking(false);
+  // Using useEffect for auth checking to ensure consistent hook execution order
+  useEffect(() => {
+    console.log('ProtectedRoute: Running auth check effect for', location.pathname);
+    let isMounted = true;
+    
+    const performAuthCheck = async () => {
+      try {
+        if (authLoading) {
+          console.log('Auth is still loading, waiting...');
+          return;
+        }
         
-        // After refresh, check login state again
-        if (!isLoggedIn) {
+        // If already logged in according to context, proceed
+        if (isLoggedIn) {
+          console.log('User is already logged in according to context, proceeding to protected content');
+          if (isMounted) {
+            setIsChecking(false);
+            setShouldRedirect(false);
+          }
+          return;
+        }
+        
+        // If not logged in, try refreshing auth state once
+        console.log('Auth loaded but user not logged in, refreshing auth state');
+        const authState = await refreshAuthState();
+        
+        if (isMounted) {
+          setIsChecking(false);
+          setShouldRedirect(!authState.isAuthenticated);
+        }
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        if (isMounted) {
+          setIsChecking(false);
           setShouldRedirect(true);
+          
+          toast({
+            title: "Authentication Error",
+            description: error instanceof Error ? error.message : "Failed to verify your login status",
+            variant: "destructive",
+          });
         }
       }
-    } catch (error) {
-      console.error('Error checking authentication:', error);
-      setIsChecking(false);
-      setShouldRedirect(true);
-      
-      toast({
-        title: "Authentication Error",
-        description: error instanceof Error ? error.message : "Failed to verify your login status",
-        variant: "destructive",
-      });
-    }
+    };
+    
+    performAuthCheck();
+    
+    // Cleanup function to prevent state updates after unmounting
+    return () => {
+      isMounted = false;
+    };
   }, [authLoading, isLoggedIn, location.pathname, refreshAuthState, toast]);
   
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-  
-  // FIXED: No early returns - use variables to control what gets rendered
+  // Render based on current state - no early returns or conditionals that could affect hook order
   if (authLoading || isChecking) {
     return (
       <LoadingState 

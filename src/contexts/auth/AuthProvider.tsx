@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import AuthContext from './AuthContext';
 import { getAuthState } from '@/services/auth';
 import { AuthState } from './types';
@@ -11,6 +12,7 @@ interface AuthProviderProps {
 }
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // Use a single state object to prevent partial state updates that could affect hook order
   const [state, setState] = useState<AuthState>({
     isLoggedIn: false,
     user: null,
@@ -18,8 +20,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authError: null,
   });
 
+  // Initialize auth state using a stable useEffect
   useEffect(() => {
     console.log('AuthProvider: Initializing auth state');
+    let isMounted = true;
     
     const initializeAuth = async () => {
       try {
@@ -27,27 +31,37 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('AuthProvider: Got auth state:', 
           { isAuthenticated: authState.isAuthenticated });
         
-        setState({
-          isLoggedIn: authState.isAuthenticated,
-          user: authState.user,
-          loading: false,
-          authError: null,
-        });
+        if (isMounted) {
+          setState({
+            isLoggedIn: authState.isAuthenticated,
+            user: authState.user,
+            loading: false,
+            authError: null,
+          });
+        }
       } catch (error) {
         console.error('Error initializing auth state:', error);
-        setState({
-          isLoggedIn: false,
-          user: null,
-          loading: false,
-          authError: 'Failed to retrieve authentication state',
-        });
+        if (isMounted) {
+          setState({
+            isLoggedIn: false,
+            user: null,
+            loading: false,
+            authError: 'Failed to retrieve authentication state',
+          });
+        }
       }
     };
 
     initializeAuth();
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const refreshAuthState = async () => {
+  const refreshAuthState = useCallback(async () => {
+    // Use functional state update for thread safety
     setState(prev => ({ ...prev, loading: true }));
     try {
       const authState = await getAuthState();
@@ -57,6 +71,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading: false,
         authError: null,
       });
+      return authState;
     } catch (error) {
       console.error('Error refreshing auth state:', error);
       setState(prev => ({
@@ -64,10 +79,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading: false,
         authError: 'Failed to refresh authentication state',
       }));
+      throw error;
     }
-  };
+  }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     setState(prev => ({ ...prev, loading: true, authError: null }));
     try {
       const user = await signInUser(email, password);
@@ -87,9 +103,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }));
       throw error;
     }
-  };
+  }, []);
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = useCallback(async (email: string, password: string, name: string) => {
     setState(prev => ({ ...prev, loading: true, authError: null }));
     try {
       const user = await registerUser(name, email, '', 'CM', password);
@@ -109,9 +125,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }));
       throw error;
     }
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     setState(prev => ({ ...prev, loading: true }));
     try {
       await logoutUser();
@@ -130,9 +146,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }));
       throw error;
     }
-  };
+  }, []);
 
-  const value = {
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = React.useMemo(() => ({
     isLoggedIn: state.isLoggedIn,
     user: state.user,
     loading: state.loading,
@@ -141,7 +158,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signIn,
     signUp,
     signOut,
-  };
+  }), [state.isLoggedIn, state.user, state.loading, state.authError, refreshAuthState, signIn, signUp, signOut]);
 
   return (
     <AuthContext.Provider value={value}>
