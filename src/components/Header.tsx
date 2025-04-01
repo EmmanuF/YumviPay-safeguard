@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
@@ -5,7 +6,25 @@ import { Shield } from 'lucide-react';
 import { useAdmin } from '@/hooks/useAdmin';
 import { isPlatform } from '@/utils/platform';
 
-const Header = () => {
+export interface HeaderProps {
+  title?: string;
+  showBackButton?: boolean;
+  onBackClick?: () => void;
+  rightContent?: React.ReactNode;
+  rightElement?: React.ReactNode;
+  transparent?: boolean;
+  showNotification?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ 
+  title,
+  showBackButton,
+  onBackClick,
+  rightContent,
+  rightElement,
+  transparent,
+  showNotification
+}) => {
   const { isLoggedIn, user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const isNativeApp = isPlatform('native');

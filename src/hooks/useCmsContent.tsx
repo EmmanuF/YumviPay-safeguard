@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
-interface CmsContent {
+export interface CmsContent {
   id: string;
   type: string;
   key: string;
@@ -71,20 +71,20 @@ export const useCmsContent = (options?: UseCmsContentOptions): UseCmsContentRetu
         query = query.eq('category', options.category);
       }
       
-      const { data, error } = await query;
+      const { data, error: fetchError } = await query;
       
-      if (error) {
-        throw new Error(error.message);
+      if (fetchError) {
+        throw new Error(fetchError.message);
       }
       
       // Single content item if key is provided
       if (options?.key && data && data.length > 0) {
-        setContent(data[0]);
+        setContent(data[0] as CmsContent);
       } else {
         setContent(null);
       }
       
-      setContents(data || []);
+      setContents(data as CmsContent[] || []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load content';
       console.error('Error fetching CMS content:', errorMessage);

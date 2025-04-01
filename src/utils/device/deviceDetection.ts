@@ -1,5 +1,5 @@
 
-import { isPlatform } from '@/utils/platformUtils';
+import { isPlatform } from '@/utils/platform';
 
 export interface DeviceInfo {
   isMobile: boolean;
@@ -18,8 +18,8 @@ export interface DeviceInfo {
  */
 export async function detectDeviceCapabilities(): Promise<DeviceInfo> {
   // Check platform
-  const isCapacitor = isPlatform('capacitor');
-  const isMobile = isPlatform('mobile') || isPlatform('capacitor');
+  const isCapacitor = isPlatform('native');
+  const isMobile = isPlatform('mobile') || isPlatform('native');
   const platform = isPlatform('ios') ? 'ios' : isPlatform('android') ? 'android' : 'web';
   
   // Start with basic detection based on platform

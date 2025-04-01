@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,19 +20,9 @@ import {
 } from "@/components/ui/select";
 import { useToast } from '@/components/ui/use-toast';
 import { FileText, Edit, Trash2, Plus, Search, Filter } from 'lucide-react';
+import { CmsContent } from '@/hooks/useCmsContent';
 
-interface ContentItem {
-  id: string;
-  type: string;
-  key: string;
-  title: string;
-  content: any;
-  status: string;
-  category?: string;
-  page?: string;
-  created_at: string;
-  updated_at: string;
-}
+interface ContentItem extends CmsContent {}
 
 const ContentManagement: React.FC = () => {
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
@@ -60,7 +49,7 @@ const ContentManagement: React.FC = () => {
         throw error;
       }
       
-      setContentItems(data || []);
+      setContentItems(data as ContentItem[] || []);
     } catch (error) {
       console.error('Error fetching content items:', error);
       toast({

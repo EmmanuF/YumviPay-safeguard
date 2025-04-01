@@ -10,4 +10,5 @@ export type PlatformType =
   | 'desktop' 
   | 'mobile' 
   | 'tablet' 
+  | 'capacitor'
   | 'pwa';

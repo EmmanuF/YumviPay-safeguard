@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,16 +13,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Search, Flag, Plus } from 'lucide-react';
-
-interface FeatureFlag {
-  id: string;
-  key: string;
-  name: string;
-  description: string | null;
-  enabled: boolean;
-  created_at: string;
-  updated_at: string;
-}
+import { FeatureFlag } from '@/hooks/useFeatureFlag';
 
 const FeatureFlags: React.FC = () => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([]);
@@ -49,7 +39,7 @@ const FeatureFlags: React.FC = () => {
         throw error;
       }
       
-      setFeatureFlags(data || []);
+      setFeatureFlags(data as FeatureFlag[] || []);
     } catch (error) {
       console.error('Error fetching feature flags:', error);
       toast({

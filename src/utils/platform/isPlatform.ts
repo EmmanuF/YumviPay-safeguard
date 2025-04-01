@@ -27,6 +27,8 @@ export const isPlatform = (platform: PlatformType): boolean => {
       return window.matchMedia('(display-mode: standalone)').matches;
     case 'web':
       return !Capacitor.isNativePlatform();
+    case 'capacitor':
+      return Capacitor.isNativePlatform();
     default:
       return false;
   }

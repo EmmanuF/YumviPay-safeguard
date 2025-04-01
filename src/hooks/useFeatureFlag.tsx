@@ -2,6 +2,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface FeatureFlag {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 /**
  * Hook to check if a feature flag is enabled
  * 
@@ -17,18 +27,18 @@ export const useFeatureFlag = (flagKey: string) => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('feature_flags')
         .select('enabled')
         .eq('key', flagKey)
         .single();
       
-      if (error) {
-        if (error.code === 'PGRST116') { // No rows returned
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') { // No rows returned
           console.warn(`Feature flag "${flagKey}" not found`);
           setIsEnabled(false);
         } else {
-          throw error;
+          throw fetchError;
         }
       } else {
         setIsEnabled(data?.enabled || false);
@@ -63,18 +73,20 @@ export const useFeatureFlags = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('feature_flags')
         .select('key, enabled');
       
-      if (error) {
-        throw error;
+      if (fetchError) {
+        throw fetchError;
       }
       
       const flags: Record<string, boolean> = {};
-      data?.forEach(flag => {
-        flags[flag.key] = flag.enabled;
-      });
+      if (data) {
+        data.forEach((flag: any) => {
+          flags[flag.key] = flag.enabled;
+        });
+      }
       
       setFeatureFlags(flags);
     } catch (error) {
