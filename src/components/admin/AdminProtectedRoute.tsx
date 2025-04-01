@@ -16,11 +16,11 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   const { isAdmin, isLoading: adminLoading, error } = useAdmin();
   const location = useLocation();
   const { toast } = useToast();
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
 
-  // Check if on a native mobile platform
+  // Check if on a native mobile platform - FIX: Use useEffect to avoid infinite renders
   useEffect(() => {
-    const checkPlatform = async () => {
+    const checkPlatform = () => {
       const isMobile = isPlatform('native');
       setIsMobileDevice(isMobile);
       
@@ -34,15 +34,15 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     };
     
     checkPlatform();
-  }, [toast]);
+  }, [toast]); // Only re-run if toast changes
 
-  // Show loading state
-  if (authLoading || adminLoading) {
+  // Show loading state until platform check is done
+  if (isMobileDevice === null || authLoading || adminLoading) {
     return <LoadingState message="Verifying admin access..." submessage="Please wait while we check your credentials" />;
   }
 
   // Block access on native mobile devices
-  if (isMobileDevice) {
+  if (isMobileDevice === true) {
     return <Navigate to="/" replace />;
   }
 
