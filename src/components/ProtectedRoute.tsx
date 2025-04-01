@@ -63,7 +63,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     checkAuth();
   }, [checkAuth, authLoading, isLoggedIn]);
   
-  // Use JSX conditionals rather than early returns to maintain hook consistency
+  // Use conditional rendering instead of early returns
   if (authLoading || isChecking) {
     return (
       <LoadingState 

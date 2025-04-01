@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -15,8 +15,8 @@ export const useSendMoneyPage = () => {
   // Default to Cameroon if user country not available
   const defaultCountryCode = user?.country || 'CM';
   
-  // Check authentication status
-  useEffect(() => {
+  // Check authentication status - use useCallback to prevent infinite loops
+  const checkAuthStatus = useCallback(() => {
     console.log('SendMoney: Checking auth status...', { authLoading, isLoggedIn });
     
     // Don't use setTimeout to avoid potential race conditions
@@ -25,6 +25,10 @@ export const useSendMoneyPage = () => {
       setAuthChecked(true);
     }
   }, [authLoading, isLoggedIn]);
+  
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
 
   // Redirect to login if not authenticated
   useEffect(() => {

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,16 +31,17 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Check session using a callback to prevent issues with hook ordering
+  const checkSessionStatus = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   // Check if user is already logged in
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate('/dashboard');
-      }
-    };
-    
-    checkSession();
+  useEffect(() => {    
+    checkSessionStatus();
     
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -52,7 +53,7 @@ const Auth = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, checkSessionStatus]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
