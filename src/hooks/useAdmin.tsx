@@ -9,6 +9,7 @@ export interface AdminState {
   error: string | null;
   roles: AppRole[];
   refreshAdminStatus: () => Promise<void>;
+  userId: string | null;
 }
 
 /**
@@ -20,12 +21,15 @@ export const useAdmin = (): AdminState => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   
   // Function to check admin status - strictly memoized to prevent infinite loops
   const checkAdminStatus = useCallback(async () => {
     if (!isLoggedIn || !user) {
+      console.log('User not logged in, setting admin status to false');
       setIsAdmin(false);
       setRoles([]);
+      setUserId(null);
       setIsLoading(false);
       return;
     }
@@ -33,8 +37,9 @@ export const useAdmin = (): AdminState => {
     try {
       setIsLoading(true);
       setError(null);
+      setUserId(user.id);
       
-      console.log('Checking admin status for user:', user?.id);
+      console.log('Checking admin status for user:', user.id, user.email);
       
       // Check if user has admin role
       const adminStatus = await hasRole('admin');
@@ -57,6 +62,7 @@ export const useAdmin = (): AdminState => {
   
   // Refresh admin status
   const refreshAdminStatus = useCallback(async () => {
+    console.log('Manually refreshing admin status');
     await checkAdminStatus();
   }, [checkAdminStatus]);
   
@@ -71,7 +77,8 @@ export const useAdmin = (): AdminState => {
     isLoading,
     error,
     roles,
-    refreshAdminStatus
+    refreshAdminStatus,
+    userId
   };
 };
 

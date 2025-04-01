@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
   showNotification
 }) => {
   const { isLoggedIn, user, signOut } = useAuth();
-  const { isAdmin } = useAdmin();
+  const { isAdmin, isLoading: adminLoading } = useAdmin();
   const isNativeApp = isPlatform('native');
   
   const handleSignOut = async () => {
@@ -46,10 +46,16 @@ const Header: React.FC<HeaderProps> = ({
               <Link 
                 to="/admin" 
                 className="flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600 mr-4"
+                title={`Admin (${user?.email})`}
               >
                 <Shield className="w-4 h-4 mr-1" />
                 Admin
               </Link>
+            )}
+            {adminLoading && (
+              <span className="text-gray-500 mr-4 text-xs">
+                (Checking admin...)
+              </span>
             )}
             <span className="text-gray-600 mr-4">
               {user?.name || user?.email || 'User'}

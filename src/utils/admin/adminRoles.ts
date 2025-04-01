@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -47,7 +46,14 @@ export async function hasRole(role: AppRole, userId?: string): Promise<boolean> 
     }
 
     console.log(`Role check result for ${role}:`, data);
-    return data || false;
+    
+    // Check if data is null or undefined and return false in that case
+    if (data === null || data === undefined) {
+      console.log('No role data returned, defaulting to false');
+      return false;
+    }
+    
+    return Boolean(data);
   } catch (error) {
     console.error('Error in hasRole:', error);
     return false;
@@ -190,6 +196,58 @@ export async function removeRole(role: AppRole, userId?: string): Promise<boolea
     return true;
   } catch (error) {
     console.error('Error in removeRole:', error);
+    return false;
+  }
+}
+
+/**
+ * Directly adds the admin role to a user - for debugging and setup
+ * 
+ * @param userId User ID to grant admin role to
+ * @returns Promise<boolean> Success status
+ */
+export async function grantAdminRole(userId?: string): Promise<boolean> {
+  try {
+    console.log('Attempting to grant admin role');
+    
+    // Get the current user if userId is not provided
+    if (!userId) {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Error getting auth user:', authError);
+        return false;
+      }
+      
+      if (!authData.user) {
+        console.log('No authenticated user found');
+        return false;
+      }
+      
+      userId = authData.user.id;
+    }
+    
+    console.log(`Granting admin role to user: ${userId}`);
+    
+    // Insert admin role for user
+    const { error } = await supabase
+      .from('user_roles')
+      .insert({ 
+        user_id: userId,
+        role: 'admin' 
+      })
+      .select()
+      .single();
+
+    if (error && error.code !== '23505') { // Ignore duplicate key errors
+      console.error('Error granting admin role:', error);
+      return false;
+    }
+
+    console.log('Admin role granted successfully');
+    return true;
+  } catch (error) {
+    console.error('Error in grantAdminRole:', error);
     return false;
   }
 }

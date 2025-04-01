@@ -12,20 +12,39 @@ interface AdminProtectedRouteProps {
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
-  const { isLoggedIn, loading: authLoading } = useAuth();
-  const { isAdmin, isLoading: adminLoading, error } = useAdmin();
+  const { isLoggedIn, loading: authLoading, user } = useAuth();
+  const { isAdmin, isLoading: adminLoading, error, userId } = useAdmin();
   const location = useLocation();
   const { toast } = useToast();
   const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
   const [hasShownToast, setHasShownToast] = useState<boolean>(false);
 
+  // Log current auth state for debugging
+  useEffect(() => {
+    console.log('AdminProtectedRoute - Auth State:', { 
+      isLoggedIn, 
+      authLoading,
+      user: user ? { id: user.id, email: user.email } : 'No user',
+      isMobileDevice
+    });
+  }, [isLoggedIn, authLoading, user, isMobileDevice]);
+
+  // Log admin state for debugging
+  useEffect(() => {
+    console.log('AdminProtectedRoute - Admin State:', { 
+      isAdmin, 
+      adminLoading, 
+      error,
+      userId
+    });
+  }, [isAdmin, adminLoading, error, userId]);
+
   // Check if on a native mobile platform - Run once on component mount
   useEffect(() => {
     // Detect platform synchronously to avoid state updates during render
     const isMobile = isPlatform('native');
+    console.log('Platform detection - isMobile:', isMobile);
     setIsMobileDevice(isMobile);
-    
-    // We don't show the toast here, we'll do it conditionally below
   }, []); // Empty dependency array ensures this runs only once
   
   // Handle mobile restriction toast - separate from platform check
@@ -57,6 +76,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   useEffect(() => {
     // Only show toast if we know user is not admin, is logged in, and haven't shown toast yet
     if (isLoggedIn && !isAdmin && !adminLoading && !authLoading && !hasShownToast) {
+      console.log('Access denied to admin panel. User:', user?.email);
       toast({
         title: "Access Denied",
         description: "You don't have permission to access the admin panel",
@@ -64,7 +84,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
       });
       setHasShownToast(true);
     }
-  }, [isAdmin, isLoggedIn, adminLoading, authLoading, toast, hasShownToast]);
+  }, [isAdmin, isLoggedIn, adminLoading, authLoading, toast, hasShownToast, user]);
 
   // Show loading state until checks are complete
   if (isMobileDevice === null || authLoading || adminLoading) {
@@ -83,6 +103,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
 
   // Not an admin
   if (!isAdmin) {
+    console.log('User is not an admin, redirecting to home. User email:', user?.email);
     return <Navigate to="/" replace />;
   }
 
