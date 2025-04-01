@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { AuthProvider } from './contexts/auth' // Fixed import path
+import { AuthProvider } from './contexts/auth' // Using the standardized path
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { LocaleProvider } from './contexts/LocaleContext.tsx';

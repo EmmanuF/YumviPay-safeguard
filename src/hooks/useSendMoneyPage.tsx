@@ -1,8 +1,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth'; // Fixed import path
+import { useToast } from '@/components/ui/use-toast';
 import { showErrorToast } from '@/utils/errorHandling';
 
 export const useSendMoneyPage = () => {
@@ -34,7 +34,7 @@ export const useSendMoneyPage = () => {
   useEffect(() => {
     if (authChecked && !authLoading && !isLoggedIn) {
       console.log('SendMoney: User not logged in, redirecting to signin');
-      toast({
+      useToast().toast({
         title: "Authentication Required",
         description: "Please sign in to continue with your transaction.",
         variant: "default"

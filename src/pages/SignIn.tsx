@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
-import { useAuth } from '@/contexts/auth';
+import { useAuth } from '@/contexts/auth'; // Standardized import path
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
 import { BiometricService } from '@/services/biometric';

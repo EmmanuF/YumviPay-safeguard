@@ -1,7 +1,7 @@
 
 import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/auth';
+import { useAuth } from '@/contexts/auth'; // Standardized import path
 import { useToast } from '@/components/ui/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
 

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/auth';
+import { useAuth } from '@/contexts/auth'; // Fixed import path
 import { useLocale } from '@/contexts/LocaleContext';
 
 interface ActionButtonsProps {
