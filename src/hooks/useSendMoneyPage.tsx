@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/auth'; // Fixed import path
+import { useAuth } from '@/contexts/auth'; 
 import { useToast } from '@/components/ui/use-toast';
 import { showErrorToast } from '@/utils/errorHandling';
 
@@ -11,6 +11,7 @@ export const useSendMoneyPage = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [needsInitialData, setNeedsInitialData] = useState(true);
+  const { toast } = useToast(); // FIXED: Properly use the toast hook at the top level
   
   // Default to Cameroon if user country not available
   const defaultCountryCode = user?.country || 'CM';
@@ -34,7 +35,8 @@ export const useSendMoneyPage = () => {
   useEffect(() => {
     if (authChecked && !authLoading && !isLoggedIn) {
       console.log('SendMoney: User not logged in, redirecting to signin');
-      useToast().toast({
+      // FIXED: Use the toast properly from the hook defined at the top level
+      toast({
         title: "Authentication Required",
         description: "Please sign in to continue with your transaction.",
         variant: "default"
@@ -47,7 +49,7 @@ export const useSendMoneyPage = () => {
       console.log('SendMoney: Auth check finished, setting pageLoading to false');
       setPageLoading(false);
     }
-  }, [authChecked, isLoggedIn, authLoading, navigate]);
+  }, [authChecked, isLoggedIn, authLoading, navigate, toast]); // Added toast to dependencies
 
   return {
     isLoggedIn,

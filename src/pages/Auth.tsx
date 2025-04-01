@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,6 +17,8 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
   
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -33,9 +34,21 @@ const Auth = () => {
 
   // Check session using a callback to prevent issues with hook ordering
   const checkSessionStatus = useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      navigate('/dashboard');
+    try {
+      console.log('Auth: Checking session status');
+      const { data } = await supabase.auth.getSession();
+      const hasActiveSession = !!data.session;
+      
+      setHasSession(hasActiveSession);
+      setSessionChecked(true);
+      
+      if (hasActiveSession) {
+        console.log('Auth: User has active session, redirecting to dashboard');
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking session:', error);
+      setSessionChecked(true);
     }
   }, [navigate]);
 
@@ -147,6 +160,14 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (!sessionChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Checking authentication status...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary-50 to-white">

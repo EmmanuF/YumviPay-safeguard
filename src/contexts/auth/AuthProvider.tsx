@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AuthContext from './AuthContext';
 import { getAuthState } from '@/services/auth';
@@ -20,9 +19,14 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
+    console.log('AuthProvider: Initializing auth state');
+    
     const initializeAuth = async () => {
       try {
         const authState = await getAuthState();
+        console.log('AuthProvider: Got auth state:', 
+          { isAuthenticated: authState.isAuthenticated });
+        
         setState({
           isLoggedIn: authState.isAuthenticated,
           user: authState.user,

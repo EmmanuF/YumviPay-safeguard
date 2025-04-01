@@ -1,7 +1,7 @@
 
 import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/auth'; // Standardized import path
+import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/components/ui/use-toast';
 import LoadingState from '@/components/transaction/LoadingState';
 
@@ -21,27 +21,26 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     try {
       console.log('Checking auth in ProtectedRoute for', location.pathname, 'isLoggedIn:', isLoggedIn);
       
+      if (authLoading) {
+        console.log('Auth is still loading, waiting...');
+        return;
+      }
+      
       // If context already has authenticated user, use that
-      if (isLoggedIn && !authLoading) {
+      if (isLoggedIn) {
         console.log('User is already logged in according to context, proceeding to protected content');
         setIsChecking(false);
         setShouldRedirect(false);
         return;
       }
       
-      // If auth is still loading, wait for it
-      if (authLoading) {
-        console.log('Auth is still loading, waiting...');
-        return;
-      }
-      
       // If auth has loaded and user is not logged in, refresh auth state once
-      if (!isLoggedIn && !authLoading) {
+      if (!isLoggedIn) {
         console.log('Auth loaded but user not logged in, refreshing auth state');
         await refreshAuthState();
         setIsChecking(false);
         
-        // After refresh, if still not logged in, redirect
+        // After refresh, check login state again
         if (!isLoggedIn) {
           setShouldRedirect(true);
         }
@@ -61,9 +60,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   
   useEffect(() => {
     checkAuth();
-  }, [checkAuth, authLoading, isLoggedIn]);
+  }, [checkAuth]);
   
-  // Use conditional rendering instead of early returns
+  // FIXED: No early returns - use variables to control what gets rendered
   if (authLoading || isChecking) {
     return (
       <LoadingState 
@@ -73,16 +72,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
   
-  if (!authLoading && !isChecking && shouldRedirect) {
+  if (!isLoggedIn && !isChecking) {
     return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
   }
   
-  if (!authLoading && !isChecking && !shouldRedirect && isLoggedIn) {
-    return <>{children}</>;
-  }
-  
-  // Fallback render - should not normally reach here, but added for safety
-  return null;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
