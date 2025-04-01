@@ -34,6 +34,7 @@ const SignInForm = ({ onSuccess }: { onSuccess: (redirectPath: string) => void }
   const { signIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const redirectTo = location.state?.redirectTo || "/dashboard";
+  const navigate = useNavigate(); // Add navigate here for "Forgot password" link
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

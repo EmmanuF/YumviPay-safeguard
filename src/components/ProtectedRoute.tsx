@@ -44,7 +44,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         if (isMounted) {
           setIsChecking(false);
-          setShouldRedirect(!authState.isAuthenticated);
+          // Fixed: Check isLoggedIn from the updated context instead of the return value
+          setShouldRedirect(!isLoggedIn);
         }
       } catch (error) {
         console.error('Error checking authentication:', error);

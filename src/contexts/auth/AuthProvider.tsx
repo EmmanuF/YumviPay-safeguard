@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import AuthContext from './AuthContext';
 import { getAuthState } from '@/services/auth';
@@ -79,7 +78,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading: false,
         authError: 'Failed to refresh authentication state',
       }));
-      throw error;
+      return {
+        isAuthenticated: false,
+        user: null,
+        hasCompletedOnboarding: false
+      };
     }
   }, []);
 
