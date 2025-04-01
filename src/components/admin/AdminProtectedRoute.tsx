@@ -18,23 +18,32 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   const { toast } = useToast();
   const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
 
-  // Check if on a native mobile platform - FIX: Use useEffect to avoid infinite renders
+  // Check if on a native mobile platform - Run once on component mount
   useEffect(() => {
-    const checkPlatform = () => {
-      const isMobile = isPlatform('native');
-      setIsMobileDevice(isMobile);
-      
-      if (isMobile) {
-        toast({
-          title: "Access Restricted",
-          description: "Admin features are not accessible on mobile devices",
-          variant: "destructive",
-        });
-      }
-    };
+    // Detect platform synchronously to avoid state updates during render
+    const isMobile = isPlatform('native');
+    setIsMobileDevice(isMobile);
     
-    checkPlatform();
-  }, [toast]); // Only re-run if toast changes
+    // Show toast only if on mobile - moved inside useEffect to prevent render loop
+    if (isMobile) {
+      toast({
+        title: "Access Restricted",
+        description: "Admin features are not accessible on mobile devices",
+        variant: "destructive",
+      });
+    }
+  }, []); // Empty dependency array ensures this runs only once
+  
+  // Separate effect for error handling to prevent render loops
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Authentication Error",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   // Show loading state until platform check is done
   if (isMobileDevice === null || authLoading || adminLoading) {
@@ -53,19 +62,10 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
 
   // Not an admin
   if (!isAdmin) {
+    // Only show toast once rather than during render
     toast({
       title: "Access Denied",
       description: "You don't have permission to access the admin panel",
-      variant: "destructive",
-    });
-    return <Navigate to="/" replace />;
-  }
-
-  // Error checking admin status
-  if (error) {
-    toast({
-      title: "Authentication Error",
-      description: error,
       variant: "destructive",
     });
     return <Navigate to="/" replace />;

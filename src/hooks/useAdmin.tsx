@@ -21,7 +21,7 @@ export const useAdmin = (): AdminState => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Function to check admin status
+  // Function to check admin status - defined using useCallback to prevent recreating on each render
   const checkAdminStatus = useCallback(async () => {
     if (!isLoggedIn || !user) {
       setIsAdmin(false);
