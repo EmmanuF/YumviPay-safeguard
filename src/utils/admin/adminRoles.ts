@@ -2,7 +2,8 @@
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-export type AppRole = 'admin' | 'moderator' | 'user';
+// Limit AppRole type to match the database enum
+export type AppRole = 'admin' | 'user';
 
 /**
  * Calls the has_role database function to check if a user has a specific role
@@ -24,8 +25,8 @@ export async function hasRole(role: AppRole, userId?: string): Promise<boolean> 
 
     // Call the has_role function via RPC
     const { data, error } = await supabase.rpc('has_role', {
-      _user_id: userId,
-      _role: role
+      user_id: userId,
+      role: role
     });
 
     if (error) {
