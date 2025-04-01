@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -255,9 +254,7 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // First attempt: Use explicit typing for the database query to avoid TypeScript errors
-    type ProfileQueryResult = { id: string } | null;
-    
+    // Avoid type inference issues by using a simpler approach
     const { data, error } = await supabase
       .from('profiles')
       .select('id')
@@ -265,11 +262,10 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
       .maybeSingle();
     
     // Handle the profile query result
-    const profileData = data as ProfileQueryResult;
-    
-    if (!error && profileData && profileData.id) {
-      console.log(`Found user with email in profiles: ${email}, id: ${profileData.id}`);
-      return await hasRole('admin', profileData.id);
+    if (!error && data && 'id' in data) {
+      const userId = data.id;
+      console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
+      return await hasRole('admin', userId);
     } else {
       console.log(`Profile lookup error or not found: ${error?.message}`);
     }
