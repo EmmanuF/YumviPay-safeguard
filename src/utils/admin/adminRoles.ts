@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -31,10 +30,6 @@ export async function getCurrentAuthUser(): Promise<User | null> {
 
 /**
  * Calls the has_role database function to check if a user has a specific role
- * 
- * @param role The role to check for
- * @param userId Optional user ID (defaults to current user)
- * @returns Boolean indicating if the user has the specified role
  */
 export async function hasRole(role: AppRole, userId?: string): Promise<boolean> {
   try {
@@ -86,9 +81,6 @@ export async function hasRole(role: AppRole, userId?: string): Promise<boolean> 
 
 /**
  * Gets all roles for a user
- * 
- * @param userId Optional user ID (defaults to current user)
- * @returns Array of roles
  */
 export async function getUserRoles(userId?: string): Promise<AppRole[]> {
   try {
@@ -130,10 +122,6 @@ export async function getUserRoles(userId?: string): Promise<AppRole[]> {
 
 /**
  * Adds a role to a user
- * 
- * @param role The role to add
- * @param userId Optional user ID (defaults to current user)
- * @returns Boolean indicating success
  */
 export async function addRole(role: AppRole, userId?: string): Promise<boolean> {
   try {
@@ -172,10 +160,6 @@ export async function addRole(role: AppRole, userId?: string): Promise<boolean> 
 
 /**
  * Removes a role from a user
- * 
- * @param role The role to remove
- * @param userId Optional user ID (defaults to current user)
- * @returns Boolean indicating success
  */
 export async function removeRole(role: AppRole, userId?: string): Promise<boolean> {
   try {
@@ -207,9 +191,6 @@ export async function removeRole(role: AppRole, userId?: string): Promise<boolea
 
 /**
  * Directly adds the admin role to a user - for debugging and setup
- * 
- * @param userId User ID to grant admin role to
- * @returns Promise<boolean> Success status
  */
 export async function grantAdminRole(userId?: string): Promise<boolean> {
   try {
@@ -273,36 +254,35 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // Use auth.listUsers() to find the user by email since getUserByEmail doesn't exist
-    const { data: usersData, error: listError } = await supabase.auth.admin.listUsers();
+    // First attempt: Check the profiles table directly
+    // This avoids using the auth.admin API which might not be available
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
     
-    if (listError) {
-      console.error('Error listing users via auth API:', listError);
-      
-      // Try to look for the user in the profiles table as a fallback
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email')
-        .eq('email', email)
-        .maybeSingle();
-      
-      if (profileError || !profileData) {
-        console.log('User not found with email in profiles:', email);
-        return false;
-      }
-      
+    if (!profileError && profileData?.id) {
+      console.log(`Found user with email in profiles: ${email}, id: ${profileData.id}`);
       return await hasRole('admin', profileData.id);
+    } else {
+      console.log(`Profile lookup error or not found: ${profileError?.message}`);
     }
     
-    // Find the user with matching email
-    const user = usersData?.users?.find(u => u.email === email);
+    // Second attempt: Try to get user data from auth.users via a custom function
+    // This requires a database function that can access auth.users
+    // Since we can't use admin.listUsers from client-side
     
-    if (!user) {
-      console.log('User not found with email in auth list:', email);
-      return false;
+    // For now, as a fallback, let's check currently logged-in user
+    const currentUser = await getCurrentAuthUser();
+    if (currentUser?.email === email) {
+      console.log(`Current user matches email: ${email}`);
+      return await hasRole('admin', currentUser.id);
     }
     
-    return await hasRole('admin', user.id);
+    // If we can't find the user using either method
+    console.log(`Could not find user with email: ${email} using available methods`);
+    return false;
   } catch (error) {
     console.error('Error in checkEmailForAdminRole:', error);
     return false;
