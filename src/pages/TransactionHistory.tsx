@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
 import PageTransition from '@/components/PageTransition';
 import { TransactionsList } from '@/components/history';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -91,8 +90,6 @@ const TransactionHistory: React.FC = () => {
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen">
-        <Header title={`Hi, ${user?.name?.split(' ')[0] || 'there'}`} showBackButton={false} />
-        
         <motion.main 
           className="flex-1 p-4"
           variants={containerVariants}

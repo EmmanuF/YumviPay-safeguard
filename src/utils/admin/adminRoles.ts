@@ -1,298 +1,212 @@
+
+// Import necessary packages and types
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
+import { useAuth } from '@/contexts/auth';
 
-// Limit AppRole type to match the database enum
-export type AppRole = 'admin' | 'user';
+// Define available roles in the application
+export type AppRole = 'admin' | 'user' | 'support' | 'finance';
 
-/**
- * Gets the current authenticated user or returns null
- */
-export async function getCurrentAuthUser(): Promise<User | null> {
-  try {
-    const { data: authData, error: authError } = await supabase.auth.getUser();
-    
-    if (authError) {
-      console.error('Error getting auth user:', authError);
-      return null;
-    }
-    
-    if (!authData.user) {
-      console.log('No authenticated user found');
-      return null;
-    }
-    
-    return authData.user;
-  } catch (error) {
-    console.error('Error getting current user:', error);
-    return null;
-  }
-}
+// Role utility functions
 
 /**
- * Calls the has_role database function to check if a user has a specific role
+ * Check if a user has a specific role
+ * @param role The role to check for
+ * @param userId Optional user ID (defaults to current user)
+ * @returns boolean indicating if user has the role
  */
 export async function hasRole(role: AppRole, userId?: string): Promise<boolean> {
   try {
-    console.log(`Checking if user has role: ${role}`);
-    
-    // Get the current user if userId is not provided
+    // Get the current user's ID if not provided
     if (!userId) {
-      const authUser = await getCurrentAuthUser();
-      if (!authUser) return false;
-      userId = authUser.id;
-      console.log(`Got user ID from auth: ${userId}`);
+      const currentUser = supabase.auth.getUser();
+      const user = (await currentUser).data.user;
+      
+      if (!user) {
+        console.log('No user found when checking role');
+        return false;
+      }
+      
+      userId = user.id;
     }
-
-    // First do a direct check for debugging
-    const { data: directCheck, error: directError } = await supabase
-      .from('user_roles')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('role', role);
     
-    console.log(`Direct DB check for ${role} role:`, directCheck, directError);
-
-    // Call the has_role function via RPC
-    console.log(`Calling has_role function with params: user_id=${userId}, role=${role}`);
-    const { data, error } = await supabase.rpc('has_role', {
-      user_id: userId,
-      role: role
-    });
-
+    console.log('Calling has_role function with params:', { user_id: userId, role });
+    
+    // Call the has_role RPC function in Supabase
+    const { data, error } = await supabase
+      .rpc('has_role', {
+        user_id: userId,
+        role: role
+      });
+      
+    console.log('Role check result for', role + ':', data);
+    
     if (error) {
-      console.error('Error checking role:', error);
-      return false;
-    }
-
-    console.log(`Role check result for ${role}:`, data);
-    
-    // Check if data is null or undefined and return false in that case
-    if (data === null || data === undefined) {
-      console.log('No role data returned, defaulting to false');
+      console.error('Error checking role:', error.message);
       return false;
     }
     
-    return Boolean(data);
+    return !!data;
   } catch (error) {
-    console.error('Error in hasRole:', error);
+    console.error('Exception when checking role:', error);
     return false;
   }
 }
 
 /**
- * Gets all roles for a user
+ * Get all roles for the current user
+ * @param userId Optional user ID (defaults to current user)
+ * @returns Array of roles the user has
  */
 export async function getUserRoles(userId?: string): Promise<AppRole[]> {
   try {
-    console.log('Getting user roles');
-    
-    // Get the current user if userId is not provided
+    // Get the current user's ID if not provided
     if (!userId) {
-      const authUser = await getCurrentAuthUser();
-      if (!authUser) return [];
-      userId = authUser.id;
-      console.log(`Got user ID from auth: ${userId}`);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return [];
+      }
+      
+      userId = user.id;
     }
-
-    // Get all roles
-    console.log(`Querying user_roles for user: ${userId}`);
+    
+    console.log('Got user ID from auth:', userId);
+    console.log('Querying user_roles for user:', userId);
+    
+    // Query the user_roles table for this user
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId);
-
+      
     if (error) {
-      console.error('Error getting roles:', error);
+      console.error('Error fetching user roles:', error.message);
       return [];
     }
-
+    
     if (!data || data.length === 0) {
       console.log('No roles found for user');
       return [];
     }
     
     // Extract and return the roles
-    console.log('User roles result:', data);
-    return data.map(item => item.role as AppRole);
+    const roles = data.map(r => r.role as AppRole);
+    console.log('User roles:', roles);
+    return roles;
   } catch (error) {
-    console.error('Error in getUserRoles:', error);
+    console.error('Exception when getting user roles:', error);
     return [];
   }
 }
 
 /**
- * Adds a role to a user
+ * Assign a role to a user
+ * @param userId The user to assign the role to
+ * @param role The role to assign
+ * @returns True if successful, false otherwise
  */
-export async function addRole(role: AppRole, userId?: string): Promise<boolean> {
+export async function assignRole(userId: string, role: AppRole): Promise<boolean> {
   try {
-    console.log(`Adding role: ${role}`);
-    
-    // Get the current user if userId is not provided
-    if (!userId) {
-      const authUser = await getCurrentAuthUser();
-      if (!authUser) return false;
-      userId = authUser.id;
-      console.log(`Got user ID from auth: ${userId}`);
-    }
-
-    // Insert the role if it doesn't already exist
-    console.log(`Adding role ${role} for user ${userId}`);
+    // Check if the user already has this role
     const { data, error } = await supabase
       .from('user_roles')
-      .insert({ 
-        user_id: userId,
-        role: role 
-      })
-      .select();
-
-    if (error && error.code !== '23505') { // Ignore duplicate key errors
-      console.error('Error adding role:', error);
+      .select('*')
+      .eq('user_id', userId)
+      .eq('role', role)
+      .single();
+      
+    if (data) {
+      // User already has this role
+      return true;
+    }
+    
+    // Assign the role
+    const { error: insertError } = await supabase
+      .from('user_roles')
+      .insert({ user_id: userId, role });
+      
+    if (insertError) {
+      console.error('Error assigning role:', insertError.message);
       return false;
     }
-
-    console.log(`Role ${role} added successfully:`, data);
+    
     return true;
   } catch (error) {
-    console.error('Error in addRole:', error);
+    console.error('Exception when assigning role:', error);
     return false;
   }
 }
 
 /**
- * Removes a role from a user
+ * Remove a role from a user
+ * @param userId The user to remove the role from
+ * @param role The role to remove
+ * @returns True if successful, false otherwise
  */
-export async function removeRole(role: AppRole, userId?: string): Promise<boolean> {
+export async function removeRole(userId: string, role: AppRole): Promise<boolean> {
   try {
-    // Get the current user if userId is not provided
-    if (!userId) {
-      const authUser = await getCurrentAuthUser();
-      if (!authUser) return false;
-      userId = authUser.id;
-    }
-
-    // Delete the role
+    // Remove the role
     const { error } = await supabase
       .from('user_roles')
       .delete()
       .eq('user_id', userId)
       .eq('role', role);
-
+      
     if (error) {
-      console.error('Error removing role:', error);
+      console.error('Error removing role:', error.message);
       return false;
     }
-
+    
     return true;
   } catch (error) {
-    console.error('Error in removeRole:', error);
+    console.error('Exception when removing role:', error);
     return false;
   }
 }
 
 /**
- * Directly adds the admin role to a user - for debugging and setup
+ * Check if the current user is an admin
+ * @returns True if the user is an admin, false otherwise
  */
-export async function grantAdminRole(userId?: string): Promise<boolean> {
-  try {
-    console.log('Attempting to grant admin role');
-    
-    // Get the current user if userId is not provided
-    if (!userId) {
-      const authUser = await getCurrentAuthUser();
-      if (!authUser) {
-        console.error('No authenticated user found');
-        return false;
-      }
-      userId = authUser.id;
-    }
-    
-    console.log(`Granting admin role to user: ${userId}`);
-    
-    // Check if the role already exists
-    const { data: existingRole, error: checkError } = await supabase
-      .from('user_roles')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .single();
-    
-    if (checkError && checkError.code !== 'PGRST116') { // Not found error
-      console.error('Error checking existing role:', checkError);
-    }
-    
-    if (existingRole) {
-      console.log('Admin role already exists for this user');
-      return true;
-    }
-    
-    // Insert admin role for user
-    const { data, error } = await supabase
-      .from('user_roles')
-      .insert({ 
-        user_id: userId,
-        role: 'admin' 
-      })
-      .select();
-
-    if (error) {
-      console.error('Error granting admin role:', error);
-      return false;
-    }
-
-    console.log('Admin role granted successfully:', data);
-    return true;
-  } catch (error) {
-    console.error('Error in grantAdminRole:', error);
-    return false;
-  }
+export async function isAdmin(): Promise<boolean> {
+  return hasRole('admin');
 }
 
 /**
- * Check if a specific email has admin role (for troubleshooting)
+ * Grant admin role to a user
+ * @param userId The user to grant admin to
+ * @returns True if successful, false otherwise
+ */
+export async function grantAdminRole(userId: string): Promise<boolean> {
+  return assignRole(userId, 'admin');
+}
+
+/**
+ * Check if a user with a given email has the admin role
+ * @param email The email to check
+ * @returns True if the user is an admin, false otherwise
  */
 export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
-    console.log(`Checking if email ${email} has admin role`);
-    
-    // Use a safer approach to avoid deep type instantiation
-    // First try to find the user ID by email
-    let userId: string | null = null;
-    
-    // Option 1: Query the profiles table directly with explicit type casting
-    interface ProfileResult {
-      id: string;
-    }
-    
-    const { data: profiles, error: profileError } = await supabase
+    // First, find the user ID from the email
+    const { data: userData, error: userError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
-      .limit(1);
-    
-    if (profileError) {
-      console.error('Failed to get user by email:', profileError);
-    } else if (profiles && profiles.length > 0) {
-      userId = profiles[0].id;
-      console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
+      .single();
+      
+    if (userError || !userData) {
+      console.error('Error finding user by email:', userError?.message || 'User not found');
+      return false;
     }
     
-    // If we found a user ID, check for admin role
-    if (userId) {
-      return await hasRole('admin', userId);
-    }
+    const userId = userData.id;
     
-    // Second approach: Check currently logged-in user
-    const currentUser = await getCurrentAuthUser();
-    if (currentUser && currentUser.email === email) {
-      console.log(`Current user matches email: ${email}`);
-      return await hasRole('admin', currentUser.id);
-    }
-    
-    // If we can't find the user using either method
-    console.log(`Could not find user with email: ${email} using available methods`);
-    return false;
+    // Then check if this user has the admin role
+    return hasRole('admin', userId);
   } catch (error) {
-    console.error('Error in checkEmailForAdminRole:', error);
+    console.error('Exception when checking admin by email:', error);
     return false;
   }
 }

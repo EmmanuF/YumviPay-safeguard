@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
-import { Shield, Bug } from 'lucide-react';
+import { Shield, Bug, ChevronLeft } from 'lucide-react';
 import { useAdmin } from '@/hooks/useAdmin';
 import { isPlatform } from '@/utils/platform';
 import { grantAdminRole } from '@/utils/admin/adminRoles';
@@ -31,7 +31,27 @@ const Header: React.FC<HeaderProps> = ({
   const { isAdmin, isLoading: adminLoading, refreshAdminStatus } = useAdmin();
   const isNativeApp = isPlatform('native');
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showDebug, setShowDebug] = useState(false);
+  
+  // Don't render the Header component on auth pages
+  const isAuthPage = location.pathname === '/signin' || 
+                    location.pathname === '/signup' || 
+                    location.pathname === '/forgot-password' || 
+                    location.pathname === '/reset-password';
+
+  if (isAuthPage) {
+    return null;
+  }
+  
+  const handleBackClick = () => {
+    if (onBackClick) {
+      onBackClick();
+    } else {
+      navigate(-1);
+    }
+  };
   
   const handleSignOut = async () => {
     await signOut();
@@ -67,12 +87,34 @@ const Header: React.FC<HeaderProps> = ({
   const toggleDebug = () => setShowDebug(prev => !prev);
   
   return (
-    <header className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
-      <Link to="/" className="text-2xl font-bold text-gray-800">
-        Yumvi-Pay
-      </Link>
+    <header className={`${transparent ? 'bg-transparent' : 'bg-white'} shadow-md py-4 px-6 flex items-center justify-between`}>
+      <div className="flex items-center">
+        {showBackButton && (
+          <button 
+            onClick={handleBackClick}
+            className="mr-3 p-1 rounded-full hover:bg-gray-100"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        )}
+        
+        {!showBackButton && (
+          <Link to="/" className="text-2xl font-bold text-gray-800">
+            Yumvi-Pay
+          </Link>
+        )}
+        
+        {title && (
+          <h1 className="text-lg font-semibold text-gray-800">{title}</h1>
+        )}
+      </div>
+      
       <nav className="flex items-center">
-        {isLoggedIn ? (
+        {rightContent && rightContent}
+        {rightElement && rightElement}
+        
+        {isLoggedIn && (
           <>
             {/* Debug section */}
             {showDebug && (
@@ -129,7 +171,9 @@ const Header: React.FC<HeaderProps> = ({
               Sign Out
             </button>
           </>
-        ) : (
+        )}
+        
+        {!isLoggedIn && !isAuthPage && (
           <>
             <Link
               to="/signin"
