@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -255,29 +254,25 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // Simplifying our approach to avoid complex type inference
-    let userId: string | null = null;
-    
-    // First attempt: Look up the user by email in profiles table
-    const { data: profileData, error: profileError } = await supabase
+    // First approach: Look up the user by email in profiles table
+    const profileResult = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
       .single();
       
-    if (profileError) {
-      console.log(`Profile lookup error: ${profileError.message}`);
-    } else if (profileData) {
-      userId = profileData.id;
+    // If we found a user in profiles table
+    if (profileResult.data && profileResult.data.id) {
+      const userId = profileResult.data.id;
       console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
-    }
-    
-    // If we found a user ID, check for admin role
-    if (userId) {
       return await hasRole('admin', userId);
     }
     
-    // Second attempt: Check currently logged-in user
+    if (profileResult.error) {
+      console.log(`Profile lookup error: ${profileResult.error.message}`);
+    }
+    
+    // Second approach: Check currently logged-in user
     const currentUser = await getCurrentAuthUser();
     if (currentUser && currentUser.email === email) {
       console.log(`Current user matches email: ${email}`);
