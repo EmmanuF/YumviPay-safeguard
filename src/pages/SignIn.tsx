@@ -34,7 +34,7 @@ const SignInForm = ({ onSuccess }: { onSuccess: (redirectPath: string) => void }
   const { signIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const redirectTo = location.state?.redirectTo || "/dashboard";
-  const navigate = useNavigate(); // Add navigate here for "Forgot password" link
+  const navigate = useNavigate(); // Added navigate for "Forgot password" link
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -124,27 +124,36 @@ const SignInForm = ({ onSuccess }: { onSuccess: (redirectPath: string) => void }
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading: authLoading } = useAuth();
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
   const [redirectRequested, setRedirectRequested] = useState(false);
   const location = useLocation();
   const redirectTo = location.state?.redirectTo || "/dashboard";
   const { toast } = useToast();
 
+  // Initialize all hooks before any conditional returns
+  const [biometricChecked, setBiometricChecked] = useState(false);
+
   // Check if user is already logged in, redirect if they are
   useEffect(() => {
-    if (isLoggedIn && !redirectRequested) {
+    if (!authLoading && isLoggedIn && !redirectRequested) {
       console.log('User already logged in, redirecting to:', redirectTo);
       setRedirectRequested(true);
       navigate(redirectTo, { replace: true });
     }
-  }, [isLoggedIn, navigate, redirectTo, redirectRequested]);
+  }, [isLoggedIn, navigate, redirectTo, redirectRequested, authLoading]);
 
   useEffect(() => {
     // Check if biometric login is available (e.g., via local storage)
     const checkBiometricAvailability = async () => {
-      const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
-      setShowBiometricLogin(biometricAvailable);
+      try {
+        const biometricAvailable = localStorage.getItem('biometricLoginAvailable') === 'true';
+        setShowBiometricLogin(biometricAvailable);
+      } catch (error) {
+        console.error('Error checking biometric availability:', error);
+      } finally {
+        setBiometricChecked(true);
+      }
     };
     
     checkBiometricAvailability();
@@ -182,6 +191,35 @@ const SignIn = () => {
       });
   };
 
+  // Only render the component content if we're not redirecting due to already logged in state
+  if (authLoading) {
+    // Show loading state while checking auth
+    return (
+      <PageTransition>
+        <div className="flex flex-col min-h-screen bg-background">
+          <Header title="Sign In" showBackButton={true} />
+          <div className="flex-1 flex justify-center items-center">
+            <p>Checking authentication status...</p>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
+
+  // If logged in and redirecting, show minimal content to avoid unnecessary rendering
+  if (isLoggedIn && redirectRequested) {
+    return (
+      <PageTransition>
+        <div className="flex flex-col min-h-screen bg-background">
+          <Header title="Sign In" showBackButton={true} />
+          <div className="flex-1 flex justify-center items-center">
+            <p>Redirecting you...</p>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
+
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
@@ -196,7 +234,7 @@ const SignIn = () => {
             <SignInForm onSuccess={handleLoginSuccess} />
           </motion.div>
           
-          {showBiometricLogin && (
+          {biometricChecked && showBiometricLogin && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

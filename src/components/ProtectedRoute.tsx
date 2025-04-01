@@ -40,11 +40,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         // If not logged in, try refreshing auth state once
         console.log('Auth loaded but user not logged in, refreshing auth state');
-        const authState = await refreshAuthState();
+        await refreshAuthState();
         
         if (isMounted) {
           setIsChecking(false);
-          // Fixed: Check isLoggedIn from the updated context instead of the return value
           setShouldRedirect(!isLoggedIn);
         }
       } catch (error) {
@@ -70,21 +69,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
   }, [authLoading, isLoggedIn, location.pathname, refreshAuthState, toast]);
   
-  // Render based on current state - no early returns or conditionals that could affect hook order
-  if (authLoading || isChecking) {
-    return (
-      <LoadingState 
-        message="Verifying authentication..." 
-        submessage="Please wait while we check your login status" 
-      />
-    );
-  }
-  
-  if (!isLoggedIn && !isChecking) {
-    return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
-  }
-  
-  return <>{children}</>;
+  // Use a single return with conditional rendering to maintain hook order
+  return (
+    <>
+      {(authLoading || isChecking) ? (
+        <LoadingState 
+          message="Verifying authentication..." 
+          submessage="Please wait while we check your login status" 
+        />
+      ) : shouldRedirect ? (
+        <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />
+      ) : (
+        children
+      )}
+    </>
+  );
 };
 
 export default ProtectedRoute;

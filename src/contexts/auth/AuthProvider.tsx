@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import AuthContext from './AuthContext';
 import { getAuthState } from '@/services/auth';
@@ -62,6 +63,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshAuthState = useCallback(async () => {
     // Use functional state update for thread safety
     setState(prev => ({ ...prev, loading: true }));
+    
     try {
       const authState = await getAuthState();
       setState({
@@ -70,14 +72,22 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading: false,
         authError: null,
       });
-      return authState;
+      
+      return {
+        isAuthenticated: authState.isAuthenticated,
+        user: authState.user,
+        hasCompletedOnboarding: authState.hasCompletedOnboarding || false
+      };
     } catch (error) {
       console.error('Error refreshing auth state:', error);
+      
       setState(prev => ({
         ...prev,
         loading: false,
         authError: 'Failed to refresh authentication state',
       }));
+      
+      // Return a consistent object structure even on error
       return {
         isAuthenticated: false,
         user: null,

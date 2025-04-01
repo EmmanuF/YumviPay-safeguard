@@ -1,17 +1,23 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth'; 
 import { useToast } from '@/components/ui/use-toast';
 
 export const useSendMoneyPage = () => {
+  // Initialize all hooks at the top level
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading, user } = useAuth();
+  const { toast } = useToast();
+  
+  // Initialize all state variables
   const [authChecked, setAuthChecked] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [needsInitialData, setNeedsInitialData] = useState(true);
   const [redirectInProgress, setRedirectInProgress] = useState(false);
-  const { toast } = useToast();
+  
+  // Use a ref to track cleanup state for async operations
+  const isMountedRef = useRef(true);
   
   // Default to Cameroon if user country not available
   const defaultCountryCode = user?.country || 'CM';
@@ -20,16 +26,26 @@ export const useSendMoneyPage = () => {
   useEffect(() => {
     console.log('SendMoney: Auth status check effect running', { authLoading, isLoggedIn });
     
+    // Set isMounted for the cleanup function
+    isMountedRef.current = true;
+    
     // Only proceed when auth loading is complete
     if (!authLoading) {
       console.log('SendMoney: Auth check complete:', { isLoggedIn });
-      setAuthChecked(true);
+      if (isMountedRef.current) {
+        setAuthChecked(true);
+      }
     }
+    
+    // Cleanup function
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [authLoading, isLoggedIn]);
 
   // Handle redirect logic in a separate effect to avoid conditional hooks
   useEffect(() => {
-    if (authChecked && !authLoading && !isLoggedIn && !redirectInProgress) {
+    if (authChecked && !authLoading && !isLoggedIn && !redirectInProgress && isMountedRef.current) {
       console.log('SendMoney: User not logged in, redirecting to signin');
       setRedirectInProgress(true);
       
@@ -43,7 +59,7 @@ export const useSendMoneyPage = () => {
     }
     
     // Set pageLoading to false once auth is checked
-    if (authChecked) {
+    if (authChecked && isMountedRef.current) {
       console.log('SendMoney: Auth check finished, setting pageLoading to false');
       setPageLoading(false);
     }
