@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -254,16 +255,20 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // First approach: Look up the user by email in profiles table directly 
-    // with explicit type declaration to avoid TS2589 errors
-    const { data: profileData } = await supabase
+    // Avoid complex type inference by using a simpler query approach
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
       .limit(1);
     
-    if (profileData && profileData.length > 0) {
-      const userId = profileData[0].id;
+    if (profileError) {
+      console.error('Error looking up user by email:', profileError);
+      return false;
+    }
+    
+    if (profiles && profiles.length > 0) {
+      const userId = profiles[0].id;
       console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
       return await hasRole('admin', userId);
     }
