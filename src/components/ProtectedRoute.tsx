@@ -40,11 +40,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         // If not logged in, try refreshing auth state once
         console.log('Auth loaded but user not logged in, refreshing auth state');
-        await refreshAuthState();
+        const authResult = await refreshAuthState();
         
         if (isMounted) {
           setIsChecking(false);
-          setShouldRedirect(!isLoggedIn);
+          setShouldRedirect(!authResult.isAuthenticated);
         }
       } catch (error) {
         console.error('Error checking authentication:', error);

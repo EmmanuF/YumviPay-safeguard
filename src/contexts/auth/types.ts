@@ -4,7 +4,11 @@ export type AuthContextType = {
   isLoggedIn: boolean;
   user: any | null;
   loading: boolean;
-  refreshAuthState: () => Promise<void>;
+  refreshAuthState: () => Promise<{
+    isAuthenticated: boolean;
+    user: any | null;
+    hasCompletedOnboarding: boolean;
+  }>;
   authError: string | null;
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string, name: string) => Promise<any>;
