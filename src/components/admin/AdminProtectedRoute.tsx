@@ -17,6 +17,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   const location = useLocation();
   const { toast } = useToast();
   const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
+  const [hasShownToast, setHasShownToast] = useState<boolean>(false);
 
   // Check if on a native mobile platform - Run once on component mount
   useEffect(() => {
@@ -24,28 +25,48 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     const isMobile = isPlatform('native');
     setIsMobileDevice(isMobile);
     
-    // Show toast only if on mobile - moved inside useEffect to prevent render loop
-    if (isMobile) {
+    // We don't show the toast here, we'll do it conditionally below
+  }, []); // Empty dependency array ensures this runs only once
+  
+  // Handle mobile restriction toast - separate from platform check
+  useEffect(() => {
+    // Only show toast if we know it's a mobile device and haven't shown it yet
+    if (isMobileDevice === true && !hasShownToast) {
       toast({
         title: "Access Restricted",
         description: "Admin features are not accessible on mobile devices",
         variant: "destructive",
       });
+      setHasShownToast(true);
     }
-  }, []); // Empty dependency array ensures this runs only once
+  }, [isMobileDevice, toast, hasShownToast]);
   
-  // Separate effect for error handling to prevent render loops
+  // Handle auth error toast - separate effect
   useEffect(() => {
-    if (error) {
+    if (error && !hasShownToast) {
       toast({
         title: "Authentication Error",
         description: error,
         variant: "destructive",
       });
+      setHasShownToast(true);
     }
-  }, [error, toast]);
+  }, [error, toast, hasShownToast]);
 
-  // Show loading state until platform check is done
+  // Handle access denied toast - separate effect
+  useEffect(() => {
+    // Only show toast if we know user is not admin, is logged in, and haven't shown toast yet
+    if (isLoggedIn && !isAdmin && !adminLoading && !authLoading && !hasShownToast) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to access the admin panel",
+        variant: "destructive",
+      });
+      setHasShownToast(true);
+    }
+  }, [isAdmin, isLoggedIn, adminLoading, authLoading, toast, hasShownToast]);
+
+  // Show loading state until checks are complete
   if (isMobileDevice === null || authLoading || adminLoading) {
     return <LoadingState message="Verifying admin access..." submessage="Please wait while we check your credentials" />;
   }
@@ -62,15 +83,10 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
 
   // Not an admin
   if (!isAdmin) {
-    // Only show toast once rather than during render
-    toast({
-      title: "Access Denied",
-      description: "You don't have permission to access the admin panel",
-      variant: "destructive",
-    });
     return <Navigate to="/" replace />;
   }
 
+  console.log('Admin access granted, rendering admin content');
   // Admin access granted
   return <>{children}</>;
 };

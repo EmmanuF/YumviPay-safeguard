@@ -21,7 +21,7 @@ export const useAdmin = (): AdminState => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Function to check admin status - defined using useCallback to prevent recreating on each render
+  // Function to check admin status - strictly memoized to prevent infinite loops
   const checkAdminStatus = useCallback(async () => {
     if (!isLoggedIn || !user) {
       setIsAdmin(false);
@@ -34,17 +34,22 @@ export const useAdmin = (): AdminState => {
       setIsLoading(true);
       setError(null);
       
+      console.log('Checking admin status for user:', user?.id);
+      
       // Check if user has admin role
       const adminStatus = await hasRole('admin');
+      console.log('Admin status result:', adminStatus);
       setIsAdmin(adminStatus);
       
       // Get all roles for the user
       const userRoles = await getUserRoles();
+      console.log('User roles:', userRoles);
       setRoles(userRoles);
       
     } catch (err) {
       console.error('Error checking admin status:', err);
       setError('Failed to verify admin status');
+      setIsAdmin(false);
     } finally {
       setIsLoading(false);
     }
@@ -57,6 +62,7 @@ export const useAdmin = (): AdminState => {
   
   // Check admin status when authentication state changes
   useEffect(() => {
+    console.log('Auth state changed, checking admin status. isLoggedIn:', isLoggedIn);
     checkAdminStatus();
   }, [isLoggedIn, user, checkAdminStatus]);
   
