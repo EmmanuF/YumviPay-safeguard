@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { AuthProvider } from '@/contexts/auth'; 
@@ -56,6 +56,13 @@ import KadoConnectionDebugger from '@/components/kado/KadoConnectionDebugger';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
+// Import new components
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ContentManagement from './pages/admin/ContentManagement';
+import FeatureFlags from './pages/admin/FeatureFlags';
+
 function App() {
   return (
     <AuthProvider>
@@ -63,7 +70,7 @@ function App() {
         <LocaleProvider>
           <NotificationProvider>
             <HelmetProvider>
-              <BrowserRouter>
+              <Router>
                 <AppInitializer />
                 <SessionTimeout />
                 <Routes>
@@ -178,6 +185,19 @@ function App() {
                   {/* Country Pages */}
                   <Route path="/country/:countryId" element={<MobileAppLayout><CountryPage /></MobileAppLayout>} />
                   
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={
+                    <AdminProtectedRoute>
+                      <AdminLayout />
+                    </AdminProtectedRoute>
+                  }>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="content" element={<ContentManagement />} />
+                    <Route path="feature-flags" element={<FeatureFlags />} />
+                    {/* Additional admin routes will be added here */}
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                  
                   {/* 404 Not Found */}
                   <Route path="*" element={<MobileAppLayout><NotFound /></MobileAppLayout>} />
                   
@@ -187,7 +207,7 @@ function App() {
                 </Routes>
                 <Toaster />
                 <SonnerToaster position="top-center" richColors closeButton />
-              </BrowserRouter>
+              </Router>
             </HelmetProvider>
           </NotificationProvider>
         </LocaleProvider>

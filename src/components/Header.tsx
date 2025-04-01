@@ -1,75 +1,65 @@
-
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
-import HeaderRight from './HeaderRight';
-import LocaleSwitcher from './LocaleSwitcher';
-import { useLocale } from '@/contexts/LocaleContext';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/auth';
+import { Shield } from 'lucide-react';
+import { useAdmin } from '@/hooks/useAdmin';
+import { isPlatform } from '@/utils/platform';
 
-interface HeaderProps {
-  title?: string;
-  showBackButton?: boolean;
-  onBackClick?: () => void;
-  rightElement?: React.ReactNode;
-  rightContent?: React.ReactNode; // Added to support both naming conventions
-  transparent?: boolean;
-  showNotification?: boolean;
-}
-
-const Header: React.FC<HeaderProps> = ({
-  title,
-  showBackButton = false,
-  onBackClick,
-  rightElement,
-  rightContent, // Added to support both naming conventions
-  transparent = false,
-  showNotification = true,
-}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { t } = useLocale();
-  const isSendMoneyPage = location.pathname.includes('/send');
-
-  const handleBackClick = () => {
-    if (onBackClick) {
-      onBackClick();
-    } else {
-      navigate(-1);
-    }
+const Header = () => {
+  const { isLoggedIn, user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
+  const isNativeApp = isPlatform('native');
+  
+  const handleSignOut = async () => {
+    await signOut();
   };
-
-  // Use either rightElement or rightContent, prioritizing rightElement if both are provided
-  const rightComponent = rightElement || rightContent;
-
-  // Adjust z-index to be below the progress bar when in send money flow
-  const zIndexClass = isSendMoneyPage ? 'z-30' : 'z-50';
-
-  // If title is a translation key, translate it; otherwise, use it directly
-  const displayTitle = title ? (title.includes('.') ? t(title) : title) : t('app.name');
-
+  
   return (
-    <header className={`sticky top-0 ${zIndexClass} ${transparent ? 'bg-transparent' : 'bg-white/10 backdrop-blur-md border-b border-white/20 shadow-sm'}`}>
-      <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
-        <div className="flex items-center">
-          {showBackButton && (
+    <header className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
+      <Link to="/" className="text-2xl font-bold text-gray-800">
+        Yumvi-Pay
+      </Link>
+      <nav className="flex items-center">
+        {isLoggedIn ? (
+          <>
+            {/* Add admin link only when not on native app */}
+            {isAdmin && !isNativeApp && (
+              <Link 
+                to="/admin" 
+                className="flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600 mr-4"
+              >
+                <Shield className="w-4 h-4 mr-1" />
+                Admin
+              </Link>
+            )}
+            <span className="text-gray-600 mr-4">
+              {user?.name || user?.email || 'User'}
+            </span>
             <button
-              onClick={handleBackClick}
-              className="mr-3 rounded-full p-1.5 hover:bg-white/10 transition-colors"
-              aria-label={t('actions.back')}
+              onClick={handleSignOut}
+              className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
-              <ChevronLeft className="h-6 w-6 text-white" />
+              Sign Out
             </button>
-          )}
-          <h1 className="text-lg font-semibold text-white">
-            {displayTitle}
-          </h1>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {showNotification && <LocaleSwitcher />}
-          {rightComponent || <HeaderRight showNotification={showNotification} />}
-        </div>
-      </div>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/signin"
+              className="text-sm font-medium text-gray-700 hover:text-indigo-600 mr-4"
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/signup"
+              className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
+      </nav>
     </header>
   );
 };
