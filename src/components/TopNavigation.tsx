@@ -17,14 +17,8 @@ const TopNavigation: React.FC = () => {
   const [isNavigating, setIsNavigating] = useState(false);
   const isMobile = useIsMobile();
   
-  // Don't show on mobile or on home page or auth pages
-  const isHomePage = location.pathname === '/';
-  const isAuthPage = location.pathname === '/signin' || 
-                    location.pathname === '/signup' || 
-                    location.pathname === '/forgot-password' || 
-                    location.pathname === '/reset-password';
-  
-  if (isMobile || isHomePage || isAuthPage) {
+  // Don't show on mobile or on home page
+  if (isMobile || location.pathname === '/') {
     return null;
   }
   

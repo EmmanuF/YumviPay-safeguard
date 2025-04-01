@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { AuthProvider } from '@/contexts/auth'; 
@@ -56,13 +56,6 @@ import KadoConnectionDebugger from '@/components/kado/KadoConnectionDebugger';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
-// Import new components
-import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ContentManagement from './pages/admin/ContentManagement';
-import FeatureFlags from './pages/admin/FeatureFlags';
-
 function App() {
   return (
     <AuthProvider>
@@ -70,7 +63,7 @@ function App() {
         <LocaleProvider>
           <NotificationProvider>
             <HelmetProvider>
-              <Router>
+              <BrowserRouter>
                 <AppInitializer />
                 <SessionTimeout />
                 <Routes>
@@ -80,8 +73,6 @@ function App() {
                       <Home />
                     </MobileAppLayout>
                   } />
-                  
-                  {/* Auth Routes - All should use MobileAppLayout consistently */}
                   <Route path="/signin" element={
                     <MobileAppLayout hideFooter>
                       <SignIn />
@@ -92,17 +83,6 @@ function App() {
                       <SignUp />
                     </MobileAppLayout>
                   } />
-                  <Route path="/forgot-password" element={
-                    <MobileAppLayout hideFooter>
-                      <ForgotPassword />
-                    </MobileAppLayout>
-                  } />
-                  <Route path="/reset-password" element={
-                    <MobileAppLayout hideFooter>
-                      <ResetPassword />
-                    </MobileAppLayout>
-                  } />
-                  
                   {/* Redirect dashboard to history */}
                   <Route path="/dashboard" element={
                     <Navigate to="/history" replace />
@@ -198,25 +178,16 @@ function App() {
                   {/* Country Pages */}
                   <Route path="/country/:countryId" element={<MobileAppLayout><CountryPage /></MobileAppLayout>} />
                   
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={
-                    <AdminProtectedRoute>
-                      <AdminLayout />
-                    </AdminProtectedRoute>
-                  }>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="content" element={<ContentManagement />} />
-                    <Route path="feature-flags" element={<FeatureFlags />} />
-                    {/* Additional admin routes will be added here */}
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
-                  
                   {/* 404 Not Found */}
                   <Route path="*" element={<MobileAppLayout><NotFound /></MobileAppLayout>} />
+                  
+                  {/* Add the new routes for ForgotPassword and ResetPassword */}
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
                 <Toaster />
                 <SonnerToaster position="top-center" richColors closeButton />
-              </Router>
+              </BrowserRouter>
             </HelmetProvider>
           </NotificationProvider>
         </LocaleProvider>

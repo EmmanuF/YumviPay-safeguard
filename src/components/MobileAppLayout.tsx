@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BottomNavigation from './BottomNavigation';
 import TopNavigation from './TopNavigation';
 import { useNetwork } from '@/contexts/NetworkContext';
-import { WifiOff } from 'lucide-react';
+import { AlertTriangle, WifiOff } from 'lucide-react';
 import { useDeviceOptimizations } from '@/hooks/useDeviceOptimizations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ScrollToTopButton from './ScrollToTopButton';
@@ -53,10 +53,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
     : 'glass-effect backdrop-blur-xl bg-gradient-to-b from-primary-100/80 to-white/70 border border-white/30 shadow-[0_8px_32px_rgba(110,54,229,0.15)]';
   
   const isHomePage = location.pathname === '/';
-  const isAuthPage = location.pathname === '/signin' || location.pathname === '/signup' || 
-                     location.pathname === '/forgot-password' || location.pathname === '/reset-password';
-  
-  const showMobileHeader = isMobile && !isHomePage && !isAuthPage;
+  const showMobileHeader = isMobile && !isHomePage;
   
   const isSendMoneyPage = location.pathname.includes('/send');
   const isTransactionPage = location.pathname.includes('/transaction');
@@ -70,7 +67,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
 
   const contentPaddingClass = isMobile && isSendMoneyPage ? 'pb-24' : '';
 
-  const hideHeader = isSendMoneyPage || isAuthPage;
+  const hideHeader = isSendMoneyPage;
 
   const shouldShowLocaleSwitcher = !isProfilePage;
 
@@ -102,8 +99,7 @@ const MobileAppLayout: React.FC<MobileAppLayoutProps> = ({ children, hideFooter 
 
   return (
     <div className={`flex flex-col min-h-dvh ${pageBackground} ${contentPaddingClass}`}>
-      {/* Render TopNavigation only for desktop and when not on auth pages */}
-      {!isMobile && !isAuthPage && <TopNavigation />}
+      <TopNavigation />
       
       {showMobileHeader && !hideHeader && (
         <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">

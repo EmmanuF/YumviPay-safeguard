@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import Header from '@/components/Header';
 import { useAuth } from '@/contexts/auth';
 import BiometricLogin from '@/components/auth/BiometricLogin';
 import PageTransition from '@/components/PageTransition';
@@ -121,13 +122,14 @@ const SignIn = () => {
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">
+        <Header title="Sign In" showBackButton={true} />
+        
         <div className="flex-1 p-4 flex flex-col justify-center max-w-md mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
