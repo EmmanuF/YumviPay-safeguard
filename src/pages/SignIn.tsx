@@ -34,18 +34,11 @@ const SignIn = () => {
   const { signIn, isLoggedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+  const [redirectRequested, setRedirectRequested] = useState(false);
 
   // Get the page they were trying to access
   const redirectTo = location.state?.redirectTo || "/dashboard";
-
-  // Check if user is already logged in, redirect if they are
-  useEffect(() => {
-    if (isLoggedIn) {
-      console.log('User already logged in, redirecting to:', redirectTo);
-      navigate(redirectTo, { replace: true });
-    }
-  }, [isLoggedIn, navigate, redirectTo]);
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,6 +46,15 @@ const SignIn = () => {
       password: "",
     },
   });
+
+  // Check if user is already logged in, redirect if they are
+  useEffect(() => {
+    if (isLoggedIn && !redirectRequested) {
+      console.log('User already logged in, redirecting to:', redirectTo);
+      setRedirectRequested(true);
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isLoggedIn, navigate, redirectTo, redirectRequested]);
 
   useEffect(() => {
     // Check if biometric login is available (e.g., via local storage)
@@ -119,6 +121,7 @@ const SignIn = () => {
       });
   };
 
+  // Render the component without early returns that might disrupt hook ordering
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">

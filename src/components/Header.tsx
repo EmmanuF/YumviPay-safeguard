@@ -28,7 +28,11 @@ const Header: React.FC<HeaderProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLocale();
+  
+  // Always define these variables, don't use early returns
   const isSendMoneyPage = location.pathname.includes('/send');
+  const zIndexClass = isSendMoneyPage ? 'z-30' : 'z-50';
+  const displayTitle = title ? (title.includes('.') ? t(title) : title) : t('app.name');
 
   const handleBackClick = () => {
     if (onBackClick) {
@@ -40,12 +44,6 @@ const Header: React.FC<HeaderProps> = ({
 
   // Use either rightElement or rightContent, prioritizing rightElement if both are provided
   const rightComponent = rightElement || rightContent;
-
-  // Adjust z-index to be below the progress bar when in send money flow
-  const zIndexClass = isSendMoneyPage ? 'z-30' : 'z-50';
-
-  // If title is a translation key, translate it; otherwise, use it directly
-  const displayTitle = title ? (title.includes('.') ? t(title) : title) : t('app.name');
 
   return (
     <header className={`sticky top-0 ${zIndexClass} ${transparent ? 'bg-transparent' : 'bg-white/10 backdrop-blur-md border-b border-white/20 shadow-sm'}`}>

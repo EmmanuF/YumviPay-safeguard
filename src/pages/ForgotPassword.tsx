@@ -68,6 +68,8 @@ const ForgotPassword = () => {
     }
   };
 
+  // Always render the form content, but conditionally show different views
+  // This ensures consistent hook execution order
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen bg-background">

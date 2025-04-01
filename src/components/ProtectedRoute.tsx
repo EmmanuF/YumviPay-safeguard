@@ -13,6 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isLoggedIn, loading: authLoading, refreshAuthState, authError } = useAuth();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const { toast } = useToast();
   
   // Simplified auth checking that reduces redundant API calls
@@ -24,6 +25,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       if (isLoggedIn && !authLoading) {
         console.log('User is already logged in according to context, proceeding to protected content');
         setIsChecking(false);
+        setShouldRedirect(false);
         return;
       }
       
@@ -38,10 +40,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         console.log('Auth loaded but user not logged in, refreshing auth state');
         await refreshAuthState();
         setIsChecking(false);
+        
+        // After refresh, if still not logged in, redirect
+        if (!isLoggedIn) {
+          setShouldRedirect(true);
+        }
       }
     } catch (error) {
       console.error('Error checking authentication:', error);
       setIsChecking(false);
+      setShouldRedirect(true);
       
       toast({
         title: "Authentication Error",
@@ -55,23 +63,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     checkAuth();
   }, [checkAuth, authLoading, isLoggedIn]);
   
-  // Show loading state while checking authentication or while auth is loading
-  if (authLoading || isChecking) {
-    return <LoadingState 
-      message="Verifying authentication..." 
-      submessage="Please wait while we check your login status" 
-    />;
-  }
-  
-  // Redirect to signin if not authenticated
-  if (!isLoggedIn) {
-    console.log('Not authenticated, redirecting to signin from', location.pathname);
-    // Store the path they were trying to access
-    return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
-  }
-  
-  console.log('Authenticated, rendering protected content for', location.pathname);
-  return <>{children}</>;
+  // Use JSX conditionals rather than early returns to maintain hook consistency
+  return (
+    <>
+      {(authLoading || isChecking) && (
+        <LoadingState 
+          message="Verifying authentication..." 
+          submessage="Please wait while we check your login status" 
+        />
+      )}
+      
+      {!authLoading && !isChecking && shouldRedirect && (
+        <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />
+      )}
+      
+      {!authLoading && !isChecking && !shouldRedirect && isLoggedIn && (
+        <>{children}</>
+      )}
+    </>
+  );
 };
 
 export default ProtectedRoute;

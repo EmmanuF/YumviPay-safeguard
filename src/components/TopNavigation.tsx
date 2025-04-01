@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Send, Clock, Users, User } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -17,8 +17,12 @@ const TopNavigation: React.FC = () => {
   const [isNavigating, setIsNavigating] = useState(false);
   const isMobile = useIsMobile();
   
-  // Don't show on mobile or on home page
-  if (isMobile || location.pathname === '/') {
+  // Define paths where we don't want to show this navigation
+  const hidePaths = ['/', '/signin', '/signup', '/forgot-password', '/reset-password'];
+  const shouldHideNav = hidePaths.includes(location.pathname) || isMobile;
+  
+  // Return null if we should hide but maintain hooks consistency
+  if (shouldHideNav) {
     return null;
   }
   
