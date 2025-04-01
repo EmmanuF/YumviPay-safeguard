@@ -1,7 +1,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { hasRole, AppRole, getUserRoles } from '@/utils/admin/adminRoles';
+import { hasRole, AppRole, getUserRoles, grantAdminRole } from '@/utils/admin/adminRoles';
 import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminState {
   isAdmin: boolean;
@@ -10,10 +11,15 @@ export interface AdminState {
   roles: AppRole[];
   refreshAdminStatus: () => Promise<void>;
   userId: string | null;
+  debugInfo: {
+    lastChecked: string;
+    email?: string | null;
+    roleCheckResult?: boolean;
+  };
 }
 
 /**
- * Hook to check and manage admin status
+ * Hook to check and manage admin status with improved debugging
  */
 export const useAdmin = (): AdminState => {
   const { isLoggedIn, user } = useAuth();
@@ -22,6 +28,9 @@ export const useAdmin = (): AdminState => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<AdminState['debugInfo']>({
+    lastChecked: 'Not checked yet'
+  });
   
   // Function to check admin status - strictly memoized to prevent infinite loops
   const checkAdminStatus = useCallback(async () => {
@@ -31,6 +40,11 @@ export const useAdmin = (): AdminState => {
       setRoles([]);
       setUserId(null);
       setIsLoading(false);
+      setDebugInfo({
+        lastChecked: new Date().toISOString(),
+        email: null,
+        roleCheckResult: false
+      });
       return;
     }
     
@@ -40,10 +54,30 @@ export const useAdmin = (): AdminState => {
       setUserId(user.id);
       
       console.log('Checking admin status for user:', user.id, user.email);
+      setDebugInfo(prev => ({
+        ...prev,
+        lastChecked: new Date().toISOString(),
+        email: user.email
+      }));
+      
+      // First check directly in the database to debug
+      const { data: directRoleCheck, error: directRoleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin');
+      
+      console.log('Direct DB Role check result:', directRoleCheck, directRoleError);
       
       // Check if user has admin role
       const adminStatus = await hasRole('admin');
       console.log('Admin status result:', adminStatus);
+      
+      setDebugInfo(prev => ({
+        ...prev,
+        roleCheckResult: adminStatus
+      }));
+      
       setIsAdmin(adminStatus);
       
       // Get all roles for the user
@@ -55,6 +89,10 @@ export const useAdmin = (): AdminState => {
       console.error('Error checking admin status:', err);
       setError('Failed to verify admin status');
       setIsAdmin(false);
+      setDebugInfo(prev => ({
+        ...prev, 
+        error: err instanceof Error ? err.message : String(err)
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +116,8 @@ export const useAdmin = (): AdminState => {
     error,
     roles,
     refreshAdminStatus,
-    userId
+    userId,
+    debugInfo
   };
 };
 
