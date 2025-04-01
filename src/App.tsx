@@ -80,6 +80,8 @@ function App() {
                       <Home />
                     </MobileAppLayout>
                   } />
+                  
+                  {/* Auth Routes - All should use MobileAppLayout consistently */}
                   <Route path="/signin" element={
                     <MobileAppLayout hideFooter>
                       <SignIn />
@@ -90,6 +92,17 @@ function App() {
                       <SignUp />
                     </MobileAppLayout>
                   } />
+                  <Route path="/forgot-password" element={
+                    <MobileAppLayout hideFooter>
+                      <ForgotPassword />
+                    </MobileAppLayout>
+                  } />
+                  <Route path="/reset-password" element={
+                    <MobileAppLayout hideFooter>
+                      <ResetPassword />
+                    </MobileAppLayout>
+                  } />
+                  
                   {/* Redirect dashboard to history */}
                   <Route path="/dashboard" element={
                     <Navigate to="/history" replace />
@@ -200,10 +213,6 @@ function App() {
                   
                   {/* 404 Not Found */}
                   <Route path="*" element={<MobileAppLayout><NotFound /></MobileAppLayout>} />
-                  
-                  {/* Add the new routes for ForgotPassword and ResetPassword */}
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
                 <Toaster />
                 <SonnerToaster position="top-center" richColors closeButton />
