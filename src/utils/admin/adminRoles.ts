@@ -254,22 +254,16 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // First approach: Look up the user by email in profiles table
-    const profileResult = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single();
-      
-    // If we found a user in profiles table
-    if (profileResult.data && profileResult.data.id) {
-      const userId = profileResult.data.id;
+    // First approach: Look up the user by email in profiles table directly with raw SQL
+    // to avoid complex type inference that causes TS2589 errors
+    const profileQuery = await supabase
+      .rpc('get_user_id_by_email', { user_email: email })
+      .returns<{ user_id: string } | null>();
+    
+    if (profileQuery.data && profileQuery.data.user_id) {
+      const userId = profileQuery.data.user_id;
       console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
       return await hasRole('admin', userId);
-    }
-    
-    if (profileResult.error) {
-      console.log(`Profile lookup error: ${profileResult.error.message}`);
     }
     
     // Second approach: Check currently logged-in user
