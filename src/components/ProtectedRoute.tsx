@@ -64,24 +64,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [checkAuth, authLoading, isLoggedIn]);
   
   // Use JSX conditionals rather than early returns to maintain hook consistency
-  return (
-    <>
-      {(authLoading || isChecking) && (
-        <LoadingState 
-          message="Verifying authentication..." 
-          submessage="Please wait while we check your login status" 
-        />
-      )}
-      
-      {!authLoading && !isChecking && shouldRedirect && (
-        <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />
-      )}
-      
-      {!authLoading && !isChecking && !shouldRedirect && isLoggedIn && (
-        <>{children}</>
-      )}
-    </>
-  );
+  if (authLoading || isChecking) {
+    return (
+      <LoadingState 
+        message="Verifying authentication..." 
+        submessage="Please wait while we check your login status" 
+      />
+    );
+  }
+  
+  if (!authLoading && !isChecking && shouldRedirect) {
+    return <Navigate to="/signin" state={{ redirectTo: location.pathname }} replace />;
+  }
+  
+  if (!authLoading && !isChecking && !shouldRedirect && isLoggedIn) {
+    return <>{children}</>;
+  }
+  
+  // Fallback render - should not normally reach here, but added for safety
+  return null;
 };
 
 export default ProtectedRoute;

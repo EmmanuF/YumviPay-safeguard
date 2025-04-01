@@ -75,6 +75,7 @@ const Navigation: React.FC<NavigationProps> = ({ onGetStarted }) => {
     }, 50);
   };
   
+  // Use conditional rendering instead of early return
   if (isMobile && location.pathname !== '/') {
     return null;
   }

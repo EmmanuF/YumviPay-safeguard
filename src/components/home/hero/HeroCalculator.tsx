@@ -8,29 +8,6 @@ import { useLocale } from '@/contexts/LocaleContext';
 import { useExchangeRateCalculator } from '@/hooks/useExchangeRateCalculator';
 import { CalculatorInputs, ExchangeRateInfo, SendButton } from './calculator';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-};
-
 const HeroCalculator: React.FC = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -89,6 +66,29 @@ const HeroCalculator: React.FC = () => {
   // Enhanced spacing for mobile
   const calculatorPadding = isMobile ? "p-5 md:p-8" : "p-6 md:p-8";
   const calculatorMargin = isMobile ? "mb-5 md:mb-6" : "mb-6";
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
+      },
+    },
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.7,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   
   return (
     <motion.div

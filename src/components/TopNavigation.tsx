@@ -21,11 +21,6 @@ const TopNavigation: React.FC = () => {
   const hidePaths = ['/', '/signin', '/signup', '/forgot-password', '/reset-password'];
   const shouldHideNav = hidePaths.includes(location.pathname) || isMobile;
   
-  // Return null if we should hide but maintain hooks consistency
-  if (shouldHideNav) {
-    return null;
-  }
-  
   const navItems = [
     { 
       path: '/', 
@@ -60,6 +55,11 @@ const TopNavigation: React.FC = () => {
   // Filter navItems based on authentication status
   const displayNavItems = navItems.filter(item => !item.requiresAuth || isLoggedIn);
 
+  // Use conditional rendering instead of early return
+  if (shouldHideNav) {
+    return null;
+  }
+  
   return (
     <motion.div
       initial={{ y: -20, opacity: 0 }}
