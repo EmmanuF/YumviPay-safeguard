@@ -3,9 +3,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import { PostgrestError } from '@supabase/supabase-js';
 import { useAuth } from '@/contexts/auth';
+import { Database } from '@/integrations/supabase/types';
 
-// Define available roles in the application
-export type AppRole = 'admin' | 'user' | 'support' | 'finance';
+// Define available roles in the application based on the database schema
+// Note: This matches the Supabase enum 'app_role' which only allows 'admin' or 'user'
+export type AppRole = Database['public']['Enums']['app_role'];
 
 // Role utility functions
 
@@ -91,7 +93,7 @@ export async function getUserRoles(userId?: string): Promise<AppRole[]> {
     }
     
     // Extract and return the roles
-    const roles = data.map(r => r.role as AppRole);
+    const roles = data.map(r => r.role);
     console.log('User roles:', roles);
     return roles;
   } catch (error) {
