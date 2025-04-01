@@ -255,20 +255,26 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // First attempt: Query profiles table directly
-    const profileQuery = await supabase
+    // Simplifying our approach to avoid complex type inference
+    let userId: string | null = null;
+    
+    // First attempt: Look up the user by email in profiles table
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
-      .maybeSingle();
-    
-    // Handle the profile query result
-    if (profileQuery.data && typeof profileQuery.data === 'object' && 'id' in profileQuery.data) {
-      const userId = profileQuery.data.id as string;
+      .single();
+      
+    if (profileError) {
+      console.log(`Profile lookup error: ${profileError.message}`);
+    } else if (profileData) {
+      userId = profileData.id;
       console.log(`Found user with email in profiles: ${email}, id: ${userId}`);
+    }
+    
+    // If we found a user ID, check for admin role
+    if (userId) {
       return await hasRole('admin', userId);
-    } else {
-      console.log(`Profile lookup error or not found: ${profileQuery.error?.message || 'No data'}`);
     }
     
     // Second attempt: Check currently logged-in user
