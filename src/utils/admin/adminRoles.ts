@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -254,28 +255,28 @@ export async function checkEmailForAdminRole(email: string): Promise<boolean> {
   try {
     console.log(`Checking if email ${email} has admin role`);
     
-    // First attempt: Check the profiles table directly
-    // This avoids using the auth.admin API which might not be available
-    const { data: profileData, error: profileError } = await supabase
+    // First attempt: Use explicit typing for the database query to avoid TypeScript errors
+    type ProfileQueryResult = { id: string } | null;
+    
+    const { data, error } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
       .maybeSingle();
     
-    if (!profileError && profileData?.id) {
+    // Handle the profile query result
+    const profileData = data as ProfileQueryResult;
+    
+    if (!error && profileData && profileData.id) {
       console.log(`Found user with email in profiles: ${email}, id: ${profileData.id}`);
       return await hasRole('admin', profileData.id);
     } else {
-      console.log(`Profile lookup error or not found: ${profileError?.message}`);
+      console.log(`Profile lookup error or not found: ${error?.message}`);
     }
     
-    // Second attempt: Try to get user data from auth.users via a custom function
-    // This requires a database function that can access auth.users
-    // Since we can't use admin.listUsers from client-side
-    
-    // For now, as a fallback, let's check currently logged-in user
+    // Second attempt: Check currently logged-in user
     const currentUser = await getCurrentAuthUser();
-    if (currentUser?.email === email) {
+    if (currentUser && currentUser.email === email) {
       console.log(`Current user matches email: ${email}`);
       return await hasRole('admin', currentUser.id);
     }
